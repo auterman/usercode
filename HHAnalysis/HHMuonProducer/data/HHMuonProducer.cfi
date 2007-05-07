@@ -1,0 +1,23 @@
+#
+# MuonProducer
+#
+module HHMuonProducer = HHMuonProducer{          
+	#
+	# Muon collection
+	#
+	string Muon_type       = "globalMuons"
+	string Muon_label      = ""
+
+
+    	#
+	# General stuff
+	#
+	untracked bool control_plots = true
+
+	#
+	# selection cuts
+	#
+	untracked double eta    = 2.0
+	untracked double ptmin  = 2.0
+	untracked double chi2   = 2.0
+}

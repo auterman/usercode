@@ -1,0 +1,63 @@
+<FrameworkJobReport>
+
+
+<File>
+
+<State  Value="closed"/>
+<LFN></LFN>
+<PFN>test.root</PFN>
+<Catalog>file:PoolFileCatalog.xml</Catalog>
+<ModuleLabel>OutputModule</ModuleLabel>
+<GUID>94D68B0B-21FA-DB11-8BF0-0030482DBC70</GUID>
+<Runs>
+  <Run>1</Run>
+</Runs>
+<Branches>
+  <Branch>recoMuons_HHMuonProducer_SelectedMuons_USER.</Branch>
+</Branches>
+<OutputModuleClass>PoolOutputModule</OutputModuleClass>
+<TotalEvents>250</TotalEvents>
+
+
+<Inputs>
+
+<Input>
+
+  <LFN>
+</LFN>
+
+  <PFN>
+file:/rdata/uhh-data01/scratch/auterman/data/131_mSUGRA_210_285_10_1_inclusive/CMSSW131_Pythia_MSUGRA_210_285_10_1_INCL_1.root
+</PFN>
+
+</Input>
+
+</Inputs>
+
+</File>
+
+<InputFile>
+<State  Value="closed"/>
+<LFN></LFN>
+<PFN>file:/rdata/uhh-data01/scratch/auterman/data/131_mSUGRA_210_285_10_1_inclusive/CMSSW131_Pythia_MSUGRA_210_285_10_1_INCL_1.root</PFN>
+<Catalog></Catalog>
+<ModuleLabel>source</ModuleLabel>
+<GUID></GUID>
+<Runs>
+  <Run>1</Run>
+</Runs>
+<Branches>
+</Branches>
+<InputSourceClass>PoolSource</InputSourceClass>
+<EventsRead>250</EventsRead>
+</InputFile>
+<StorageStatistics>
+
+Storage parameters: adaptor: true Stats:true Buffering:false Caching:0,0
+Storage statistics: file/close=3/3/0MB/0.178736ms/0.028064ms/0.121456ms; file/destruct=3/3/0MB/0.179408ms/0.01104ms/0.156976ms; file/flush=43/43/0MB/188.344ms/2.98621ms/9.74384ms; file/open=4/4/0MB/30.883ms/0.70408ms/22.2488ms; file/position=409/409/0MB/4.83374ms/0.003232ms/0.06584ms; file/read=335/335/5.49707MB/52.7673ms/0.006784ms/41.7068ms; file/write=407/407/0.680626MB/128.908ms/0.010304ms/29.2336ms; tstoragefile/close=3/3/0MB/0.4524ms/0.054496ms/0.34272ms; tstoragefile/construct=4/4/0MB/115278ms/17.1615ms/111788ms; tstoragefile/flush=43/43/0MB/188.767ms/2.99325ms/9.75462ms; tstoragefile/read=335/335/5.49707MB/60.9312ms/0.015408ms/41.7788ms; tstoragefile/readu=0/0/0MB/0ms/100000ms/0ms; tstoragefile/readx=335/335/5.49707MB/53.9731ms/0.009296ms/41.7262ms; tstoragefile/seek=742/742/0MB/8.0093ms/0.001872ms/0.034448ms; tstoragefile/seekx=381/381/0MB/6.01606ms/0.006032ms/0.072288ms; tstoragefile/stat=7/7/0MB/0.31432ms/0.019504ms/0.148208ms; tstoragefile/write=407/407/0.680626MB/144.074ms/0.024192ms/29.2561ms; tstoragefile/writex=407/407/0.680626MB/131.071ms/0.013264ms/29.2374ms; tfile/read=?/?/5.49707MB/?ms/?ms/?ms; tfile/write=?/?/0.680626MB/?ms/?ms/?ms
+
+</StorageStatistics>
+
+<GeneratorInfo>
+</GeneratorInfo>
+</FrameworkJobReport>

@@ -1,0 +1,14 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/ServiceRegistry>
+<use name=DataFormats/JetReco>
+<flags SEAL_PLUGIN_NAME="HHAnalysisHHJetProducer">
+<export>
+   <lib name=HHAnalysisHHJetProducer>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=FWCore/ServiceRegistry>   
+   <use name=DataFormats/JetReco>
+</export>

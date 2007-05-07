@@ -1,0 +1,23 @@
+
+=============================================
+
+MessageLogger Summary
+
+ type     category        sev    module        subroutine        count    total
+ ---- -------------------- -- ---------------- ----------------  -----    -----
+    1 FwkJob               -i PostModule                            11       11
+    2 FwkReport            -i main_input:sourc                     250*     250
+    3 Root_Warning         -w PoolSource:sourc TClassTable::Add     11       11
+
+* Some occurrences of this message were suppressed in all logs, due to limits.
+
+ type    category    Examples: run/evt        run/evt          run/evt
+ ---- -------------------- ---------------- ---------------- ----------------
+    1 FwkJob               1/250            1/250            1/250
+    2 FwkReport            BeforeEvents     1/1              1/249
+    3 Root_Warning         pre-events       pre-events       pre-events
+
+Severity    # Occurrences   Total Occurrences
+--------    -------------   -----------------
+Info                  261                 261
+Warning                11                  11
