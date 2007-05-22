@@ -1,0 +1,35 @@
+#
+# MuonCalIsolationProducer
+# -> isolation of muons against the sum of transverse energy depositions in the calorimeter 
+#
+module HHSimpleMuonAnalyzer = HHSimpleAna{
+	#
+	# Source and Swarm collection
+	#
+	InputTag src1       = globalMuons
+	InputTag src2       = globalMuons
+	
+	untracked string histo_file = "histograms.root"
+
+	#
+	#
+	#
+	VPSet histograms = {
+	   {
+	     #histogram number 0
+	     untracked double min          =   0.0
+	     untracked double max          = 200.0
+	     untracked int32 nbins         =    50
+	     untracked string name         = "muon transverse momentum  [GeV]"
+	     untracked string plotquantity = "pt"
+	   },
+	   {
+	     #histogram number 1
+	     untracked double min          =  -2.0
+	     untracked double max          =   2.0
+	     untracked int32 nbins         =    50
+	     untracked string name         = "muon pseudo rapidity"
+	     untracked string plotquantity = "eta"
+	   }
+	}   
+}
