@@ -24,7 +24,6 @@ public:
   CalIsolationAlgo( const edm::ParameterSet & );
   ~CalIsolationAlgo();
   double operator()(const T1 &, const C2 &, const edm::EventSetup &) const;
-  double operator()(const reco::Track&, const C2 &, const edm::EventSetup &) const;
 
 private:
   double dRMin_, dRMax_, dzMax_;
@@ -49,6 +48,9 @@ template <typename T1, typename C2> double CalIsolationAlgo<T1,C2>::
 operator()(const T1 & cand, const C2 & elements, const edm::EventSetup &iSetup) const {
   const GlobalPoint Vertex(cand.vx(), cand.vy(), cand.vz());//@@check if this is [cm]!
   GlobalVector Cand(cand.pt(), cand.eta(), cand.phi()); 
+
+  ///Extrapolate charged particles from their vertex to the point of entry into the
+  ///calorimeter, if this is requested in the cfg file.
   if (do_propagation_ && cand.charge()!=0) 
      SrcAtCal.propagate(Vertex, Cand, cand.charge(), iSetup);
 
@@ -57,23 +59,6 @@ operator()(const T1 & cand, const C2 & elements, const edm::EventSetup &iSetup) 
        elem != elements.end(); ++elem ) {
     double dR = deltaR( elem->eta(), elem->phi(), 
                         (double)Cand.eta(), (double)Cand.phi() );
-    if ( dR < dRMax_ && dR > dRMin_ ) {
-      etSum += elem->et();
-    }
-  }
-  return etSum;
-}
-
-///specialized template operator () for tracks; since this source already has defined
-///outer eta and phi. This is the track's end point in the tracker, this should be close
-///the tracks entry into the calorimeter.
-template <typename T1, typename C2> double CalIsolationAlgo<T1,C2>::
-operator()(const reco::Track & cand, const C2 & elements, const edm::EventSetup &iSetup) const {
-  double etSum = 0;
-  for( typename C2::const_iterator elem = elements.begin(); 
-       elem != elements.end(); ++elem ) {
-    double dR = deltaR( elem->eta(), elem->phi(), 
-                        cand.outerEta(), cand.outerPhi() );
     if ( dR < dRMax_ && dR > dRMin_ ) {
       etSum += elem->et();
     }

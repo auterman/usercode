@@ -13,7 +13,7 @@
 //
 // Original Author:  Christian Autermann
 //         Created:  Wed May 16 14:02:29 CEST 2007
-// $Id$
+// $Id: HHSimpleAnalyzer.cc,v 1.1.1.1 2007/05/22 09:58:13 auterman Exp $
 //
 //
 

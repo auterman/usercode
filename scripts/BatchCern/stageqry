@@ -1,0 +1,25 @@
+#!/bin/bash
+#CTA, HH, 09/15/007
+
+#Get Path from Release directory to current
+BASEPATH=`pwd`
+CURRPATH=`pwd`
+THISPATH=""
+while [ -z `basename $CURRPATH | grep "src"` ]; do
+  CURRPATH=`pwd`
+  THISPATH=`basename $CURRPATH`/$THISPATH
+  cd ..
+done
+cd $BASEPATH
+THISPATH=`echo "$THISPATH" | sed -e "s|src/| |"`
+
+POOLSOURCE=`grep "#PoolSource =" $1 | sed  -e "s/#PoolSource = / /" | tr -d [\"]`
+FULLSOURCE=`echo "$CMSSW_BASE/src/$POOLSOURCE" | tr -d [\ ]`
+
+# stage 'em
+ALL_FILES_ARRAY=`grep "root" $FULLSOURCE | tr -d [\',]`
+for i in $ALL_FILES_ARRAY 
+do 
+  #echo "stager_get -M /castor/cern.ch/cms$i"
+  stager_qry -M /castor/cern.ch/cms$i | cut -b 40-
+done

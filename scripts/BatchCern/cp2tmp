@@ -1,0 +1,5 @@
+#!/bin/bash
+for i in `rfdir $1 | cut -b 68-`
+do
+  rfcp $1/$i /tmp/auterman/.
+done

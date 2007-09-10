@@ -13,7 +13,7 @@
 //
 // Original Author:  Christian Autermann
 //         Created:  Wed May 16 14:42:49 CEST 2007
-// $Id$
+// $Id: HHIsolationFilter.h,v 1.1.1.1 2007/05/16 15:33:29 auterman Exp $
 //
 //
 
