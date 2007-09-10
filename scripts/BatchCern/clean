@@ -1,0 +1,8 @@
+#!/bin/bash
+rm -f _majordomo
+rm -f _tmp*
+rm -f _*
+rm -f *.SUB?.cfi
+rm -f *.SUB??.cfi
+rm -f job_*.cfg
+rm -f run_*.sh

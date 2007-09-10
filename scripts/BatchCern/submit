@@ -1,0 +1,81 @@
+#!/bin/bash
+#CTA, HH, 09/15/007
+
+#TOTAL_JOBS=10
+FILESPERJOB=20
+
+echo "...preparing jobs"
+
+#strip possible endings:
+SAMPLE=`echo $1      | sed -e "s|.cfg| |"`
+SAMPLE=`echo $SAMPLE | sed -e "s|.cfi| |"`
+SAMPLE=`echo $SAMPLE | sed -e "s|.cff| |"`
+SAMPLE=`echo $SAMPLE | sed -e "s|.dat| |"`
+
+#Get Path from Release directory to current
+BASEPATH=`pwd`
+CURRPATH=`pwd`
+THISPATH=""
+while [ -z `basename $CURRPATH | grep "src"` ]; do
+  CURRPATH=`pwd`
+  THISPATH=`basename $CURRPATH`/$THISPATH
+  cd ..
+done
+cd $BASEPATH
+THISPATH=`echo "$THISPATH" | sed -e "s|src/| |"`
+
+POOLSOURCE=`grep "#PoolSource =" $1 | sed  -e "s/#PoolSource = / /" | tr -d [\"]`
+FULLSOURCE=`echo "$CMSSW_BASE/src/$POOLSOURCE" | tr -d [\ ]`
+
+# stage 'em
+#ALL_FILES_ARRAY=`grep "root" $CMSSW_BASE/$POOLSOURCE | tr -d [\',]`
+#for i in $ALL_FILES_ARRAY 
+#do 
+#  #echo "stager_get -M $i"
+#  echo "."
+#done
+
+# split sample to n jobs
+grep "root" $FULLSOURCE > _majordomo
+#grep "root" files.cfi > _majordomo
+echo "," >> _majordomo
+split -l $FILESPERJOB _majordomo _tmpfilelist_
+FIL=1
+for i in `ls _tmpfilelist_*`
+do 
+  echo "replace PoolSource.fileNames = {" > $SAMPLE.SUB$FIL.cfi
+  #Remove last comma
+  FILES=`cat $i`
+  FILES=${FILES%,}
+  for file in $FILES
+  do 
+    echo $file >> $SAMPLE.SUB$FIL.cfi
+  done
+  echo "}" >> $SAMPLE.SUB$FIL.cfi
+  FIL=$(($FIL+1))
+done
+
+#create new cfg files with above _tmpfilelist_*.cfi's
+JOB=1
+for i in `ls $SAMPLE.SUB*.cfi`
+do 
+  #the jobs cfg file
+  sed -e "s|$SAMPLE|$SAMPLE.$JOB|" $1 > _tmp$JOB.$1
+  THIS_CFI=`echo "\"$THISPATH$i\"" | tr -d [\ ]`
+  sed -e "s|#include_datafiles_here|include $THIS_CFI|" _tmp$JOB.$1 > job_$JOB.$1
+  #the jobs run script
+  sed -e "s|CFG_FILE|$SAMPLE|" run.sh > _tmp_$JOB.$1.sh
+  sed -e "s|JOB_NUMBER|$JOB|"      _tmp_$JOB.$1.sh > run_$JOB.$1.sh
+  chmod a+x run_$JOB.$1.sh
+
+  echo "...submitting job #"$JOB
+  bsub -R "mem>1001&&cpuf>1.1" -q 1nh run_$JOB.$1.sh
+  JOB=$(($JOB+1))
+done
+rm -f _majordomo
+rm -f _tmp*
+#rm -f _*
+mkdir $SAMPLE
+cp * $SAMPLE/.
+#./clean
+

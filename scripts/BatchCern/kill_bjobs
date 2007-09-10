@@ -1,0 +1,7 @@
+#!/bin/bash
+JOBIDS=`bjobs | cut -b -8`
+for i in $JOBIDS
+do
+  echo "...killing job $i"
+  bkill $i
+done

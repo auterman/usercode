@@ -13,7 +13,7 @@
 //
 // Original Author:  Christian Autermann
 //         Created:  Fri May  4 12:07:40 CEST 2007
-// $Id$
+// $Id: HHJetProducer.cc,v 1.1.1.1 2007/05/07 11:15:25 auterman Exp $
 //
 //
 
