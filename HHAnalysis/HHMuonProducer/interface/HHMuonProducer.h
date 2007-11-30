@@ -13,7 +13,7 @@
 //
 // Original Author:  Christian Autermann
 //         Created:  Fri Apr 20 10:28:05 CEST 2007
-// $Id: HHMuonProducer.h,v 1.1.1.1 2007/05/07 11:15:24 auterman Exp $
+// $Id: HHMuonProducer.h,v 1.1.1.2 2007/09/10 09:45:43 auterman Exp $
 //
 //
 #ifndef HHMuonProducer_h

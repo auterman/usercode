@@ -1,0 +1,302 @@
+#!/bin/bash
+
+function get () {
+	RESULT=`grep -m $5 "$1" $4 | tail -n 1 | cut -b $2-$3`
+	if [ "$RESULT" = '' ]
+	then
+	   RESULT=0.0
+	fi
+	return
+}  
+
+OPTIONS=1
+FILE=$1
+OUTPUT=$2
+touch $OUTPUT
+
+#MSuGra parameters
+MZERO=`grep -m 1 -A 1 "M_0      M_1/2" $FILE | grep -v "M_0      M_1/2" | cut -b 3-11`
+MHALF=`grep -m 1 -A 1 "M_0      M_1/2" $FILE | grep -v "M_0      M_1/2" | cut -b 12-20`
+AZERO=`grep -m 1 -A 1 "M_0      M_1/2" $FILE | grep -v "M_0      M_1/2" | cut -b 21-29`
+TANB=`grep -m 1 -A 1 "M_0      M_1/2" $FILE | grep -v "M_0      M_1/2" | cut -b 30-38`
+SGNMU=`grep -m 1 -A 1 "M_0      M_1/2" $FILE | grep -v "M_0      M_1/2" | cut -b 39-48`
+MTOP=`grep -m 1 -A 1 "M_0      M_1/2" $FILE | grep -v "M_0      M_1/2" | cut -b 49-58`
+
+get "0 All included subprocesses" 67 78 $FILE $OPTIONS
+XS0=$RESULT
+
+get "201 f + fbar -> ~e_L + ~e_Lbar" 67 78 $FILE $OPTIONS
+XS201=$RESULT
+
+get "202 f + fbar -> ~e_R + ~e_Rbar" 67 78 $FILE $OPTIONS
+XS202=$RESULT
+
+get "204 f + fbar -> ~mu_L + ~mu_Lbar" 67 78 $FILE $OPTIONS
+XS204=$RESULT
+
+get "205 f + fbar -> ~mu_R + ~mu_Rbar" 67 78 $FILE $OPTIONS
+XS205=$RESULT
+
+get "207 f+fbar -> ~tau_1 + ~tau_1bar" 67 78 $FILE $OPTIONS
+XS207=$RESULT
+
+get "208 f+fbar -> ~tau_2 + ~tau_2bar" 67 78 $FILE $OPTIONS
+XS208=$RESULT
+
+get "209 f+fbar -> ~tau_1 + ~tau_2bar" 67 78 $FILE $OPTIONS
+XS209=$RESULT
+
+get "210 q + qbar' -> ~l_L + ~nulbar " 67 78 $FILE $OPTIONS
+XS210=$RESULT
+
+get "211 q+qbar'-> ~tau_1 + ~nutaubar" 67 78 $FILE $OPTIONS
+XS211=$RESULT
+
+get "212 q+qbar'-> ~tau_2 + ~nutaubar" 67 78 $FILE $OPTIONS
+XS212=$RESULT
+
+get "213 f + fbar -> ~nul + ~nulbar " 67 78 $FILE $OPTIONS
+XS213=$RESULT
+ 
+get "214 f+fbar -> ~nutau + ~nutaubar" 67 78 $FILE $OPTIONS
+XS214=$RESULT
+
+get "216 f + fbar -> ~chi1 + ~chi1 " 67 78 $FILE $OPTIONS
+XS216=$RESULT
+  
+get "217 f + fbar -> ~chi2 + ~chi2" 67 78 $FILE $OPTIONS
+XS217=$RESULT
+   
+get "218 f + fbar -> ~chi3 + ~chi3 " 67 78 $FILE $OPTIONS
+XS218=$RESULT
+  
+get "219 f + fbar -> ~chi4 + ~chi4 " 67 78 $FILE $OPTIONS
+XS219=$RESULT
+  
+get "220 f + fbar -> ~chi1 + ~chi2" 67 78 $FILE $OPTIONS
+XS220=$RESULT
+   
+get "221 f + fbar -> ~chi1 + ~chi3" 67 78 $FILE $OPTIONS
+XS221=$RESULT
+   
+get "222 f + fbar -> ~chi1 + ~chi4" 67 78 $FILE $OPTIONS
+XS222=$RESULT
+   
+get "223 f + fbar -> ~chi2 + ~chi3 " 67 78 $FILE $OPTIONS
+XS223=$RESULT
+
+get "224 f + fbar -> ~chi2 + ~chi4" 67 78 $FILE $OPTIONS
+XS224=$RESULT
+   
+get "225 f + fbar -> ~chi3 + ~chi4 " 67 78 $FILE $OPTIONS
+XS225=$RESULT
+  
+get "226 f+fbar -> ~chi+-1 + ~chi-+1 " 67 78 $FILE $OPTIONS
+XS226=$RESULT
+
+get "227 f+fbar -> ~chi+-2 + ~chi-+2 " 67 78 $FILE $OPTIONS
+XS227=$RESULT
+
+get "228 f+fbar -> ~chi+-1 + ~chi-+2 " 67 78 $FILE $OPTIONS
+XS228=$RESULT
+
+get "229 q + qbar' -> ~chi1 + ~chi+-1" 67 78 $FILE $OPTIONS
+XS229=$RESULT
+
+get "230 q + qbar' -> ~chi2 + ~chi+-1" 67 78 $FILE $OPTIONS
+XS230=$RESULT
+
+get "231 q + qbar' -> ~chi3 + ~chi+-1" 67 78 $FILE $OPTIONS
+XS231=$RESULT
+
+get "232 q + qbar' -> ~chi4 + ~chi+-1" 67 78 $FILE $OPTIONS
+XS232=$RESULT
+
+get "233 q + qbar' -> ~chi1 + ~chi+-2" 67 78 $FILE $OPTIONS
+XS233=$RESULT
+
+get "234 q + qbar' -> ~chi2 + ~chi+-2" 67 78 $FILE $OPTIONS
+XS234=$RESULT
+
+get "235 q + qbar' -> ~chi3 + ~chi+-2" 67 78 $FILE $OPTIONS
+XS235=$RESULT
+
+get "236 q + qbar' -> ~chi4 + ~chi+-2" 67 78 $FILE $OPTIONS
+XS236=$RESULT
+
+get "237 q + qbar -> ~chi1 + ~g " 67 78 $FILE $OPTIONS
+XS237=$RESULT
+     
+get "238 q + qbar -> ~chi2 + ~g " 67 78 $FILE $OPTIONS
+XS238=$RESULT
+     
+get "239 q + qbar -> ~chi3 + ~g " 67 78 $FILE $OPTIONS
+XS239=$RESULT
+     
+get "240 q + qbar -> ~chi4 + ~g " 67 78 $FILE $OPTIONS
+XS240=$RESULT
+     
+get "241 q + qbar' -> ~chi+-1 + ~g " 67 78 $FILE $OPTIONS
+XS241=$RESULT
+  
+get "242 q + qbar' -> ~chi+-2 + ~g " 67 78 $FILE $OPTIONS
+XS242=$RESULT
+  
+get "243 q + qbar -> ~g + ~g " 67 78 $FILE $OPTIONS
+XS243=$RESULT
+       
+get "244 g + g -> ~g + ~g " 67 78 $FILE $OPTIONS
+XS244=$RESULT
+           
+get "246 qj + g -> ~qj_L + ~chi1 " 67 78 $FILE $OPTIONS
+XS246=$RESULT
+
+get "247 qj + g -> ~qj_R + ~chi1" 67 78 $FILE $OPTIONS
+XS247=$RESULT
+     
+get "248 qj + g -> ~qj_L + ~chi2 " 67 78 $FILE $OPTIONS
+XS248=$RESULT
+
+get "249 qj + g -> ~qj_R + ~chi2" 67 78 $FILE $OPTIONS
+XS249=$RESULT
+
+get "250 qj + g -> ~qj_L + ~chi3 " 67 78 $FILE $OPTIONS
+XS250=$RESULT
+    
+get "251 qj + g -> ~qj_R + ~chi3 " 67 78 $FILE $OPTIONS
+XS251=$RESULT
+    
+get "252 qj + g -> ~qj_L + ~chi4 " 67 78 $FILE $OPTIONS
+XS252=$RESULT
+
+get "253 qj + g -> ~qj_R + ~chi4" 67 78 $FILE $OPTIONS
+XS253=$RESULT
+     
+get "254 qj + g -> ~qk_L + ~chi+-1" 67 78 $FILE $OPTIONS
+XS254=$RESULT
+   
+get "256 qj + g -> ~qk_L + ~chi+-2" 67 78 $FILE $OPTIONS
+XS256=$RESULT
+   
+get "258 qj + g -> ~qj_L + ~g  " 67 78 $FILE $OPTIONS
+XS258=$RESULT
+      
+get "259 qj + g -> ~qj_R + ~g  " 67 78 $FILE $OPTIONS
+XS259=$RESULT
+
+get "261 f + fbar -> ~t_1 + ~t_1bar" 67 78 $FILE $OPTIONS
+XS261=$RESULT
+  
+get "262 f + fbar -> ~t_2 + ~t_2bar " 67 78 $FILE $OPTIONS
+XS262=$RESULT
+
+get "263 f + fbar -> ~t_1 + ~t_2bar " 67 78 $FILE $OPTIONS
+XS263=$RESULT
+ 
+get "264 g + g -> ~t_1 + ~t_1bar" 67 78 $FILE $OPTIONS
+XS264=$RESULT
+     
+get "265 g + g -> ~t_2 + ~t_2bar " 67 78 $FILE $OPTIONS
+XS265=$RESULT
+    
+get "271 qi + qj -> ~qi_L + ~qj_L " 67 78 $FILE $OPTIONS
+XS271=$RESULT
+   
+get "272 qi + qj -> ~qi_R + ~qj_R" 67 78 $FILE $OPTIONS
+XS272=$RESULT
+
+get "273 qi + qj -> ~qi_L + ~qj_R" 67 78 $FILE $OPTIONS
+XS273=$RESULT
+
+get "274 qi+qjbar -> ~qi_L + ~qj_Lbar" 67 78 $FILE $OPTIONS
+XS274=$RESULT
+
+get "275 qi+qjbar -> ~qi_R + ~qj_Rbar" 67 78 $FILE $OPTIONS
+XS275=$RESULT
+
+get "276 qi+qjbar -> ~qi_L + ~qj_Rbar" 67 78 $FILE $OPTIONS
+XS276=$RESULT
+
+get "277 f + fbar -> ~qi_L + ~qi_Lbar" 67 78 $FILE $OPTIONS
+XS277=$RESULT
+
+get "278 f + fbar -> ~qi_R + ~qi_Rbar" 67 78 $FILE $OPTIONS
+XS278=$RESULT
+
+get "279 g + g -> ~qi_L + ~qi_Lbar" 67 78 $FILE $OPTIONS
+XS279=$RESULT
+   
+get "280 g + g -> ~qi_R + ~qi_Rbar" 67 78 $FILE $OPTIONS
+XS280=$RESULT
+
+get "281 b + qj -> ~b_1 + ~qj_L" 67 78 $FILE $OPTIONS
+XS281=$RESULT
+
+get "282 b + qj -> ~b_2 + ~qj_R " 67 78 $FILE $OPTIONS
+XS282=$RESULT
+
+get "283 b + qj -> ~b_1 + ~qj_R" 67 78 $FILE $OPTIONS
+XS283=$RESULT
+      
+get "284 b + qjbar -> ~b_1 + ~qj_Lbar" 67 78 $FILE $OPTIONS
+XS284=$RESULT
+
+get "285 b + qjbar -> ~b_2 + ~qj_Rbar" 67 78 $FILE $OPTIONS
+XS285=$RESULT
+
+get "286 b + qjbar -> ~b_1 + ~qj_Rbar" 67 78 $FILE $OPTIONS
+XS286=$RESULT
+
+get "287 f + fbar -> ~b_1 + ~b_1bar" 67 78 $FILE $OPTIONS
+XS287=$RESULT
+  
+get "288 f + fbar -> ~b_2 + ~b_2bar" 67 78 $FILE $OPTIONS
+XS288=$RESULT
+  
+get "289 g + g -> ~b_1 + ~b_1bar" 67 78 $FILE $OPTIONS
+XS289=$RESULT
+     
+get "290 g + g -> ~b_2 + ~b_2bar" 67 78 $FILE $OPTIONS
+XS290=$RESULT
+     
+get "291 b + b -> ~b_1 + ~b_1" 67 78 $FILE $OPTIONS
+XS291=$RESULT
+        
+get "292 b + b -> ~b_2 + ~b_2" 67 78 $FILE $OPTIONS
+XS292=$RESULT
+        
+get "293 b + b -> ~b_1 + ~b_2" 67 78 $FILE $OPTIONS
+XS293=$RESULT
+        
+get "294 b + g -> ~b_1 + ~g  " 67 78 $FILE $OPTIONS
+XS294=$RESULT
+        
+get "295 b + g -> ~b_2 + ~g " 67 78 $FILE $OPTIONS
+XS295=$RESULT
+         
+get "296 b + bbar -> ~b_1 + ~b_2bar" 67 78 $FILE $OPTIONS
+XS296=$RESULT
+  
+get "297 f + fbar' -> H+/- + h0 " 67 78 $FILE $OPTIONS
+XS297=$RESULT
+     
+get "298 f + fbar -> H+/- + H0 " 67 78 $FILE $OPTIONS
+XS298=$RESULT
+      
+get "299 f + fbar -> A0 + h0 " 67 78 $FILE $OPTIONS
+XS299=$RESULT
+        
+get "300 f + fbar -> A0 + H0" 67 78 $FILE $OPTIONS
+XS300=$RESULT
+         
+get "301 f + fbar -> H+ + H- " 67 78 $FILE $OPTIONS
+XS301=$RESULT
+        
+
+if [ "$XS0" != "0.0" ]
+then
+	echo "$MZERO $MHALF $TANB $SGNMU $AZERO $MTOP $XS0 $XS201 $XS202 $XS204 $XS205 $XS207 $XS208 $XS209 $XS210 $XS211 $XS212 $XS213 $XS214 $XS216 $XS217 $XS218 $XS219 $XS220 $XS221 $XS222 $XS223 $XS224 $XS225 $XS226 $XS227 $XS228 $XS229 $XS230 $XS231 $XS232 $XS233 $XS234 $XS235 $XS236 $XS237 $XS238 $XS239 $XS240 $XS241 $XS242 $XS243 $XS244 $XS246 $XS247 $XS248 $XS249 $XS250 $XS251 $XS252 $XS253 $XS254 $XS256 $XS258 $XS259 $XS261 $XS262 $XS263 $XS264 $XS265 $XS271 $XS272 $XS273 $XS274 $XS275 $XS276 $XS277 $XS278 $XS279 $XS280 $XS281 $XS282 $XS283 $XS284 $XS285 $XS286 $XS287 $XS288 $XS289 $XS290 $XS291 $XS292 $XS293 $XS294 $XS295 $XS296 $XS297 $XS298 $XS299 $XS300 $XS301" >> $OUTPUT
+else
+        echo "no solution for m0=$MZERO and m1/2=$MHALF"
+fi
+
