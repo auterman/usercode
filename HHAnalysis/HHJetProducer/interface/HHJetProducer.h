@@ -13,7 +13,7 @@
 //
 // Original Author:  Christian Autermann
 //         Created:  Fri May  4 12:07:40 CEST 2007
-// $Id: HHJetProducer.h,v 1.1.1.1 2007/05/07 11:15:25 auterman Exp $
+// $Id: HHJetProducer.h,v 1.1.1.2 2007/09/10 09:45:43 auterman Exp $
 //
 //
 #ifndef HHJetProducer_H
