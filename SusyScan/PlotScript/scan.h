@@ -67,98 +67,97 @@ class SUSY_XSECS {
    double SGNMU;
    double AZERO;
    double MTOP;
-   double XS0;
-   double XS201;
-   double XS202;
-   double XS204;
-   double XS205;
-   double XS207;
-   double XS208;
-   double XS209;
-   double XS210;
-   double XS211;
-   double XS212;
-   double XS213;
-   double XS214;
-   double XS216;
-   double XS217;
-   double XS218;
-   double XS219;
-   double XS220;
-   double XS221;
-   double XS222;
-   double XS223;
-   double XS224;
-   double XS225;
-   double XS226;
-   double XS227;
-   double XS228;
-   double XS229;
-   double XS230;
-   double XS231;
-   double XS232;
-   double XS233;
-   double XS234;
-   double XS235;
-   double XS236;
-   double XS237;
-   double XS238;
-   double XS239;
-   double XS240;
-   double XS241;
-   double XS242;
-   double XS243;
-   double XS244;
-   double XS246;
-   double XS247;
-   double XS248;
-   double XS249;
-   double XS250;
-   double XS251;
-   double XS252;
-   double XS253;
-   double XS254;
-   double XS256;
-   double XS258;
-   double XS259;
-   double XS261;
-   double XS262;
-   double XS263;
-   double XS264;
-   double XS265;
-   double XS271;
-   double XS272;
-   double XS273;
-   double XS274;
-   double XS275;
-   double XS276;
-   double XS277;
-   double XS278;
-   double XS279;
-   double XS280;
-   double XS281;
-   double XS282;
-   double XS283;
-   double XS284;
-   double XS285;
-   double XS286;
-   double XS287;
-   double XS288;
-   double XS289;
-   double XS290;
-   double XS291;
-   double XS292;
-   double XS293;
-   double XS294;
-   double XS295;
-   double XS296;
-   double XS297;
-   double XS298;
-   double XS299;
-   double XS300;
-   double XS301;
+   double XS0;         // I   0 All  // Included subprocesses // I 
+   double XS201;       // I 201
+   double XS202;       // I 202 f + fbar -> ~e_R + ~e_Rbar    // I 
+   double XS204;       // I 204 f + fbar -> ~mu_L + ~mu_Lbar  // I 
+   double XS205;       // I 205 f + fbar -> ~mu_R + ~mu_Rbar  // I 
+   double XS207;       // I 207 f+fbar -> ~tau_1 + ~tau_1bar  // I 
+   double XS208;       // I 208 f+fbar -> ~tau_2 + ~tau_2bar  // I 
+   double XS209;       // I 209 f+fbar -> ~tau_1 + ~tau_2bar  // I 
+   double XS210;       // I 210
+   double XS211;       // I 211 q+qbar'-> ~tau_1 + ~nutaubar  // I     
+   double XS212;       // I 212 q+qbar'-> ~tau_2 + ~nutaubar  // I 
+   double XS213;       // I 213 f + fbar -> ~nul + ~nulbar    // I 
+   double XS214;       // I 214 f+fbar -> ~nutau + ~nutaubar  // I 
+   double XS216;       // I 216 f + fbar -> ~chi1 + ~chi1     // I 
+   double XS217;       // I 217 f + fbar -> ~chi2 + ~chi2     // I 
+   double XS218;       // I 218 f + fbar -> ~chi3 + ~chi3     // I 
+   double XS219;       // I 219 f + fbar -> ~chi4 + ~chi4     // I 
+   double XS220;       // I 220 f + fbar -> ~chi1 + ~chi2     // I 
+   double XS221;       // I 221 f + fbar -> ~chi1 + ~chi3     // I 
+   double XS222;       // I 222 f + fbar -> ~chi1 + ~chi4     // I 
+   double XS223;       // I 223 f + fbar -> ~chi2 + ~chi3     // I 
+   double XS224;       // I 224 f + fbar -> ~chi2 + ~chi4     // I 
+   double XS225;       // I 225 f + fbar -> ~chi3 + ~chi4     // I 
+   double XS226;       // I 226 f+fbar -> ~chi+-1 + ~chi-+1   // I 
+   double XS227;       // I 227 f+fbar -> ~chi+-2 + ~chi-+2   // I 
+   double XS228;       // I 228 f+fbar -> ~chi+-1 + ~chi-+2   // I 
+   double XS229;       // I 229 q + qbar' -> ~chi1 + ~chi+-1  // I 
+   double XS230;       // I 230 q + qbar' -> ~chi2 + ~chi+-1  // I 
+   double XS231;       // I 231 q + qbar' -> ~chi3 + ~chi+-1  // I 
+   double XS232;       // I 232 q + qbar' -> ~chi4 + ~chi+-1  // I 
+   double XS233;       // I 233 q + qbar' -> ~chi1 + ~chi+-2  // I 
+   double XS234;       // I 234 q + qbar' -> ~chi2 + ~chi+-2  // I 
+   double XS235;       // I 235 q + qbar' -> ~chi3 + ~chi+-2  // I 
+   double XS236;       // I 236 q + qbar' -> ~chi4 + ~chi+-2  // I 
+   double XS237;       // I 237 q + qbar -> ~chi1 + ~g        // I 
+   double XS238;       // I 238 q + qbar -> ~chi2 + ~g        // I 
+   double XS239;       // I 239 q + qbar -> ~chi3 + ~g        // I 
+   double XS240;       // I 240 q + qbar -> ~chi4 + ~g        // I 
+   double XS241;       // I 241 q + qbar' -> ~chi+-1 + ~g     // I 
+   double XS242;       // I 242 q + qbar' -> ~chi+-2 + ~g     // I 
+   double XS243;       // I 243 q + qbar -> ~g + ~g	      // I 
+   double XS244;       // I 244 g + g -> ~g + ~g	      // I 
+   double XS246;       // I 246 qj + g -> ~qj_L + ~chi1       // I 
+   double XS247;       // I 247 qj + g -> ~qj_R + ~chi1       // I 
+   double XS248;       // I 248 qj + g -> ~qj_L + ~chi2       // I 
+   double XS249;       // I 249 qj + g -> ~qj_R + ~chi2       // I 
+   double XS250;       // I 250 qj + g -> ~qj_L + ~chi3       // I 
+   double XS251;       // I 251 qj + g -> ~qj_R + ~chi3       // I 
+   double XS252;       // I 252 qj + g -> ~qj_L + ~chi4       // I 
+   double XS253;       // I 253 qj + g -> ~qj_R + ~chi4       // I 
+   double XS254;       // I 254 qj + g -> ~qk_L + ~chi+-1     // I 
+   double XS256;       // I 256 qj + g -> ~qk_L + ~chi+-2     // I 
+   double XS258;       // I 258 qj + g -> ~qj_L + ~g	      // I 
+   double XS259;       // I 259 qj + g -> ~qj_R + ~g	      // I 
+   double XS261;       // I 261 f + fbar -> ~t_1 + ~t_1bar    // I 
+   double XS262;       // I 262 f + fbar -> ~t_2 + ~t_2bar    // I 
+   double XS263;       // I 263 f + fbar -> ~t_1 + ~t_2bar    // I 
+   double XS264;       // I 264 g + g -> ~t_1 + ~t_1bar       // I 
+   double XS265;       // I 265 g + g -> ~t_2 + ~t_2bar       // I 
+   double XS271;       // I 271 qi + qj -> ~qi_L + ~qj_L      // I 
+   double XS272;       // I 272 qi + qj -> ~qi_R + ~qj_R      // I 
+   double XS273;       // I 273 qi + qj -> ~qi_L + ~qj_R      // I 
+   double XS274;       // I 274 qi+qjbar -> ~qi_L + ~qj_Lbar  // I 
+   double XS275;       // I 275 qi+qjbar -> ~qi_R + ~qj_Rbar  // I 
+   double XS276;       // I 276 qi+qjbar -> ~qi_L + ~qj_Rbar  // I 
+   double XS277;       // I 277 f + fbar -> ~qi_L + ~qi_Lbar  // I 
+   double XS278;       // I 278 f + fbar -> ~qi_R + ~qi_Rbar  // I 
+   double XS279;       // I 279 g + g -> ~qi_L + ~qi_Lbar     // I 
+   double XS280;       // I 280 g + g -> ~qi_R + ~qi_Rbar     // I 
+   double XS281;       // I 281 b + qj -> ~b_1 + ~qj_L        // I 
+   double XS282;       // I 282 b + qj -> ~b_2 + ~qj_R        // I 
+   double XS283;       // I 283 b + qj -> ~b_1 + ~qj_R        // I 
+   double XS284;       // I 284 b + qjbar -> ~b_1 + ~qj_Lbar  // I 
+   double XS285;       // I 285 b + qjbar -> ~b_2 + ~qj_Rbar  // I 
+   double XS286;       // I 286 b + qjbar -> ~b_1 + ~qj_Rbar  // I 
+   double XS287;       // I 287 f + fbar -> ~b_1 + ~b_1bar    // I 
+   double XS288;       // I 288 f + fbar -> ~b_2 + ~b_2bar    // I 
+   double XS289;       // I 289 g + g -> ~b_1 + ~b_1bar       // I 
+   double XS290;       // I 290 g + g -> ~b_2 + ~b_2bar       // I 
+   double XS291;       // I 291 b + b -> ~b_1 + ~b_1	      // I 
+   double XS292;       // I 292 b + b -> ~b_2 + ~b_2	      // I 
+   double XS293;       // I 293 b + b -> ~b_1 + ~b_2	      // I 
+   double XS294;       // I 294 b + g -> ~b_1 + ~g	      // I 
+   double XS295;       // I 295 b + g -> ~b_2 + ~g	      // I 
+   double XS296;       // I 296 b + bbar -> ~b_1 + ~b_2bar    // I 
+   double XS297;       // I 297 f + fbar' -> H+/- + h0        // I 
+   double XS298;       // I 298 f + fbar -> H+/- + H0	      // I 
+   double XS299;       // I 299 f + fbar -> A0 + h0	      // I 
+   double XS300;       // I 300 f + fbar -> A0 + H0	      // I 
+   double XS301;       // I 301 f + fbar -> H+ + H-	      // I 
 };
-
 
 class TScan {
  public:
