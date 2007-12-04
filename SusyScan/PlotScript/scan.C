@@ -176,12 +176,126 @@ void TScan::ReadGeneratedMasses(std::string file)
    }
 }
 
+void TScan::ReadGeneratedXsects(std::string file)
+{
+   ifstream xsects_file;
+   xsects_file.open(file.c_str());
+   SUSY_XSECS x;
+   while (1) {
+      xsects_file >> x.MZERO      
+                  >> x.MHALF	  
+                  >> x.TANB	  
+                  >> x.SGNMU	  
+                  >> x.AZERO	  
+                  >> x.MTOP	  
+                  >> x.XS0
+                  >> x.XS201
+                  >> x.XS202
+                  >> x.XS204
+                  >> x.XS205
+                  >> x.XS207
+                  >> x.XS208
+                  >> x.XS209
+                  >> x.XS210
+                  >> x.XS211
+                  >> x.XS212
+                  >> x.XS213
+                  >> x.XS214
+                  >> x.XS216
+                  >> x.XS217
+                  >> x.XS218
+                  >> x.XS219
+                  >> x.XS220
+                  >> x.XS221
+                  >> x.XS222
+                  >> x.XS223
+                  >> x.XS224
+                  >> x.XS225
+                  >> x.XS226
+                  >> x.XS227
+                  >> x.XS228
+                  >> x.XS229
+                  >> x.XS230
+                  >> x.XS231
+                  >> x.XS232
+                  >> x.XS233
+                  >> x.XS234
+                  >> x.XS235
+                  >> x.XS236
+                  >> x.XS237
+                  >> x.XS238
+                  >> x.XS239
+                  >> x.XS240
+                  >> x.XS241
+                  >> x.XS242
+                  >> x.XS243
+                  >> x.XS244
+                  >> x.XS246
+                  >> x.XS247
+                  >> x.XS248
+                  >> x.XS249
+                  >> x.XS250
+                  >> x.XS251
+                  >> x.XS252
+                  >> x.XS253
+                  >> x.XS254
+                  >> x.XS256
+                  >> x.XS258
+                  >> x.XS259
+                  >> x.XS261
+                  >> x.XS262
+                  >> x.XS263
+                  >> x.XS264
+                  >> x.XS265
+                  >> x.XS271
+                  >> x.XS272
+                  >> x.XS273
+                  >> x.XS274
+                  >> x.XS275
+                  >> x.XS276
+                  >> x.XS277
+                  >> x.XS278
+                  >> x.XS279
+                  >> x.XS280
+                  >> x.XS281
+                  >> x.XS282
+                  >> x.XS283
+                  >> x.XS284
+                  >> x.XS285
+                  >> x.XS286
+                  >> x.XS287
+                  >> x.XS288
+                  >> x.XS289
+                  >> x.XS290
+                  >> x.XS291
+                  >> x.XS292
+                  >> x.XS293
+                  >> x.XS294
+                  >> x.XS295
+                  >> x.XS296
+                  >> x.XS297
+                  >> x.XS298
+                  >> x.XS299
+                  >> x.XS300
+                  >> x.XS301;
+      if (!xsects_file.good()) break;
+      if (fabs(x.SGNMU)!=1.) {
+         cerr << "check lines near m0=" << x.MZERO << ", m1/2=" << x.MHALF << endl;
+         break;
+      }	
+      xsects.push_back(x);
+   }
+}
 
 int TScan::DoStuff()
 {
    ///Read in the generated masses
    ReadGeneratedMasses( "mass_scan.dat" );
    cout << "Read in " << points.size() << " mass points." <<endl;
+
+   ///Read in the generated x-sections
+   ReadGeneratedXsects( "xsec_scan.dat" );
+   cout << "Read in " << xsects.size() << " x-section points." <<endl;
 
    ///Where are no mass-points generated?
    TH2F   * no_solution         = Area51(  );
@@ -249,10 +363,9 @@ int TScan::DoStuff()
 
 
 
-   //c2->Draw();             //interactive
-   //gApplication->Run();    //interactive
-
    c1->SaveAs("dirt.eps");
+   gApplication->Run();    //interactive
+
    //ps.NewPage();
 
 }
