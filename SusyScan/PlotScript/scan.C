@@ -14,6 +14,7 @@
 #include <TPad.h>
 #include <TColor.h>
 #include <TStyle.h>
+#include <TLatex.h>
 
 
 #include "scan.h"
@@ -23,11 +24,16 @@ TROOT root("GUI", "GUI test environement");
 
 using namespace std;
 
+
+double total_xsec(const SUSY_XSECS point)
+{ return point.total(); }
+
+
 bool charged_LSP(const SUSY_POINT point)
 { return ( (fabs(point.MZ1) - point.MTAU1)>0.0 ); }
 
 bool gluino(const SUSY_POINT point, const double mass)
-{ return ( fabs(point.MGL - mass)<1.0 ); }
+{ return ( fabs(point.MGL - mass)<5.0 ); }
 
 bool ul(const SUSY_POINT point, const double mass)
 { return ( fabs(point.MUL - mass)<5.0 ); }
@@ -35,6 +41,8 @@ bool ul(const SUSY_POINT point, const double mass)
 bool neutralino_1(const SUSY_POINT point, const double mass)
 { return ( fabs(fabs(point.MZ1) - mass)<1.0 ); }
 
+bool sq_equal_gluino(const SUSY_POINT point, const double treshold)
+{ return ( fabs(point.MUL - point.MGL)<treshold ); }
 
 TScan::TScan()
 {
@@ -63,18 +71,28 @@ MyTGraph * TScan::IsoMassLine(bool(*func)(SUSY_POINT,double), double mass )
   return result;
 }
 
-TH2F * TScan::Area(bool(*func)(SUSY_POINT))
+template <class T> TH2F * TScan::Area(std::vector<T> pnts, double(*func)(T))
 {
   char * name = new char[255];
   sprintf(name,"Area_plot%d",++plot_id);
   TH2F * result = new TH2F(name,"",bins_x,min_x,max_x,bins_y,min_x,max_y);
-  for (std::vector<SUSY_POINT>::const_iterator it=points.begin();
-       it!=points.end(); ++it) {
+  for (typename std::vector<T>::const_iterator it=pnts.begin();
+       it!=pnts.end(); ++it) {
+     result->Fill(it->MZERO, it->MHALF, func(*it) );
+  } 
+  delete name;
+  return result;
+}
+
+template <class T> TH2F * TScan::Area(std::vector<T> pnts, bool(*func)(T))
+{
+  char * name = new char[255];
+  sprintf(name,"Area_plot%d",++plot_id);
+  TH2F * result = new TH2F(name,"",bins_x,min_x,max_x,bins_y,min_x,max_y);
+  for (typename std::vector<T>::const_iterator it=pnts.begin();
+       it!=pnts.end(); ++it) {
      if ( func( *it ) ) 
        result->Fill(it->MZERO, it->MHALF, 1.);
-//if (it->MZERO==100. && it->MHALF==200.)  
-//cout << it->MZERO <<", "<<it->MHALF
-//     << ",  m(Z1)="<<it->MZ1<<", m(stau)="<<it->MTAU1<<endl;
   } 
   delete name;
   return result;
@@ -304,7 +322,7 @@ int TScan::DoStuff()
    contour_no_solution->SetLineWidth(4);
 
    ///Where is the LSP charged?
-   TH2F   * ch_LSP = Area( charged_LSP );
+   TH2F   * ch_LSP = Area<SUSY_POINT>( points, charged_LSP );
    MyTGraph * contour_charged_LSP = GetContour( ch_LSP );
    contour_charged_LSP->SetLineColor(6);
    contour_charged_LSP->SetLineWidth(4);
@@ -313,22 +331,42 @@ int TScan::DoStuff()
    TCanvas * c1 = new TCanvas("c1","c1",600,600);
    c1->SetFillStyle   ( 4000 );
    c1->SetLeftMargin  ( 0.15 );
-   c1->SetRightMargin ( 0.05 );
+   c1->SetRightMargin ( 0.15 );
    c1->SetBottomMargin( 0.10 );
    c1->cd();
    //c1->SetTopMargin   ( 0.05 );
    //TPostScript ps("plots.ps",-112);
 
    ///The base hist of the mSUGRA-plane with axis labels
-   TH2F * plane = new TH2F("plane","The mSUGRA parameter space;m_{0} [GeV];m_{1/2} [GeV]", bins_x,min_x,max_x,bins_y,min_x,max_y);
+   //TH2F * plane = new TH2F("plane","The mSUGRA parameter space;m_{0} [GeV];m_{1/2} [GeV]", bins_x,min_x,max_x,bins_y,min_x,max_y);
+   SetBins(80,80);//xsec-binning is 25 GeV
+   TH2F * plane = Area<SUSY_XSECS>( xsects, total_xsec );
+   SetBins(400,400);//mass-binning is 5 GeV
+   plane->SetTitle("The mSUGRA parameter space;m_{0} [GeV];m_{1/2} [GeV];#sigma_{SUSY incl.} [pb]");
    plane->GetYaxis()->SetTitleOffset(  1.8 );
-   plane->Draw();
+   plane->GetZaxis()->SetTitleOffset(  1.1 );
+   plane->GetZaxis()->SetRangeUser(0.00001, 1000.);
+   gPad->SetLogz(1);
+   plane->Draw("COLZ");
 
    ///Now, add what ever should be displayed else
    //---------------------------------------------------------------------------//
+   TLatex t;
+   t.SetTextColor(14);
+   t.SetTextAlign(12);
+   t.SetTextSize(0.02);
    
    ///gluino
-   //MyTGraph * m_gluino = IsoMassLine( gluino, 1000. ); m_gluino->Draw();
+   gStyle->SetLineColor(15);//gray
+   MyTGraph * m_gluino5  = IsoMassLine( gluino,  500. ); m_gluino5->Draw();
+   MyTGraph * m_gluino10 = IsoMassLine( gluino, 1000. ); m_gluino10->Draw();
+   MyTGraph * m_gluino20 = IsoMassLine( gluino, 2000. ); m_gluino20->Draw();
+   MyTGraph * m_gluino30 = IsoMassLine( gluino, 3000. ); m_gluino30->Draw();
+   MyTGraph * m_gluino40 = IsoMassLine( gluino, 4000. ); m_gluino40->Draw();
+   t.DrawLatex(360.,450.,"#tilde{g}=1000 GeV");
+   t.DrawLatex(600.,930.,"#tilde{g}=2000 GeV");
+   t.DrawLatex(870.,1420.,"#tilde{g}=3000 GeV");
+   t.DrawLatex(1150.,1930.,"#tilde{g}=4000 GeV");
    
    ///neutralino
    //MyTGraph * m_neutralino1 = IsoMassLine( neutralino_1, 500. ); m_neutralino1->Draw();
@@ -342,6 +380,10 @@ int TScan::DoStuff()
    MyTGraph * m_ul30 = IsoMassLine( ul, 3000. ); m_ul30->Draw();
    MyTGraph * m_ul35 = IsoMassLine( ul, 3500. ); m_ul35->Draw();
    MyTGraph * m_ul40 = IsoMassLine( ul, 4000. ); m_ul40->Draw();
+   t.DrawLatex(800.,250.,"#tilde{u}_{L}=1000 GeV");
+   t.DrawLatex(1670.,470.,"#tilde{u}_{L}=2000 GeV");
+   t.DrawLatex(1670.,1250.,"#tilde{u}_{L}=3000 GeV");
+   t.DrawLatex(1670.,1930.,"#tilde{u}_{L}=4000 GeV");
 
    ///Contours
    contour_no_solution->Add(max_x+5,430);
@@ -360,9 +402,19 @@ int TScan::DoStuff()
    contour_charged_LSP->SetLineWidth( 4 );
    contour_charged_LSP->Draw("lf");
    contour_charged_LSP->Draw();
+   t.SetTextSize(0.03);t.SetTextColor( 6 );
+   t.DrawLatex(200.,1800.,"charged LSP (#tilde{#tau})");
+
+   // m(gluino)==m(squark)
+   gStyle->SetLineColor(1);//black
+   MyTGraph * m_ulgl  = IsoMassLine( sq_equal_gluino,  0.2 ); 
+   m_ulgl->SetLineWidth(3); m_ulgl->Draw();
+   t.SetTextSize(0.03);t.SetTextColor( 1 );
+   t.DrawLatex( 750.,1200.,"m(#tilde{u}_{L}) < m(#tilde{g})");
+   t.DrawLatex(1400.,1150.,"m(#tilde{u}_{L}) > m(#tilde{g})");
 
 
-
+   //DONE
    c1->SaveAs("dirt.eps");
    gApplication->Run();    //interactive
 
@@ -396,6 +448,17 @@ int scan(void)
    gStyle->SetStatY(0);
    gStyle->SetStatW(0);
    gStyle->SetStatH(0);
+
+   gStyle->SetTitleFont(22);
+   gStyle->SetLabelFont(22,"X");
+   gStyle->SetLabelFont(22,"Y");
+   gStyle->SetLabelFont(22,"Z");
+   gStyle->SetLabelSize(0.03,"X");
+   gStyle->SetLabelSize(0.03,"Y");
+   gStyle->SetLabelSize(0.03,"Z");
+ 
+   //gROOT->SetStyle("MyStyle");
+
    
    TScan * scan = new TScan();
    scan->DoStuff();

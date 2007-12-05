@@ -157,6 +157,18 @@ class SUSY_XSECS {
    double XS299;       // I 299 f + fbar -> A0 + h0	      // I 
    double XS300;       // I 300 f + fbar -> A0 + H0	      // I 
    double XS301;       // I 301 f + fbar -> H+ + H-	      // I 
+
+   //total susy x-sec
+   double total() const {return XS0*1.0E9;};
+   
+   //gluino-gluino prod. x-sec in pb:
+   double sgsg() const {return (XS243+XS244)*1.0E9;};
+
+   //squark-gluino prod. x-sec in pb:
+   double sqsg() const {return (XS258+XS259+XS294+XS295)*1.0E9;};
+
+   //squark-squark prod. x-sec in pb:
+   double sqsq() const {return (XS261+XS262+XS263+XS264+XS265+XS271+XS272+XS273+XS274+XS275+XS276+XS277+XS278+XS279+XS280+XS281+XS282+XS283+XS284+XS285+XS286+XS287+XS288+XS289+XS290+XS291+XS292+XS293+XS296)*1.0E9;};
 };
 
 class TScan {
@@ -166,7 +178,8 @@ class TScan {
 
    MyTGraph * IsoMassLine(bool(*func)(SUSY_POINT,double), double);
    MyTGraph * GetContour(TH2F*, int flag=0);
-   TH2F * Area(bool(*func)(SUSY_POINT));
+   template <class T> TH2F * TScan::Area(std::vector<T>,  bool(*func)(T));
+   template <class T> TH2F * TScan::Area(std::vector<T>,double(*func)(T));
    TH2F * Area51();
    //static bool ul(const SUSY_POINT point, const double mass);
  
@@ -175,6 +188,7 @@ class TScan {
  private:
    void ReadGeneratedMasses(std::string file);
    void ReadGeneratedXsects(std::string file);
+   void SetBins(int bx, int by){bins_x=bx; bins_y=by;};
 
    int plot_id, bins_x, bins_y;
    double min_x, max_x, min_y, max_y;
