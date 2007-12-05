@@ -15,6 +15,7 @@
 #include <TColor.h>
 #include <TStyle.h>
 #include <TLatex.h>
+#include <TMarker.h>
 
 
 #include "scan.h"
@@ -44,6 +45,11 @@ bool neutralino_1(const SUSY_POINT point, const double mass)
 bool sq_equal_gluino(const SUSY_POINT point, const double treshold)
 { return ( fabs(point.MUL - point.MGL)<treshold ); }
 
+
+bool xs_sq_equal_gluino(const SUSY_XSECS point, const double treshold)
+{ if (point.sgsg()<1E-5&&point.sqsq()<1E-5) return false; else return (fabs(point.sgsg() - point.sqsq())<treshold*point.sqsq()/100. ); }
+
+
 TScan::TScan()
 {
   plot_id = 0;
@@ -59,12 +65,12 @@ TScan::~TScan()
 {
 }
 
-MyTGraph * TScan::IsoMassLine(bool(*func)(SUSY_POINT,double), double mass )
+template <class T> MyTGraph * TScan::IsoMassLine(std::vector<T> pnts, bool(*func)(T,double), double mass )
 {
   MyTGraph * result = new MyTGraph(1);
   int i=0;
-  for (std::vector<SUSY_POINT>::const_iterator it=points.begin();
-       it!=points.end(); ++it) {
+  for (typename std::vector<T>::const_iterator it=pnts.begin();
+       it!=pnts.end(); ++it) {
      if ( func( *it, mass) )
        result->SetPoint(i++, it->MZERO, it->MHALF);
   } 
@@ -358,11 +364,11 @@ int TScan::DoStuff()
    
    ///gluino
    gStyle->SetLineColor(15);//gray
-   MyTGraph * m_gluino5  = IsoMassLine( gluino,  500. ); m_gluino5->Draw();
-   MyTGraph * m_gluino10 = IsoMassLine( gluino, 1000. ); m_gluino10->Draw();
-   MyTGraph * m_gluino20 = IsoMassLine( gluino, 2000. ); m_gluino20->Draw();
-   MyTGraph * m_gluino30 = IsoMassLine( gluino, 3000. ); m_gluino30->Draw();
-   MyTGraph * m_gluino40 = IsoMassLine( gluino, 4000. ); m_gluino40->Draw();
+   MyTGraph * m_gluino5  = IsoMassLine( points, gluino,  500. ); m_gluino5->Draw();
+   MyTGraph * m_gluino10 = IsoMassLine( points, gluino, 1000. ); m_gluino10->Draw();
+   MyTGraph * m_gluino20 = IsoMassLine( points, gluino, 2000. ); m_gluino20->Draw();
+   MyTGraph * m_gluino30 = IsoMassLine( points, gluino, 3000. ); m_gluino30->Draw();
+   MyTGraph * m_gluino40 = IsoMassLine( points, gluino, 4000. ); m_gluino40->Draw();
    t.DrawLatex(360.,450.,"#tilde{g}=1000 GeV");
    t.DrawLatex(600.,930.,"#tilde{g}=2000 GeV");
    t.DrawLatex(870.,1420.,"#tilde{g}=3000 GeV");
@@ -372,14 +378,14 @@ int TScan::DoStuff()
    //MyTGraph * m_neutralino1 = IsoMassLine( neutralino_1, 500. ); m_neutralino1->Draw();
    
    ///left-handed up-like squarks
-   MyTGraph * m_ul5  = IsoMassLine( ul,  500. ); m_ul5->Draw();
-   MyTGraph * m_ul10 = IsoMassLine( ul, 1000. ); m_ul10->Draw();
-   MyTGraph * m_ul15 = IsoMassLine( ul, 1500. ); m_ul15->Draw();
-   MyTGraph * m_ul20 = IsoMassLine( ul, 2000. ); m_ul20->Draw();
-   MyTGraph * m_ul25 = IsoMassLine( ul, 2500. ); m_ul25->Draw();
-   MyTGraph * m_ul30 = IsoMassLine( ul, 3000. ); m_ul30->Draw();
-   MyTGraph * m_ul35 = IsoMassLine( ul, 3500. ); m_ul35->Draw();
-   MyTGraph * m_ul40 = IsoMassLine( ul, 4000. ); m_ul40->Draw();
+   MyTGraph * m_ul5  = IsoMassLine( points, ul,  500. ); m_ul5->Draw();
+   MyTGraph * m_ul10 = IsoMassLine( points, ul, 1000. ); m_ul10->Draw();
+   MyTGraph * m_ul15 = IsoMassLine( points, ul, 1500. ); m_ul15->Draw();
+   MyTGraph * m_ul20 = IsoMassLine( points, ul, 2000. ); m_ul20->Draw();
+   MyTGraph * m_ul25 = IsoMassLine( points, ul, 2500. ); m_ul25->Draw();
+   MyTGraph * m_ul30 = IsoMassLine( points, ul, 3000. ); m_ul30->Draw();
+   MyTGraph * m_ul35 = IsoMassLine( points, ul, 3500. ); m_ul35->Draw();
+   MyTGraph * m_ul40 = IsoMassLine( points, ul, 4000. ); m_ul40->Draw();
    t.DrawLatex(800.,250.,"#tilde{u}_{L}=1000 GeV");
    t.DrawLatex(1670.,470.,"#tilde{u}_{L}=2000 GeV");
    t.DrawLatex(1670.,1250.,"#tilde{u}_{L}=3000 GeV");
@@ -407,13 +413,59 @@ int TScan::DoStuff()
 
    // m(gluino)==m(squark)
    gStyle->SetLineColor(1);//black
-   MyTGraph * m_ulgl  = IsoMassLine( sq_equal_gluino,  0.2 ); 
+   MyTGraph * m_ulgl  = IsoMassLine( points, sq_equal_gluino,  0.2 ); 
    m_ulgl->SetLineWidth(3); m_ulgl->Draw();
    t.SetTextSize(0.03);t.SetTextColor( 1 );
    t.DrawLatex( 750.,1200.,"m(#tilde{u}_{L}) < m(#tilde{g})");
-   t.DrawLatex(1400.,1150.,"m(#tilde{u}_{L}) > m(#tilde{g})");
+   t.DrawLatex(1350.,1150.,"m(#tilde{u}_{L}) > m(#tilde{g})");
 
 
+   // xs(gluino)==xs(squark)
+   MyTGraph * xs_ulgl  = IsoMassLine( xsects, xs_sq_equal_gluino,  5.0 ); 
+   xs_ulgl->SetLineWidth(3); xs_ulgl->Draw();
+   t.SetTextSize(0.02);t.SetTextColor( 1 );
+   t.DrawLatex( 890.,510.,"#sigma(#tilde{q}#tilde{q}) > #sigmam(#tilde{g}#tilde{g})");
+   t.DrawLatex(1280.,450.,"#sigma(#tilde{q}#tilde{q}) < #sigmam(#tilde{g}#tilde{g})");
+
+   TMarker m;
+   m.SetMarkerStyle(29);
+   m.SetMarkerColor(2);
+   m.SetMarkerSize(1.5);
+   m.DrawMarker(1000,1000);  
+   m.DrawMarker(1000,200);   
+   m.DrawMarker(1000,400);   
+   m.DrawMarker(1000,600);   
+   m.DrawMarker(1000,800);   
+   m.DrawMarker(1200,1000);  
+   m.DrawMarker(1200,1400);  
+   m.DrawMarker(1200,1800);  
+   m.DrawMarker(1200,200);   
+   m.DrawMarker(1200,600);   
+   m.DrawMarker(1600,1000);  
+   m.DrawMarker(1600,1400);  
+   m.DrawMarker(1600,1800);  
+   m.DrawMarker(1600,200);   
+   m.DrawMarker(1600,600);   
+   m.DrawMarker(2000,1000);  
+   m.DrawMarker(2000,1400);  
+   m.DrawMarker(2000,1800);  
+   m.DrawMarker(2000,200);   
+   m.DrawMarker(2000,600);   
+   m.DrawMarker(200,200);    
+   m.DrawMarker(400,200);    
+   m.DrawMarker(400,400);    
+   m.DrawMarker(400,600);    
+   m.DrawMarker(600,1000);   
+   m.DrawMarker(600,200);    
+   m.DrawMarker(600,400);    
+   m.DrawMarker(600,600);    
+   m.DrawMarker(600,800);    
+   m.DrawMarker(800,1000);   
+   m.DrawMarker(800,1400);   
+   m.DrawMarker(800,200);    
+   m.DrawMarker(800,400);    
+   m.DrawMarker(800,600);    
+   m.DrawMarker(800,800);    
    //DONE
    c1->SaveAs("dirt.eps");
    gApplication->Run();    //interactive

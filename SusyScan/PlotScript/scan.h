@@ -176,7 +176,7 @@ class TScan {
    TScan();
    ~TScan();
 
-   MyTGraph * IsoMassLine(bool(*func)(SUSY_POINT,double), double);
+   template <class T> MyTGraph * IsoMassLine(std::vector<T>, bool(*func)(T,double), double);
    MyTGraph * GetContour(TH2F*, int flag=0);
    template <class T> TH2F * TScan::Area(std::vector<T>,  bool(*func)(T));
    template <class T> TH2F * TScan::Area(std::vector<T>,double(*func)(T));
