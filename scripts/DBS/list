@@ -1,0 +1,55 @@
+#!/usr/bin/env python
+#
+# C.A. 7.1.2008, HH
+#
+#
+import sys
+#from dbsApi import DbsApi
+from DBSAPI.dbsException import *
+from DBSAPI.dbsApiException import *
+from DBSAPI.dbsOptions import DbsOptionParser
+from DBSAPI.dbsApi import DbsApi
+
+try:
+  optManager  = DbsOptionParser()
+  (opts,args) = optManager.getOpt()
+
+  #args={}
+  #args['url']='http://cmssrv17.fnal.gov:8989/DBS/servlet/DBSServlet' 
+  #args['version']='DBS_1_0_4'
+  #args['mode']='POST'
+  #api = DbsApi(args)
+  args={}
+  args['url']='http://cmsdbsprod.cern.ch/cms_dbs_prod_global/servlet/DBSServlet' 
+  #args['url']='https://cmsdbsprod.cern.ch:8443/cms_dbs_prod_global_writer/servlet/DBSServlet'
+  # levels are: CRITICAL, ERROR, NOTSET, DBSDEBUG, DBSINFO, DBSWARNING
+  args['level'] = 'ERROR'
+  args['version'] = 'DBS_1_0_5'
+
+  site={"se":"dcache-se-cms.desy.de"}
+
+  api = DbsApi(args)
+
+  # List all parameter sets
+  print "Processed Datasets:"
+  for ds in api.listProcessedDatasets(patternPrim='*QCD_Pt_*', 
+                                      patternDT="*RECO*", 
+				      patternProc="*",
+				      patternVer='CMSSW_1_6_7'):
+     FILENAME = ds['PrimaryDataset']['Name']+"_"+ds['Name']+".cff"
+     print FILENAME  
+     f=open(FILENAME, 'w')  
+     f.write("# "+ds['PathList'][0]+"\nsource = PoolSource {\nuntracked vstring fileNames = {\n")
+     files = api.listFiles(path=ds['PathList'][0])
+     f.write(",\n".join(['   "%s"' % file['LogicalFileName'] for file in files]))
+     f.write("\n   }\n}\n")
+     f.close()
+
+
+except DbsApiException, ex:
+  print "Caught API Exception %s: %s "  % (ex.getClassName(), ex.getErrorMessage() )
+  if ex.getErrorCode() not in (None, ""):
+    print "DBS Exception Error Code: ", ex.getErrorCode()      
+
+print "Done."
+

@@ -1,0 +1,48 @@
+#!/bin/bash
+
+DCACHEDIR=/pnfs/desy.de/cms/analysis/uhh/susy/susy-signal-mc/scan
+CFGDIR=/rdata2/uhh-cms014/data/auterman/data/scan
+
+POINTS=`ls Pythia_mSUGRA_incl_*.cfg`
+for POINT in $POINTS
+do
+   #strip possible endings:
+   SAMPLE=`echo $POINT  | sed -e "s|.cfg| |"`
+   SAMPLE=`echo $SAMPLE | sed -e "s|.cfi| |"`
+   SAMPLE=`echo $SAMPLE | sed -e "s|.cff| |"`
+   SAMPLE=`echo $SAMPLE | sed -e "s|.dat| |"`
+   N=`ls $DCACHEDIR/$SAMPLE* | wc -l`
+   echo "$SAMPLE: $N"
+   TOT=$(($TOT+$N))
+   
+   #Write configuration files to access the data
+   CFGFILE="$CFGDIR/$SAMPLE.cfg"
+   rm -f $CFGFILE
+   touch $CFGFILE
+   echo "source = PoolSource {" >> $CFGFILE
+   echo "untracked vstring fileNames = {" >> $CFGFILE
+   rm -f /tmp/$SAMPLE
+   touch /tmp/$SAMPLE
+   FILES=`ls $DCACHEDIR/$SAMPLE*`   
+   for FILE in $FILES
+   do
+     SIZE=`ls -l $FILE | cut -b 30-43`
+     if [ "$SIZE" -le  30000000 ]
+     then
+       	echo "Bad file: $FILE has size $SIZE"
+     else
+	echo "  \"dcap://srm-dcache.desy.de$FILE\"," >> /tmp/$SAMPLE
+     fi
+   done
+   #remove last ',':
+   FILES=`cat /tmp/$SAMPLE`
+   FILES=${FILES%,}
+   rm -f /tmp/$SAMPLE
+   for FILE in $FILES
+   do
+     echo "   $FILE" >> $CFGFILE
+   done
+   echo "  }"  >> $CFGFILE
+   echo "}"    >> $CFGFILE
+done
+echo "In total: $TOT"
