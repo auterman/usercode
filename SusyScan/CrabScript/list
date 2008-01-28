@@ -11,7 +11,9 @@ do
    SAMPLE=`echo $SAMPLE | sed -e "s|.cfi| |"`
    SAMPLE=`echo $SAMPLE | sed -e "s|.cff| |"`
    SAMPLE=`echo $SAMPLE | sed -e "s|.dat| |"`
-   N=`ls $DCACHEDIR/$SAMPLE* | wc -l`
+   SAMPLENAME=`cat $POINT | grep "untracked string fileName" | cut -b 38-`
+   SAMPLENAME=`echo $SAMPLENAME | sed -e "s|.root\"||"`
+   N=`ls $DCACHEDIR/$SAMPLENAME* | wc -l`
    echo "$SAMPLE: $N"
    TOT=$(($TOT+$N))
    
@@ -23,15 +25,18 @@ do
    echo "untracked vstring fileNames = {" >> $CFGFILE
    rm -f /tmp/$SAMPLE
    touch /tmp/$SAMPLE
-   FILES=`ls $DCACHEDIR/$SAMPLE*`   
+   FILES=`ls $DCACHEDIR/$SAMPLENAME*`   
    for FILE in $FILES
    do
-     SIZE=`ls -l $FILE | cut -b 30-43`
-     if [ "$SIZE" -le  30000000 ]
+     SIZE=`ls -ls $FILE | cut -b -5`
+     SIZE=`echo $SIZE | sed -e "s|-||"`
+     SIZE=`echo $SIZE | sed -e "s|r||"`
+     SIZE=`echo $SIZE | sed -e "s|w||"`
+     if [ "$SIZE" -le  30000 ]
      then
        	echo "Bad file: $FILE has size $SIZE"
      else
-	echo "  \"dcap://srm-dcache.desy.de$FILE\"," >> /tmp/$SAMPLE
+	echo "  \"dcap://$FILE\"," >> /tmp/$SAMPLE
      fi
    done
    #remove last ',':
