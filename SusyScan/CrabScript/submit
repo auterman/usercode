@@ -38,11 +38,11 @@ else
   sed -e 's/muonRPCDigis = 9900112/muonRPCDigis = '$SEED10'/'  Pythia_mSUGRA_incl_$2_$3.cfg.12.dummy > Pythia_mSUGRA_incl_$2_$3.cfg.13.dummy
   #Output
   rm -f Pythia_mSUGRA_incl_$2_$3.cfg
-  sed -e 's/Pythia_mSUGRA_incl.root/Pythia_mSUGRA_incl_'$2'_'$3'.root/'  Pythia_mSUGRA_incl_$2_$3.cfg.13.dummy > Pythia_mSUGRA_incl_$2_$3.cfg
+  sed -e 's/Pythia_mSUGRA_incl.root/Pythia_mSUGRA_incl_'$SEED2'_'$2'_'$3'.root/'  Pythia_mSUGRA_incl_$2_$3.cfg.13.dummy > Pythia_mSUGRA_incl_$2_$3.cfg
   #
   #CRAB stuff
   sed -e 's/pset=Pythia_mSUGRA_incl.cfg/pset=Pythia_mSUGRA_incl_'$2'_'$3'.cfg/' crab.orig > crab.1.dummy
-  sed -e 's/output_file = Pythia_mSUGRA_incl.root/output_file = Pythia_mSUGRA_incl_'$2'_'$3'.root/' crab.1.dummy > crab.2.dummy
+  sed -e 's/output_file = Pythia_mSUGRA_incl.root/output_file = Pythia_mSUGRA_incl_'$SEED2'_'$2'_'$3'.root/' crab.1.dummy > crab.2.dummy
   sed -e 's/total_number_of_events=250/total_number_of_events='$1'/' crab.2.dummy > crab.cfg
   #rm dummy files  
   rm -f *.dummy

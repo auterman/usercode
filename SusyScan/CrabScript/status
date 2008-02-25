@@ -20,8 +20,8 @@ do
   _RUN=`grep "     Running   " crap.tmp | wc -l`
   _ABORT=`grep "     Aborted   " crap.tmp | wc -l`
   _SCHED=`grep "    Scheduled   " crap.tmp | wc -l`
-  _TOT=`grep "Total Jobs" crap.tmp | cut -b 10-13`
-  _UNK=$(($_TOT-$_DONE-$_RUN-$_ABORT-$_SCHED))
+  _TOT=`grep "Total Jobs" crap.tmp | cut -b 10-12`
+  #_UNK=$(($_TOT-$_DONE-$_RUN-$_ABORT-$_SCHED))
   ABORTEDJOBS=`grep -A 1 "Jobs aborted" crap.tmp | grep "List of jobs" | cut -b 24-`
   if [ "$ABORTEDJOBS" != '' ]
   then
@@ -32,8 +32,8 @@ do
   RUN=$(($RUN+$_RUN))
   ABORT=$(($ABORT+$_ABORT))
   SCHED=$(($SCHED+$_SCHED))
-  TOT=$(($TOT+$_TOT))
-  UNK=$(($TOT-$DONE-$RUN-$ABORT-$SCHED))
+  #TOT=$(($TOT+$_TOT))
+  #UNK=$(($TOT-$DONE-$RUN-$ABORT-$SCHED))
   I=$(($I+1))
   #
   echo "Checked $I (of $NJOBS) directories:"
@@ -42,7 +42,7 @@ do
   echo "-> $_RUN  ($RUN)  Running"
   echo "-> $_ABORT  ($ABORT)  Aborted"
   echo "-> $_SCHED  ($SCHED)  Scheduled"
-  echo "-> $_UNK  ($UNK)  Unknown status"
+  #echo "-> $_UNK  ($UNK)  Unknown status"
   echo "-> $_TOT  ($TOT)  Total jobs"
   echo
 done
