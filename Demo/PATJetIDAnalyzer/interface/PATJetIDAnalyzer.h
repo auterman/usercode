@@ -13,7 +13,7 @@
 //
 // Original Author:  Christian Autermann
 //         Created:  Mon Feb 25 11:33:02 CET 2008
-// $Id$
+// $Id: PATJetIDAnalyzer.h,v 1.1.1.1 2008/02/25 15:54:04 auterman Exp $
 //
 //
 
@@ -32,13 +32,6 @@
 //
 // class declerations
 //
-class PtGreater {
-public:
-  template <typename T> bool operator () (const T& i, const T& j) {
-    return (i.pt() > j.pt());
-  }
-};
-
 class PATJetIDAnalyzer : public edm::EDAnalyzer {
    public:
       explicit PATJetIDAnalyzer(const edm::ParameterSet&);

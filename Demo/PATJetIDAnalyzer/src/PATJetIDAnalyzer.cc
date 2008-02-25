@@ -13,7 +13,7 @@
 //
 // Original Author:  Christian Autermann
 //         Created:  Mon Feb 25 11:33:02 CET 2008
-// $Id$
+// $Id: PATJetIDAnalyzer.cc,v 1.1.1.1 2008/02/25 15:54:04 auterman Exp $
 //
 //
 
@@ -41,6 +41,7 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 
+#include "PhysicsTools/Utilities/interface/EtComparator.h"
 #include "Demo/PATJetIDAnalyzer/interface/NameScheme.h"
 #include "Demo/PATJetIDAnalyzer/interface/PATJetIDAnalyzer.h"
 
@@ -50,10 +51,12 @@
 // constructors and destructor
 //
 PATJetIDAnalyzer::PATJetIDAnalyzer(const edm::ParameterSet& iConfig) :
-  _recJet  ( iConfig.getParameter<edm::InputTag>( "recJet" ) ),
-  _genJet  ( iConfig.getParameter<edm::InputTag>( "genJet" ) ),
-  _recMet  ( iConfig.getParameter<edm::InputTag>( "recMet" ) ),
-  _genMet  ( iConfig.getParameter<edm::InputTag>( "genMet" ) ),
+  //_recJet  ( iConfig.getParameter<edm::InputTag>( "recJet" ) ),
+  //_genJet  ( iConfig.getParameter<edm::InputTag>( "genJet" ) ),
+  //_recMet  ( iConfig.getParameter<edm::InputTag>( "recMet" ) ),
+  //_genMet  ( iConfig.getParameter<edm::InputTag>( "genMet" ) ),
+  _patJet  ( iConfig.getParameter<edm::InputTag>( "patJet" ) ),
+  _patMet  ( iConfig.getParameter<edm::InputTag>( "patMet" ) ),
   _hist    ( iConfig.getParameter<std::string>( "hist" ) ),
   _jetminpt( iConfig.getParameter<double>( "MinJetPt" ) ),
   _jetmaxeta(iConfig.getParameter<double>( "MaxJetEta" ) )
@@ -81,8 +84,11 @@ void
 PATJetIDAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
+  using namespace reco;
   using namespace std;
+  using namespace pat;
   
+/*
   //CaloJets
   edm::Handle<reco::CaloJetCollection> CJets;
   iEvent.getByLabel( _recJet, CJets );
@@ -98,12 +104,22 @@ PATJetIDAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   // matching maps for GenJets and CaloJets and vice versa
   // fills some histograms inside (dR vs. dE, rec. eff., gen. vs. matched ...)
   makeMatchingMaps(GJets,CJets);
+*/
+  //PAT Jets
+  typedef vector<pat::Jet>::const_iterator PatJetCIter;
+  edm::Handle<vector<pat::Jet> > PatJets;
+  iEvent.getByLabel( _patJet, PatJets );
+  GreaterByEt<pat::Jet>  eTComparator_;
+  vector<pat::Jet> patjets = *PatJets;
+  std::sort(patjets.begin(), patjets.end(), eTComparator_);
+  //std::sort( (*PatJets).begin(), (*PatJets).end(), eTComparator_);
+  PatJetCIter PatJetBegin = patjets.begin();
+  PatJetCIter PatJetEnd   = patjets.end();
 
-  //CaloJets
+  //Jets
   unsigned multiplicity = 0;
   double met=0.0, ht=0.0;
-  for (reco::CaloJetCollection::const_iterator it=CaloJets.begin();
-       it!=CaloJets.end(); ++it) {
+  for (PatJetCIter it=PatJetBegin; it!=PatJetEnd; ++it) {
     if (it->pt() > _jetminpt && fabs( it->eta() )<_jetmaxeta){
       if (multiplicity<_njets ) {
 	_pt_jet[     multiplicity]->Fill( it->pt()  );
@@ -122,6 +138,15 @@ PATJetIDAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   _jetmult->Fill( multiplicity );
   _ht->Fill( ht );
 
+
+/*
+  //PAT MET
+  typedef vector<PatMet>::const_iterator PatJetCIter;
+  edm::Handle<vector<PatJet> > PatJets;
+  iEvent.getByLabel( _patJet, PatJets );
+  std::sort( PatJets->begin(), PatJets->end(), PtGreater());
+  PatJetCIter PatJetBegin = PatJets->begin();
+  PatJetCIter PatJetEnd   = PatJets->end();
   //MET
   edm::Handle<reco::CaloMETCollection> recMet;
   iEvent.getByLabel(_recMet,recMet);
@@ -145,7 +170,8 @@ PATJetIDAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 			+pow(CaloJets[0].py()+CaloJets[1].py(),2)
 			+pow(CaloJets[0].pz()+CaloJets[1].pz(),2) ) ) );
   }  
-
+*/
+/*
   //GenJets
   multiplicity = 0;
   met=0.0; 
@@ -189,7 +215,7 @@ PATJetIDAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 			   +pow(GenJets[0].py()+GenJets[1].py(),2)
 			   +pow(GenJets[0].pz()+GenJets[1].pz(),2) ) ) );
   }  
-
+*/
 }
 
 
