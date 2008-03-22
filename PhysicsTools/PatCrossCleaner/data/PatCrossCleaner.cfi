@@ -1,0 +1,12 @@
+// default values for the PatCrossCleaner
+
+module patcrosscleaner   = PatCrossCleaner {
+	InputTag patJets       = selectedLayer1Jets:PAT
+	InputTag patMets       = selectedLayer1Mets:PAT
+	InputTag patMuons      = selectedLayer1Muons:PAT
+	InputTag patElectrons  = selectedLayer1Electrons:PAT
+
+	InputTag patTowers     = caloTowers
+	InputTag patTracks     = ctfWithMaterialTracks 
+        InputTag patVertices   = offlinePrimaryVerticesFromCTFTracks
+}
