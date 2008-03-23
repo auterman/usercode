@@ -5,12 +5,13 @@
     \class pat::ElectronJetCrossCleaner ElectronJetCrossCleaner.h "PhysicsTools/PatUtils/ElectronJetCrossCleaner.h"
     \brief cross cleans objets
 
-    \version $Id: ElectronJetCrossCleaner.h,v 1.0 2008/03/22 11:23:38 auterman Exp $
+    \version $Id: ElectronJetCrossCleaner.h,v 1.1.1.1 2008/03/22 19:07:55 auterman Exp $
 **/
 
 #include "PhysicsTools/PatCrossCleaner/interface/CrossCleanerResult.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
+#include <DataFormats/Common/interface/Handle.h>
 
 namespace pat {
 
@@ -25,11 +26,11 @@ namespace pat {
     ElectronJetCrossCleaner( const ElectronJetCleaning& cfg ) : config_( cfg ) {}
     ~ElectronJetCrossCleaner() {}
 
-    const CrossCleanerResult clean(
-           const std::vector<pat::Electron>& Electrons,
-           const std::vector<pat::Jet>& Jets
+    void clean(
+           const edm::Handle< edm::View< pat::Electron> >& Electrons,
+           const edm::Handle< edm::View< pat::Jet> >& Jets,
+	   CrossCleanerMap & assMap
          ) const;
-    
 
   private:
     ElectronJetCleaning config_;

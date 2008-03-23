@@ -13,7 +13,7 @@
 //
 // Original Author:  Christian AUTERMANN
 //         Created:  Sat Mar 22 12:58:04 CET 2008
-// $Id$
+// $Id: PatCrossCleaner.cc,v 1.1.1.1 2008/03/22 19:07:55 auterman Exp $
 //
 //
 
@@ -26,13 +26,13 @@
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/PatCandidates/interface/Photon.h"
+#include "DataFormats/PatCandidates/interface/Tau.h"
 //DataFormats
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 //User
-#include "PhysicsTools/Utilities/interface/EtComparator.h"
-#include "PhysicsTools/Utilities/interface/PtComparator.h"
 #include "PhysicsTools/PatCrossCleaner/interface/PatCrossCleaner.h"
 
 
@@ -55,6 +55,8 @@ PatCrossCleaner::PatCrossCleaner(const edm::ParameterSet& iConfig) :
   _patMets       ( iConfig.getParameter<edm::InputTag>( "patMets" ) ),
   _patMuons      ( iConfig.getParameter<edm::InputTag>( "patMuons" ) ),
   _patElectrons  ( iConfig.getParameter<edm::InputTag>( "patElectrons" ) ),
+  _patPhotons    ( iConfig.getParameter<edm::InputTag>( "patPhotons" ) ),
+  _patTaus       ( iConfig.getParameter<edm::InputTag>( "patTaus" ) ),
   _patCaloTowers ( iConfig.getParameter<edm::InputTag>( "patCaloTowers" ) ),
   _patTracks     ( iConfig.getParameter<edm::InputTag>( "patTracks" ) ),
   _patVertices   ( iConfig.getParameter<edm::InputTag>( "patVertices" ) ),
@@ -65,10 +67,12 @@ PatCrossCleaner::PatCrossCleaner(const edm::ParameterSet& iConfig) :
 
   ///produces cross-cleaned collections of above objects
   //Alternative: produce cross-cleaning decision & MET correction per object
-  produces<std::vector<Jet> >();
-  produces<std::vector<MET> >();
-  produces<std::vector<Muon> >();
-  produces<std::vector<Electron> >();
+  produces<std::vector<pat::Jet> >();
+  produces<std::vector<pat::MET> >();
+  produces<std::vector<pat::Muon> >();
+  produces<std::vector<pat::Electron> >();
+  produces<std::vector<pat::Photon> >();
+  produces<std::vector<pat::Tau> >();
   //produces<std::vector<Track> >(); //there is nothing like this in PAT (yet?)
   //produces<std::vector<Tower> >(); //there is nothing like this in PAT (yet?)
 }
@@ -95,31 +99,30 @@ PatCrossCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace std;
 
    //Jets   
-   Handle<std::vector<Jet> > pJets;
+   Handle<edm::View<pat::Jet> > pJets;
    iEvent.getByLabel(_patJets,pJets);
-   GreaterByEt<pat::Jet>  eTComparator_;
-   std::vector<Jet> Jets = *pJets;
-   std::sort(Jets.begin(), Jets.end(), eTComparator_);
 
    //MET
-   Handle<std::vector<MET> > pMets;
+   Handle<edm::View<pat::MET> > pMets;
    iEvent.getByLabel(_patMets,pMets);
-   std::vector<MET> Mets = *pMets;
-
-   //Electrons   
-   Handle<std::vector<Electron> > pElectrons;
-   iEvent.getByLabel(_patElectrons,pElectrons);
-   GreaterByPt<pat::Electron>  pTElectronComparator_;
-   std::vector<Electron> Electrons = *pElectrons;
-   std::sort(Electrons.begin(), Electrons.end(), pTElectronComparator_);
+   edm::View<pat::MET> Mets = *pMets;
 
    //Muons   
-   Handle<std::vector<Muon> > pMuons;
+   Handle<edm::View<pat::Muon> > pMuons;
    iEvent.getByLabel(_patMuons,pMuons);
-   GreaterByPt<pat::Muon>  pTMuonComparator_;
-   std::vector<Muon> Muons = *pMuons;
-   std::sort(Muons.begin(), Muons.end(), pTMuonComparator_);
 
+   //Electrons   
+   Handle<edm::View<pat::Electron> > pElectrons;
+   iEvent.getByLabel(_patElectrons,pElectrons);
+
+   //Photons   
+   Handle<edm::View<pat::Photon> > pPhotons;
+   iEvent.getByLabel(_patPhotons,pPhotons);
+
+   //Taus   
+   Handle<edm::View<pat::Tau> > pTaus;
+   iEvent.getByLabel(_patTaus,pTaus);
+/*
    //CaloTowers
    Handle<CaloTowerCollection> pTowers;
    iEvent.getByLabel(_patCaloTowers,pTowers);
@@ -131,13 +134,18 @@ PatCrossCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //Vertices
    Handle<reco::VertexCollection> pVertices;
    iEvent.getByLabel(_patVertices,pVertices);
+*/
 
-
+   ///The association map containing the objects that are to be dropped (key),
+   ///and the objects that caused them to be dropped (value).
+   CrossCleanerMap  assMap;
+   
    ///1. Call the cross-cleaning algorithms:
-   _conflicts = _ElectronJetCC.clean( Electrons, Jets );
+   _ElectronJetCC.clean( pElectrons, pJets, assMap );
    //_conflicts += _MuonJetCC.clean( Muons, Jets );
    //...
 
+	
    //@@ todo: "+" and "+=" operators of the ValueMap has to be checked,
    //         if existing keys are handled correctly!
    //         Probably an exception is thrown, if a key already exists!
@@ -162,34 +170,66 @@ PatCrossCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    ///4. Produce clean collections
 
    //Electrons
-   std::vector<Electron> cleanElectrons;
-   for (std::vector<Electron>::const_iterator it = Electrons.begin();
-        it!=Electrons.end(); ++it )
-     if (_conflicts[ *it ].keep) //no conflicts for this e
-   //if (_conflicts.find( *it )==_conflicts.end()) //no conflicts for this e
-       cleanElectrons.push_back( *it );
-   std::auto_ptr<std::vector<Electron> > ptrElectrons(&cleanElectrons);
-   iEvent.put(ptrElectrons);
+   std::auto_ptr<std::vector<pat::Electron> > cleanElectrons( new std::vector<pat::Electron>);
+   for (unsigned int i = 0; i < pElectrons->size(); ++i ){
+     edm::RefToBase<reco::Candidate> electronRef( pElectrons->refAt(i) );
+     if (assMap.find(electronRef) != assMap.end())
+	continue;
+     cleanElectrons->push_back( (*pElectrons)[ i ] );
+   }
+   iEvent.put(cleanElectrons);
 
-/*   
    //Jets
-   std::vector<Jet> cleanJets;
-   for (std::vector<Jet>::const_iterator it = Jets.begin();
-        it!=Jets.end(); ++it )
-     if (_conflicts[ *it  ].keep)//no conflicts for this jet
-       cleanJets.push_back( *it );
-   std::auto_ptr<std::vector<Jet> > ptrJets(&cleanJets);
-   iEvent.put(ptrJets);
+   std::auto_ptr<std::vector<pat::Jet> > cleanJets( new std::vector<pat::Jet>);
+   for (unsigned int i = 0; i < pJets->size(); ++i ){
+     edm::RefToBase<reco::Candidate> JetRef( pJets->refAt(i) );
+     if (assMap.find(JetRef) != assMap.end()) {
+        // --DEBUG
+       cout << "Reject jet with phi="<<(*pJets)[ i ].phi()
+	    << " and eta="<<(*pJets)[ i ].eta()
+	    << " because of the following objects: \n";
+       for (std::vector<edm::RefToBase<reco::Candidate> >::const_iterator it=
+	     assMap[JetRef].objects.begin(); it!=assMap[JetRef].objects.end(); ++it )
+	     cout << "  object with phi="<<(*it)->phi()
+        	  << " and eta="<<(*it)->eta()<<endl;
+        // --DEBUG
+	continue;
+     }	 
+     cleanJets->push_back( (*pJets)[ i ] );
+   }
+   iEvent.put(cleanJets);
+
 
    //Muons
-   std::vector<Muon> cleanMuons;
-   for (std::vector<Muon>::const_iterator it = Muons.begin();
-        it!=Muons.end(); ++it )
-     if (_conflicts[ *it  ].keep)//no conflicts for this mu
-       cleanMuons.push_back( *it );
-   std::auto_ptr<std::vector<Muon> > ptrMuons(&cleanMuons);
-   iEvent.put(ptrMuons);
-*/
+   std::auto_ptr<std::vector<pat::Muon> > cleanMuons( new std::vector<pat::Muon>);
+   for (unsigned int i = 0; i < pMuons->size(); ++i ){
+     edm::RefToBase<reco::Candidate> MuonRef( pMuons->refAt(i) );
+     if (assMap.find(MuonRef) != assMap.end())
+	continue;
+     cleanMuons->push_back( (*pMuons)[ i ] );
+   }
+   iEvent.put(cleanMuons);
+
+   //Photons
+   std::auto_ptr<std::vector<pat::Photon> > cleanPhotons( new std::vector<pat::Photon>);
+   for (unsigned int i = 0; i < pPhotons->size(); ++i ){
+     edm::RefToBase<reco::Candidate> PhotonRef( pPhotons->refAt(i) );
+     if (assMap.find(PhotonRef) != assMap.end())
+	continue;
+     cleanPhotons->push_back( (*pPhotons)[ i ] );
+   }
+   iEvent.put(cleanPhotons);
+
+   //Taus
+   std::auto_ptr<std::vector<pat::Tau> > cleanTaus( new std::vector<pat::Tau>);
+   for (unsigned int i = 0; i < pTaus->size(); ++i ){
+     edm::RefToBase<reco::Candidate> TauRef( pTaus->refAt(i) );
+     if (assMap.find(TauRef) != assMap.end())
+	continue;
+     cleanTaus->push_back( (*pTaus)[ i ] );
+   }
+   iEvent.put(cleanTaus);
+
 }
 
 // ------------ method called once each job just before starting event loop  ------------

@@ -13,7 +13,7 @@
 //
 // Original Author:  Christian AUTERMANN
 //         Created:  Sat Mar 22 12:58:04 CET 2008
-// $Id$
+// $Id: PatCrossCleaner.h,v 1.1.1.1 2008/03/22 19:07:55 auterman Exp $
 //
 //
 
@@ -52,13 +52,12 @@ class PatCrossCleaner : public edm::EDProducer {
       edm::InputTag _patMets;
       edm::InputTag _patMuons;
       edm::InputTag _patElectrons;
+      edm::InputTag _patPhotons;
+      edm::InputTag _patTaus;
       // The following are no PAT objects (yet?)
       edm::InputTag _patCaloTowers;
       edm::InputTag _patTracks;
       edm::InputTag _patVertices;
-      
-      ///map: value is vector of objects requiring the key(-object) to be dropped
-      CrossCleanerResult _conflicts;
       
       ///The actual cross-cleaners:
       //Electron-Jet
