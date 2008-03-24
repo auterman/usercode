@@ -13,6 +13,7 @@ module patcrosscleaner   = PatCrossCleaner {
         InputTag patVertices   = offlinePrimaryVerticesFromCTFTracks
 	
 	PSet  ElectronJetCrossCleaning = { 
-	  double value = 0.5
+	  double deltaR_min = 0.5
+          double sharedByjetEratio_max = 0.7
 	}
 }

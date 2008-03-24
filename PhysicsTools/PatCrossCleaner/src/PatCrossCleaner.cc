@@ -13,7 +13,7 @@
 //
 // Original Author:  Christian AUTERMANN
 //         Created:  Sat Mar 22 12:58:04 CET 2008
-// $Id: PatCrossCleaner.cc,v 1.1.1.1 2008/03/22 19:07:55 auterman Exp $
+// $Id: PatCrossCleaner.cc,v 1.2 2008/03/23 18:51:03 auterman Exp $
 //
 //
 
@@ -64,7 +64,6 @@ PatCrossCleaner::PatCrossCleaner(const edm::ParameterSet& iConfig) :
   _EJselectionCfg(iConfig.getParameter<edm::ParameterSet>("ElectronJetCrossCleaning")),    
   _ElectronJetCC(reco::modules::make<ElectronJetCrossCleaner>(_EJselectionCfg))
 {
-
   ///produces cross-cleaned collections of above objects
   //Alternative: produce cross-cleaning decision & MET correction per object
   produces<std::vector<pat::Jet> >();
@@ -141,19 +140,14 @@ PatCrossCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    CrossCleanerMap  assMap;
    
    ///1. Call the cross-cleaning algorithms:
-   _ElectronJetCC.clean( pElectrons, pJets, assMap );
-   //_conflicts += _MuonJetCC.clean( Muons, Jets );
+   _ElectronJetCC.clean( *pElectrons, *pJets, assMap );
+   //_MuonJetCC.clean( Muons, Jets, assMap );
    //...
-
-	
-   //@@ todo: "+" and "+=" operators of the ValueMap has to be checked,
-   //         if existing keys are handled correctly!
-   //         Probably an exception is thrown, if a key already exists!
    
 
 
    ///2. Interference handling: 
-   ///All object for which entries in the map "_conflics" exist should be
+   ///All object for which entries in the map "assMap" exist should be
    ///dropped. However dropping one object might solve conflicts of another 
    ///object, which therefore doesn't need to be dropped. This should be 
    ///handled, here.
@@ -166,6 +160,9 @@ PatCrossCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //@@ todo...
 
 
+   ///debugging output:
+   printDropped(assMap);
+
 
    ///4. Produce clean collections
 
@@ -173,8 +170,11 @@ PatCrossCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    std::auto_ptr<std::vector<pat::Electron> > cleanElectrons( new std::vector<pat::Electron>);
    for (unsigned int i = 0; i < pElectrons->size(); ++i ){
      edm::RefToBase<reco::Candidate> electronRef( pElectrons->refAt(i) );
-     if (assMap.find(electronRef) != assMap.end())
+     ++_statistics[electronRef->pdgId()].first; //total number of electrons
+     if (assMap.find(electronRef) != assMap.end()) {
+        ++_statistics[electronRef->pdgId()].second;//rejected number of electrons
 	continue;
+     }	
      cleanElectrons->push_back( (*pElectrons)[ i ] );
    }
    iEvent.put(cleanElectrons);
@@ -183,16 +183,9 @@ PatCrossCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    std::auto_ptr<std::vector<pat::Jet> > cleanJets( new std::vector<pat::Jet>);
    for (unsigned int i = 0; i < pJets->size(); ++i ){
      edm::RefToBase<reco::Candidate> JetRef( pJets->refAt(i) );
+     ++_statistics[JetRef->pdgId()].first; //total number of Jets
      if (assMap.find(JetRef) != assMap.end()) {
-        // --DEBUG
-       cout << "Reject jet with phi="<<(*pJets)[ i ].phi()
-	    << " and eta="<<(*pJets)[ i ].eta()
-	    << " because of the following objects: \n";
-       for (std::vector<edm::RefToBase<reco::Candidate> >::const_iterator it=
-	     assMap[JetRef].objects.begin(); it!=assMap[JetRef].objects.end(); ++it )
-	     cout << "  object with phi="<<(*it)->phi()
-        	  << " and eta="<<(*it)->eta()<<endl;
-        // --DEBUG
+        ++_statistics[JetRef->pdgId()].second;//rejected number of Jets
 	continue;
      }	 
      cleanJets->push_back( (*pJets)[ i ] );
@@ -204,8 +197,11 @@ PatCrossCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    std::auto_ptr<std::vector<pat::Muon> > cleanMuons( new std::vector<pat::Muon>);
    for (unsigned int i = 0; i < pMuons->size(); ++i ){
      edm::RefToBase<reco::Candidate> MuonRef( pMuons->refAt(i) );
-     if (assMap.find(MuonRef) != assMap.end())
+     ++_statistics[MuonRef->pdgId()].first; //total number of Muons
+     if (assMap.find(MuonRef) != assMap.end()){
+        ++_statistics[MuonRef->pdgId()].second;//rejected number of Muons
 	continue;
+     }	
      cleanMuons->push_back( (*pMuons)[ i ] );
    }
    iEvent.put(cleanMuons);
@@ -214,8 +210,11 @@ PatCrossCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    std::auto_ptr<std::vector<pat::Photon> > cleanPhotons( new std::vector<pat::Photon>);
    for (unsigned int i = 0; i < pPhotons->size(); ++i ){
      edm::RefToBase<reco::Candidate> PhotonRef( pPhotons->refAt(i) );
-     if (assMap.find(PhotonRef) != assMap.end())
+     ++_statistics[PhotonRef->pdgId()].first; //total number of Photons
+     if (assMap.find(PhotonRef) != assMap.end()){
+        ++_statistics[PhotonRef->pdgId()].second;//rejected number of Photons
 	continue;
+     }	
      cleanPhotons->push_back( (*pPhotons)[ i ] );
    }
    iEvent.put(cleanPhotons);
@@ -224,13 +223,42 @@ PatCrossCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    std::auto_ptr<std::vector<pat::Tau> > cleanTaus( new std::vector<pat::Tau>);
    for (unsigned int i = 0; i < pTaus->size(); ++i ){
      edm::RefToBase<reco::Candidate> TauRef( pTaus->refAt(i) );
-     if (assMap.find(TauRef) != assMap.end())
+     ++_statistics[TauRef->pdgId()].first; //total number of Taus
+     if (assMap.find(TauRef) != assMap.end()){
+        ++_statistics[TauRef->pdgId()].second;//rejected number of Taus
 	continue;
+     }	
      cleanTaus->push_back( (*pTaus)[ i ] );
    }
    iEvent.put(cleanTaus);
 
 }
+
+// --- debugging function
+void PatCrossCleaner::printDropped(CrossCleanerMap& conflicts)
+{
+  using namespace std;
+  for (CrossCleanerMap::const_iterator it=conflicts.begin(); 
+       it!=conflicts.end(); ++it) {
+     cout << "Dropping object PDG-ID("<<setw(3)<<it->first->pdgId()
+          << ") with phi="<<setw(8)<<it->first->phi()
+          << ", eta="<<setw(9)<< it->first->eta()
+          << ", pt="<<setw(9)<<it->first->pt()
+	  << "; caused by the following " << it->second.objects.size() 
+	  << " object(s):" << endl;
+     //if more detailed information on this object is needed, than it has to be casted back to an PATObject.	  
+     for (std::vector<edm::RefToBase<reco::Candidate> >::const_iterator
+          cs=it->second.objects.begin(); cs!=it->second.objects.end(); ++cs) {
+	cout << "     ->  object PDG-ID("<< setw(3)<<(*cs)->pdgId() 
+	     << ") with phi="<<setw(8)<<(*cs)->phi()
+             << ", eta="<<setw(9)<<(*cs)->eta()
+             << ", pT="<<setw(9)<<(*cs)->pt()
+	     << endl;
+     }	
+  }     
+}
+
+
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
@@ -241,6 +269,17 @@ PatCrossCleaner::beginJob(const edm::EventSetup&)
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 PatCrossCleaner::endJob() {
+  std::cout<<" PatCrossCleaner statistics\n============================\n";
+  for (std::map<int,std::pair<int,int> >::const_iterator it=_statistics.begin();
+       it!=_statistics.end();++it){
+     std::cout << "PDG-ID "<<std::setw(3)<<it->first
+          << ":  total = "<<std::setw(7)<<it->second.first
+	  << ",  dropped = "<<std::setw(4)<<it->second.second;
+     if (it->second.first>0)	  
+     std::cout << "  ("<<std::setw(1)<<(float)it->second.second/it->second.first
+               <<"%)";
+     std::cout<<std::endl;
+  }     
 }
 
 //define this as a plug-in

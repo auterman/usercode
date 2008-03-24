@@ -13,7 +13,7 @@
 //
 // Original Author:  Christian AUTERMANN
 //         Created:  Sat Mar 22 12:58:04 CET 2008
-// $Id: PatCrossCleaner.h,v 1.1.1.1 2008/03/22 19:07:55 auterman Exp $
+// $Id: PatCrossCleaner.h,v 1.2 2008/03/23 18:51:03 auterman Exp $
 //
 //
 
@@ -22,7 +22,8 @@
 
 // system include files
 #include <memory>
-
+#include <map>
+#include <utility>//pair
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -67,6 +68,10 @@ class PatCrossCleaner : public edm::EDProducer {
       //Muon-Jet
       //...
       
+      ///Helper function for debugging: prints out all objects that should be dropped
+      void printDropped(CrossCleanerMap& conflicts);
+      ///statistical information
+      std::map<int,std::pair<int,int> > _statistics;
 };
 
 namespace reco {
@@ -76,7 +81,8 @@ namespace reco {
     struct ParameterAdapter<pat::ElectronJetCrossCleaner> { 
       static pat::ElectronJetCrossCleaner make(const edm::ParameterSet & cfg) {
         pat::ElectronJetCleaning config_;
-        config_.value = cfg.getParameter<double>("value");
+        config_.deltaR_min = cfg.getParameter<double>("deltaR_min");
+        config_.sharedByjetEratio_max = cfg.getParameter<double>("sharedByjetEratio_max");
 	//... read in further parameters for Electron-Jet here
 	
 	return pat::ElectronJetCrossCleaner( config_ );
