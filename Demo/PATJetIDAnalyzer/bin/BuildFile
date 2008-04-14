@@ -1,0 +1,9 @@
+<environment>
+ <use name=root> 
+ <bin name=ValidationPlotMaker
+      file=ValidationPlotMaker.cc,ConfigFile.cc> 
+ </bin>
+ <bin name=ValidationPlotMaker_Eff
+      file=ValidationPlotMaker_Eff.cc,ConfigFile.cc> 
+ </bin>
+</environment>

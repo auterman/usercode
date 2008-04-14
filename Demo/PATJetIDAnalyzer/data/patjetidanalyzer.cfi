@@ -5,10 +5,17 @@
 // (Remember that filenames are case sensitive.)
 
 module patjetidanalyzer = PATJetIDAnalyzer {
-	InputTag patJet  = selectedLayer1Jets:PAT
-	InputTag patMet  = selectedLayer1Mets:PAT
-	string hist      = "HSusyAnalyzer.root"
-	double MinJetPt  = 20.
-	double MaxJetEta = 5.0
+	InputTag patJet       = selectedLayer1Jets
+	InputTag patMet       = selectedLayer1Mets:PAT
+        InputTag EBRecHits    = ecalRecHit:EcalRecHitsEB:Rec1
 
+	string hist           = "HSusyAnalyzer.root"
+	double MinJetPt       = 0.
+	double MaxJetEta      = 5.0
+        InputTag recJet       = iterativeCone5CaloJets
+	bool   SimulateNoise  = true
+	double NoiseMean      = 0.0
+	double NoiseSigma     = 2.0
+	double NoiseThreshold = 1.0
+	bool   Normalize      = false
 }

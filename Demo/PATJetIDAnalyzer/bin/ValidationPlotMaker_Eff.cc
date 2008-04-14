@@ -31,13 +31,13 @@ public:
   
   void readConfig( std::string );
   void loadHistograms();
-  template <class T> void loadHistograms(std::vector<std::string> filename, vector<string> *histnames, std::vector<T*> *hists);
+  void loadHistograms(std::vector<std::string> filename, std::vector<string> *histnames, std::vector<TH1F*> *hist);
   void drawComparison();
   
 protected:   
   bool contains(const string the_string, const string the_sub_string) const;
   //Style Stuff
-  void setHistStyle(TH1*, const char*, const char*);
+  void setHistStyle(TH1F*, const char*, const char*);
   void setCanvasStyle( TCanvas& canv );
   void setLegendStyle( TLegend& leg );
   
@@ -51,7 +51,6 @@ private:
   
   //define canvas design
   int gridX_, gridY_;
-  bool scale_;
   
   //define legend design
   double legXLeft_,  legXRight_;
@@ -65,7 +64,6 @@ private:
   
   //validation hist
   std::vector<TH1F*> hists_, refs_;
-  std::vector<TH2F*> hists2D_, refs2D_;
   
   //background color of hists, if KS test fails
   double ks_treshold;
@@ -79,7 +77,7 @@ bool ValPlotMaker::contains(const string the_string, const string the_sub_string
   return the_string.find(the_sub_string,0) != string::npos;
 }
 
-void ValPlotMaker::setHistStyle( TH1* hist, const char* titleX, const char* titleY )
+void ValPlotMaker::setHistStyle( TH1F* hist, const char* titleX, const char* titleY )
 {
   //hist->SetTitle( "" );
   if ( hist->GetXaxis()->GetTitle()=="" ) 
@@ -125,7 +123,6 @@ void ValPlotMaker::readConfig( std::string name )
   treename_    = cfg.read<std::string>( "tree_name" );
   output_      = cfg.read<std::string>( "output"   );
   HistNames_   = bag_of_string(cfg.read<std::string>( "hists"));
-  Hist2DNames_ = bag_of_string(cfg.read<std::string>( "2D hists"));
   ks_treshold  = cfg.read<double> ( "KS treshold", 0.05  );
   ks_color     = cfg.read<int>    ( "KS color", 5     );
   gridX_       = cfg.read<int>    ( "grid_x"	 );
@@ -138,20 +135,19 @@ void ValPlotMaker::readConfig( std::string name )
   cmpStyle_    = bag_of<short int>( cfg.read<std::string>( "style" ));
   cmpWidth_    = bag_of<short int>( cfg.read<std::string>( "width" ));
   UseTitle_    = cfg.read<int>    ( "show title", false	 );
-  scale_       = cfg.read<bool>   ( "scale", false	 );
 }
 
 
-template <class T> void ValPlotMaker::loadHistograms(vector<string> filenames, vector<string> *histnames, vector<T*> *hists)
+void ValPlotMaker::loadHistograms(vector<string> filenames, vector<string> *histnames, vector<TH1F*> *hists)
 {
   std::vector<std::string>::iterator filename = filenames.begin();
   TFile * file_ = new TFile( (*filename).c_str() );
-  T * dummy;
+  TH1F * dummy;
   hists->clear();
   for (std::vector<std::string>::iterator it=histnames->begin(); 
        it!=histnames->end(); ) {
     string dummy_name = treename_+"/"+(*it);
-    dummy = (T*)file_->Get( dummy_name.c_str() );
+    dummy = (TH1F*)file_->Get( dummy_name.c_str() );
     if( !dummy ){
       cerr << "WARNING:" 
 	   << " Didn't find indicated hist" << " [" << (*it) << "]" 
@@ -168,11 +164,11 @@ template <class T> void ValPlotMaker::loadHistograms(vector<string> filenames, v
   for (; filename!=filenames.end(); ++filename){
     TFile * file_ = new TFile( (*filename).c_str() );
     int i=0;
-    typename std::vector<T*>::iterator hist=hists->begin();
+    std::vector<TH1F*>::iterator hist=hists->begin();
     for (std::vector<std::string>::iterator it=histnames->begin(); 
 	 it!=histnames->end()&&hist!=hists->end(); ++hist,++it,++i) {
       string dummy_name = treename_+"/"+(*it);
-      dummy = (T*)file_->Get( dummy_name.c_str() );
+      dummy = (TH1F*)file_->Get( dummy_name.c_str() );
       if( dummy ){
 	dummy->Add( (*hist) );
 	hist = hists->erase(hist);
@@ -190,20 +186,12 @@ template <class T> void ValPlotMaker::loadHistograms(vector<string> filenames, v
 
 void ValPlotMaker::loadHistograms()
 {
-  loadHistograms<TH1F>(input_,     &HistNames_, &hists_);
-  loadHistograms<TH1F>(reference_, &HistNames_, &refs_);
+  loadHistograms(input_,     &HistNames_, &hists_);
+  loadHistograms(reference_, &HistNames_, &refs_);
   if (hists_.size()!=refs_.size()) {
     cerr << "ERROR: At least one histogram is only present in one input file!"
          << "The number of data and reference plots does not match." << endl;
     exit(2);	 
-  }
-  
-  loadHistograms<TH2F>(input_,     &Hist2DNames_, &hists2D_);
-  loadHistograms<TH2F>(reference_, &Hist2DNames_, &refs2D_);
-  if (hists2D_.size()!=refs2D_.size()) {
-    cerr << "ERROR: At least one 2D-histogram is only present in one input file!"
-         << "The number of data and reference plots does not match." << endl;
-    exit(3);	 
   }
   
 }
@@ -249,8 +237,33 @@ void ValPlotMaker::drawComparison()
 	 <<  hist.Integral() << " 'data' events" << endl;
     
     refer.Sumw2();
-    if ( scale_ && !contains(refer.GetYaxis()->GetTitle(), "eff") ) {
+    if ( !contains(refer.GetYaxis()->GetTitle(), "eff") ) {
       refer.Scale( hist.Integral()/refer.Integral() );
+    } else {
+      if ( contains(refer.GetXaxis()->GetTitle(), "Pt") ) {
+	hists_.at(6)->Sumw2();
+	hists_.at(3)->Sumw2();
+	hist.Divide(hists_.at(6),hists_.at(3),1.,1.,"B");
+	refs_.at(6)->Sumw2();
+	refs_.at(3)->Sumw2();
+	refer.Divide(refs_.at(6),refs_.at(3),1.,1.,"B");
+      }
+      if ( contains(refer.GetXaxis()->GetTitle(), "eta") ) {
+	hists_.at(7)->Sumw2();
+	hists_.at(4)->Sumw2();
+	hist.Divide(hists_.at(7),hists_.at(4),1.,1.,"B");
+	refs_.at(7)->Sumw2();
+	refs_.at(4)->Sumw2();
+	refer.Divide(refs_.at(7),refs_.at(4),1.,1.,"B");
+      }
+      if ( contains(refer.GetXaxis()->GetTitle(), "phi") ) {
+	hists_.at(8)->Sumw2();
+	hists_.at(5)->Sumw2();
+	hist.Divide(hists_.at(8),hists_.at(5),1.,1.,"B");
+	refs_.at(8)->Sumw2();
+	refs_.at(5)->Sumw2();
+	refer.Divide(refs_.at(8),refs_.at(5),1.,1.,"B");
+      }
     }
 //  Statistical test of compatibility in shape between
 //  THIS histogram and h2, using Kolmogorov test.
@@ -281,28 +294,12 @@ void ValPlotMaker::drawComparison()
       c1->SetFillColor(0);
     }	
     
-    //Show under- and over-flow bins
-    refer.SetBinContent(1,refer.GetBinContent(0)+refer.GetBinContent(1));
-    hist.SetBinContent(1,hist.GetBinContent(0)+hist.GetBinContent(1));
-    unsigned int mb = refer.GetNbinsX();
-    refer.SetBinContent(mb-1,refer.GetBinContent(mb)+refer.GetBinContent(mb-1));
-    mb = hist.GetNbinsX();
-    hist.SetBinContent(mb-1,hist.GetBinContent(mb)+hist.GetBinContent(mb-1));
-    
     double maximum = (refer.GetMaximum()>hist.GetMaximum() ?
 		      1.5*refer.GetMaximum() : 1.5*hist.GetMaximum());
-    double minimum = (refer.GetMinimum()<hist.GetMinimum() ?
-		      refer.GetMinimum() : hist.GetMinimum());
     refer.SetMaximum(maximum);
-    refer.SetMinimum(minimum);
-    for (unsigned int b=0; b<mb; ++b)
-      if (refer.GetBinContent(b)<=0.)
-        refer.SetBinError(b, sqrt(-1.*refer.GetBinContent(b)));
-    
-    
     hist.SetMarkerStyle(8);
     hist.SetLineWidth(3);
-    refer.Draw("h");
+    refer.Draw("pe");
     hist.Draw("pe,same");
     TLegend* leg = new TLegend(0.5,0.67,0.95,0.87);
     setLegendStyle( *leg );
@@ -316,95 +313,13 @@ void ValPlotMaker::drawComparison()
     ps.NewPage();
   }  
   
-  
-  
-  //2D-stuff 
-  
-  i=0;
-  it=Hist2DNames_.begin();
-  std::vector<TH2F*>::iterator hst2D=hists2D_.begin();
-  std::vector<TH2F*>::iterator ref2D=refs2D_.begin();
-  
-  for (;ref2D!=refs2D_.end()&&hst2D!=hists2D_.end()&&it!=Hist2DNames_.end(); 
-       ++ref2D,++hst2D,++it,++i){
-    cout << i << "th 2D-plot: " << (*it) << endl;
-    
-    TH1F& hist2D   = *((TH1F*)(*hst2D));
-    TH1F& refer2D  = *((TH1F*)(*ref2D));
-    TH2F * diff2D  = new TH2F( *((TH2F*)(*hst2D)) );
-    setHistStyle( &refer2D, it->c_str(), "events"  );
-
-    for (int binx=0; binx<=refer2D.GetNbinsX();++binx) {
-    for (int biny=0; biny<=refer2D.GetNbinsY();++biny) {
-    //  if (refer2D.GetBinContent(b)<=0.)
-    //    refer2D.SetBinContent(b, fabs(refer2D.GetBinContent(b)));
-    //  if (hist2D.GetBinContent(b)<=0.)
-    //    hist2D.SetBinContent(b, fabs(hist2D.GetBinContent(b)));
-        diff2D->SetBinContent(binx,biny,
-	        refer2D.GetBinContent(binx,biny)-hist2D.GetBinContent(binx,biny) );
-    }}
-    if (UseTitle_){
-      //refer2D.SetTitle( "" );
-    }	
-    else
-      refer2D.SetTitle( "" );
-    //refer2D.SetLineWidth( 8 );
-    refer2D.SetLineColor( 2 );
-    refer2D.Sumw2();
-    if ( !contains(refer2D.GetYaxis()->GetTitle(), "eff") ) {
-      refer2D.Scale( hist2D.Integral()/refer2D.Integral() );
-    }
-    ks = refer2D.KolmogorovTest( &hist2D, "");
-    if (ks<ks_treshold){
-      c1->SetFillColor(ks_color);
-      cout << "Deviation in plot "<< i <<" '" << (*it) << "': " << ks 
-	   << " (Kolmogorov-Smirnov Test)" << endl;
-    }	
-    else {
-      c1->SetFillColor(0);
-    }	
-
-    double maximum = (refer2D.GetMaximum()>hist2D.GetMaximum() ?
-		      1.5*refer2D.GetMaximum() : 1.5*hist2D.GetMaximum());
-    double minimum = (refer2D.GetMinimum()<hist2D.GetMinimum() ?
-		      refer2D.GetMinimum() : hist2D.GetMinimum());
-    //refer2D.SetMaximum(maximum);
-    //refer2D.SetMinimum(minimum);
-    
-    refer2D.Draw("BOX");
-    hist2D.Draw("BOX,same");
-    
-    TLegend* leg = new TLegend(0.7,0.75,0.95,0.95);
-    setLegendStyle( *leg );
-    sprintf(dummy_text,"KS = %2.2f",ks);
-    leg->SetHeader(dummy_text);
-    leg->AddEntry( &hist2D, "data", "F" );
-    leg->AddEntry( &refer2D,"reference", "F" );
-    leg->Draw("same");
-    c1->Draw();
-    ps.NewPage();
-
-
-    diff2D->Draw("BOX");
-    
-    TLegend* dleg = new TLegend(0.7,0.8,0.95,0.95);
-    setLegendStyle( *dleg );
-    sprintf(dummy_text,"Difference:",ks);
-    dleg->SetHeader(dummy_text);
-    dleg->AddEntry( diff2D,"reference - data", "F" );
-    dleg->Draw("same");
-    c1->Draw();
-    ps.NewPage();
-    delete diff2D;
-  }
-  
   ps.Close();
   c1->Close();
   delete c1;
 }
 
 
-int ValidationPlotMaker(int argc, char* argv[])
+int ValidationPlotMaker_Eff(int argc, char* argv[])
 {
   setNiceStyle();
   gStyle->SetOptStat( 0 );
@@ -417,7 +332,7 @@ int ValidationPlotMaker(int argc, char* argv[])
   gStyle->SetStatH(0.18);
   
   //If no argument is given, use default config file name
-  string config_file = "bin/ValidationPlot.cfg";
+  string config_file = "bin/ValidationPlot_Eff.cfg";
   if( argc>=2 )
     config_file = argv[1];
   
@@ -433,5 +348,5 @@ int ValidationPlotMaker(int argc, char* argv[])
 
 int main(int argc, char* argv[])
 {
-  return ValidationPlotMaker(argc, argv);
+  return ValidationPlotMaker_Eff(argc, argv);
 }

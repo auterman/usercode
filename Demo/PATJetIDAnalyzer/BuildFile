@@ -1,14 +1,30 @@
 <use name=FWCore/Framework>
 <use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
+<use name=FWCore/ServiceRegistry>
 <use name=DataFormats/PatCandidates>
 <use name=DataFormats/JetReco>
 <use name=DataFormats/METReco>
 <use name=PhysicsTools/UtilAlgos>
+
+<use name=Geometry/CaloGeometry>
+<use name=Geometry/CaloEventSetup>
+<use name=Geometry/Records>	
+<use name=DataFormats/CaloTowers>
+<use name=DataFormats/HcalRecHit>
+<use name=DataFormats/HcalDigi>
+<use name=DataFormats/HcalDetId>
+<use name=DataFormats/EcalRecHit>
+<use name=DataFormats/EcalDigi>
+<use name=DataFormats/EcalDetId>
+<use name=DataFormats/FEDRawData>
+<use name=TBDataFormats/HcalTBObjects>
+
 <flags EDM_PLUGIN=1>
 <export>
    <lib name=DemoPATJetIDAnalyzer>
    <use name=FWCore/Framework>
    <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>
-</export>
+   <use name=Foundation/PluginManager>
+<</export>
