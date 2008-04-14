@@ -13,7 +13,7 @@
 //
 // Original Author:  Christian Autermann
 //         Created:  Mon Feb 25 11:33:02 CET 2008
-// $Id$
+// $Id: PATJetIDAnalyzer.h,v 1.3 2008/04/14 08:46:49 auterman Exp $
 //
 //
 
@@ -24,21 +24,16 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
 //
 // class declerations
 //
-class PtGreater {
-public:
-  template <typename T> bool operator () (const T& i, const T& j) {
-    return (i.pt() > j.pt());
-  }
-};
-
 class PATJetIDAnalyzer : public edm::EDAnalyzer {
    public:
       explicit PATJetIDAnalyzer(const edm::ParameterSet&);
@@ -51,12 +46,22 @@ class PATJetIDAnalyzer : public edm::EDAnalyzer {
       virtual void endJob() ;
       virtual void makeMatchingMaps(edm::Handle<reco::GenJetCollection> GenJets,
                                     edm::Handle<reco::CaloJetCollection> CaloJets);
-
+      void FourierTransformation( const unsigned int i, const pat::Jet& jet, const EBRecHitCollection& EcalRecHitEB );
+      double norm(int n);     
+      TH2F * FDCT(TH2F & k);
+      void FakeNoise(TH2F & k, double * k);
+      void FakeNoise2x2(TH2F & k, double * k);
+      double dphi(double phi1, double phi2);
       // ----------member data ---------------------------
+
+  const CaloSubdetectorGeometry* EBgeom;
+  TRandom *random;
 
   //jets from PAT
   edm::InputTag _patJet;
   edm::InputTag _patMet;
+  //EM-cells
+  edm::InputTag _ebrechits;
  
   //jets from AOD
   edm::InputTag _recJet;
@@ -66,8 +71,14 @@ class PATJetIDAnalyzer : public edm::EDAnalyzer {
  
  
   std::string  _hist;
-  double _jetminpt, _jetmaxeta;
-  
+  double _jetminpt,  _jetmaxeta;
+  bool _simulate_noise;
+  double _NoiseMean;
+  double _NoiseSigma;
+  double _NoiseThreshold;
+  bool   _DoNormalization;
+  int _uniqueplotid;
+
   //CaloJets
   unsigned static const _njets = 4;
   TH1F *_jetmult;               //total number of jets
@@ -79,6 +90,32 @@ class PATJetIDAnalyzer : public edm::EDAnalyzer {
   TH1F *_n60_jet[_njets];	//number of components containing 60% of the energy
   TH1F *_n90_jet[_njets];	//number of components containing 90% of the energy
   TH1F *_area_jet[_njets];	//area covered by the jet's towers
+
+  //Fourier Transformation
+  unsigned static const N_Fourier_Bins_2D = 200;
+  unsigned static const N_Fourier_Bins_1D = 20;
+  unsigned static const Nf_Fourier_Bins_1D = N_Fourier_Bins_1D/2;
+  TH2F *_ft_energy[_njets]; 
+  TH2F *_ft_frequency[_njets]; 
+  TH1F *_ft_k[_njets]; 
+  TH1F *_ft_f[_njets]; 
+  TH1F *_ft_ksubavg[_njets]; 
+  
+  TH1F *_noisecontrib[_njets];  //amount of added noise
+  TH1I *_fto_n99[_njets];       //number of bins containing 90%
+  TH1I *_fto_n95[_njets];       //number of bins containing 90%
+  TH1I *_fto_n90[_njets];       //number of bins containing 90%
+  TH1I *_fto_n60[_njets];       //number of bins containing 60%
+  TH1I *_fto_n30[_njets];       //number of bins containing 30%
+  TH1I *_fto_n10[_njets];       //number of bins containing 10%
+  TH1F *_fto_F10[_njets];       //Sum of 10 largest bins
+  TH1F *_fto_Fs10[_njets];      //Sum of 10 smallest (non-zero) bins
+  TH1F *_fto_LowFvsHiF[_njets]; //diff. between low & high frequencies
+  TH1F *_fto_LowFovHiF[_njets]; //ratio of low vs. high frequencies
+  TH1F *_fto_det16[_njets];       //determinante
+  TH1F *_fto_det8[_njets];       //determinante
+  
+
   //GenJets
   unsigned static const _ngenjets = 4;
   TH1F *_genjetmult;               	//total number of genjets
