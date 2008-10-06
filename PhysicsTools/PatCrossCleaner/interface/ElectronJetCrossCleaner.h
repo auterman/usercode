@@ -5,18 +5,20 @@
     \class pat::ElectronJetCrossCleaner ElectronJetCrossCleaner.h "PhysicsTools/PatUtils/ElectronJetCrossCleaner.h"
     \brief cross cleans objets
 
-    \version $Id: ElectronJetCrossCleaner.h,v 1.0 2008/03/22 11:23:38 auterman Exp $
+    \version $Id: ElectronJetCrossCleaner.h,v 1.3 2008/03/24 19:41:50 auterman Exp $
 **/
 
 #include "PhysicsTools/PatCrossCleaner/interface/CrossCleanerResult.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
+#include <DataFormats/Common/interface/Handle.h>
 
 namespace pat {
 
   /// Structure defining the electron - jet cross cleaning
   struct ElectronJetCleaning {
-    double value; ///Some exemplary cut value
+    double deltaR_min; ///min. distance in dR between electron & jet
+    double sharedByjetEratio_max; ///max. shared to jet energy ratio
   };
 
 
@@ -25,13 +27,19 @@ namespace pat {
     ElectronJetCrossCleaner( const ElectronJetCleaning& cfg ) : config_( cfg ) {}
     ~ElectronJetCrossCleaner() {}
 
-    const CrossCleanerResult clean(
-           const std::vector<pat::Electron>& Electrons,
-           const std::vector<pat::Jet>& Jets
+    void clean(
+           //const edm::Handle< edm::View< pat::Electron> >& Electrons,
+           //const edm::Handle< edm::View< pat::Jet> >& Jets,
+           const edm::View< pat::Electron>& Electrons,
+           const edm::View< pat::Jet>& Jets,
+	   CrossCleanerMap & assMap
          ) const;
-    
 
   private:
+    ///calculates shared energy between electron & jet: based on SusyAnalyzer
+    double SharedEnergy_( const pat::Electron& electron,
+                          const pat::Jet& jet) const;
+
     ElectronJetCleaning config_;
 
   }; // class

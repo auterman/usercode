@@ -13,7 +13,7 @@
 //
 // Original Author:  Christian Autermann
 //         Created:  Wed May 16 17:40:14 CEST 2007
-// $Id: HHIsolationProducer.h,v 1.1.1.3 2007/11/30 13:10:50 auterman Exp $
+// $Id: HHIsolationProducer.h,v 1.1.1.4 2008/02/25 15:54:04 auterman Exp $
 //
 //
 
