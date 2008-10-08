@@ -11,33 +11,38 @@
 %   \cmsnote{2008/000}
   \internalnote{2008/000}
 %  \conferencereport{2005/000}
-   \date{1 April 2008}
+   \date{6. October 2008}
 
-  \title{CMS Paper Template - LaTeX version}
+  \title{A Cross-Cleaning Package}
 
   \begin{Authlist}
-    A.~Author, B.~Author, C.~Author\Aref{a}
-       \Instfoot{cern}{CERN, Geneva, Switzerland}
-    D.~Author, E.~Author\Aref{b}, F.~Author
-       \Instfoot{ieph}{Institute of Experimental Physics, Hepcity, Wonderland}
+    Christian~Autermann, Benedikt~Mura, Friederike~Nowak
+       \Instfoot{uhh}{Universit\"at Hamburg, Germany}
+    Jean-Roch~Vlimant
+       \Instfoot{ucsb}{University of California, Santa Barbara, USA}
+
+    %%@@ Anyone else ???
+
   \end{Authlist}
 
 % if needed, use the following:
 %\collaboration{Flying Saucers Investigation Group}
 %\collaboration{CMS collaboration}
 
-  \Anotfoot{a}{On leave from prison}
-  \Anotfoot{b}{Now at the Moon}
+%  \Anotfoot{a}{On leave from prison}
+%  \Anotfoot{b}{Now at the Moon}
 
   \begin{abstract}
-    This is a template written in LaTeX,
-    processed with {\it cmspaper.cls} document class.
-    It is based on the {\it cernart.cls} and {\it articlet.cls} classes.
-    The above information, Title and Abstract, should be readable on any 
-    computer and should be searchable on the information server. 
-    Therefore if the abstract or the title of your note contains Greek 
-    characters and mathematical symbols, please send to the CMS secretariat 
-    alternative versions which do not contain such characters.
+    The reconstructed objects like electrons, photons, muons, taus, and
+    jets may have an overlap in energy, i.e. at least one shared and therefore
+    double counted energy cell. This note discusses the cross-cleaning package
+    which provides algorithms to identify the overlap of any two objects. The
+    package provides a framework to consistently correct objects, or to remove
+    doublicates. 
+    %%@@ Is this really true, i.e. does it work with RECO objects?
+    The cross-cleaning package is designed to run on {\sc Reco} objects before
+    {\sc Pat}-tification but can be run for development and debugging on {\sc
+    Pat} objects, too.
   \end{abstract} 
 
 % if needed, use the following:
@@ -51,8 +56,7 @@
 
 
 \section{Introduction}
-In CMS the reconstructed objects like electrons, photons, muons, taus, and jets
-may have overlap in energy. The multiple counting of any energy fraction must be
+The multiple counting of any energy fraction must be
 avoided in order to obtain optimal energy resolutions of these objects. This is
 especially true for the missing transverse energy (MET). The details how the
 shared energy is split between two objects will depend on the details of each
@@ -91,31 +95,55 @@ be corrected itself because of object {\it C}, than it might happen that after
 the correction of {\it A} the correction of {\it B} is no longer necessary or at
 least different to the case where first {\it B} is corrected and then {\it A}.
 The result of the cross-cleaning must not depend on the order in which objects
-are compared, therefore the conflicts are resolved before any object is
+are compared, therefore conflicts are resolved before any object is
 modified.
 
-...details of the interference handling...
+%%@@ This needs to be revised
+Possible conflicts can be resolved since all decisions of the cleaning
+algorithms are saved in the internal map and not yet applied on the objects. The
+order of the foreseen corrections can be changed, or single corrections may be
+revised. Again, the details how these decisions are made, may depend on the
+specific analysis. 
+%%If I understand the implemented algorithm correctly, than the following is
+%%happening:
+%% A to be dropped because of C
+%%  ...
+%% C to be dropped because of X
+%% Where A,B,C.. refer to the position in the map.
+%% Then the last action (dropping of C) is not performed.
+%%
+%% -> In case of conflicts the position in the map defines which object is
+%% removed, do I understand this correctly?
+%% -> Shouldn't we had a case differentiation wether A or C is dropped, lets say
+%% by pT?
+%
+%%Proposal:
+By default, from the set of map-entries that are in conflict with eachother,
+that entry is removed from the map, whose object causing that entry is smallest
+in $p_T$. For each set of map-entries this step is repeated, until all conflicts
+are resolved.
 
-
-After the objects have been cross-cleaned, the properties of these objects have to 
-be recalculated. All properties related to the energy deposition in the
+After the objects have been cross-cleaned, the properties of these objects have
+to be recalculated. All properties related to the energy deposition in the
 calorimeter or the cross-cleaning objects, may have changed. Isolation
 algorithms, energy scale correction algorithms, etc. have to be re-run.
 
-The missing $E_T$ correction can either be recalculated using the new
-collections of corrected objects as input, or by tracking the impact on the MET for each
-cross-cleaning modification to all objects. This package~\cite{package} provides a corrected MET
-object using the latter way. Both ways should give the same result and
-the comparison could be a valuable cross-check. The raw MET is calulated from
-calorimeter towers only and will not be changed by this cross-cleaning.
+The raw MET is calulated from calorimeter towers only and will not be changed by
+this cross-cleaning. However, the missing $E_T$ correction can either be
+recalculated using the new collections of corrected objects as input, or by
+tracking the impact of each cross-cleaning modification on the MET. This
+package~\cite{package} provides a corrected MET object using the latter way.
+Both ways should give the same result and the comparison is a valuable
+cross-check. 
 
-This cross-cleaning package creates new collections of (cross-cleaned) objects.
-If for a specific event no cross-cleaning was done, then these ouput
-collections are equal to the input collections. Additionally, collections of
-dropped objects are created, i.e. if one object was dublicated (for example an
-electron, that was a jet, too) than either object was dropped and written into
-a ``dropped'' collection, while the other object remains in the normal output
-collection.
+The cross-cleaning package is a producer, that creates new collections of
+(cross-cleaned) objects. If for a specific event no cross-cleaning was done,
+then these ouput collections are equal to the input collections. Additionally,
+collections of dropped objects are created, i.e. if one object was dublicated
+(for example an electron, that was a jet, too) than either object was dropped
+and written into a ``dropped'' collection, while the other object remains in the
+normal output collection. 
+%%@@ Does the following already work?
 For debugging purpose a reference map can be written into the event, that
 associates every input object with the ouput object which can be either in the
 normal output collection or in the ``dropped'' collection.
