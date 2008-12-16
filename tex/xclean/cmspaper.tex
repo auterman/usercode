@@ -144,9 +144,10 @@ collections of dropped objects are created, i.e. if one object was dublicated
 and written into a ``dropped'' collection, while the other object remains in the
 normal output collection. 
 %%@@ Does the following already work?
-For debugging purpose a reference map can be written into the event, that
-associates every input object with the ouput object which can be either in the
-normal output collection or in the ``dropped'' collection.
+%% No!
+%%For debugging purpose a reference map can be written into the event, that
+%%associates every input object with the ouput object which can be either in the
+%%normal output collection or in the ``dropped'' collection.
 
 \section{Electron - Photon Cleaner}
 \subsection{Algorithm}
@@ -155,6 +156,17 @@ normal output collection or in the ``dropped'' collection.
 \section{Electron - Jet Cleaner}%%Or better: EM-object - jet Cleaner ???
 %% \section{Photon - Jet Cleaner}
 \subsection{Algorithm}
+The cleaning algorithm is similar to the cleaning in the SusyAnalyzer~\cite{SusyAnalyzer}.
+For each em-object the closest jet in \(\delta R < 0.5\) will be searched. If a jet is found and these two objects have a conflict, the shared energy will be calculated by those towers wich are covered by both objects, i.e. all towers containing crystals which are part of the super cluster.\\
+The Electron - Jet Cleaner algorithm differs between isolated and not isolated electrons. If the latter is the case, the electron will be removed and the difference between the electron energy and the shared energy will be added to the jet. On the other hand, if the electron is isolated, there are again two cases. If the shared energy, normalized to the jet energy, is greater than a certain value (default is 0.7), the jet will be removed. If the shared Energy is smaller, both objects are kept and the shared Energy will be removed from the jet. Fig.~\ref{fig:EJCleaning} illustrates these steps.
+\begin{figure}[hbtp]
+  \begin{center}
+    \includegraphics[scale=.4]{ElectronJetCleaning.eps}
+    \caption{Shown here are the steps taken for electron-jet cleaning. Note that this procedure is similar to the cleaning in the SusyAnalyzer~\cite{SusyAnalyzer}}
+    \label{fig:EJCleaning}
+  \end{center}
+\end{figure}
+
 \subsection{Validation}
 
 \section{Muon - Jet Cleaner}
@@ -174,6 +186,9 @@ normal output collection or in the ``dropped'' collection.
 
   \bibitem {met} {\bf The online documentation},
     \underline{https://twiki.cern.ch/twiki/bin/view/CMS/SusyPatCrossCleaner/}
+
+  \bibitem {SusyAnalyzer} {\bf The online documentation}
+    \underline{https://twiki.cern.ch/twiki/bin/view/CMS/SusyAnalyzer}
 
 \end{thebibliography}
  
