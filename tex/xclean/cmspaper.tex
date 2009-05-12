@@ -1,109 +1,146 @@
 \documentclass{cmspaper}
 \usepackage{graphicx}
+\renewcommand\arraystretch{1.5}
+
+%%%% needed for the colored notes in the text
+%%%% can be removed in final version
+\usepackage{color}
+
 \begin{document}
 
-%==============================================================================
-% title page for few authors
+% *** TITLE PAGE ****************************************************************
 
 \begin{titlepage}
 
 % select one of the following and type in the proper number:
-%   \cmsnote{2008/000}
-  \internalnote{2008/000}
-%  \conferencereport{2005/000}
-   \date{6. October 2008}
+% \cmsnote{2008/000}
+\internalnote{2009/000}
+% \conferencereport{2005/000}
+\date{\today}
 
-  \title{A Cross-Cleaning Package}
+\title{A Cross-Cleaning Package}
 
-  \begin{Authlist}
+\begin{Authlist}
     Christian~Autermann, Benedikt~Mura, Friederike~Nowak
-       \Instfoot{uhh}{Universit\"at Hamburg, Germany}
+    \Instfoot{uhh}{Universit\"at Hamburg, Germany}
     Jean-Roch~Vlimant
-       \Instfoot{ucsb}{University of California, Santa Barbara, USA}
-
-    %%@@ Anyone else ???
-
-  \end{Authlist}
+    \Instfoot{ucsb}{University of California, Santa Barbara, USA}
+    % Anyone else ???
+\end{Authlist}
 
 % if needed, use the following:
 %\collaboration{Flying Saucers Investigation Group}
 %\collaboration{CMS collaboration}
 
-%  \Anotfoot{a}{On leave from prison}
-%  \Anotfoot{b}{Now at the Moon}
-
-  \begin{abstract}
-    The reconstructed objects like electrons, photons, muons, taus, and
-    jets may have an overlap in energy, i.e. at least one shared and therefore
-    double counted energy cell. This note discusses the cross-cleaning package
-    which provides algorithms to identify the overlap of any two objects. The
-    package provides a framework to consistently correct objects, or to remove
-    doublicates. 
-    %%@@ Is this really true, i.e. does it work with RECO objects?
-    The cross-cleaning package is designed to run on {\sc Reco} objects before
-    {\sc Pat}-tification but can be run for development and debugging on {\sc
-    Pat} objects, too.
-  \end{abstract} 
-
+%\Anotfoot{a}{On leave from prison}
+%\Anotfoot{b}{Now at the Moon}
 % if needed, use the following:
 %\conference{Presented at {\it Physics Rumours}, Coconut Island, April 1, 2005}
 %\submitted{Submitted to {\it Physics Rumours}}
 %\note{Preliminary version}
-  
+
+% --- ABSTRACT -----------------------------------------------------------------
+
+\begin{abstract}
+Physics analysis in CMS is based on the reconstruction of high-level objects
+like electrons, photons, muons, taus, and jets. However, energy depositions in
+the detector are not uniquely assigned to one reconstructed physics object but
+can contribute to several of them. This leads to an overlap of the objects and
+a double counting of energy.
+
+This note discusses a cross-cleaning package which provides algorithms to
+identify the overlap of any two objects. The package provides a framework to
+correct objects for the double counted energy and to remove dublicates. The
+cross-cleaning package is designed to run on {\sc PAT} objects.
+\end{abstract} 
+
+% ------------------------------------------------------------------------------
+
 \end{titlepage}
 
+% *** TOC **********************************************************************
+
 \setcounter{page}{2}%JPP
+%\tableofcontents
 
+% *** INTRODUCTION *************************************************************
 
+\newpage
 \section{Introduction}
-The multiple counting of any energy fraction must be
-avoided in order to obtain optimal energy resolutions of these objects. This is
-especially true for the missing transverse energy (MET). The details how the
-shared energy is split between two objects will depend on the details of each
-analysis. In this note a cross-cleaning package~\cite{package} is discussed,
-that is flexible enough to allow the implementation any energy splitting
-algorithm between objects. If more than two objects share energy, circular
-dependencies may arise. These possible interferences are dealed with, so that
-the outcome of cross-cleaned objects does not depend on the order in which the
-cleaning algorithms are called.
 
+In CMS event reconstruction each type of physics object is build from the
+detector information by a dedicated algorithm, independent from the
+reconstruction of other kinds of objects. It is not uncommon in this procedure
+that two or more object of different type end up with common constituents.
+While algorithms for object identification usually select 'good' objects
+from all reconstructed ones within the same collection, the ambiguity between two
+objects in distinct collections can still remain. This multiple counting of
+energy must be avoided in order to obtain an optimal energy resolutions of these
+objects. This is especially true for the missing transverse energy (MET).
+
+Overlapping objects must be identified and the energy be assigned uniquely to
+one of the candidates. The details of such a cleaning are of course depending on
+the object definition and therefore paticular to each analysis.  In this note a
+cross-cleaning package~\cite{package} is discussed, that is flexible enough to
+allow the implementation of differnet splitting algorithm between objects.
+If more than two objects share energy, circular dependencies may arise. These
+possible interferences are dealed with, so that the outcome of cross-cleaned
+objects does not depend on the order in which the cleaning algorithms are
+called.
+
+Input to the cleaning are collections of physics objects which pass the
+identification requirements chosen for the particular analysis. The
+cross-cleaning does not replace a selection on object quality but is meant to
+remove the remaining ambiguities.
+
+% *** THE CROSS-CLEANING FRAMEWORK *********************************************
 
 \section{The Cross-Cleaning-Algorithm Framework}
-The cross-cleaning is performed in two steps: First binary cleaners, i.e.
-specialized algorithms that clean two collections of objects against eachother,
-are called (for example electron-vs.-photon cleaner, muon-vs.-jet cleaner etc.).
-These binary cleaners do not apply any corrections on either of the two input
-collections, but save the result of the cleaning algorithms in an internal map.
-An entry in this map would be the object that should be corrected, the object
-that is causing this correction, and finally the information how the object
-should be corrected. This scheme is illustrated in Fig.~\ref{fig:Cleaning}.
+The cross-cleaning is performed in two steps: First binary cleaners are called.
+These are specialized algorithms that search for conflicts in two distinct
+collections, determine the shared energy for two overlapping objects and decide
+how to deal with it. This can for example be an electron-vs.-jet cleaner, a
+muon-vs.-jet cleaner etc.. These binary cleaners do not apply any corrections
+on either of the two input collections, but save the result of the cleaning
+algorithms in an internal map.
 
-\begin{figure}[hbtp]
-  \begin{center}
-    \includegraphics[scale=.4]{CleaningMap.eps}
-    \caption{This figure illustrates the input and the result of different
-    cleaning algorithms. Each algorithm takes two collections of any objects,
-    and creates an entry in the internal cross-cleaning map for each object that
-    should be modified.}
-    \label{fig:Cleaning}
-  \end{center}
+The key entry in this map is a reference to the object that should be corrected
+while the associated value contains the object which is causing this correction
+and the information how the object should be corrected. This scheme is
+illustrated in Fig.~\ref{fig:Cleaning}. The correction is given by a
+energy-momentum fourvector.
+
+% ------------------------------------------------------------------------------
+\begin{figure}[hbt]
+\begin{center}
+\includegraphics[scale=.4]{figures/CleaningMap.eps}
+\caption{Schematic view of the input and result of different cleaning
+    algorithms. Each algorithm takes two object collections as input and
+    creates an entry in the internal cross-cleaning map for each object
+    that should be modified.}
+\label{fig:Cleaning}
+\end{center}
 \end{figure}
+% ------------------------------------------------------------------------------
 
 In a second step, this temporary buffer map is scanned for possible conflicts.
 If the same object {\it A} is causing a correction to object {\it B} but should
-be corrected itself because of object {\it C}, than it might happen that after
+be corrected itself because of object {\it C}, then it might happen that after
 the correction of {\it A} the correction of {\it B} is no longer necessary or at
-least different to the case where first {\it B} is corrected and then {\it A}.
+least different.
+% to the case where first {\it B} is corrected and then {\it A}.
+% right, but this case we do not take care of ...
 The result of the cross-cleaning must not depend on the order in which objects
-are compared, therefore conflicts are resolved before any object is
-modified.
+are compared, therefore conflicts are resolved before any object is being
+modified (cp. section \ref{mapReso}).
 
 %%@@ This needs to be revised
-Possible conflicts can be resolved since all decisions of the cleaning
-algorithms are saved in the internal map and not yet applied on the objects. The
-order of the foreseen corrections can be changed, or single corrections may be
-revised. Again, the details how these decisions are made, may depend on the
-specific analysis. 
+%Possible conflicts can be resolved since all decisions of the cleaning
+%algorithms are saved in the internal map and not yet applied on the objects.
+%The
+%order of the foreseen corrections can be changed, or single corrections may be
+%revised. Again, the details how these decisions are made, may depend on the
+%specific analysis. 
 %%If I understand the implemented algorithm correctly, than the following is
 %%happening:
 %% A to be dropped because of C
@@ -114,84 +151,668 @@ specific analysis.
 %%
 %% -> In case of conflicts the position in the map defines which object is
 %% removed, do I understand this correctly?
-%% -> Shouldn't we had a case differentiation wether A or C is dropped, lets say
+%% -> Shouldn't we had a case differentiation whether A or C is dropped, lets say
 %% by pT?
 %
 %%Proposal:
-By default, from the set of map-entries that are in conflict with eachother,
-that entry is removed from the map, whose object causing that entry is smallest
-in $p_T$. For each set of map-entries this step is repeated, until all conflicts
-are resolved.
+%By default, from the set of map-entries that are in conflict with each other,
+%that entry is removed from the map, whose object causing that entry is smallest
+%in $p_T$. For each set of map-entries this step is repeated, until all
+%conflicts are resolved.
 
-After the objects have been cross-cleaned, the properties of these objects have
-to be recalculated. All properties related to the energy deposition in the
-calorimeter or the cross-cleaning objects, may have changed. Isolation
-algorithms, energy scale correction algorithms, etc. have to be re-run.
+%After the objects have been cross-cleaned, the properties of these objects have
+%to be recalculated. All properties related to the energy deposition in the
+%calorimeter or the cross-cleaning objects, may have changed. Isolation
+%algorithms, energy scale correction algorithms, etc. have to be re-run.
+% NO, isolation does not change, only JES corrections for the jets.
 
-The raw MET is calulated from calorimeter towers only and will not be changed by
-this cross-cleaning. However, the missing $E_T$ correction can either be
+Subsequently the corrections are applied to the objects. Energy corrections for
+all jets in the cleaned collection are being recalculated to ensure consistency
+in the calibration.
+
+A special object in the event is the missing transverse energy (MET). The raw
+MET is calculated from calorimeter towers only and will not be changed by this
+cross-cleaning. However, the JES correction to the missing $E_T$ can either be
 recalculated using the new collections of corrected objects as input, or by
 tracking the impact of each cross-cleaning modification on the MET. This
 package~\cite{package} provides a corrected MET object using the latter way.
-Both ways should give the same result and the comparison is a valuable
-cross-check. 
+%Both ways should give the same result and the comparison is a valuable
+%cross-check. 
 
-The cross-cleaning package is a producer, that creates new collections of
-(cross-cleaned) objects. If for a specific event no cross-cleaning was done,
-then these ouput collections are equal to the input collections. Additionally,
-collections of dropped objects are created, i.e. if one object was dublicated
-(for example an electron, that was a jet, too) than either object was dropped
-and written into a ``dropped'' collection, while the other object remains in the
-normal output collection. 
+The cross-cleaning package is an EDM producer which creates new collections for
+the cross-cleaned objects. If for a specific event no cross-cleaning has taken
+place these output collections are equal to the input collections.
+In addition collections of dropped objects are created, i.e. if one object was
+duplicated (e.g. an electron also reconstructed as a jet) than either
+object is dropped and written into a ``dropped'' collection, while the other
+object remains in the cleaned output collection.
+
+An association of the cross-cleaned PAT objects in the new collections to the
+objects before cleaning is always possible by comparing the references to the
+original RECO objects (via PAT object member function
+\texttt{originalObjectRef()}). 
+
 %%@@ Does the following already work?
 %% No!
 %%For debugging purpose a reference map can be written into the event, that
 %%associates every input object with the ouput object which can be either in the
 %%normal output collection or in the ``dropped'' collection.
+%% => No and we do not need it because one can always find the original object
+%%    by comparison  of the originalObjectRef()
 
-\section{Electron - Photon Cleaner}
-\subsection{Algorithm}
-\subsection{Validation}
+All parameters available for the steering of the module are listed in the
+appendix. The general setup parameters and their default values can be found in
+tables~\ref{tab:TurnOnModules}-\ref{tab:JetCorrections} including a short
+description.
 
-\section{Electron - Jet Cleaner}%%Or better: EM-object - jet Cleaner ???
-%% \section{Photon - Jet Cleaner}
+In the following sections the binary cleaners are explained in detail.
+
+% ******************************************************************************
+
+\section{Electron - Jet Cleaning}
+\label{sec:ElecJet}
+Electrons are reconstructed from clusters in the electromagnetic calorimeter
+whereas calorimeter towers used for jet clustering comprise energy in both the hadronic
+and electromagnetic calorimeter. This implies that a fraction of the ECAL energy
+might contribute to the reconstruction of two objects, namely an electron and a
+jet. It is important to distinguish between the three cases of
+\begin{enumerate}
+\item  a real jet with a high electromagnetic fraction
+\item an electron whose shower might have leaked into the hadronic
+    calorimeter
+\item an electron and a jet which are located very close together in the
+    detector.
+\end{enumerate}
+Therefore the following procedure includes the possibilities to keep either the
+jet or the electron or both objects in the event.
+
+Starting point for this cleaning is a collection of well identified electrons.
+The level of identification can be chosen from those provided by the EGamma POG
+{\color{red}(put reference here)}.
+
+The Electron-Jet cross cleaning was tested on {\color{red}Sample1, Sample2, Sample3}. All shown plots are from the LM4 Sample made with CMSSW 2.2.3. The PAT objects have been
+generated using the default sequences provided in the configuration files
+\texttt{PhysicsTools/PatAlgos/python/patLayer0\_cff.py} and
+\texttt{PhysicsTools/PatAlgos/python/patLayer1\_cff.py} in version
+\texttt{V04-14-19}.
+\\
+
+
 \subsection{Algorithm}
-The cleaning algorithm is similar to the cleaning in the SusyAnalyzer~\cite{SusyAnalyzer}.
-For each em-object the closest jet in \(\delta R < 0.5\) will be searched. If a jet is found and these two objects have a conflict, the shared energy will be calculated by those towers wich are covered by both objects, i.e. all towers containing crystals which are part of the super cluster.\\
-The Electron - Jet Cleaner algorithm differs between isolated and not isolated electrons. If the latter is the case, the electron will be removed and the difference between the electron energy and the shared energy will be added to the jet. On the other hand, if the electron is isolated, there are again two cases. If the shared energy, normalized to the jet energy, is greater than a certain value (default is 0.7), the jet will be removed. If the shared Energy is smaller, both objects are kept and the shared Energy will be removed from the jet. Fig.~\ref{fig:EJCleaning} illustrates these steps.
+The implemented algorithm is similar to the cleaning in the previous analysis
+tool used in the SUSY PAG, the SusyAnalyzer~\cite{SusyAnalyzer}.
+
+In heavily crowded events like Supersymmetry, it is not uncommon for an em-object to have shared energy with more than one jet (Fig. ~\ref{fig:NbJets}).
+
 \begin{figure}[hbtp]
   \begin{center}
-    \includegraphics[scale=.4]{ElectronJetCleaning.eps}
+    %%\includegraphics[scale=.4]{ElIsolation.eps}
+    \includegraphics[scale=.4]{figures/no_of_nnj_LM4_ElecJet.eps}
+    \caption{Number of Jets with shared energy for isolated (dashed line) and non-isolated (solid line) electrons in an event.}
+    \label{fig:NbJets}
+  \end{center}
+\end{figure}
+
+ So for each object the three closest jet in \( \eta-\phi\) space will be searched. If this distance is smaller than $\delta R=0.5$ the objects'
+constituents are compared in order to determine the amount of energy which is
+being shared between the two objects. This shared energy is calculated by adding up the electromagnetic energy of
+those calorimeter towers which are covered by both objects, i.e. all jet towers
+containing crystals which are part of the electrons' supercluster.
+\footnote{Note that this is only an approximation to the real energy overlap. On
+AOD and PAT level the more precise energies of individual crystals are not
+accessible any more and cannot be used in the calculation.}
+% Method using individual ECAL crystals 
+
+If electron and jet share energy the further treatment depends on the isolation
+of the electron. While the possible choices for the isolation algorithm include the default PAT options like cone isolation in the Tracker, HCal, and ECal, the presetting is a combination of these three, i.e. \begin{equation} \label{ElIsolation}(\frac{E_{TrackerIso}}{a} + \frac{E_{CaloIso}}{b} + \frac{E_{EMIso}}{c})/p_T\end{equation}, with \(a=b=c=1\) per default. This Isolation procedure was suggested by the V+jets group.\textcolor{red}{Referece!}. Figure ~\ref{Iso} shows this combined isolation for Electrons. The cut on \(0.1\) was also suggested by the V+jets group. \\
+
+\begin{figure}[hbtp]
+  \begin{center}
+    %%\includegraphics[scale=.4]{ElIsolation.eps}
+    \includegraphics[scale=.4]{figures/isolation_B_LM4_ElecJet.eps}
+    \includegraphics[scale=.4]{figures/isolation_A_LM4_ElecJet.eps}
+    \caption{Combined isolation ~\ref{ElIsolation} for Electrons before (left) and after (right) cross cleaning.}
+    \label{fig:ElectronIsolation}
+  \end{center}
+\end{figure}
+
+
+ If it is non-isolated the electron will be removed and the difference between the electron energy and the
+shared energy will be added to the jet. This energy correction is applied
+vectorially. It is given by the difference of the electron fourvector and a
+massless 'shared energy' fourvector ($E^2=\vec{p}^2$) {\color{red}with \ldots}
+% HOW exactly is this being calculated now?
+For isolated electrons we distinguish two cases. If the ratio of shared energy
+and jet energy is greater than a certain value the jet will be removed. If the
+ratio is smaller both objects are kept and the shared energy fourvector is subtracted from
+the jet. This way objects very close in $\delta R$ can be kept in the events
+without double counting of energy.\\
+
+Fig.~\ref{fig:EJCleaning} illustrates the steps for the electron-jet cleaning.\\
+\begin{figure}[hbtp]
+  \begin{center}
+    \includegraphics[scale=.4]{figures/ElectronJetAlgo_quer.eps}
     \caption{Shown here are the steps taken for electron-jet cleaning. Note that this procedure is similar to the cleaning in the SusyAnalyzer~\cite{SusyAnalyzer}}
     \label{fig:EJCleaning}
   \end{center}
 \end{figure}
 
-\subsection{Validation}
+% Details on isolation? here! 
+%The imlementation offers several choices for the isolation variable. All default
+%PAT options (cone isolation in the ECAL, HCAL, both of them or the tracker) can be
+%used as well as the 'CombRelIso' variable recommended by the V+jets group (they
+%set $a=b=c=1$) (REF)
+%\[ CombRelIso=\frac{a\cdot ECalIso+b\cdot HCalIso+c\cdot TrackIso}{p_T} \]
+%Other weighting of the components can be specified in the configuration.
 
-\section{Muon - Jet Cleaner}
+% ------------------------------------------------------------------------------
+%\begin{figure}[hbt]
+%\begin{center}
+%\includegraphics[scale=.6]{figures/ElectronJetAlgo_quer.eps}
+%\caption{Steps of the electron-jet cleaning.}
+%\label{fig:EJCleaning}
+%\end{center}
+%\end{figure}
+% ------------------------------------------------------------------------------
+
+% OK, now there should be s.th. concerning vectorial subtraction vs. scaling.
+All cut values are configurable and are listed with their default settings in
+table~\ref{tab:ElectronJetPar}.
+
+\subsection{Results and Validation}
+%% WHICH ELECTRON ID?
+In this section the effect of the described procedure on electrons and jets in
+the events is studied. %Unless otherwise noted all plots have been made using the
+%dataset \texttt{xxxxxx/xxx/xxx} with CMSSW 2.2.3. The PAT objects have been
+%generated using the default sequences provided in the configuration files
+%\texttt{PhysicsTools/PatAlgos/python/patLayer0\_cff.py} and
+%\texttt{PhysicsTools/PatAlgos/python/patLayer1\_cff.py} in version
+%\texttt{V04-14-19}.
+
+\subsubsection{Cut Variables}
+% (dR, shared energy, isolation) for different matches
+As described in the previous section the cleaning algorithm applies cuts on
+several variables concerning the electron and jet under investigation. These are the distance of electron and jet in $\delta R$ and their shared energy, normalised to the jet energy. The distributions of the named variables are shown in figure~\ref{fig:dR_sE_ElecJet_iso} (isolated electrons, before and after the cleaning) and figure ~\ref{fig:dR_sE_ElecJet_noniso} (non-isolated electrons before cleaning) respectively. By default the isolation in the tracker is considered as stored
+in the PAT object. We further investigate four different classes of electron-jet
+pairs. The classification is based on the matching of the reconstructed objects
+to generator particles produced in the hard process. {\color{red}(or genJets???) No, i thing genParticles} We distinguish pairs in which both, electron, jet or none of the objects could be
+matched to a generated particle. The matching algorithm provided and used in the
+PAT applies a simple $\delta R$ matching. {\color{red}(Check configuration)}.
+
+%% Take out empty plot ....
+%For any interpretation I need plots from the right samples....
+
+
+%For electron-jet pairs lying close together the energy overlap is calculated.
+%Figures~\ref{fig:sE_ElecJet_iso} and~\ref{fig:sE_ElecJet_noniso} show this
+%shared energy divided by the jet's energy for isolated and non isolated
+%electron. Again the four matching categories are drawn separately in the
+%histograms.
+% shared Energy plots
+
+% ------------------------------------------------------------------------------
+\begin{figure}[hb]
+\begin{center}
+    \includegraphics[scale=0.8]{figures/dR_iso_B_LM4_ElecJet.eps}
+    \includegraphics[scale=0.8]{figures/dR_iso_A_LM4_ElecJet.eps}\\
+    \includegraphics[scale=0.8]{figures/sharedE_iso_A_LM4_ElecJet.eps}
+    \includegraphics[scale=0.8]{figures/sharedE_iso_B_LM4_ElecJet.eps}
+    \caption{Distance \(delta R\) (upper row) and shared Energy, normalised to jet energy, (lower row) with the closest Jet for isolated Electrons before (left) and after (right) the cross cleaning.}
+\label{fig:dR_sE_ElecJet_iso}
+\end{center}
+\end{figure}
+% ------------------------------------------------------------------------------
+
+% ------------------------------------------------------------------------------
+%\begin{figure}[hb]
+%\begin{center}
+%    \includegraphics[scale=0.8]{figures/sharedE_iso_A_LM4_ElecJet.eps}
+%    \includegraphics[scale=0.8]{figures/sharedE_iso_B_LM4_ElecJet.eps}
+%    \caption{Shared energy divided by the jet energy of isolated electron and closest jet
+%before and after the cleaning.}
+%\label{fig:sE_ElecJet_iso}
+%\end{center}
+%\end{figure}
+% ------------------------------------------------------------------------------
+
+% ------------------------------------------------------------------------------
+\begin{figure}[hb]
+\begin{center}
+    \includegraphics[scale=0.8]{figures/dR_noniso_B_LM4_ElecJet.eps}
+    \includegraphics[scale=0.8]{figures/sharedE_noniso_B_LM4_ElecJet}
+    \caption{Distance in $\delta R$ and Shared energy divided by the jet energy of non-isolated electron and closest jet
+before the cross cleaning}
+\label{fig:dR_sE_ElecJet_noniso}
+\end{center}
+\end{figure}
+% ------------------------------------------------------------------------------
+% Does not make sense to divide this into isolated and non isolated !
+
+We observe a peak at $E_{shared}/E_{Jet}=1$ for isolated as well as for
+non-isolated electrons. The peak contains mostly electrons which have a matched
+generated electron but no matched generated parton/jet. Clearly the energy
+deposition of the electron has been reconstructed as a jet. This motivates the
+use of a cut on this ratio in order to reject fake jets. The effect of the
+default cut value 0.7 is illustrated in the lower left plot of
+figure~\ref{fig:dR_sE_ElecJet_iso}.\\
+
+%The appearance of many non-isolated electrons with a generator match and
+%many shared energy (cp. fig.~\ref{fig:dR_sE_ElecJet_noniso} might require a
+%revision of the isolation criteria because all non-isolated electrons with
+%an overlap are removed from the event (cp. figure~\ref{fig:iso_ElecJet}).
+
+The peak of many non-isolated electrons with a generator match and large shared energy is caused by the hard cut on the isolation value. It vanishes if this cut is loosend.
+
+% ------------------------------------------------------------------------------
+%\begin{figure}[hb]
+%\begin{center}
+%    \includegraphics[scale=0.8]{figures/isolation_B_LM4_ElecJet.eps}
+%    \includegraphics[scale=0.8]{figures/isolation_A_LM4_ElecJet.eps}
+%    \caption{CombRelIso variable for electrons before and after the
+%cleaning.}
+%\label{fig:iso_ElecJet}
+%\end{center}
+%\end{figure}
+% ------------------------------------------------------------------------------
+
+\subsubsection{Selection Efficiency and Fake Rate}
+
+Beside the attempt to remove double counted energy from the events, cross cleaning has also an impact at the selection efficiency and the contamination of the electrons. With the default settings, the efficiency drops around \(30 \%\), while the contaminations falls from \(\sim 70\%\) to \(\sim10\%\) (see figure ~\ref{fig:effCont_elec_ElecJet}). These effects are mainly taking place at the low \(p_T\) range. {\color{red}put some intelligent thoughts here.}\\
+The selection efficiency and fake rate of the jets on the other hand is nearly not affected (figure ~\ref{fig:effCont_Jets_ElecJet}).
+% ------------------------------------------------------------------------------
+\begin{figure}[hb]
+\begin{center}
+    \includegraphics[scale=0.8]{figures/efficiency_pt_LM4_ElecJet.eps}
+    \includegraphics[scale=0.8]{figures/contamination_pt_LM4_ElecJet.eps}\\
+    \includegraphics[scale=0.8]{figures/efficiency_eta_LM4_ElecJet.eps}
+    \includegraphics[scale=0.8]{figures/contamination_eta_LM4_ElecJet.eps}
+    \caption{Effiency (upper row) and contamination (lower row) vs. transverse momentum (left) and pseudorapidity (right) for electrons before and after the cross-cleaning}
+\label{fig:effCont_elec_ElecJet}
+\end{center}
+\end{figure}
+% ------------------------------------------------------------------------------
+% ------------------------------------------------------------------------------
+%\begin{figure}[hb]
+%\begin{center}
+%    \includegraphics[scale=0.8]{figures/efficiency_pt_LM4_ElecJet.eps}
+%    \includegraphics[scale=0.8]{figures/contamination_pt_LM4_ElecJet.eps}
+%    \caption{Effiency and contamination vs. transverse momentum for electrons before
+%    and after the cross-cleaning}
+%\label{fig:effCont_pt_ElecJet}
+%\end{center}
+%\end{figure}
+% ------------------------------------------------------------------------------
+% ------------------------------------------------------------------------------
+\begin{figure}[hb]
+\begin{center}
+    \includegraphics[scale=0.8]{figures/efficiency_jets_pt_LM4_ElecJet.eps}
+    \includegraphics[scale=0.8]{figures/contamination_jets_pt_LM4_ElecJet.eps}
+    \caption{Effiency (left) and contamination (right) vs. transverse momentum for jets before
+    and after the cross-cleaning}
+\label{fig:effCont_Jets_ElecJet}
+\end{center}
+\end{figure}
+% ------------------------------------------------------------------------------
+
+\subsubsection{Resolution}
+
+
+The spectrum of the \(p_T\) and \(\eta\) variables are shown in figure ~\ref{fig:objSpectra_ElecJet}. It appears that there is a shift from low \(p_T\) values to higher values. This is not surprising, because the soft electrons versy often do not survive the ID check before the cross cleaning itself. Note that the spikes in the region of the intersection of barrel to endcap caused by fake electrons in the \(\eta\) distribution are also cleaned away. {\color{red}should be rewriten?}\\
+
+% ------------------------------------------------------------------------------
+\begin{figure}[hb]
+\begin{center}
+    \includegraphics[scale=0.8]{figures/obj_pt_LM4_ElecJet.eps}
+    \includegraphics[scale=0.8]{figures/obj_eta_LM4_ElecJet.eps}
+    \caption{Transverse momentum and pseudorapidity spectra before
+    and after the cross-cleaning}
+\label{fig:objSpectra_ElecJet}
+\end{center}
+\end{figure}
+% ------------------------------------------------------------------------------
+
+Also of interest is the spectrum of the so-called recoiled missing transverse energy (recoil met). It is calculated by adding up the fourvectors of all objects (passing the ID) in the event, that is electrons, muons, tau, jets, and photons (the latter can be excluded). The result for electron - jet cross cleaning is shown in figure ~\ref{fig:met_ElecJet} in comparison to the missing transverse energy from the calorimeter towers. While they are in good agreement at the lower energy range (up to \(\sim 500 GeV\)), the distributions differ in the tail. This gap is removed by using the cross cleaner.
+
+% ------------------------------------------------------------------------------
+\begin{figure}[hb]
+\begin{center}
+    \includegraphics[scale=0.8]{figures/METcomp_LM4_ElecJet.eps}
+    \caption{Spectrum of missing transverse energy from fourvector sum of all
+    particles before and after the cross-cleaning. For comparison the missing
+    $E_T$ from calorimeter towers is shown as well.}
+\label{fig:met_ElecJet}
+\end{center}
+\end{figure}
+% ------------------------------------------------------------------------------
+
+% *** MUON-JET CLEANING ********************************************************
+
+\newpage
+\section{Muon - Jet Cleaning}
+The idea behind the muon-jet cleaning is to merge those muons into the jet which
+are produced in the jet by decay-in-flight of b and c hadrons\footnote{The same
+idea is pursued in the Jet Plus Track algorithms.}.
+
+The user must take care not to include fake muons in the cleaning. Those can
+result from punch-through of hadrons into the muon system and might have very
+high transverse momentum which spoils the jet collection. An appropriate muon
+identification can be chosen from the muon POG defaults (put reference to muon
+ID note here).
+
 \subsection{Algorithm}
+In this cross-cleaner module all muons  are considered as parts of the jet which
+are within a distance of $\delta R=0.2$ of the jet and not isolated. Isolation
+refers either to both tracker and calorimeter or the CombRelIso variable. The
+muon objects are removed and their fourvector added to the jet object. 
+%(To avoid any double counting of energy we subtract the MIP
+%signal of the muon in the calorimeter which is already contained in the
+%jet. Still to add in the code!)
+This is sketched in figure~\ref{fig:MJCleaning}.
+
+% ------------------------------------------------------------------------------
+\begin{figure}[hbt]
+\begin{center}
+\includegraphics[scale=.6]{figures/MuonJetAlgo_quer.eps}
+\caption{Steps of the muon-jet cleaning.}
+\label{fig:MJCleaning}
+\end{center}
+\end{figure}
+% ------------------------------------------------------------------------------
+
+Again the cut values on the distance and isolation are configurable (see
+tab.~\ref{tab:MuonJetPar}). A switch has been introduced to turn off
+the correction of the jet energy. This is meant to be used in combination with
+JPT where the muon energy has already been added in the jet reconstruction but
+the muon has not yet been removed.
+
 \subsection{Validation}
 
-\section{Conclusion}
+% ******************************************************************************
+
+\section{Photon - Jet Cleaning}
+In the CMS default reconstruction photons are selected with rather loose criteria
+from all reconstructed superclusters in the event. Like in the case of electrons
+an adequate photon identification must be applied in order to remove fake and/or
+non-isolated photons. Any photon entering the cross-cleaning must fulfill the
+requirements of a certain identification, which can be chosen from the ones
+deployed by the EGamma POG (put a reference here). 
+
+Again the energy deposit in the supercluster might also be part of a
+calorimeter tower and thus be used in jet reconstruction. These ambiguities in
+the assignment of energy to the objects are resolved in a scheme similar to the
+electron-jet disambiguation described in section~\ref{sec:ElecJet}. 
+%Note that the jet is only removed if it shares its entire energy with a photon
+%% NOT ANY MORE
+(cp.~fig.~\ref{fig:PJCleaning}).
+
+%\subsection{Algorithm}
+
+% ------------------------------------------------------------------------------
+\begin{figure}[hbt]
+\begin{center}
+\includegraphics[scale=.6]{figures/PhotonJetAlgo_quer.eps}
+\caption{Steps of the photon-jet cleaning.}
+\label{fig:PJCleaning}
+\end{center}
+\end{figure}
+% ------------------------------------------------------------------------------
+
+\subsection{Validation}
+
+% ******************************************************************************
+
+\section{Electron - Photon Cleaning}
+Both kinds of objects are reconstructed from superclusters in the
+electromagnetic calorimeter. Before object identification procedures are applied
+the electron collection is just a subset of the photon collection (put a
+reference here) with the additional requirement that a track matches the
+supercluster. For disambiguation it is necessary to remove those photons which
+share the supercluster seed or even supercluster with a good electron.
+Therefore the reference to the supercluster (seed) of all electron-photon pairs
+in the event are compared and duplicates are removed from the photon collection
+(Fig.~\ref{fig:EPCleaning}). The electron collection is not affected by this
+module. This module does not have configurable parameters.
+
+% ------------------------------------------------------------------------------
+\begin{figure}[hbt]
+\begin{center}
+\includegraphics[scale=.6]{figures/ElectronPhotonAlgo_quer.eps}
+\caption{Steps of the electron-photon cleaning.}
+\label{fig:EPCleaning}
+\end{center}
+\end{figure}
+% ------------------------------------------------------------------------------
+
+\subsection{Validation}
+
+% *** CONCLUSIONS **************************************************************
+
+\section{Resolving Conflicts}
+\label{mapReso}
+All overlaps detected in the comparison of collections among each other are
+being stored in an association map as described above. The next step in the cleaning procedure
+consists of finding contradictions in this map and resolving them.
+Possible configurations needing such an intervention are
+\begin{enumerate}
+    \item Object A is marked to be \textit{deleted} because of overlap with
+	object B and marked for \textit{modification} due to a conflict with
+	object C
+    \item Object A is marked to be \textit{deleted} because of overlap with object B
+	which itself is marked for deletion due to a conflict with object C.
+%    \item Object A is marked to be \textit{modified} because of overlap with object B
+%	which itself is marked for deletion due to a conflict with object C.
+%	NOT YET RESOLVED AND RATHER IMPOSSIBLE DUE TO STRUCTURE OF THE MAP
+    \item A closed loop of dependencies (Fig. XXX) % To be created
+\end{enumerate}
+
+% Explain how this can occur, examples
+
+The first case is being handled at the point where the clean collections are
+being created. The action of deletion gets priority over all other
+modifications.
+
+In order to find conflicts of the other kinds all map entries are inspected. For
+each entry those modifier objects leading to a deletion are checked whether they
+appear themselves in the map as a modified object marked for deletion. If this
+is the case a conflict of type 2 has been found. As a consequence the initial
+action (removal of object A)  should not take place and the corresponding
+modifier (object B) is removed from the list of modifier objects.
+
+For the detection of a loop of dependencies not only the modifiers of the
+starting object must be checked but iteratively all the modifiers' modifier. A
+bookkeeping of all objects appearing in the procedure allows the detection of
+the loop.
+
+Once a loop has been detected some modifications to the map become necessary.
+The idea is to keep the most energetic object of the loop (the highest in
+$p_T$). Therefore the list of modifiers of this kept object is cleared off by
+removing all other objects appearing in the loop. % IS THIS REALLY DONE? CHECK!
+The same is done for these other objects but in addition the kept object is
+added as a modifier marking them for deletion. The new topology is sketched in
+Fig. XXX %TO BE CREATED
+
+\section{Conclusions}
+% Default parameters
+
+% *** DOCUMENTATION ************************************************************
+
+\section{Documentation}
+Up-to-date instructions how to obtain the code, compile and run it, and use its
+output are maintained on a CMS wiki page~\cite{twiki}. Examples on how to
+configure the package are linked from this page. New versions of the package are
+advertised on the page on SUSY specific PAT extensions~\cite{susypat}.
+
+%% Generate doxygen documentation => Ask top people how to do this.
+
+% Internal structure/code details/How to modify the cleaner?
+% Section code structure?
+
+% *** USER VALIDATION **********************************************************
+
+\section{User Validation}
+The CMSSW module and a set of configuration files and ROOT scripts used to
+generate the plots in this note are available on CVS. Instructions on how to use
+them can be found on the wiki page~\cite{twiki}.
+
+% *** APPENDIX - CONFIG PARAMETERS *********************************************
+
+\appendix
+\section{Configurable Parameters}
+
+% ------------------------------------------------------------------------------
+\begin{table}[h]
+\caption{Turning on and off the components}
+\begin{center}
+\begin{tabular}{l|l|l|l}
+\textbf{Type} & \textbf{Name} & \textbf{Description} & \textbf{Default
+    Setting} \\ \hline
+    bool & doElectronJetCC   & Turn on/off electron-jet cleaning & True
+    \\\hline
+    bool & doPhotonJetCC     & Turn on/off photon-jet cleaning  & False
+    \\\hline
+    bool & doMuonJetCC       & Turn on/off muon-jet cleaning     & True
+    \\\hline
+    bool & doElectronPhotonCC& Turn on/off electron-photon cleaning & True
+\end{tabular}
+\end{center}
+\label{tab:TurnOnModules}
+\end{table}
+% ------------------------------------------------------------------------------
+
+% ------------------------------------------------------------------------------
+\begin{table}[h]
+\caption{Choosing the input collections}
+\begin{center}
+\begin{tabular}{l|l|l|l}
+\textbf{Type} & \textbf{Name} & \textbf{Description} & \textbf{Default
+Setting} \\ \hline
+InputTag & patJets      & Input jet collection   & selectedLayer1Jets
+\\\hline
+InputTag & patMets      & Input MET collection   & selectedLayer1METs
+\\\hline
+InputTag & patMuons     & Input muon collection  & selectedLayer1Muons
+\\\hline
+InputTag & patElectrons & Input electron collection &
+selectedLayer1Electrons 
+\\\hline
+InputTag & patPhotons   & Input photon collection& selectedLayer1Photons
+\\\hline
+InputTag & patTaus      & Input tau collection   & selectedLayer1Taus
+\end{tabular}
+\end{center}
+\label{tab:InputCollections}
+\end{table}
+% ------------------------------------------------------------------------------
+
+% ------------------------------------------------------------------------------
+\begin{table}[h]
+\caption{Jet Corrections}
+\begin{center}
+\begin{tabular}{l|l|l}
+\textbf{Type} & \textbf{Name} & \textbf{Default Setting}       \\\hline
+string &L1JetCorrector       & "none"                          \\\hline 
+string & L2JetCorrector      & "L2RelativeJetCorrectorIC5Calo" \\\hline
+string & L3JetCorrector      & "L3AbsoluteJetCorrectorIC5Calo" \\\hline
+string & L4JetCorrector      & "none"                          \\\hline
+string & L5udsJetCorrector   & "none"                          \\\hline
+string & L5gluonJetCorrector & "none"                          \\\hline
+string & L5cJetCorrector     & "none"                          \\\hline
+string & L5bJetCorrector     & "none"                          \\\hline
+string & L6JetCorrector      & "none"                          \\\hline
+string & L7udsJetCorrector   & "L7PartonJetCorrectorIC5qJet"   \\\hline
+string & L7gluonJetCorrector & "L7PartonJetCorrectorIC5gJet"   \\\hline
+string & L7cJetCorrector     & "L7PartonJetCorrectorIC5cJet"   \\\hline
+string & L7bJetCorrector     & "L7PartonJetCorrectorIC5bJet" 
+\end{tabular}
+\end{center}
+\label{tab:JetCorrections}
+\end{table}
+% ------------------------------------------------------------------------------
+
+% ------------------------------------------------------------------------------
+\begin{table}[h]
+\caption{Parameters for electron-jet cleaning}
+\begin{center}
+\begin{tabular}{l|l|l|l}
+\textbf{Type} & \textbf{Name} & \textbf{Description} & \textbf{Default
+Setting}                                                            \\\hline
+double & deltaR\_min       &
+\begin{minipage}[t]{8cm}Check for overlaps within a cone of this size around
+    the electron \\
+\end{minipage} & 0.5                                               \\\hline
+double & SharedEtoJetE     &
+\begin{minipage}[t]{8cm} Ratio of shared energy to jet energy. Used for
+    decision whether to drop the jet if the electron is isolated
+\end{minipage} & 0.7                                                \\\hline
+double & IsoValueCut       & Cut on isolation & 1.0                 \\\hline
+double & SharedEForNIsoEle & 
+\begin{minipage}[t]{8cm}Lower energy threshold for non-isolated electrons to
+    be merged into a jet
+\end{minipage} & -1.  (disabled)                                    \\\hline
+string & IsolationKey      &
+\begin{minipage}[t]{8cm} Key to choose isolation method as defined in
+    \texttt{DataFormats/PatCandidates/interface/Isolation.h}
+\end{minipage} & ``CaloIso''                                        \\\hline
+string & ElectronID        &
+\begin{minipage}[t]{8cm}Key to choose cut-based identification method. Valid
+    choices are: eidLoose, eidRobustHighEnergy, eidRobustLoose,
+    eidRobustTight, eidTight. The names correspond to the modules defined by
+    the EGamma POG in
+    \texttt{RecoEgamma/ElectronIdentification/python/electronIdSequence\_cff.py}\\
+\end{minipage} & ``eidLoose''   
+\end{tabular}
+\end{center}
+\label{tab:ElectronJetPar}
+\end{table}
+% ------------------------------------------------------------------------------
+
+% ------------------------------------------------------------------------------
+\begin{table}[h]
+\caption{Parameters for muon-jet cleaning}
+\begin{center}
+\begin{tabular}{l|l|l|l}
+\textbf{Type} & \textbf{Name} & \textbf{Description} & \textbf{Default
+    Setting} \\ \hline
+    double & deltaR\_min &
+    \begin{minipage}[t]{8cm}Check muons within a cone of this size around
+	the jet.
+    \end{minipage}                                           & 0.2 \\\hline
+    double & caloIso\_max    & Cut on calorimeter isolation. & 10.0\\\hline
+    double & trackIso\_max   & Cut on track isolation.       & 10.0\\\hline
+    string & MuonID          & 
+    \begin{minipage}[t]{8cm} Key to choose identification method. All
+	possible choices are defined in
+	DataFormats/MuonReco/interface/Muon.h. The MuonAnalysis page
+	provides more information on these methods. In case of an invalid
+	parameter choice the 'AllGlobalMuons' are used. \\
+    \end{minipage}                             & ``AllGlobalMuons''\\\hline
+    bool   & modifyJetEnergy &
+    \begin{minipage}[t]{8cm} Add energy of the muon to the overlapping jet.
+	Should be set to false for the use with JPT.\\
+    \end{minipage}                                            & True
+\end{tabular}
+\end{center}
+\label{tab:MuonJetPar}
+\end{table}
+% ------------------------------------------------------------------------------
 
 
+% *** BIBLIOGRAPHY *************************************************************
 \pagebreak
 \begin{thebibliography}{9}
-  \bibitem {package} {\bf The CVS code repository},
-    \underline{http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/SusyAnalysis/PatCrossCleaner/}
+\bibitem {package} {\bf The CVS code repository},
+\underline{http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/SusyAnalysis/PatCrossCleaner/}
 
-  \bibitem {twiki} {\bf The online documentation},
-    \underline{https://twiki.cern.ch/twiki/bin/view/CMS/SusyPatCrossCleaner/}
+\bibitem {twiki} {\bf Cross-cleaning package online documentation},
+\underline{https://twiki.cern.ch/twiki/bin/view/CMS/SusyPatCrossCleaner/}
 
-  \bibitem {met} {\bf The online documentation},
-    \underline{https://twiki.cern.ch/twiki/bin/view/CMS/SusyPatCrossCleaner/}
+\bibitem {SusyAnalyzer} {\bf SusyAnalyzer online documentation}
+\underline{https://twiki.cern.ch/twiki/bin/view/CMS/SusyAnalyzer}
 
-  \bibitem {SusyAnalyzer} {\bf The online documentation}
-    \underline{https://twiki.cern.ch/twiki/bin/view/CMS/SusyAnalyzer}
-
+\bibitem {susypat} {\bf SUSY PAT online documentation},
+\underline{https://twiki.cern.ch/twiki/bin/view/CMS/SusyPat/}
 \end{thebibliography}
- 
-%------------------------------------------------------------------------------
+
+% ******************************************************************************
 
 \end{document}
