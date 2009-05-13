@@ -247,13 +247,13 @@ In heavily crowded events like Supersymmetry, it is not uncommon for an em-objec
 \begin{figure}[hbtp]
   \begin{center}
     %%\includegraphics[scale=.4]{ElIsolation.eps}
-    \includegraphics[scale=.4]{figures/no_of_nnj_LM4_ElecJet.eps}
+    \includegraphics[scale=.8]{figures/no_of_nnj_LM4_ElecJet.eps}
     \caption{Number of Jets with shared energy for isolated (dashed line) and non-isolated (solid line) electrons in an event.}
     \label{fig:NbJets}
   \end{center}
 \end{figure}
 
- So for each object the three closest jet in \( \eta-\phi\) space will be searched. If this distance is smaller than $\delta R=0.5$ the objects'
+So for each object the three closest jet in \( \eta-\phi\) space will be searched. If this distance is smaller than $\delta R=0.5$ the objects'
 constituents are compared in order to determine the amount of energy which is
 being shared between the two objects. This shared energy is calculated by adding up the electromagnetic energy of
 those calorimeter towers which are covered by both objects, i.e. all jet towers
@@ -269,9 +269,9 @@ of the electron. While the possible choices for the isolation algorithm include 
 \begin{figure}[hbtp]
   \begin{center}
     %%\includegraphics[scale=.4]{ElIsolation.eps}
-    \includegraphics[scale=.4]{figures/isolation_B_LM4_ElecJet.eps}
-    \includegraphics[scale=.4]{figures/isolation_A_LM4_ElecJet.eps}
-    \caption{Combined isolation ~\ref{ElIsolation} for Electrons before (left) and after (right) cross cleaning.}
+    \includegraphics[scale=.8]{figures/isolation_B_LM4_ElecJet.eps}
+    \includegraphics[scale=.8]{figures/isolation_A_LM4_ElecJet.eps}
+    \caption{Combined isolation (see eq. (~\ref{ElIsolation})) for Electrons before (left) and after (right) cross cleaning.}
     \label{fig:ElectronIsolation}
   \end{center}
 \end{figure}
@@ -291,7 +291,7 @@ without double counting of energy.\\
 Fig.~\ref{fig:EJCleaning} illustrates the steps for the electron-jet cleaning.\\
 \begin{figure}[hbtp]
   \begin{center}
-    \includegraphics[scale=.4]{figures/ElectronJetAlgo_quer.eps}
+    \includegraphics[scale=.6]{figures/ElectronJetAlgo_quer.eps}
     \caption{Shown here are the steps taken for electron-jet cleaning. Note that this procedure is similar to the cleaning in the SusyAnalyzer~\cite{SusyAnalyzer}}
     \label{fig:EJCleaning}
   \end{center}
@@ -357,7 +357,7 @@ PAT applies a simple $\delta R$ matching. {\color{red}(Check configuration)}.
     \includegraphics[scale=0.8]{figures/dR_iso_A_LM4_ElecJet.eps}\\
     \includegraphics[scale=0.8]{figures/sharedE_iso_A_LM4_ElecJet.eps}
     \includegraphics[scale=0.8]{figures/sharedE_iso_B_LM4_ElecJet.eps}
-    \caption{Distance \(delta R\) (upper row) and shared Energy, normalised to jet energy, (lower row) with the closest Jet for isolated Electrons before (left) and after (right) the cross cleaning.}
+    \caption{Distance \(\delta R\) (upper row) and shared Energy, normalised to jet energy, (lower row) with the closest Jet for isolated Electrons before (left) and after (right) the cross cleaning.}
 \label{fig:dR_sE_ElecJet_iso}
 \end{center}
 \end{figure}
@@ -381,7 +381,7 @@ PAT applies a simple $\delta R$ matching. {\color{red}(Check configuration)}.
     \includegraphics[scale=0.8]{figures/dR_noniso_B_LM4_ElecJet.eps}
     \includegraphics[scale=0.8]{figures/sharedE_noniso_B_LM4_ElecJet}
     \caption{Distance in $\delta R$ and Shared energy divided by the jet energy of non-isolated electron and closest jet
-before the cross cleaning}
+before the cross cleaning.}
 \label{fig:dR_sE_ElecJet_noniso}
 \end{center}
 \end{figure}
@@ -423,8 +423,8 @@ The selection efficiency and fake rate of the jets on the other hand is nearly n
 \begin{figure}[hb]
 \begin{center}
     \includegraphics[scale=0.8]{figures/efficiency_pt_LM4_ElecJet.eps}
-    \includegraphics[scale=0.8]{figures/contamination_pt_LM4_ElecJet.eps}\\
-    \includegraphics[scale=0.8]{figures/efficiency_eta_LM4_ElecJet.eps}
+    \includegraphics[scale=0.8]{figures/efficiency_eta_LM4_ElecJet.eps}\\
+    \includegraphics[scale=0.8]{figures/contamination_pt_LM4_ElecJet.eps}
     \includegraphics[scale=0.8]{figures/contamination_eta_LM4_ElecJet.eps}
     \caption{Effiency (upper row) and contamination (lower row) vs. transverse momentum (left) and pseudorapidity (right) for electrons before and after the cross-cleaning}
 \label{fig:effCont_elec_ElecJet}
@@ -448,7 +448,7 @@ The selection efficiency and fake rate of the jets on the other hand is nearly n
     \includegraphics[scale=0.8]{figures/efficiency_jets_pt_LM4_ElecJet.eps}
     \includegraphics[scale=0.8]{figures/contamination_jets_pt_LM4_ElecJet.eps}
     \caption{Effiency (left) and contamination (right) vs. transverse momentum for jets before
-    and after the cross-cleaning}
+    and after the cross-cleaning.}
 \label{fig:effCont_Jets_ElecJet}
 \end{center}
 \end{figure}
@@ -457,7 +457,7 @@ The selection efficiency and fake rate of the jets on the other hand is nearly n
 \subsubsection{Resolution}
 
 
-The spectrum of the \(p_T\) and \(\eta\) variables are shown in figure ~\ref{fig:objSpectra_ElecJet}. It appears that there is a shift from low \(p_T\) values to higher values. This is not surprising, because the soft electrons versy often do not survive the ID check before the cross cleaning itself. Note that the spikes in the region of the intersection of barrel to endcap caused by fake electrons in the \(\eta\) distribution are also cleaned away. {\color{red}should be rewriten?}\\
+The spectrum of the \(p_T\) and \(\eta\) variables are shown in figure ~\ref{fig:objSpectra_ElecJet}. It appears that there is a shift from low \(p_T\) values to higher values. This is not surprising, because the soft electrons very often do not survive the ID check before the cross cleaning itself. Note that the spikes in the region of the intersection of barrel to endcap caused by fake electrons in the \(\eta\) distribution are also cleaned away. {\color{red}should be rewriten?}\\
 
 % ------------------------------------------------------------------------------
 \begin{figure}[hb]
@@ -465,7 +465,7 @@ The spectrum of the \(p_T\) and \(\eta\) variables are shown in figure ~\ref{fig
     \includegraphics[scale=0.8]{figures/obj_pt_LM4_ElecJet.eps}
     \includegraphics[scale=0.8]{figures/obj_eta_LM4_ElecJet.eps}
     \caption{Transverse momentum and pseudorapidity spectra before
-    and after the cross-cleaning}
+    and after the cross-cleaning.}
 \label{fig:objSpectra_ElecJet}
 \end{center}
 \end{figure}
