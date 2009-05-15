@@ -264,7 +264,12 @@ accessible any more and cannot be used in the calculation.}
 % Method using individual ECAL crystals 
 
 If electron and jet share energy the further treatment depends on the isolation
-of the electron. While the possible choices for the isolation algorithm include the default PAT options like cone isolation in the Tracker, HCal, and ECal, the presetting is a combination of these three, i.e. \begin{equation} \label{ElIsolation}(\frac{E_{TrackerIso}}{a} + \frac{E_{CaloIso}}{b} + \frac{E_{EMIso}}{c})/p_T\end{equation}, with \(a=b=c=1\) per default. This Isolation procedure was suggested by the V+jets group.\textcolor{red}{Referece!}. Figure ~\ref{Iso} shows this combined isolation for Electrons. The cut on \(0.1\) was also suggested by the V+jets group. \\
+of the electron. While the possible choices for the isolation algorithm include the default PAT options like cone isolation in the Tracker, HCal, and ECal, the presetting is a combination of these three, i.e. 
+\begin{equation} 
+\label{ElIsolation}
+(\frac{E_{TrackerIso}}{a} + \frac{E_{CaloIso}}{b} + \frac{E_{EMIso}}{c})/p_T
+\end{equation}
+with \(a=b=c=1\) per default. This Isolation procedure was suggested by the V+jets group.\textcolor{red}{Referece!}. Figure ~\ref{Iso} shows this combined isolation for Electrons. The cut on \(0.1\) was also suggested by the V+jets group. \\
 
 \begin{figure}[hbtp]
   \begin{center}
@@ -490,18 +495,26 @@ Also of interest is the spectrum of the so-called recoiled missing transverse en
 \newpage
 \section{Muon - Jet Cleaning}
 The idea behind the muon-jet cleaning is to merge those muons into the jet which
-are produced in the jet by decay-in-flight of b and c hadrons\footnote{The same
+are produced in this jet by decay-in-flight of b and c hadrons\footnote{The same
 idea is pursued in the Jet Plus Track algorithms.}.
 
 The user must take care not to include fake muons in the cleaning. Those can
 result from punch-through of hadrons into the muon system and might have very
 high transverse momentum which spoils the jet collection. An appropriate muon
-identification can be chosen from the muon POG defaults (put reference to muon
-ID note here).
+identification can be chosen from the muon POG defaults {\color{red}(put reference to muon
+ID note here)}.
+
+The Electron-Jet cross cleaning was tested on {\color{red}Sample1, Sample2, Sample3}. All shown plots are from the LM4 Sample made with CMSSW 2.2.3. The PAT objects have been
+generated using the default sequences provided in the configuration files
+\texttt{PhysicsTools/PatAlgos/python/patLayer0\_cff.py} and
+\texttt{PhysicsTools/PatAlgos/python/patLayer1\_cff.py} in version
+{\color{red}\texttt{V04-14-19} True?}.
+\\
+
 
 \subsection{Algorithm}
-In this cross-cleaner module all muons  are considered as parts of the jet which
-are within a distance of $\delta R=0.2$ of the jet and not isolated. Isolation
+In this cross-cleaner module all non-isolated muons are considered as part of the jet which
+is within a distance of $\delta R=0.2$ . Isolation
 refers either to both tracker and calorimeter or the CombRelIso variable. The
 muon objects are removed and their fourvector added to the jet object. 
 %(To avoid any double counting of energy we subtract the MIP
@@ -526,6 +539,57 @@ JPT where the muon energy has already been added in the jet reconstruction but
 the muon has not yet been removed.
 
 \subsection{Validation}
+\subsubsection{Cut Variables}
+In the muon - jet cross cleaning the isolation is used to decide wich muon is candidate for removing and wich not. Figure ~\ref{fig:MuonIsolation} shows the combined isolation as defined in eq. ~\ref{ElIsolation} for muons before and after the cleaning. The preset isolation cut is on \(0.1 GeV\). 
+
+\begin{figure}[hb]
+\begin{center}
+    \includegraphics[scale=0.8]{figures/obj_pt_LM4_ElecJet.eps}
+    \includegraphics[scale=0.8]{figures/obj_eta_LM4_ElecJet.eps}
+    \caption{Combined isolation for muons before (left) and after (right) the cross cleaning. {\color{red}{Platzhalter!}}}
+\label{fig:MuonIsolation}
+\end{center}
+\end{figure}
+
+Then, the distance \(\delta R\) between the muon and all jets in \(\eta - \phi\) space is calculated. If there exists a jet which is closer than a certain value (preset is \(\delta R < 0.2\)), the muon will be removed, otherwise both muon and jets will be left alone. Figure ~\ref{fig:dR_MuonJet_noniso} shows this for before and after the cross cleaning.
+
+\begin{figure}[hb]
+\begin{center}
+    \includegraphics[scale=0.8]{figures/obj_pt_LM4_ElecJet.eps}
+    \includegraphics[scale=0.8]{figures/obj_eta_LM4_ElecJet.eps}
+    \caption{\(\delta R\) between muon and jet before (left) and after (right) the cross cleaning. {\color{red}{Platzhalter!}}}
+\label{fig:dR_MuonJet_noniso}
+\end{center}
+\end{figure}
+
+
+\subsection{Selection Efficiency and Fake Rate}
+The greatest influence of muon - jet cross cleaning is on the contamination of the muons. It drops from {\color{red}Ix} to {\color{red}Uepsilon} with the default settings. The selection efficiency on the other hand also decreases, but stays good {\color{red}(\(\sim 80\%\))}. This can be seen in figure ~\ref{effCont_muon_MuonJet} for the \(p_T\) and \(\eta\) distributions. 
+
+
+\begin{figure}[hb]
+\begin{center}
+    \includegraphics[scale=0.8]{figures/efficiency_pt_LM4_ElecJet.eps}
+    \includegraphics[scale=0.8]{figures/efficiency_eta_LM4_ElecJet.eps}\\
+    \includegraphics[scale=0.8]{figures/contamination_pt_LM4_ElecJet.eps}
+    \includegraphics[scale=0.8]{figures/contamination_eta_LM4_ElecJet.eps}
+    \caption{Effiency (upper row) and contamination (lower row) vs. transverse momentum (left) and pseudorapidity (right) for muons before and after the cross-cleaning {\color{red}Platzhalter!}}
+\label{fig:effCont_muon_MuonJet}
+\end{center}
+\end{figure}
+
+Again, this cross cleaning module has nearly no impact on selection efficiency and contamination of the jets (figure ~\ref{effCont_Jets_MuonJet}).
+
+\begin{figure}[hb]
+\begin{center}
+    \includegraphics[scale=0.8]{figures/efficiency_jets_pt_LM4_ElecJet.eps}
+    \includegraphics[scale=0.8]{figures/contamination_jets_pt_LM4_ElecJet.eps}
+    \caption{Effiency (left) and contamination (right) vs. transverse momentum for jets before
+    and after the cross-cleaning. {\color{red}Platzhalter!}}
+\label{fig:effCont_Jets_MuonJet}
+\end{center}
+\end{figure}
+
 
 % ******************************************************************************
 
