@@ -230,95 +230,84 @@ Starting point for this cleaning is a collection of well identified electrons.
 The level of identification can be chosen from those provided by the EGamma POG
 {\color{red}(put reference here)}.
 
-The Electron-Jet cross cleaning was tested on {\color{red}Sample1, Sample2, Sample3}. All shown plots are from the LM4 Sample made with CMSSW 2.2.3. The PAT objects have been
-generated using the default sequences provided in the configuration files
+The Electron-Jet cross cleaning was tested on {\color{red}Sample1, Sample2,
+Sample3}. All plots in this section have been created from a LM4 Sample produced
+with CMSSW 2.2.3. (\textcolor{red}{/DATASET/NAME/SOMEWHERE}). The PAT objects
+have been generated using the default sequences provided in the configuration
+files
 \texttt{PhysicsTools/PatAlgos/python/patLayer0\_cff.py} and
-\texttt{PhysicsTools/PatAlgos/python/patLayer1\_cff.py} in version
-\texttt{V04-14-19}.
-\\
-
+\texttt{PhysicsTools/PatAlgos/python/patLayer1\_cff.py} in the CMSSW\_2\_2\_7
+release.
 
 \subsection{Algorithm}
 The implemented algorithm is similar to the cleaning in the previous analysis
 tool used in the SUSY PAG, the SusyAnalyzer~\cite{SusyAnalyzer}.
 
-In heavily crowded events like Supersymmetry, it is not uncommon for an em-object to have shared energy with more than one jet (Fig. ~\ref{fig:NbJets}).
+In very dense events as predicted for supersymmetric particle production, it is
+not uncommon for an electromagnetic object to have shared energy with more than one jet (Fig. ~\ref{fig:NbJets}).
 
 \begin{figure}[hbtp]
   \begin{center}
-    %%\includegraphics[scale=.4]{ElIsolation.eps}
-    \includegraphics[scale=.8]{figures/no_of_nnj_LM4_ElecJet.eps}
+    \includegraphics[scale=1.0]{figures/ElecJet/LM4_no_of_nnj.eps}
     \caption{Number of Jets with shared energy for isolated (dashed line) and non-isolated (solid line) electrons in an event.}
     \label{fig:NbJets}
   \end{center}
 \end{figure}
 
-So for each object the three closest jet in \( \eta-\phi\) space will be searched. If this distance is smaller than $\delta R=0.5$ the objects'
-constituents are compared in order to determine the amount of energy which is
-being shared between the two objects. This shared energy is calculated by adding up the electromagnetic energy of
+Therefore for each electron the three closest jets in \( \eta-\phi\) space are
+examined. If this distance is smaller than $\delta R=1.0$ (configurable) the
+objects' constituents are compared in order to determine the amount of energy
+which is being shared between the two objects.
+This shared energy is calculated by adding up the electromagnetic energy of
 those calorimeter towers which are covered by both objects, i.e. all jet towers
 containing crystals which are part of the electrons' supercluster.
-\footnote{Note that this is only an approximation to the real energy overlap. On
-AOD and PAT level the more precise energies of individual crystals are not
+\footnote{Note that this is only an approximation to the real energy overlap. In
+PAT Layer 1 smamples the more precise energies of individual crystals are not
 accessible any more and cannot be used in the calculation.}
 % Method using individual ECAL crystals 
 
 If electron and jet share energy the further treatment depends on the isolation
-of the electron. While the possible choices for the isolation algorithm include the default PAT options like cone isolation in the Tracker, HCal, and ECal, the presetting is a combination of these three, i.e. 
-\begin{equation} 
-\label{ElIsolation}
-(\frac{E_{TrackerIso}}{a} + \frac{E_{CaloIso}}{b} + \frac{E_{EMIso}}{c})/p_T
+of the electron. While the possible choices for the isolation algorithm include
+the default PAT options like cone isolation in the Tracker, hadronic and
+electromagnetic calorimeter, the presetting is a combination of these three, i.e. 
+\begin{equation}
+    \frac{a\cdot ECalIso+b\cdot HCalIso+c\cdot TrackIso}{p_T}
+    \label{ElIsolation}
 \end{equation}
-with \(a=b=c=1\) per default. This Isolation procedure was suggested by the V+jets group.\textcolor{red}{Referece!}. Figure ~\ref{Iso} shows this combined isolation for Electrons. The cut on \(0.1\) was also suggested by the V+jets group. \\
+, with \(a=b=c=1\). This Isolation variable has been suggested by the V+jets
+group.\textcolor{red}{Referece!}. Figure ~\ref{Iso} shows this combined
+isolation for Electrons. The cut at \(0.1\) was also recommended in the V+jets
+group baseline selection. \\
 
 \begin{figure}[hbtp]
   \begin{center}
-    %%\includegraphics[scale=.4]{ElIsolation.eps}
-    \includegraphics[scale=.8]{figures/isolation_B_LM4_ElecJet.eps}
-    \includegraphics[scale=.8]{figures/isolation_A_LM4_ElecJet.eps}
+    \includegraphics[scale=0.8]{figures/ElecJet/LM4_isolation_B.eps}
+    \includegraphics[scale=0.8]{figures/ElecJet/LM4_isolation_A.eps}
     \caption{Combined isolation (see eq. (~\ref{ElIsolation})) for Electrons before (left) and after (right) cross cleaning.}
     \label{fig:ElectronIsolation}
   \end{center}
 \end{figure}
 
-
- If it is non-isolated the electron will be removed and the difference between the electron energy and the
-shared energy will be added to the jet. This energy correction is applied
-vectorially. It is given by the difference of the electron fourvector and a
-massless 'shared energy' fourvector ($E^2=\vec{p}^2$) {\color{red}with \ldots}
+If it is non-isolated the electron will be removed and the difference between
+the electron energy and the shared energy will be added to the jet. This energy
+correction is applied vectorially. It is given by the difference of the electron
+fourvector and a massless 'shared energy' fourvector ($E^2=\vec{p}^2$)
+{\color{red}with \ldots}
 % HOW exactly is this being calculated now?
 For isolated electrons we distinguish two cases. If the ratio of shared energy
 and jet energy is greater than a certain value the jet will be removed. If the
 ratio is smaller both objects are kept and the shared energy fourvector is subtracted from
-the jet. This way objects very close in $\delta R$ can be kept in the events
+the jet. This way objects very close in $\Delta R$ can be kept in the events
 without double counting of energy.\\
 
 Fig.~\ref{fig:EJCleaning} illustrates the steps for the electron-jet cleaning.\\
 \begin{figure}[hbtp]
   \begin{center}
     \includegraphics[scale=.6]{figures/ElectronJetAlgo_quer.eps}
-    \caption{Shown here are the steps taken for electron-jet cleaning. Note that this procedure is similar to the cleaning in the SusyAnalyzer~\cite{SusyAnalyzer}}
+    \caption{Steps of the electron-jet cleaning.}
     \label{fig:EJCleaning}
   \end{center}
 \end{figure}
-
-% Details on isolation? here! 
-%The imlementation offers several choices for the isolation variable. All default
-%PAT options (cone isolation in the ECAL, HCAL, both of them or the tracker) can be
-%used as well as the 'CombRelIso' variable recommended by the V+jets group (they
-%set $a=b=c=1$) (REF)
-%\[ CombRelIso=\frac{a\cdot ECalIso+b\cdot HCalIso+c\cdot TrackIso}{p_T} \]
-%Other weighting of the components can be specified in the configuration.
-
-% ------------------------------------------------------------------------------
-%\begin{figure}[hbt]
-%\begin{center}
-%\includegraphics[scale=.6]{figures/ElectronJetAlgo_quer.eps}
-%\caption{Steps of the electron-jet cleaning.}
-%\label{fig:EJCleaning}
-%\end{center}
-%\end{figure}
-% ------------------------------------------------------------------------------
 
 % OK, now there should be s.th. concerning vectorial subtraction vs. scaling.
 All cut values are configurable and are listed with their default settings in
@@ -327,22 +316,24 @@ table~\ref{tab:ElectronJetPar}.
 \subsection{Results and Validation}
 %% WHICH ELECTRON ID?
 In this section the effect of the described procedure on electrons and jets in
-the events is studied. %Unless otherwise noted all plots have been made using the
-%dataset \texttt{xxxxxx/xxx/xxx} with CMSSW 2.2.3. The PAT objects have been
-%generated using the default sequences provided in the configuration files
-%\texttt{PhysicsTools/PatAlgos/python/patLayer0\_cff.py} and
-%\texttt{PhysicsTools/PatAlgos/python/patLayer1\_cff.py} in version
-%\texttt{V04-14-19}.
+the events is studied. 
 
 \subsubsection{Cut Variables}
 % (dR, shared energy, isolation) for different matches
 As described in the previous section the cleaning algorithm applies cuts on
-several variables concerning the electron and jet under investigation. These are the distance of electron and jet in $\delta R$ and their shared energy, normalised to the jet energy. The distributions of the named variables are shown in figure~\ref{fig:dR_sE_ElecJet_iso} (isolated electrons, before and after the cleaning) and figure ~\ref{fig:dR_sE_ElecJet_noniso} (non-isolated electrons before cleaning) respectively. By default the isolation in the tracker is considered as stored
-in the PAT object. We further investigate four different classes of electron-jet
-pairs. The classification is based on the matching of the reconstructed objects
-to generator particles produced in the hard process. {\color{red}(or genJets???) No, i thing genParticles} We distinguish pairs in which both, electron, jet or none of the objects could be
-matched to a generated particle. The matching algorithm provided and used in the
-PAT applies a simple $\delta R$ matching. {\color{red}(Check configuration)}.
+several variables concerning the electron and jet under investigation. These are
+the distance of electron and jet in $\Delta R$ and their shared energy,
+normalised to the jet energy. The distributions of the named the variables are shown
+in figure~\ref{fig:dR_sE_ElecJet_iso} (isolated electrons, before and after the
+cleaning) and figure ~\ref{fig:dR_sE_ElecJet_noniso} (non-isolated electrons
+before cleaning) respectively. By default the CombRelIso variable is considered.
+
+We further investigate four different classes of electron-jet pairs. The
+classification is based on the matching of the reconstructed objects
+to generator particles produced in the hard process. We distinguish pairs in
+which both, electron, jet or none of the objects could be matched to a generated
+particle. The matching algorithm provided and used in the PAT applies a simple
+$\Delta R$ matching. {\color{red}(Check configuration)}.
 
 %% Take out empty plot ....
 %For any interpretation I need plots from the right samples....
@@ -358,10 +349,10 @@ PAT applies a simple $\delta R$ matching. {\color{red}(Check configuration)}.
 % ------------------------------------------------------------------------------
 \begin{figure}[hb]
 \begin{center}
-    \includegraphics[scale=0.8]{figures/dR_iso_B_LM4_ElecJet.eps}
-    \includegraphics[scale=0.8]{figures/dR_iso_A_LM4_ElecJet.eps}\\
-    \includegraphics[scale=0.8]{figures/sharedE_iso_A_LM4_ElecJet.eps}
-    \includegraphics[scale=0.8]{figures/sharedE_iso_B_LM4_ElecJet.eps}
+    \includegraphics[scale=0.8]{figures/ElecJet/LM4_dR_iso_B.eps}
+    \includegraphics[scale=0.8]{figures/ElecJet/LM4_dR_iso_A.eps}
+    \includegraphics[scale=0.8]{figures/ElecJet/LM4_sharedE_iso_B.eps}
+    \includegraphics[scale=0.8]{figures/ElecJet/LM4_sharedE_iso_A.eps}
     \caption{Distance \(\delta R\) (upper row) and shared Energy, normalised to jet energy, (lower row) with the closest Jet for isolated Electrons before (left) and after (right) the cross cleaning.}
 \label{fig:dR_sE_ElecJet_iso}
 \end{center}
@@ -383,10 +374,10 @@ PAT applies a simple $\delta R$ matching. {\color{red}(Check configuration)}.
 % ------------------------------------------------------------------------------
 \begin{figure}[hb]
 \begin{center}
-    \includegraphics[scale=0.8]{figures/dR_noniso_B_LM4_ElecJet.eps}
-    \includegraphics[scale=0.8]{figures/sharedE_noniso_B_LM4_ElecJet}
-    \caption{Distance in $\delta R$ and Shared energy divided by the jet energy of non-isolated electron and closest jet
-before the cross cleaning.}
+    \includegraphics[scale=0.8]{figures/ElecJet/LM4_dR_noniso_B.eps}
+    \includegraphics[scale=0.8]{figures/ElecJet/LM4_sharedE_noniso_B.eps}
+    \caption{Distance in $\Delta R$ and Shared energy divided by the jet energy of non-isolated electron and closest jet
+before the cross-cleaning.}
 \label{fig:dR_sE_ElecJet_noniso}
 \end{center}
 \end{figure}
@@ -427,10 +418,10 @@ The selection efficiency and fake rate of the jets on the other hand is nearly n
 % ------------------------------------------------------------------------------
 \begin{figure}[hb]
 \begin{center}
-    \includegraphics[scale=0.8]{figures/efficiency_pt_LM4_ElecJet.eps}
-    \includegraphics[scale=0.8]{figures/efficiency_eta_LM4_ElecJet.eps}\\
-    \includegraphics[scale=0.8]{figures/contamination_pt_LM4_ElecJet.eps}
-    \includegraphics[scale=0.8]{figures/contamination_eta_LM4_ElecJet.eps}
+    \includegraphics[scale=0.8]{figures/ElecJet/LM4_efficiency_pt.eps}
+    \includegraphics[scale=0.8]{figures/ElecJet/LM4_efficiency_eta.eps}
+    \includegraphics[scale=0.8]{figures/ElecJet/LM4_contamination_pt.eps}
+    \includegraphics[scale=0.8]{figures/ElecJet/LM4_contamination_eta.eps}
     \caption{Effiency (upper row) and contamination (lower row) vs. transverse momentum (left) and pseudorapidity (right) for electrons before and after the cross-cleaning}
 \label{fig:effCont_elec_ElecJet}
 \end{center}
@@ -450,8 +441,8 @@ The selection efficiency and fake rate of the jets on the other hand is nearly n
 % ------------------------------------------------------------------------------
 \begin{figure}[hb]
 \begin{center}
-    \includegraphics[scale=0.8]{figures/efficiency_jets_pt_LM4_ElecJet.eps}
-    \includegraphics[scale=0.8]{figures/contamination_jets_pt_LM4_ElecJet.eps}
+    \includegraphics[scale=0.8]{figures/ElecJet/LM4_efficiency_jets_pt.eps}
+    \includegraphics[scale=0.8]{figures/ElecJet/LM4_contamination_jets_pt.eps}
     \caption{Effiency (left) and contamination (right) vs. transverse momentum for jets before
     and after the cross-cleaning.}
 \label{fig:effCont_Jets_ElecJet}
@@ -467,8 +458,8 @@ The spectrum of the \(p_T\) and \(\eta\) variables are shown in figure ~\ref{fig
 % ------------------------------------------------------------------------------
 \begin{figure}[hb]
 \begin{center}
-    \includegraphics[scale=0.8]{figures/obj_pt_LM4_ElecJet.eps}
-    \includegraphics[scale=0.8]{figures/obj_eta_LM4_ElecJet.eps}
+    \includegraphics[scale=0.8]{figures/ElecJet/LM4_obj_pt.eps}
+    \includegraphics[scale=0.8]{figures/ElecJet/LM4_obj_eta.eps}
     \caption{Transverse momentum and pseudorapidity spectra before
     and after the cross-cleaning.}
 \label{fig:objSpectra_ElecJet}
@@ -481,7 +472,7 @@ Also of interest is the spectrum of the so-called recoiled missing transverse en
 % ------------------------------------------------------------------------------
 \begin{figure}[hb]
 \begin{center}
-    \includegraphics[scale=0.8]{figures/METcomp_LM4_ElecJet.eps}
+    \includegraphics[scale=0.8]{figures/ElecJet/LM4_METcomp.eps}
     \caption{Spectrum of missing transverse energy from fourvector sum of all
     particles before and after the cross-cleaning. For comparison the missing
     $E_T$ from calorimeter towers is shown as well.}
@@ -514,7 +505,7 @@ generated using the default sequences provided in the configuration files
 
 \subsection{Algorithm}
 In this cross-cleaner module all non-isolated muons are considered as part of the jet which
-is within a distance of $\delta R=0.2$ . Isolation
+is within a distance of $\Delta R=0.2$ . Isolation
 refers either to both tracker and calorimeter or the CombRelIso variable. The
 muon objects are removed and their fourvector added to the jet object. 
 %(To avoid any double counting of energy we subtract the MIP
@@ -544,8 +535,8 @@ In the muon - jet cross cleaning the isolation is used to decide wich muon is ca
 
 \begin{figure}[hb]
 \begin{center}
-    \includegraphics[scale=0.8]{figures/obj_pt_LM4_ElecJet.eps}
-    \includegraphics[scale=0.8]{figures/obj_eta_LM4_ElecJet.eps}
+    %\includegraphics[scale=0.8]{figures/obj_pt_LM4_ElecJet.eps}
+    %\includegraphics[scale=0.8]{figures/obj_eta_LM4_ElecJet.eps}
     \caption{Combined isolation for muons before (left) and after (right) the cross cleaning. {\color{red}{Platzhalter!}}}
 \label{fig:MuonIsolation}
 \end{center}
@@ -555,8 +546,8 @@ Then, the distance \(\delta R\) between the muon and all jets in \(\eta - \phi\)
 
 \begin{figure}[hb]
 \begin{center}
-    \includegraphics[scale=0.8]{figures/obj_pt_LM4_ElecJet.eps}
-    \includegraphics[scale=0.8]{figures/obj_eta_LM4_ElecJet.eps}
+    %\includegraphics[scale=0.8]{figures/obj_pt_LM4_ElecJet.eps}
+    %\includegraphics[scale=0.8]{figures/obj_eta_LM4_ElecJet.eps}
     \caption{\(\delta R\) between muon and jet before (left) and after (right) the cross cleaning. {\color{red}{Platzhalter!}}}
 \label{fig:dR_MuonJet_noniso}
 \end{center}
@@ -569,10 +560,10 @@ The greatest influence of muon - jet cross cleaning is on the contamination of t
 
 \begin{figure}[hb]
 \begin{center}
-    \includegraphics[scale=0.8]{figures/efficiency_pt_LM4_ElecJet.eps}
-    \includegraphics[scale=0.8]{figures/efficiency_eta_LM4_ElecJet.eps}\\
-    \includegraphics[scale=0.8]{figures/contamination_pt_LM4_ElecJet.eps}
-    \includegraphics[scale=0.8]{figures/contamination_eta_LM4_ElecJet.eps}
+    %\includegraphics[scale=0.8]{figures/efficiency_pt_LM4_ElecJet.eps}
+    %\includegraphics[scale=0.8]{figures/efficiency_eta_LM4_ElecJet.eps}\\
+    %\includegraphics[scale=0.8]{figures/contamination_pt_LM4_ElecJet.eps}
+    %\includegraphics[scale=0.8]{figures/contamination_eta_LM4_ElecJet.eps}
     \caption{Effiency (upper row) and contamination (lower row) vs. transverse momentum (left) and pseudorapidity (right) for muons before and after the cross-cleaning {\color{red}Platzhalter!}}
 \label{fig:effCont_muon_MuonJet}
 \end{center}
@@ -582,8 +573,8 @@ Again, this cross cleaning module has nearly no impact on selection efficiency a
 
 \begin{figure}[hb]
 \begin{center}
-    \includegraphics[scale=0.8]{figures/efficiency_jets_pt_LM4_ElecJet.eps}
-    \includegraphics[scale=0.8]{figures/contamination_jets_pt_LM4_ElecJet.eps}
+    %\includegraphics[scale=0.8]{figures/efficiency_jets_pt_LM4_ElecJet.eps}
+    %\includegraphics[scale=0.8]{figures/contamination_jets_pt_LM4_ElecJet.eps}
     \caption{Effiency (left) and contamination (right) vs. transverse momentum for jets before
     and after the cross-cleaning. {\color{red}Platzhalter!}}
 \label{fig:effCont_Jets_MuonJet}
