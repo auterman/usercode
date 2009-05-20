@@ -483,7 +483,7 @@ Also of interest is the spectrum of the so-called recoiled missing transverse en
 
 % *** MUON-JET CLEANING ********************************************************
 
-\newpage
+\clearpage
 \section{Muon - Jet Cleaning}
 The idea behind the muon-jet cleaning is to merge those muons into the jet which
 are produced in this jet by decay-in-flight of b and c hadrons\footnote{The same
@@ -495,12 +495,16 @@ high transverse momentum which spoils the jet collection. An appropriate muon
 identification can be chosen from the muon POG defaults {\color{red}(put reference to muon
 ID note here)}.
 
-The Electron-Jet cross cleaning was tested on {\color{red}Sample1, Sample2, Sample3}. All shown plots are from the LM4 Sample made with CMSSW 2.2.3. The PAT objects have been
-generated using the default sequences provided in the configuration files
-\texttt{PhysicsTools/PatAlgos/python/patLayer0\_cff.py} and
-\texttt{PhysicsTools/PatAlgos/python/patLayer1\_cff.py} in version
-{\color{red}\texttt{V04-14-19} True?}.
+The Muon-Jet cross cleaning was tested on \\
+\texttt{/SUSY\_LM4-sftsht/Summer08\_IDEAL\_V11\_redigi\_v1/GEN-SIM-RECO} and\\
+\texttt{/Zmumu/Summer08\_IDEAL\_V11\_redigi\_v2/GEN-SIM-RECO}.
+All shown plots are from the LM4 Sample made with CMSSW 2.2.8. The PAT objects have been
+generated using the default sequences provided in the configuration files\\
+\texttt{PhysicsTools/PatAlgos/python/patLayer0\_cff.py} and\\
+\texttt{PhysicsTools/PatAlgos/python/patLayer1\_cff.py} \\
+in version {\color{red}\texttt{V04-14-19} True?}.
 \\
+Some plots made with the Zmumu sample can be found in appendix~\ref{app:Zmumu}.
 
 
 \subsection{Algorithm}
@@ -539,7 +543,7 @@ In the muon - jet cross cleaning the isolation is used to decide wich muon is ca
 \begin{center}
     \includegraphics[scale=0.8]{figures/MuonJet/LM4_iso_Muon_before.eps}
     \includegraphics[scale=0.8]{figures/MuonJet/LM4_iso_Muon_after.eps}
-    \caption{Combined isolation for muons before (left) and after (right) the cross cleaning.}
+    \caption{Combined isolation for muons before (left) and after (right) the muon-jet cross cleaning.}
 \label{fig:MuonIsolation}
 \end{center}
 \end{figure}
@@ -553,7 +557,7 @@ Then, the distance \(\delta R\) between the (non-isolated) muon and all jets in 
 \begin{center}
     \includegraphics[scale=0.8]{figures/MuonJet/LM4_dR_MuonJet_noniso_before.eps}
     \includegraphics[scale=0.8]{figures/MuonJet/LM4_dR_MuonJet_noniso_after.eps}
-    \caption{\(\delta R\) between non-isolated muon and jet before (left) and after (right) the cross cleaning.}
+    \caption{\(\delta R\) between non-isolated muon and jet before (left) and after (right) the muon-jet cross cleaning.}
 \label{fig:dR_MuonJet_noniso}
 \end{center}
 \end{figure}
@@ -569,7 +573,7 @@ The greatest influence of muon - jet cross cleaning is on the contamination of t
     \includegraphics[scale=0.8]{figures/MuonJet/LM4_Eff_eta_Muons.eps}\\
     \includegraphics[scale=0.8]{figures/MuonJet/LM4_Cont_pt_Muons.eps}
     \includegraphics[scale=0.8]{figures/MuonJet/LM4_Cont_eta_Muons.eps}
-    \caption{Effiency (upper row) and contamination (lower row) vs. transverse momentum (left) and pseudorapidity (right) for muons before and after the cross-cleaning}
+    \caption{Effiency (upper row) and contamination (lower row) vs. transverse momentum (left) and pseudorapidity (right) for muons before and after the muon-jet cross-cleaning}
 \label{fig:effCont_muon_MuonJet}
 \end{center}
 \end{figure}
@@ -583,7 +587,7 @@ Again, this cross cleaning module has nearly no impact on selection efficiency a
     \includegraphics[scale=0.8]{figures/MuonJet/LM4_Eff_pt_Jets.eps}
     \includegraphics[scale=0.8]{figures/MuonJet/LM4_Cont_pt_Jets.eps}
     \caption{Effiency (left) and contamination (right) vs. transverse momentum for jets before
-    and after the cross-cleaning.}
+    and after the muon-jet cross-cleaning.}
 \label{fig:effCont_Jets_MuonJet}
 \end{center}
 \end{figure}
@@ -597,7 +601,7 @@ As shown in the \(p_T\) spectrum of the muons in figure~\ref{fig:ObjSpectra_Muon
 \begin{center}
     \includegraphics[scale=0.8]{figures/MuonJet/LM4_Spectrum_Muon_pt.eps}
     \includegraphics[scale=0.8]{figures/MuonJet/LM4_Spectrum_Muon_eta.eps}
-    \caption{\(p_T\) (left) and \(\eta\) (right) spectra for muons before and after the cleaning.}
+    \caption{\(p_T\) (left) and \(\eta\) (right) spectra for muons before and after the muon-jet cross cleaning.}
 \label{fig:ObjSpectra_MuonJet}
 \end{center}
 \end{figure} 
@@ -610,14 +614,14 @@ On the recoil met, defined as in section~\ref{sec:ElecJet}, the muon-jet cross c
 \begin{center}
     \includegraphics[scale=0.8]{figures/MuonJet/LM4_met_MuonJet.eps}
     \caption{Spectrum of missing transverse energy from fourvector sum of all
-    particles before and after the muon cross-cleaning. For comparison the missing
+    particles before and after the muon-jet cross cleaning. For comparison the missing
     $E_T$ from calorimeter towers is shown as well.}
 \label{fig:met_MuonJet}
 \end{center}
 \end{figure}
 % ------------------------------------------------------------------------------
 
-\newpage
+\clearpage
 
 % ******************************************************************************
 
@@ -653,6 +657,7 @@ electron-jet disambiguation described in section~\ref{sec:ElecJet}.
 
 % ******************************************************************************
 
+\clearpage
 \section{Electron - Photon Cleaning}
 Both kinds of objects are reconstructed from superclusters in the
 electromagnetic calorimeter. Before object identification procedures are applied
@@ -679,6 +684,7 @@ module. This module does not have configurable parameters.
 
 % *** CONCLUSIONS **************************************************************
 
+\clearpage
 \section{Resolving Conflicts}
 \label{mapReso}
 All overlaps detected in the comparison of collections among each other are
@@ -723,11 +729,13 @@ The same is done for these other objects but in addition the kept object is
 added as a modifier marking them for deletion. The new topology is sketched in
 Fig. XXX %TO BE CREATED
 
+\clearpage
 \section{Conclusions}
 % Default parameters
 
 % *** DOCUMENTATION ************************************************************
 
+\clearpage
 \section{Documentation}
 Up-to-date instructions how to obtain the code, compile and run it, and use its
 output are maintained on a CMS wiki page~\cite{twiki}. Examples on how to
@@ -741,6 +749,7 @@ advertised on the page on SUSY specific PAT extensions~\cite{susypat}.
 
 % *** USER VALIDATION **********************************************************
 
+\clearpage
 \section{User Validation}
 The CMSSW module and a set of configuration files and ROOT scripts used to
 generate the plots in this note are available on CVS. Instructions on how to use
@@ -748,7 +757,8 @@ them can be found on the wiki page~\cite{twiki}.
 
 % *** APPENDIX - CONFIG PARAMETERS *********************************************
 
-\appendix
+\clearpage
+\begin{appendix}
 \section{Configurable Parameters}
 
 % ------------------------------------------------------------------------------
@@ -881,13 +891,59 @@ string & ElectronID        &
     bool   & modifyJetEnergy &
     \begin{minipage}[t]{8cm} Add energy of the muon to the overlapping jet.
 	Should be set to false for the use with JPT.\\
-    \end{minipage}                                            & True
+    \end{minipage}                                            & True\\\hline
+    bool   & useCombRelIso   & 
+    \begin{minipage}[t]{8cm}
+      will use the combined isolation variable defined by the V+jets group
+      instead of caloIso\_max or trackIso\_max
+    \end{minipage}                                            & True\\\hline
+    double & IsoValueCut     & Cut on CombRelIso              & 0.2\\\hline
+    double & ecalIsoWeight   & 
+    \begin{minipage}[t]{8cm}
+      Weight on ecal isolation in CombRelIso variable
+    \end{minipage}                                            & 1.\\\hline
+    double & hcalIsoWeight   & 
+    \begin{minipage}[t]{8cm}
+      Weight on hcal isolation in CombRelIso variable
+    \end{minipage}                                            & 1.\\\hline
+    double & trkIsoWeight    & 
+    \begin{minipage}[t]{8cm}
+      Weight on tracker isolation in CombRelIso variable
+    \end{minipage}                                            & 1.\\\hline
 \end{tabular}
 \end{center}
 \label{tab:MuonJetPar}
 \end{table}
 % ------------------------------------------------------------------------------
 
+% ------------------------------------------------------------------------------
+\clearpage
+\section{Muon-Jet Cross Cleaning on Z->mumu}
+\label{app:Zmumu}
+
+\begin{figure}[hb]
+\begin{center}
+    \includegraphics[scale=0.8]{figures/MuonJet/LM4_Eff_pt_Muon.eps}
+    \includegraphics[scale=0.8]{figures/MuonJet/LM4_Eff_eta_Muons.eps}\\
+    \includegraphics[scale=0.8]{figures/MuonJet/LM4_Cont_pt_Muons.eps}
+    \includegraphics[scale=0.8]{figures/MuonJet/LM4_Cont_eta_Muons.eps}
+    \caption{Effiency (upper row) and contamination (lower row) vs. transverse momentum (left) and pseudorapidity (right) for muons before and after the muon-jet cross-cleaning, done on a \(Z\rightarrow\mu\mu\) sample. {\color{red}Platzhalter!}}
+\label{fig:effCont_muon_MuonJet_Zmumu}
+\end{center}
+\end{figure}
+
+\begin{figure}[hb]
+\begin{center}
+    \includegraphics[scale=0.8]{figures/MuonJet/LM4_Eff_pt_Muon.eps}
+    \caption{Muon multiplicity before and after the muon-jet cross-cleaning, done on a \(Z\rightarrow\mu\mu\) sample.{\color{red}Platzhalter!}}
+\label{fig:muon_mult_MuonJet_Zmumu}
+\end{center}
+\end{figure}
+
+
+% ------------------------------------------------------------------------------
+
+\end{appendix}
 
 % *** BIBLIOGRAPHY *************************************************************
 \pagebreak
