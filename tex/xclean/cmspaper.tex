@@ -191,15 +191,18 @@ jet or the electron or both objects in the event.
 
 Starting point for this cleaning is a collection of well identified electrons.
 The level of identification can be chosen from those provided by the EGamma POG
-{\color{red}(put reference here)}.
+~\cite{elecID}.
 
 The Electron-Jet cross cleaning has been tested on a variety of samples. All
 plots in this section have been created from either a SUSY LM4 Sample from
-Summer08 production (\textcolor{red}{/DATASET/NAME/SOMEWHERE}) or a sample of
-$Z\rightarrow ee$ events (\textcolor{red}{/DATASET/NAME/SOMEWHERE}). The PAT
-objects have been generated using the default sequences provided in the
-configuration files
-\texttt{PhysicsTools/PatAlgos/python/patLayer0\_cff.py} and
+Summer08 production\\
+(\texttt{/SUSY\_LM4-sftsht/Summer08\_IDEAL\_V11\_redigi\_v1/GEN-SIM-RECO})\\
+or a sample of
+$Z\rightarrow ee$ events \\(\texttt{/Zee/Summer08\_IDEAL\_V11\_redigi\_v2/GEN-SIM-RECO}).
+
+The PAT objects have been generated using the default sequences provided in the
+configuration files\\
+\texttt{PhysicsTools/PatAlgos/python/patLayer0\_cff.py} and\\
 \texttt{PhysicsTools/PatAlgos/python/patLayer1\_cff.py} in the CMSSW\_2\_2\_7
 release. Acceptance cuts for the pat objects as listed in
 table~ref{tab:PATobjCuts} have been applied on all samples used in this study.
@@ -260,7 +263,7 @@ electromagnetic calorimeter, the presetting is a combination of these three, i.e
     \label{ElIsolation}
 \end{equation}
 , with \(a=b=c=1\). This Isolation variable has been suggested by the V+jets
-group.\textcolor{red}{Reference!}. Figure ~\ref{Iso} shows this combined
+group~\cite{vplusjets}. Figure ~\ref{Iso} shows this combined
 isolation for Electrons. The cut at \(0.1\) was also recommended in the V+jets
 group baseline selection.
 
@@ -280,12 +283,11 @@ the electron energy and the shared energy will be added to the jet. This energy
 correction is applied vectorially. It is given by the difference of the electron
 fourvector and a massless 'shared energy' fourvector.
 
-{\color{red}This fourvector is calculated as sum of the individual electromagnetic
-fractions of the towers that overlap with the electron's supercluster. For each
-tower an energy vector $(E_x, E_y, E_z)$ is calculated from the towers energy,
-$\eta$ and $\phi$ coordinate. Finally a massless fourvector with
-($E^2=\vec{p}^2$) is created from the sum of the 3-component vectors [CHECK
-THIS]}
+This fourvector is calculated from the electromagnetic energy of those towers
+that overlap with the electron's supercluster. For each
+tower an energy vector $(E_x, E_y, E_z)$ is calculated from the electromagnetic
+energy and the $\eta$ and $\phi$ coordinates. All the vectors are added
+up and finally transformed into a massless fourvector ($E^2=\vec{p}^2$).
 
 For isolated electrons we distinguish two cases. If the ratio of shared energy
 and jet energy is greater than a certain value the jet will be removed. If the
@@ -309,7 +311,6 @@ All cut values are configurable and are listed with their default settings in
 table~\ref{tab:ElectronJetPar}.
 
 \subsection{Results and Validation}
-%% WHICH ELECTRON ID?
 In this section the effect of the described procedure on electrons and jets in
 the events is studied. 
 
@@ -327,8 +328,8 @@ We further investigate four different classes of electron-jet pairs. The
 classification is based on the matching of the reconstructed objects
 to generator particles produced in the hard process. We distinguish pairs in
 which both, electron, jet or none of the objects could be matched to a generated
-particle. The matching algorithm provided and used in the PAT applies a simple
-$\Delta R$ matching. {\color{red}(Check configuration)}.
+particle. The matching algorithm provided and used in the PAT applies a $\Delta
+R$ matching. {\color{red}(Check configuration)}.
 
 % ------------------------------------------------------------------------------
 \begin{figure}[hb]
@@ -375,7 +376,6 @@ electrons which can be removed.
 \clearpage
 
 \subsubsection{Effects of the Cleaning}
-%\subsubsection{Selection Efficiency and Fake Rate}
 
 While the cleaning is aiming at a reduction of double counted energy it will non
 the less effect the electron reconstruction quality as non-isolated electrons are
@@ -396,8 +396,7 @@ the fraction of removed objects. This drop appears uniformly over the
 pseudorapidity range (figure) and amounts to about 30\%.  The effect is larger
 for low $p_T$ electrons which can be explained by a larger fraction failing the
 identification requirements and the higher sensitivity of the relative isolation
-variable for low $p_T$ objects.  (\textcolor{red}{Is there some reference
-showing this?}).
+variable for low $p_T$ objects.
 
 % ------------------------------------------------------------------------------
 \begin{figure}[hb]
@@ -501,8 +500,7 @@ idea is pursued in the Jet Plus Track algorithms.}.
 The user must take care not to include fake muons in the cleaning. Those can
 result from punch-through of hadrons into the muon system and might have very
 high transverse momentum which spoils the jet collection. An appropriate muon
-identification can be chosen from the muon POG defaults {\color{red}(put
-reference to muon ID note here)}.
+identification can be chosen from the muon POG defaults~\cite{muonID}.
 
 The Muon-Jet cross cleaning was tested on \\
 \texttt{/SUSY\_LM4-sftsht/Summer08\_IDEAL\_V11\_redigi\_v1/GEN-SIM-RECO} and\\
@@ -741,10 +739,24 @@ Possible configurations needing such an intervention are
 %    \item Object A is marked to be \textit{modified} because of overlap with object B
 %	which itself is marked for deletion due to a conflict with object C.
 %	NOT YET RESOLVED AND RATHER IMPOSSIBLE DUE TO STRUCTURE OF THE MAP
-    \item A closed loop of dependencies (Fig. XXX) % To be created
+    \item A closed loop of dependencies (Fig.~\ref{fig:loopReso}) % To be created
 \end{enumerate}
 
 % Explain how this can occur, examples
+% ------------------------------------------------------------------------------
+\begin{figure}[hb]
+\begin{center}
+    \includegraphics[scale=0.4]{figures/loopConflict.eps}
+    \hspace*{1.5cm}
+    \includegraphics[scale=0.4]{figures/loopConflictResolved.eps}
+    \caption{Circular dependencies in the cross-cleaning before the 
+    consistency check of the map and cleared structure without a loop
+    afterwards. The arrow points toward the object which is removed in the
+    cleaning.}
+    \label{fig:loopReso}
+\end{center}
+\end{figure}
+% ------------------------------------------------------------------------------
 
 The first case is being handled at the point where the clean collections are
 being created. The action of deletion gets priority over all other
@@ -767,8 +779,8 @@ The idea is to keep the most energetic object of the loop (the highest in
 $p_T$). Therefore the list of modifiers of this kept object is cleared off by
 removing all other objects appearing in the loop. % IS THIS REALLY DONE? CHECK!
 The same is done for these other objects but in addition the kept object is
-added as a modifier marking them for deletion. The new topology is sketched in
-Fig. XXX %TO BE CREATED
+added as a modifier marking them for deletion. The new topology is also sketched in
+figure~\ref{fig:loopReso}.
 
 \clearpage
 \section{Conclusions}
@@ -801,7 +813,6 @@ them can be found on the wiki page~\cite{twiki}.
 \clearpage
 \begin{appendix}
 \section{Configurable Parameters}
-
 % ------------------------------------------------------------------------------
 \begin{table}[h]
 \caption{Turning on and off the components}
@@ -839,13 +850,14 @@ InputTag & patElectrons & Input electron collection &
 selectedLayer1Electrons 
 \\\hline
 InputTag & patPhotons   & Input photon collection& selectedLayer1Photons
-\\\hline
-InputTag & patTaus      & Input tau collection   & selectedLayer1Taus
+%\\\hline
+%InputTag & patTaus      & Input tau collection   & selectedLayer1Taus
 \end{tabular}
 \end{center}
 \label{tab:InputCollections}
 \end{table}
 % ------------------------------------------------------------------------------
+% WHAT ABOUT CALO TOWER COLLECTION? IS IT STILL USED?
 
 % ------------------------------------------------------------------------------
 \begin{table}[h]
@@ -882,27 +894,32 @@ Setting}                                                            \\\hline
 double & deltaR\_min       &
 \begin{minipage}[t]{8cm}Check for overlaps within a cone of this size around
     the electron \\
-\end{minipage} & 0.5                                               \\\hline
+\end{minipage} & 1.0                                               \\\hline
 double & SharedEtoJetE     &
 \begin{minipage}[t]{8cm} Ratio of shared energy to jet energy. Used for
     decision whether to drop the jet if the electron is isolated
 \end{minipage} & 0.7                                                \\\hline
-double & IsoValueCut       & Cut on isolation & 1.0                 \\\hline
-double & SharedEForNIsoEle & 
-\begin{minipage}[t]{8cm}Lower energy threshold for non-isolated electrons to
-    be merged into a jet
-\end{minipage} & -1.  (disabled)                                    \\\hline
+double & IsoValueCut       & Cut on isolation & 0.1                 \\\hline
+%double & SharedEForNIsoEle & 
+%\begin{minipage}[t]{8cm}Lower energy threshold for non-isolated electrons to
+%    be merged into a jet
+%\end{minipage} & -1.  (disabled)                                    \\\hline
 string & IsolationKey      &
 \begin{minipage}[t]{8cm} Key to choose isolation method as defined in
-    \texttt{DataFormats/PatCandidates/interface/Isolation.h}
-\end{minipage} & ``CaloIso''                                        \\\hline
+    DataFormats/PatCandidates/interface/Isolation.h\\
+    The combined relative isolation recommended by the V+jets group can be
+    selected as ``CombRelIso''
+\end{minipage} & ``CombRelIso''                                        \\\hline
 string & ElectronID        &
 \begin{minipage}[t]{8cm}Key to choose cut-based identification method. Valid
     choices are: eidLoose, eidRobustHighEnergy, eidRobustLoose,
     eidRobustTight, eidTight. The names correspond to the modules defined by
     the EGamma POG in
-    \texttt{RecoEgamma/ElectronIdentification/python/electronIdSequence\_cff.py}\\
-\end{minipage} & ``eidLoose''   
+    RecoEgamma/ElectronIdentification/python/ electronIdSequence\_cff.py\\
+\end{minipage} & ``eidLoose''   \\\hline
+double & ecalIsoWeight & Weight of ecal isolation in CombRelIso variable & 1.0 \\\hline
+double & hcalIsoWeight & Weight of hcal isolation in CombRelIso variable & 1.0 \\\hline
+double & trkIsoWeight  & Weight of tracker isolation in CombRelIso variable & 1.0 \\\hline
 \end{tabular}
 \end{center}
 \label{tab:ElectronJetPar}
@@ -941,19 +958,50 @@ string & ElectronID        &
     double & IsoValueCut     & Cut on CombRelIso              & 0.2\\\hline
     double & ecalIsoWeight   & 
     \begin{minipage}[t]{8cm}
-      Weight on ecal isolation in CombRelIso variable
+      Weight of ecal isolation in CombRelIso variable
     \end{minipage}                                            & 1.\\\hline
     double & hcalIsoWeight   & 
     \begin{minipage}[t]{8cm}
-      Weight on hcal isolation in CombRelIso variable
+      Weight of hcal isolation in CombRelIso variable
     \end{minipage}                                            & 1.\\\hline
     double & trkIsoWeight    & 
     \begin{minipage}[t]{8cm}
-      Weight on tracker isolation in CombRelIso variable
+      Weight of tracker isolation in CombRelIso variable
     \end{minipage}                                            & 1.\\\hline
 \end{tabular}
 \end{center}
 \label{tab:MuonJetPar}
+\end{table}
+% ------------------------------------------------------------------------------
+
+% ------------------------------------------------------------------------------
+\begin{table}[h]
+\caption{Parameters for photon-jet cleaning}
+\begin{center}
+\begin{tabular}{l|l|l|l}
+\textbf{Type} & \textbf{Name} & \textbf{Description} & \textbf{Default
+Setting}                                                            \\\hline
+double & deltaR\_min       &
+\begin{minipage}[t]{8cm}Check for overlaps within a cone of this size around
+    the photon \\
+\end{minipage} & 0.5                                               \\\hline
+double & IsoValueCut       & Cut on isolation & 0.3                 \\\hline
+string & IsolationKey      &
+\begin{minipage}[t]{8cm} Key to choose isolation method as defined in
+    DataFormats/PatCandidates/interface/Isolation.h\\
+\end{minipage} & ``CaloIso''                                        \\\hline
+double & SharedEtoJetE     &
+\begin{minipage}[t]{8cm} Ratio of shared energy to jet energy. Used for
+    decision whether to drop the jet if the photon is isolated
+\end{minipage} & 0.7                                                \\\hline
+string & PhotonID        &
+\begin{minipage}[t]{8cm}Key to choose cut-based identification method. Valid
+    choices are: LooseEM, LoosePhoton, TightPhoton or 'none'. For further
+    information see the Photon ID wiki page~\cite{photonID}
+\end{minipage} & ``LooseEM''   \\\hline
+\end{tabular}
+\end{center}
+\label{tab:PhotonJetPar}
 \end{table}
 % ------------------------------------------------------------------------------
 
@@ -1004,6 +1052,17 @@ string & ElectronID        &
 
 \bibitem {susypat} {\bf SUSY PAT online documentation},
 \underline{https://twiki.cern.ch/twiki/bin/view/CMS/SusyPat/}
+
+\bibitem{muonID} {\bf Muon Identification in CMS}, CMS AN-2008/098 
+
+\bibitem{elecID} {\bf A cut based method for electron identification in CMS}, CMS AN-2008/082 
+
+\bibitem{photonID} {\bf Photon ID Analysis online documentation} 
+\underline{https://twiki.cern.ch/twiki/bin/view/CMS/PhotonIDAnalysis}
+
+\bibitem {vplusjets} {\bf V+Jets Cross-PAG online documentation},
+\underline{https://twiki.cern.ch/twiki/bin/view/CMS/VplusJets}
+
 \end{thebibliography}
 
 % ******************************************************************************
