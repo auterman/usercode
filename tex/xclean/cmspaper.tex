@@ -329,7 +329,7 @@ classification is based on the matching of the reconstructed objects
 to generator particles produced in the hard process. We distinguish pairs in
 which both, electron, jet or none of the objects could be matched to a generated
 particle. The matching algorithm provided and used in the PAT applies a $\Delta
-R$ matching. {\color{red}(Check configuration)}.
+R$ matching.
 
 % ------------------------------------------------------------------------------
 \begin{figure}[hb]
@@ -505,13 +505,20 @@ identification can be chosen from the muon POG defaults~\cite{muonID}.
 The Muon-Jet cross cleaning was tested on \\
 \texttt{/SUSY\_LM4-sftsht/Summer08\_IDEAL\_V11\_redigi\_v1/GEN-SIM-RECO} and\\
 \texttt{/Zmumu/Summer08\_IDEAL\_V11\_redigi\_v2/GEN-SIM-RECO}.
-All shown plots are from the LM4 Sample made with CMSSW 2.2.8. The PAT objects
+
+All plots in this section are obtained from the LM4 Sample using CMSSW 2.2.8. The following CVS
+tags have been used on top of this release:
+\begin{itemize}
+    \item DataFormats/PatCandidates V03-18-09      
+    \item PhysicsTools/PatAlgos     V04-14-25      
+    \item PhysicsTools/PatUtils     V03-05-02      
+\end{itemize}
+The PAT objects
 have been generated using the default sequences provided in the configuration
 files\\
 \texttt{PhysicsTools/PatAlgos/python/patLayer0\_cff.py} and\\
-\texttt{PhysicsTools/PatAlgos/python/patLayer1\_cff.py} \\
-in version {\color{red}\texttt{V04-14-19} True?}.
-\\
+\texttt{PhysicsTools/PatAlgos/python/patLayer1\_cff.py}.
+
 Some plots made with the Zmumu sample can be found in appendix~\ref{app:Zmumu}.
 
 
@@ -919,7 +926,7 @@ string & ElectronID        &
 \end{minipage} & ``eidLoose''   \\\hline
 double & ecalIsoWeight & Weight of ecal isolation in CombRelIso variable & 1.0 \\\hline
 double & hcalIsoWeight & Weight of hcal isolation in CombRelIso variable & 1.0 \\\hline
-double & trkIsoWeight  & Weight of tracker isolation in CombRelIso variable & 1.0 \\\hline
+double & trkIsoWeight  & Weight of tracker isolation in CombRelIso variable & 1.0
 \end{tabular}
 \end{center}
 \label{tab:ElectronJetPar}
@@ -945,7 +952,7 @@ double & trkIsoWeight  & Weight of tracker isolation in CombRelIso variable & 1.
 	DataFormats/MuonReco/interface/Muon.h. The MuonAnalysis page
 	provides more information on these methods. In case of an invalid
 	parameter choice the 'AllGlobalMuons' are used. \\
-    \end{minipage}                             & ``AllGlobalMuons''\\\hline
+    \end{minipage}                             & ``GlobalMuonPromptTight''\\\hline
     bool   & modifyJetEnergy &
     \begin{minipage}[t]{8cm} Add energy of the muon to the overlapping jet.
 	Should be set to false for the use with JPT.\\
@@ -955,7 +962,7 @@ double & trkIsoWeight  & Weight of tracker isolation in CombRelIso variable & 1.
       will use the combined isolation variable defined by the V+jets group
       instead of caloIso\_max or trackIso\_max
     \end{minipage}                                            & True\\\hline
-    double & IsoValueCut     & Cut on CombRelIso              & 0.2\\\hline
+    double & IsoValueCut     & Cut on CombRelIso              & 0.1\\\hline
     double & ecalIsoWeight   & 
     \begin{minipage}[t]{8cm}
       Weight of ecal isolation in CombRelIso variable
@@ -967,7 +974,7 @@ double & trkIsoWeight  & Weight of tracker isolation in CombRelIso variable & 1.
     double & trkIsoWeight    & 
     \begin{minipage}[t]{8cm}
       Weight of tracker isolation in CombRelIso variable
-    \end{minipage}                                            & 1.\\\hline
+    \end{minipage}                                            & 1.
 \end{tabular}
 \end{center}
 \label{tab:MuonJetPar}
@@ -985,7 +992,7 @@ double & deltaR\_min       &
 \begin{minipage}[t]{8cm}Check for overlaps within a cone of this size around
     the photon \\
 \end{minipage} & 0.5                                               \\\hline
-double & IsoValueCut       & Cut on isolation & 0.3                 \\\hline
+double & IsoValueCut       & Cut on isolation & 10.                 \\\hline
 string & IsolationKey      &
 \begin{minipage}[t]{8cm} Key to choose isolation method as defined in
     DataFormats/PatCandidates/interface/Isolation.h\\
@@ -998,7 +1005,7 @@ string & PhotonID        &
 \begin{minipage}[t]{8cm}Key to choose cut-based identification method. Valid
     choices are: LooseEM, LoosePhoton, TightPhoton or 'none'. For further
     information see the Photon ID wiki page~\cite{photonID}
-\end{minipage} & ``LooseEM''   \\\hline
+\end{minipage} & ``LooseEM''  
 \end{tabular}
 \end{center}
 \label{tab:PhotonJetPar}
