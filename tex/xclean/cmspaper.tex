@@ -244,7 +244,7 @@ one jet (Fig. ~\ref{fig:NbJets}).
 % ------------------------------------------------------------------------------
 
 Therefore for each electron the three closest jets in \( \eta-\phi\) space are
-examined. If this distance is smaller than $\Delta R=1.0$ (configurable) the
+examined. If this distance is smaller than $\delta R=1.0$ (configurable) the
 objects' constituents are compared in order to determine the amount of energy
 which is being shared between the two objects.
 This shared energy is calculated by adding up the electromagnetic energy of
@@ -293,10 +293,10 @@ up and finally transformed into a massless fourvector ($E^2=\vec{p}^2$).
 
 For isolated electrons we distinguish two cases. If the ratio of shared energy
 and jet energy is greater than a certain value the jet will be removed. If the
-ratio is smaller both objects are kept and the shared energy fourvector is
-subtracted from the jet. This way objects very close in $\Delta R$ can be kept
-in the events without double counting of energy.  The steps of this procedure
-are illustrated in figure~\ref{fig:EJCleaning}.
+ratio is smaller both objects are kept and the shared energy fourvector is subtracted from
+the jet. This way objects very close in $\delta R$ can be kept in the events
+without double counting of energy.
+The steps of this procedure are illustrated in figure~\ref{fig:EJCleaning}.
 
 % ------------------------------------------------------------------------------
 \begin{figure}[hbtp]
@@ -320,7 +320,7 @@ the events is studied.
 % (dR, shared energy, isolation) for different matches
 As described in the previous section the cleaning algorithm applies cuts on
 several variables concerning the electron and jet under investigation. These are
-the distance of electron and jet in $\Delta R$ and their shared energy,
+the distance of electron and jet in $\delta R$ and their shared energy,
 normalised to the jet energy. The distributions of these variables are shown
 in figure~\ref{fig:dR_sE_ElecJet_iso} (isolated electrons, before and after the
 cleaning) and figure ~\ref{fig:dR_sE_ElecJet_noniso} (non-isolated electrons
@@ -330,7 +330,7 @@ We further investigate four different classes of electron-jet pairs. The
 classification is based on the matching of the reconstructed objects
 to generator particles produced in the hard process. We distinguish pairs in
 which both, electron, jet or none of the objects could be matched to a generated
-particle. The matching algorithm provided and used in the PAT applies a $\Delta
+particle. The matching algorithm provided and used in the PAT applies a $\delta
 R$ matching.
 
 % ------------------------------------------------------------------------------
@@ -341,7 +341,7 @@ R$ matching.
     \includegraphics[scale=0.8]{figures/ElecJet/LM4_sharedE_iso_B.eps}
 %    \includegraphics[scale=0.8]{figures/ElecJet/LM4_sharedE_iso_A.eps}
     \includegraphics[scale=0.8]{figures/ElecJet/LM4_noteV3_JpT15_dR_modJets.eps}
-    \caption{Distance \(\Delta R\) (upper row) and shared Energy, normalised to jet energy, (left plot lower row) with the closest Jet for isolated Electrons before (left) and after (right) the cross cleaning. Lower right: $\Delta$R to closest electron for jets modified in the cleaning.}
+    \caption{Distance \(\delta R\) (upper row) and shared Energy, normalised to jet energy, (left plot lower row) with the closest Jet for isolated Electrons before (left) and after (right) the electron-jet cross cleaning. Lower right: $\delta$R to closest electron for jets modified in the cleaning.}
 \label{fig:dR_sE_ElecJet_iso}
 \end{center}
 \end{figure}
@@ -352,8 +352,8 @@ R$ matching.
 \begin{center}
     \includegraphics[scale=0.8]{figures/ElecJet/LM4_dR_noniso_B.eps}
     \includegraphics[scale=0.8]{figures/ElecJet/LM4_sharedE_noniso_B.eps}
-    \caption{Distance in $\Delta R$ and Shared energy divided by the jet energy
-    of non-isolated electron and closest jet before the cross-cleaning.}
+    \caption{Distance in $\delta R$ and Shared energy divided by the jet energy
+    of non-isolated electron and closest jet before the electron-jet cross cleaning.}
 \label{fig:dR_sE_ElecJet_noniso}
 \end{center}
 \end{figure}
@@ -534,9 +534,9 @@ Some plots made with the Zmumu sample can be found in appendix~\ref{app:Zmumu}.
 
 \subsection{Algorithm}
 In this cross-cleaner module all non-isolated muons are considered as part of
-the jet which is within a distance of $\Delta R=0.2$ . Isolation refers either
-to both tracker and calorimeter or the CombRelIso variable. The muon objects
-are removed and their fourvector added to the jet object. 
+the jet which is within a distance of $\delta R=0.2$ . Isolation refers either
+to both tracker and calorimeter or the CombRelIso variable. The muon objects are
+removed and their fourvector added to the jet object. 
 %(To avoid any double counting of energy we subtract the MIP
 %signal of the muon in the calorimeter which is already contained in the
 %jet. Still to add in the code!)
@@ -562,8 +562,8 @@ muon has not yet been removed.
 \subsubsection{Cut Variables}
 In the muon - jet cross cleaning the isolation is used to decide which muon is
 candidate for removing and which not. Figure~\ref{fig:MuonIsolation} shows the
-combined isolation as defined in Eq.(~\ref{ElIsolation}) for muons before and
-after the cleaning. The preset isolation cut is on $0.1$\ GeV. 
+combined isolation as defined in eq.(~\ref{ElIsolation}) for muons before and
+after the cleaning. The present isolation cut is on \(0.1\) \(G\)e\(V\). 
 
 % ------------------------------------------------------------------------------
 \begin{figure}[hb]
@@ -582,11 +582,11 @@ Then, the distance \(\delta R\) between the (non-isolated) muon and all jets in
 \(\eta - \phi\) space is calculated. If there exists a jet which is closer than
 a certain value (preset is \(\delta R < 0.2\)), the muon will be removed,
 otherwise both muon and jets will be left alone.
-Figure~\ref{fig:dR_MuonJet_noniso} shows this for before and after the cross
-cleaning. As the energy correction of the jet is a vectorial correction, it may
+Figure~\ref{fig:dR_MuonJet_noniso} shows this for both before and after the cross
+cleaning. As the energy correcion of the jet is a vectorial correction, it may
 happen that a jet, which is not in cleaning distance of a non-isolated muon
 before the cleaning, is moved into cleaning distance after the cross cleaning.
-This effect can also be seen in figure~\ref{fig:dR_MuonJet_noniso}.
+This effect is very small and happens in less than \(0.01\) percent of leftover non-isolated Muons with a nearest jet at the LM4.
 
 % ------------------------------------------------------------------------------
 \begin{figure}[hb]
@@ -600,30 +600,60 @@ This effect can also be seen in figure~\ref{fig:dR_MuonJet_noniso}.
 \end{figure}
 % ------------------------------------------------------------------------------
 
+\subsubsection{Isolated Muons \textcolor{red}{Where to put?}}
+
+In the current implementation, isolated muons are considered as particles which do not interact with the detector except the tracker and the muon chambers. Nevertheless we observed a peak in the \(\delta R\) distribution between the isolated muon and the nearest jet at small values (see figure~\ref{fig:dR_MuonJet_iso}, left).
+
+% ------------------------------------------------------------------------------
+\begin{figure}[hb]
+\begin{center}
+    \includegraphics[scale=0.8]{figures/MuonJet/LM4_dR_MuonJet_iso_before.eps}
+    \includegraphics[scale=0.8]{figures/MuonJet/LM4_dR_MuonJet_iso_before.eps}
+    \caption{Left: \(\delta R\) between isolated muon and jet before the muon-jet cross cleaning. Around \(15\%\) of the muons have a jet within a distace of \(\delta R < 0.2\). Right: the (uncorrected) transverse momentum of the jets in this distance is mainly small.\textcolor{red}{Platzhalter!}}
+\label{fig:dR_MuonJet_iso}
+\end{center}
+\end{figure}
+% ------------------------------------------------------------------------------
+
+Around \(15\%\) of the isolated muons have a jet within the distance of \(\delta R < 0.2\). These jets have usually a small transverse momentum (figure~\ref{fig:dR_MuonJet_iso}, right). Only \(25\%\) of the muons have a generator photon from the hard process within a distance of \(\delta R < 0.3\), which could have caused such a jet. Another \(25\%\) of the muons have any jet building particle within that distance (that is, mesons, baryons, photons, electrons), the last half have no generator particle in reach at all. These jets could be caused by particleless detector interactions with the muon, bremsstrahlung, or noise. However, the energy resolution of the muons seems slightly effected only at higher transverse momentum. \textcolor{red}{Vergleich von Aufloesung mit und ohne Jet. Blabla.}(figure~\ref{fig:genPt_vs_recoPt_isoMuon}).
+
+% ------------------------------------------------------------------------------
+\begin{figure}[hb]
+\begin{center}
+    \includegraphics[scale=0.8]{figures/MuonJet/LM4_genPt_vs_recoPt_MuonJet_NJMuons.eps}'
+    \includegraphics[scale=0.8]{figures/MuonJet/LM4_genPt_vs_recoPt_MuonJet_noNJMuons.eps}
+    \caption{Resolution of the transverse momentum on generator level versus the transverse momentum on reconstruction level for isolated muons with (left) and without (right) a jet within \(\delta R < 0.2\).\textcolor{red}{Platzhalter!}}
+\label{fig:genPt_vs_recoPt_isoMuon}
+\end{center}
+\end{figure}
+% ------------------------------------------------------------------------------
+
 \subsubsection{Selection Efficiency and Fake Rate}
+
+\textcolor{red}{To be revisited}\\
 The greatest influence of muon - jet cross cleaning is on the contamination of
-the muons. It drops from \(40 \%\) to \(10 \%\) with the default settings. The
-selection efficiency on the other hand also decreases, but stays good (\(\sim
-90\%\)). This can be seen in figure~\ref{effCont_muon_MuonJet} for the \(p_T\)
-and \(\eta\) distributions. 
+the non-isolated muons. It drops from \(40 \%\) to \(10 \%\) with the default settings. The
+selection efficiency for all muons on the other hand also decreases, but stays good (\(\sim
+90\%\)). The drop of the efficiency is mainly based on the cut on the isolation and, in a smaller part, on the decision in which distance of the non-isolated Muon to search for a jet. Efficiency for all muons and contamination of the non-isolated ones can be seen in figure~\ref{effCont_muon_MuonJet} for the \(p_T\)
+and \(\eta\) distributions of the muons. 
 
 % ------------------------------------------------------------------------------
 \begin{figure}[hb]
 \begin{center}
     \includegraphics[scale=0.8]{figures/MuonJet/LM4_Eff_pt_Muon.eps}
     \includegraphics[scale=0.8]{figures/MuonJet/LM4_Eff_eta_Muons.eps}\\
-    \includegraphics[scale=0.8]{figures/MuonJet/LM4_Cont_pt_Muons.eps}
-    \includegraphics[scale=0.8]{figures/MuonJet/LM4_Cont_eta_Muons.eps}
-    \caption{Efficiency (upper row) and contamination (lower row) vs. transverse
+    \includegraphics[scale=0.8]{figures/MuonJet/LM4_Cont_pt_Muons_noniso.eps}
+    \includegraphics[scale=0.8]{figures/MuonJet/LM4_Cont_eta_Muons_noniso.eps}
+    \caption{Effiniency (upper row) and contamination (lower row) vs. transverse
     momentum (left) and pseudorapidity (right) for muons before and after the
-    muon-jet cross-cleaning}
+    muon-jet cross-cleaning. The Efficiency is shown for all muons, while the contamination is only for the non-isolated muons. \textcolor{red}{nur noch noniso-Cont}}
 \label{fig:effCont_muon_MuonJet}
 \end{center}
 \end{figure}
 % ------------------------------------------------------------------------------
 
 Again, this cross cleaning module has nearly no impact on selection efficiency
-and contamination of the jets (figure~\ref{effCont_Jets_MuonJet}).
+and contamination of the jets (figure~\ref{fig:effCont_Jets_MuonJet}).
 
 % ------------------------------------------------------------------------------
 \begin{figure}[hb]
@@ -738,7 +768,7 @@ almost the entire range.(Fig.~\ref{fig:pjSharedE}). A cut at $0.7$ is used
 here to decide whether to keep the jet or to discard it. Some overlaps of
 non-isolated photons have a generator match as well and this fraction
 determines the final reconstruction efficiency as mentioned before. After the
-cleaning the distance in $\Delta R$ between photons and the closest jets shows
+cleaning the distance in $\delta R$ between photons and the closest jets shows
 a smooth behaviour (Fig.~\ref{fig:pjDeltaR}) and the separation is improved. 
 % ------------------------------------------------------------------------------
 \begin{figure}[hbtp]
@@ -756,7 +786,7 @@ a smooth behaviour (Fig.~\ref{fig:pjDeltaR}) and the separation is improved.
   \begin{center}
     \includegraphics[scale=0.8]{figures/PhotJet/GammaJet80_dR_iso_B.eps}
     \includegraphics[scale=0.8]{figures/PhotJet/GammaJet80_dR_iso_A.eps}
-    \caption{Distance in $\Delta R$ between photon and overlapping jet in
+    \caption{Distance in $\delta R$ between photon and overlapping jet in
     $\gamma$-jet events before (left) and after (right) the cleaning.}
     \label{fig:pjDeltaR}
   \end{center}
@@ -1194,7 +1224,7 @@ string & PhotonID        &
 
 % ------------------------------------------------------------------------------
 \clearpage
-\section{Muon-Jet Cross Cleaning on Z->mumu}
+\section{Muon-Jet Cross Cleaning on Z$-\>\mu\mu$}
 \label{app:Zmumu}
 
 \begin{figure}[hb]
