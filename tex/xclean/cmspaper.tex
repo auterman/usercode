@@ -600,7 +600,7 @@ This effect is very small and happens in less than \(0.01\) percent of leftover 
 \end{figure}
 % ------------------------------------------------------------------------------
 
-\subsubsection{Isolated Muons \textcolor{red}{Where to put?}}
+\subsubsection{Isolated Muons}
 
 In the current implementation, isolated muons are considered as particles which do not interact with the detector except the tracker and the muon chambers. Nevertheless we observed a peak in the \(\delta R\) distribution between the isolated muon and the nearest jet at small values (see figure~\ref{fig:dR_MuonJet_iso}, left).
 
@@ -615,7 +615,7 @@ In the current implementation, isolated muons are considered as particles which 
 \end{figure}
 % ------------------------------------------------------------------------------
 
-Around \(15\%\) of the isolated muons have a jet within the distance of \(\delta R < 0.2\). These jets have usually a small transverse momentum (figure~\ref{fig:dR_MuonJet_iso}, right). Only \(25\%\) of the muons have a generator photon from the hard process within a distance of \(\delta R < 0.3\), which could have caused such a jet. Another \(25\%\) of the muons have any jet building particle within that distance (that is, mesons, baryons, photons, electrons), the last half have no generator particle in reach at all. These jets could be caused by particleless detector interactions with the muon, bremsstrahlung, or noise. However, the energy resolution of the muons seems slightly effected only at higher transverse momentum. \textcolor{red}{Vergleich von Aufloesung mit und ohne Jet. Blabla.}(figure~\ref{fig:genPt_vs_recoPt_isoMuon}).
+Around \(15\%\) of the isolated muons have a jet within the distance of \(\delta R < 0.2\). These jets have usually a small transverse momentum (figure~\ref{fig:dR_MuonJet_iso}, right). Only \(25\%\) of the muons have a generator photon from the hard process within a distance of \(\delta R < 0.3\), which could have caused such a jet. Another \(25\%\) of the muons have any jet building particle within that distance (that is, mesons, baryons, photons, electrons). In these cases, the jet was produced by particles, whose energy was lost to the muon before its contact to the detector (first case) or never part of the muon at all (second case) and therefore no double counted energy is present. The other half of the muon have no generator particle in reach. These jets could be caused by particleless detector interactions with the muon, bremsstrahlung, or noise. In the event of detector interactions or bremsstrahlung, there might be double counted energy, but these effects are likely small. The energy resolution for muons with and without a jet within \(\delta R < 0.2\) is shown in figure~\ref{fig:genPt_vs_recoPt_isoMuon}. \textcolor{red}{Vergleich von Aufloesung mit und ohne Jet. Blabla.}
 
 % ------------------------------------------------------------------------------
 \begin{figure}[hb]
@@ -1227,12 +1227,14 @@ string & PhotonID        &
 \section{Muon-Jet Cross Cleaning on Z$-\>\mu\mu$}
 \label{app:Zmumu}
 
+The dataset used here was \textcolor{red}{Blabla}.
+
 \begin{figure}[hb]
 \begin{center}
-    \includegraphics[scale=0.8]{figures/MuonJet/LM4_Eff_pt_Muon.eps}
-    \includegraphics[scale=0.8]{figures/MuonJet/LM4_Eff_eta_Muons.eps}\\
-    \includegraphics[scale=0.8]{figures/MuonJet/LM4_Cont_pt_Muons.eps}
-    \includegraphics[scale=0.8]{figures/MuonJet/LM4_Cont_eta_Muons.eps}
+    \includegraphics[scale=0.8]{figures/MuonJet/Zmumu_Eff_pt_Muon.eps}
+    \includegraphics[scale=0.8]{figures/MuonJet/Zmumu_Eff_eta_Muons.eps}\\
+    \includegraphics[scale=0.8]{figures/MuonJet/Zmumu_Cont_pt_Muons.eps}
+    \includegraphics[scale=0.8]{figures/MuonJet/Zmumu_Cont_eta_Muons.eps}
     \caption{Effiency (upper row) and contamination (lower row) vs. transverse
     momentum (left) and pseudorapidity (right) for muons before and after the
     muon-jet cross-cleaning, done on a \(Z\rightarrow\mu\mu\) sample.
