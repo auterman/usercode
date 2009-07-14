@@ -244,7 +244,7 @@ one jet (Fig. ~\ref{fig:NbJets}).
 % ------------------------------------------------------------------------------
 
 Therefore for each electron the three closest jets in \( \eta-\phi\) space are
-examined. If this distance is smaller than $\delta R=1.0$ (configurable) the
+examined. If this distance is smaller than $\Delta R=1.0$ (configurable) the
 objects' constituents are compared in order to determine the amount of energy
 which is being shared between the two objects.
 This shared energy is calculated by adding up the electromagnetic energy of
@@ -293,10 +293,10 @@ up and finally transformed into a massless fourvector ($E^2=\vec{p}^2$).
 
 For isolated electrons we distinguish two cases. If the ratio of shared energy
 and jet energy is greater than a certain value the jet will be removed. If the
-ratio is smaller both objects are kept and the shared energy fourvector is subtracted from
-the jet. This way objects very close in $\delta R$ can be kept in the events
-without double counting of energy.
-The steps of this procedure are illustrated in figure~\ref{fig:EJCleaning}.
+ratio is smaller both objects are kept and the shared energy fourvector is
+subtracted from the jet. This way objects very close in $\Delta R$ can be kept
+in the events without double counting of energy.  The steps of this procedure
+are illustrated in figure~\ref{fig:EJCleaning}.
 
 % ------------------------------------------------------------------------------
 \begin{figure}[hbtp]
@@ -320,7 +320,7 @@ the events is studied.
 % (dR, shared energy, isolation) for different matches
 As described in the previous section the cleaning algorithm applies cuts on
 several variables concerning the electron and jet under investigation. These are
-the distance of electron and jet in $\delta R$ and their shared energy,
+the distance of electron and jet in $\Delta R$ and their shared energy,
 normalised to the jet energy. The distributions of these variables are shown
 in figure~\ref{fig:dR_sE_ElecJet_iso} (isolated electrons, before and after the
 cleaning) and figure ~\ref{fig:dR_sE_ElecJet_noniso} (non-isolated electrons
@@ -341,7 +341,7 @@ R$ matching.
     \includegraphics[scale=0.8]{figures/ElecJet/LM4_sharedE_iso_B.eps}
 %    \includegraphics[scale=0.8]{figures/ElecJet/LM4_sharedE_iso_A.eps}
     \includegraphics[scale=0.8]{figures/ElecJet/LM4_noteV3_JpT15_dR_modJets.eps}
-    \caption{Distance \(\delta R\) (upper row) and shared Energy, normalised to jet energy, (left plot lower row) with the closest Jet for isolated Electrons before (left) and after (right) the electron-jet cross cleaning. Lower right: $\delta$R to closest electron for jets modified in the cleaning.}
+    \caption{Distance \(\Delta R\) (upper row) and shared Energy, normalised to jet energy, (left plot lower row) with the closest Jet for isolated Electrons before (left) and after (right) the electron-jet cross cleaning. Lower right: $\Delta$R to closest electron for jets modified in the cleaning.}
 \label{fig:dR_sE_ElecJet_iso}
 \end{center}
 \end{figure}
@@ -352,7 +352,7 @@ R$ matching.
 \begin{center}
     \includegraphics[scale=0.8]{figures/ElecJet/LM4_dR_noniso_B.eps}
     \includegraphics[scale=0.8]{figures/ElecJet/LM4_sharedE_noniso_B.eps}
-    \caption{Distance in $\delta R$ and Shared energy divided by the jet energy
+    \caption{Distance in $\Delta R$ and Shared energy divided by the jet energy
     of non-isolated electron and closest jet before the electron-jet cross cleaning.}
 \label{fig:dR_sE_ElecJet_noniso}
 \end{center}
@@ -534,9 +534,9 @@ Some plots made with the Zmumu sample can be found in appendix~\ref{app:Zmumu}.
 
 \subsection{Algorithm}
 In this cross-cleaner module all non-isolated muons are considered as part of
-the jet which is within a distance of $\delta R=0.2$ . Isolation refers either
-to both tracker and calorimeter or the CombRelIso variable. The muon objects are
-removed and their fourvector added to the jet object. 
+the jet which is within a distance of $\Delta R=0.2$ . Isolation refers either
+to both tracker and calorimeter or the CombRelIso variable. The muon objects
+are removed and their fourvector added to the jet object. 
 %(To avoid any double counting of energy we subtract the MIP
 %signal of the muon in the calorimeter which is already contained in the
 %jet. Still to add in the code!)
@@ -562,8 +562,8 @@ muon has not yet been removed.
 \subsubsection{Cut Variables}
 In the muon - jet cross cleaning the isolation is used to decide which muon is
 candidate for removing and which not. Figure~\ref{fig:MuonIsolation} shows the
-combined isolation as defined in eq.(~\ref{ElIsolation}) for muons before and
-after the cleaning. The present isolation cut is on \(0.1\) \(G\)e\(V\). 
+combined isolation as defined in Eq.(~\ref{ElIsolation}) for muons before and
+after the cleaning. The preset isolation cut is on $0.1$\ GeV. 
 
 % ------------------------------------------------------------------------------
 \begin{figure}[hb]
@@ -768,7 +768,7 @@ almost the entire range.(Fig.~\ref{fig:pjSharedE}). A cut at $0.7$ is used
 here to decide whether to keep the jet or to discard it. Some overlaps of
 non-isolated photons have a generator match as well and this fraction
 determines the final reconstruction efficiency as mentioned before. After the
-cleaning the distance in $\delta R$ between photons and the closest jets shows
+cleaning the distance in $\Delta R$ between photons and the closest jets shows
 a smooth behaviour (Fig.~\ref{fig:pjDeltaR}) and the separation is improved. 
 % ------------------------------------------------------------------------------
 \begin{figure}[hbtp]
@@ -786,7 +786,7 @@ a smooth behaviour (Fig.~\ref{fig:pjDeltaR}) and the separation is improved.
   \begin{center}
     \includegraphics[scale=0.8]{figures/PhotJet/GammaJet80_dR_iso_B.eps}
     \includegraphics[scale=0.8]{figures/PhotJet/GammaJet80_dR_iso_A.eps}
-    \caption{Distance in $\delta R$ between photon and overlapping jet in
+    \caption{Distance in $\Delta R$ between photon and overlapping jet in
     $\gamma$-jet events before (left) and after (right) the cleaning.}
     \label{fig:pjDeltaR}
   \end{center}
