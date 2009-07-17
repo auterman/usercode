@@ -172,6 +172,64 @@ this package in physics analyses on supersymmetry are drawn.
 
 % ******************************************************************************
 
+\section{Resolving Conflicts}
+\label{mapReso}
+All overlaps detected in the comparison of collections among each other are
+being stored in an association map as described above. The next step in the
+cleaning procedure consists of finding contradictions in this map and resolving
+them.  Possible configurations needing such an intervention are
+\begin{enumerate}
+    \item Object A is marked to be \textit{deleted} because of overlap with
+	object B and marked for \textit{modification} due to a conflict with
+	object C
+    \item Object A is marked to be \textit{deleted} because of overlap with
+	object B which itself is marked for deletion due to a conflict with
+	object C.
+    \item A closed loop of dependencies (Fig.~\ref{fig:loopReso})
+\end{enumerate}
+
+% Explain how this can occur, examples
+% ------------------------------------------------------------------------------
+\begin{figure}[hb]
+\begin{center}
+    \includegraphics[scale=0.4]{figures/loopConflict.eps}
+    \hspace*{1.5cm}
+    \includegraphics[scale=0.4]{figures/loopConflictResolved.eps}
+    \caption{Circular dependencies in the cross-cleaning before the 
+    consistency check of the map and cleared structure without a loop
+    afterwards. The arrow points toward the object which is removed in the
+    cleaning.}
+    \label{fig:loopReso}
+\end{center}
+\end{figure}
+% ------------------------------------------------------------------------------
+
+The first case is being handled at the point where the clean collections are
+being created. The action of deletion gets priority over all other
+modifications.
+
+In order to find conflicts of the other kinds all map entries are inspected.
+For each entry those modifier objects leading to a deletion are checked whether
+they appear themselves in the map as a modified object marked for deletion. If
+this is the case a conflict of type 2 has been found. As a consequence the
+initial action (removal of object A)  should not take place and the
+corresponding modifier (object B) is removed from the list of modifier objects.
+
+For the detection of a loop of dependencies not only the modifiers of the
+starting object must be checked but iteratively all the modifiers' modifier. A
+bookkeeping of all objects appearing in the procedure allows the detection of
+the loop.
+
+Once a loop has been detected some modifications to the map become necessary.
+The idea is to keep the most energetic object of the loop (the highest in
+$p_T$). Therefore the list of modifiers of this kept object is cleared off by
+removing all other objects appearing in the loop.  The same is done for these
+other objects but in addition the kept object is added as a modifier marking
+them for deletion. The new topology is also sketched in
+figure~\ref{fig:loopReso}.
+
+% ******************************************************************************
+
 \section{Electron - Jet Cleaning}
 \label{sec:ElecJet}
 Electrons reconstruction starts from clusters in the electromagnetic calorimeter
@@ -471,8 +529,7 @@ around $|\eta|=1.4$ cleaned away.
 Of further interest in an analysis is the spectrum of the so-called recoiled
 missing transverse energy (recoil MET). It is calculated by adding up the
 fourvectors of all objects (passing the ID) in the event, that is electrons,
-muons, tau, jets. \textcolor{red}{Photons are not included due to technical problems with the
-application of the photon ID \(\rightarrow\) true any longer ??}.  The recoil MET quantity is very sensitive to
+muons, tau, jets, photons. The recoil MET quantity is very sensitive to
 double counting of energy in the event.
 
 The result for electron - jet cross cleaning is shown in figure
@@ -949,61 +1006,7 @@ agreement after the cleaning, demonstrating that this goal has been reached.
 \end{figure}
 % ------------------------------------------------------------------------------
 
-\section{Resolving Conflicts}
-\label{mapReso}
-All overlaps detected in the comparison of collections among each other are
-being stored in an association map as described above. The next step in the
-cleaning procedure consists of finding contradictions in this map and resolving
-them.  Possible configurations needing such an intervention are
-\begin{enumerate}
-    \item Object A is marked to be \textit{deleted} because of overlap with
-	object B and marked for \textit{modification} due to a conflict with
-	object C
-    \item Object A is marked to be \textit{deleted} because of overlap with
-	object B which itself is marked for deletion due to a conflict with
-	object C.
-    \item A closed loop of dependencies (Fig.~\ref{fig:loopReso})
-\end{enumerate}
 
-% Explain how this can occur, examples
-% ------------------------------------------------------------------------------
-\begin{figure}[hb]
-\begin{center}
-    \includegraphics[scale=0.4]{figures/loopConflict.eps}
-    \hspace*{1.5cm}
-    \includegraphics[scale=0.4]{figures/loopConflictResolved.eps}
-    \caption{Circular dependencies in the cross-cleaning before the 
-    consistency check of the map and cleared structure without a loop
-    afterwards. The arrow points toward the object which is removed in the
-    cleaning.}
-    \label{fig:loopReso}
-\end{center}
-\end{figure}
-% ------------------------------------------------------------------------------
-
-The first case is being handled at the point where the clean collections are
-being created. The action of deletion gets priority over all other
-modifications.
-
-In order to find conflicts of the other kinds all map entries are inspected.
-For each entry those modifier objects leading to a deletion are checked whether
-they appear themselves in the map as a modified object marked for deletion. If
-this is the case a conflict of type 2 has been found. As a consequence the
-initial action (removal of object A)  should not take place and the
-corresponding modifier (object B) is removed from the list of modifier objects.
-
-For the detection of a loop of dependencies not only the modifiers of the
-starting object must be checked but iteratively all the modifiers' modifier. A
-bookkeeping of all objects appearing in the procedure allows the detection of
-the loop.
-
-Once a loop has been detected some modifications to the map become necessary.
-The idea is to keep the most energetic object of the loop (the highest in
-$p_T$). Therefore the list of modifiers of this kept object is cleared off by
-removing all other objects appearing in the loop.  The same is done for these
-other objects but in addition the kept object is added as a modifier marking
-them for deletion. The new topology is also sketched in
-figure~\ref{fig:loopReso}.
 
 \clearpage
 \section{Conclusions}
