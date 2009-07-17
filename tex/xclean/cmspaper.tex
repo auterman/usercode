@@ -21,7 +21,7 @@
 \title{A Cross-Cleaning Package}
 
 \begin{Authlist}
-    Christian~Autermann, Benedikt~Mura, Friederike~Nowak
+    Christian~Autermann, Benedikt~Mura, Friederike~Nowak, Christian~Sander, Peter~Schleper
     \Instfoot{uhh}{Universit\"at Hamburg, Germany}
     Jean-Roch~Vlimant
     \Instfoot{ucsb}{University of California, Santa Barbara, USA}
@@ -71,7 +71,7 @@ cross-cleaning package is designed to run on {\sc PAT} objects.
 In CMS event reconstruction each type of physics object is build from the
 detector information by a dedicated algorithm, independent from the
 reconstruction of other kinds of objects. It is not uncommon in this procedure
-that two or more object of different type end up with common constituents.
+that two or more objects of different type end up with common constituents.
 While algorithms for object identification usually select 'good' objects
 from all reconstructed ones within the same collection, the ambiguity between two
 objects in distinct collections can still remain. This multiple counting of
@@ -244,7 +244,7 @@ one jet (Fig. ~\ref{fig:NbJets}).
 % ------------------------------------------------------------------------------
 
 Therefore for each electron the three closest jets in \( \eta-\phi\) space are
-examined. If this distance is smaller than $\Delta R=1.0$ (configurable) the
+examined. If this distance is smaller than $\Delta R=1.0$ (configurable), the
 objects' constituents are compared in order to determine the amount of energy
 which is being shared between the two objects.
 This shared energy is calculated by adding up the electromagnetic energy of
@@ -471,8 +471,8 @@ around $|\eta|=1.4$ cleaned away.
 Of further interest in an analysis is the spectrum of the so-called recoiled
 missing transverse energy (recoil MET). It is calculated by adding up the
 fourvectors of all objects (passing the ID) in the event, that is electrons,
-muons, tau, jets. Photons are not included due to technical problems with the
-application of the photon ID.  The recoil MET quantity is very sensitive to
+muons, tau, jets. \textcolor{red}{Photons are not included due to technical problems with the
+application of the photon ID \(\rightarrow\) true any longer ??}.  The recoil MET quantity is very sensitive to
 double counting of energy in the event.
 
 The result for electron - jet cross cleaning is shown in figure
@@ -514,7 +514,7 @@ identification can be chosen from the muon POG defaults~\cite{muonID}.
 
 The Muon-Jet cross cleaning was tested on \\
 \texttt{/SUSY\_LM4-sftsht/Summer08\_IDEAL\_V11\_redigi\_v1/GEN-SIM-RECO} and\\
-\texttt{/Zmumu/Summer08\_IDEAL\_V11\_redigi\_v2/GEN-SIM-RECO}.
+\texttt{/ZmumuJet\_Pt80to120/Winter09\_IDEAL\_V11\_FastSim\_v1/GEN-SIM-DIGI-RECO}.
 
 All plots in this section are obtained from the LM4 Sample using CMSSW 2.2.8.
 The following CVS tags have been used on top of this release:
@@ -563,7 +563,7 @@ muon has not yet been removed.
 In the muon - jet cross cleaning the isolation is used to decide which muon is
 candidate for removing and which not. Figure~\ref{fig:MuonIsolation} shows the
 combined isolation as defined in Eq.(~\ref{ElIsolation}) for muons before and
-after the cleaning. The preset isolation cut is on $0.1$\ GeV. 
+after the cleaning. The present isolation cut is on $0.1$\ GeV. 
 
 % ------------------------------------------------------------------------------
 \begin{figure}[hb]
@@ -580,10 +580,10 @@ after the cleaning. The preset isolation cut is on $0.1$\ GeV.
 
 Then, the distance \(\Delta R\) between the (non-isolated) muon and all jets in
 \(\eta - \phi\) space is calculated. If there exists a jet which is closer than
-a certain value (preset is \(\Delta R < 0.2\)), the muon will be removed,
+a certain value (present is \(\Delta R < 0.2\)), the muon will be removed,
 otherwise both muon and jets will be left alone.
 Figure~\ref{fig:dR_MuonJet_noniso} shows this for both before and after the cross
-cleaning. As the energy correcion of the jet is a vectorial correction, it may
+cleaning. As the energy correcion of the jet is a vectorial correction (it is the same described as in the electron-jet cleaner), it may
 happen that a jet, which is not in cleaning distance of a non-isolated muon
 before the cleaning, is moved into cleaning distance after the cross cleaning.
 This effect is very small and happens in less than \(0.01\) percent of leftover non-isolated Muons with a nearest jet at the LM4 (for the given jet and muon cuts. See table~\ref{tab:PATobjCuts}).
@@ -615,7 +615,7 @@ In the current implementation, isolated muons are considered as particles which 
 \end{figure}
 % ------------------------------------------------------------------------------
 
-Around \(15\%\) (in the case of the default jet and muon cuts, see~\ref{tab:PATobjCuts}) of the isolated muons have a jet within the distance of \(\Delta R < 0.2\). These jets have usually a small transverse momentum (figure~\ref{fig:dR_MuonJet_iso}, right). Only \(25\%\) of the muons have a generator photon from the hard process within a distance of \(\Delta R < 0.3\), which could have caused such a jet. Another \(25\%\) of the muons have any jet building particle within that distance (that is, mesons, baryons, photons, electrons). In these cases, the jet was produced by particles, whose energy was lost to the muon before its contact to the detector (first case) or never part of the muon at all (second case) and therefore no double counted energy is present. The other half of the muon have no generator particle in reach. These jets could be caused by particleless detector interactions with the muon, bremsstrahlung, or noise. In the event of detector interactions or bremsstrahlung, there might be double counted energy, but these effects are likely small. The energy resolution for muons with and without a jet within \(\Delta R < 0.2\) is shown in figure~\ref{fig:genPt_vs_recoPt_isoMuon}. The muons with a jet in the named distace seem to be slightly more high energetic, but no clear difference in the resolution can be seen. 
+Around \(15\%\) (in the case of the default jet and muon cuts, see table~\ref{tab:PATobjCuts}) of the isolated muons have a jet within the distance of \(\Delta R < 0.2\). These jets have usually a small transverse momentum (figure~\ref{fig:dR_MuonJet_iso}, right). Only \(25\%\) of the muons have a generator photon from the hard process within a distance of \(\Delta R < 0.3\), which could have caused such a jet. Another \(25\%\) of the muons have any jet building particle within that distance (that is, mesons, baryons, photons, electrons). In these cases, the jet was produced by particles, whose energy was lost to the muon before its contact to the detector (first case) or never part of the muon at all (second case) and therefore no double counted energy is present. The other half of the muon have no generator particle in reach. These jets could be caused by particleless detector interactions with the muon, bremsstrahlung, or noise. In the event of detector interactions or bremsstrahlung, there might be double counted energy, but these effects are likely small. The energy resolution for muons with and without a jet within \(\Delta R < 0.2\) is shown in figure~\ref{fig:genPt_vs_recoPt_isoMuon}. The muons with a jet in the named distace seem to be slightly more high energetic, but no clear difference in the resolution can be seen. 
 
 % ------------------------------------------------------------------------------
 \begin{figure}[hb]
@@ -630,10 +630,10 @@ Around \(15\%\) (in the case of the default jet and muon cuts, see~\ref{tab:PATo
 
 \subsubsection{Selection Efficiency and Fake Rate}
 
-The greatest influence of muon - jet cross cleaning is on the contamination of
+The greatest influence of muon - jet cross cleaning is on the contamination\footnote{contamination and efficiency are defined as in the electron - jet cleaner} of
 the non-isolated muons. It drops from \(\sim 40 \%\) to \(\sim 10 \%\) with the default settings. The
 selection efficiency for all muons on the other hand also decreases, but stays good (\(\sim
-90\%\)). The drop of the efficiency is mainly based on the cut on the isolation and, in a smaller part, on the decision in which distance of the non-isolated Muon to search for a jet. Efficiency for all muons and contamination of the non-isolated ones can be seen in figure~\ref{effCont_muon_MuonJet} for the \(p_T\)
+90\%\)). The drop of the efficiency is mainly based on the cut on the isolation and, in a smaller part, on the decision in which distance of the non-isolated Muon to search for a jet. Efficiency for all muons and contamination of the non-isolated ones can be seen in figure~\ref{fig:effCont_muon_MuonJet} for the \(p_T\)
 and \(\eta\) distributions of the muons. 
 
 % ------------------------------------------------------------------------------
@@ -645,7 +645,7 @@ and \(\eta\) distributions of the muons.
     \includegraphics[scale=0.8]{figures/MuonJet/LM4_Cont_eta_Muons_noniso.eps}
     \caption{Effiniency (upper row) and contamination (lower row) vs. transverse
     momentum (left) and pseudorapidity (right) for muons before and after the
-    muon-jet cross-cleaning. The Efficiency is shown for all muons, while the contamination is only for the non-isolated muons.}
+    muon-jet cross-cleaning. The Efficiency is shown for all muons, while the contamination is presented only for the non-isolated muons.}
 \label{fig:effCont_muon_MuonJet}
 \end{center}
 \end{figure}
@@ -736,7 +736,7 @@ radiation of other final state particles or their interactions with the detector
 
 The influence in the first case has been tested on a photon-jet sample
 \newline\texttt{/PhotonJetPt80/Summer08\_IDEAL\_V12\_redigi\_v1/GEN-SIM-RECO} while
-the latter is again studied on the SUSY LM4 Monte Carlo.
+the latter is again studied on the SUSY LM4 Monte Carlo also used in the validation of the electron - jet and the muon - jet cleaner.
 
 \subsubsection{Photon-Jet Events}
 In this case a high $p_T$-photon is present in the event, which in many cases
@@ -774,7 +774,7 @@ a smooth behaviour (Fig.~\ref{fig:pjDeltaR}) and the separation is improved.
   \begin{center}
     \includegraphics[scale=0.8]{figures/PhotJet/GammaJet80_sharedE_iso_B.eps}
     \includegraphics[scale=0.8]{figures/PhotJet/GammaJet80_sharedE_noniso_B.eps}
-    \caption{Ration of shared energy of photon and jet divided by the jet's raw
+    \caption{Ratio of shared energy of photon and jet divided by the jet's raw
     energy. Left: isolated photons. Right: non-isolated photons.}
     \label{fig:pjSharedE}
   \end{center}
@@ -786,7 +786,7 @@ a smooth behaviour (Fig.~\ref{fig:pjDeltaR}) and the separation is improved.
     \includegraphics[scale=0.8]{figures/PhotJet/GammaJet80_dR_iso_B.eps}
     \includegraphics[scale=0.8]{figures/PhotJet/GammaJet80_dR_iso_A.eps}
     \caption{Distance in $\Delta R$ between photon and overlapping jet in
-    $\gamma$-jet events before (left) and after (right) the cleaning.}
+    $\gamma$-jet events before (left) and after (right) the photon - jet cleaning.}
     \label{fig:pjDeltaR}
   \end{center}
 \end{figure}
@@ -805,7 +805,7 @@ photon ID has been applied here.
   \begin{center}
     \includegraphics[scale=1.0]{figures/PhotJet/GammaJet80_obj_multiplicity.eps}
     \caption{Photon multiplicity in $\gamma$-jet events before and after the
-    cross-cleaning.}
+    photon - jet cross-cleaning.}
     \label{fig:pjPhotMult}
   \end{center}
 \end{figure}
@@ -887,7 +887,7 @@ the calorimeter missing $E_T$.
       \includegraphics[scale=0.8]{figures/PhotJet/LM4_noteV2_JpT15_addElecJet_METcomp.eps}
     \caption{Missing transverse energy in SUSY LM4 events after photon-jet
     cleaning (left) and photon- plus electron-jet cleaning (right). Shown are
-    the recoil MET before cleaning (red), after cleaning (blue) nd the
+    the recoil MET before cleaning (red), after cleaning (blue) and the
     calorimeter MET (green).}
     \label{fig:pjLM4MET}
   \end{center}
@@ -1110,7 +1110,7 @@ Setting}                                                            \\\hline
 double & DeltaR\_min       &
 \begin{minipage}[t]{8cm}Check for overlaps within a cone of this size around
     the electron \\
-\end{minipage} & 1.0                                               \\\hline
+\end{minipage} & 1.                                              \\\hline
 double & SharedEtoJetE     &
 \begin{minipage}[t]{8cm} Ratio of shared energy to jet energy. Used for
     decision whether to drop the jet if the electron is isolated
@@ -1133,9 +1133,9 @@ string & ElectronID        &
     the EGamma POG in
     RecoEgamma/ElectronIdentification/python/ electronIdSequence\_cff.py\\
 \end{minipage} & ``eidLoose''   \\\hline
-double & ecalIsoWeight & Weight of ecal isolation in CombRelIso variable & 1.0 \\\hline
-double & hcalIsoWeight & Weight of hcal isolation in CombRelIso variable & 1.0 \\\hline
-double & trkIsoWeight  & Weight of tracker isolation in CombRelIso variable & 1.0
+double & ecalIsoWeight & Weight of ecal isolation in CombRelIso variable & 1. \\\hline
+double & hcalIsoWeight & Weight of hcal isolation in CombRelIso variable & 1. \\\hline
+double & trkIsoWeight  & Weight of tracker isolation in CombRelIso variable & 1.
 \end{tabular}
 \end{center}
 \label{tab:ElectronJetPar}
@@ -1153,8 +1153,8 @@ double & trkIsoWeight  & Weight of tracker isolation in CombRelIso variable & 1.
     \begin{minipage}[t]{8cm}Check muons within a cone of this size around
 	the jet.
     \end{minipage}                                           & 0.2 \\\hline
-    double & caloIso\_max    & Cut on calorimeter isolation. & 10.0\\\hline
-    double & trackIso\_max   & Cut on track isolation.       & 10.0\\\hline
+    double & caloIso\_max    & Cut on calorimeter isolation. & 10.\\\hline
+    double & trackIso\_max   & Cut on track isolation.       & 10.\\\hline
     string & MuonID          & 
     \begin{minipage}[t]{8cm} Key to choose identification method. All
 	possible choices are defined in
