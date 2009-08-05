@@ -190,8 +190,7 @@ description.
 All overlaps detected in the comparison of collections among each other are
 being stored in an association map as described above. The next step in the
 cleaning procedure consists of finding contradictions in this map and resolving
-them. The number of conflics depends on the sample, but is not negligible. In a
-typical SUSY sample (LM4) $??\%$~events are affected. Possible configurations
+them. Possible configurations
 needing an intervention are:
 \begin{enumerate}
     \item Object A is marked to be \textit{deleted} because of overlap with
@@ -243,6 +242,11 @@ cleared up by removing all other objects appearing in the loop.  The same is
 done for these other objects but in addition the kept object is added as a
 modifier marking them for deletion. The new topology is sketched in
 Fig.~\ref{fig:loopReso}.
+
+\subsection{Statistics}
+The number of conflics depends on the sample\footnote{It also depends on the acceptance cuts on the objects.}, but is not negligible. In a typical SUSY sample (like here LM4), and all cross cleaner modules activated, around \(6\) overlaps of objects per event occur. The average number of modifiers per overlapping object per event was \( \sim 1.003\), where the maximum number of modifiers was found to be \(2\). \\
+The average number of modifiers causing the object to be dropped was \(5.5\). Of these modifiers, nearly all were to be modified itself (case 1 of configurations needing intervention), very few to be dropped itself (\(\sim 0.0005\), case 2).\\
+No loops have been found.
 
 % ******************************************************************************
 
