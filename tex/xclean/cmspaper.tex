@@ -70,14 +70,14 @@ cross-cleaning package is designed to run on {\sc PAT} objects.
 
 In CMS event reconstruction, except for particle-flow algorithms, each type of
 physics object is build from the detector information by a dedicated algorithm,
-independent from the reconstruction of other kinds of objects. It is not
+independent of the reconstruction of other kinds of objects. It is not
 uncommon in this procedure that two or more objects of different type end up
 with common constituents.  While algorithms for object identification usually
 select 'good' objects from all reconstructed ones within the same collection,
 the ambiguity between two objects in distinct collections can still remain.
 This multiple counting of energy must be avoided in order to obtain an optimal
 energy resolutions of these objects. This is especially true for the missing
-transverse energy (MET), when calculated from the final states objects.
+transverse energy (MET), when calculated from the final-state objects.
 
 Overlapping objects must be identified and the energy be assigned uniquely to
 one of the candidates. This cross-cleaning tool~\cite{package} is flexible enough to allow the
@@ -91,12 +91,12 @@ The details of such a cleaning are of course depending on the object definition
 and therefore particular to each analysis. In order to get optimal results for
 a specific analysis, e.g. an optimal electron resolution, or an optimal MET
 resolution, analysis dependent cross cleaning studies are inevitable. The
-chosen algorithm parameters should be considered as default bench mark values.
+chosen algorithm parameters should be considered default bench mark values.
 
-Input to the cleaning are collections of physics objects which pass the
+The inpus to the cleaning algorithm are collections of physics objects which pass the
 identification requirements chosen for the particular analysis. No input
 collection will be changed, but new cross-cleaned collections will be created.
-The cross-cleaning does not replace a goog object-ID selection, but is meant to
+The cross-cleaning does not replace a good object-ID selection, but is meant to
 remove the remaining ambiguities.
 
 This approach is motivated by the typical topologies in a SUSY analysis,
@@ -122,7 +122,7 @@ algorithms in a module internal map.
 
 The key entry in this map is a reference to the object that should be corrected
 or discarded, while the associated value contains a vector of objects which are
-responsible for this and the information how the object should be corrected. This
+responsible for this and information on how the object should be corrected. This
 scheme is illustrated in Fig.~\ref{fig:Cleaning}. A correction is given by an
 energy-momentum fourvector.
 
@@ -151,10 +151,10 @@ are compared, therefore conflicts are resolved before any object is being
 modified (cf. Section \ref{mapReso}).
 
 Subsequently the corrections are applied to the objects. Energy corrections for
-all jets in the cleaned collection are being recalculated to ensure consistency
+all jets in the cleaned collection are recalculated to ensure consistency
 in the calibration.
 
-A special object in the event is the missing transverse energy (MET). The raw
+A special object in the event is the missing transverse energy. The raw
 MET is calculated from calorimeter towers only and will not be changed by this
 cross-cleaning. However, the physics object corrections to the MET (due to JES,
 muons, ...) can either be
@@ -188,7 +188,7 @@ description.
 \section{Resolving Conflicts}
 \label{mapReso}
 All overlaps detected in the comparison of collections among each other are
-being stored in an association map as described above. The next step in the
+stored in an association map as described above. The next step in the
 cleaning procedure consists of finding contradictions in this map and resolving
 them. Possible configurations
 needing an intervention are:
@@ -225,14 +225,14 @@ modifications.
 All map entries are inspected in order to find conflicts of the other kinds.
 For each entry those modifier objects leading to a deletion are checked whether
 they appear themselves in the map as a modified object marked for deletion. If
-this is the case a conflict of type 2 has been found. As a consequence the
-initial action (removal of object A)  should not take place and  therefore the
+this is the case a conflict of type 2 was found. As a consequence the
+initial action (removal of object A) should not take place and therefore the
 corresponding modifier (object B) is removed from object A's list of modifier
 objects.
 
 For the detection of a loop of dependencies not only the modifiers of the
-starting object must be checked but iteratively all the modifiers' modifier. A
-bookkeeping of all objects appearing in the procedure allows the detection of
+starting object must be checked but iteratively all the modifiers' modifier.
+Bookkeeping of all objects appearing in the procedure allows the detection of
 the loop.
 
 Once a loop has been detected some modifications to the map become necessary.
@@ -246,7 +246,7 @@ Fig.~\ref{fig:loopReso}.
 \subsection{Statistics}
 The number of conflics depends on the sample and on the acceptance cuts on the
 objects, but is not negligible. In a typical SUSY sample (here LM4 with a
-statistic of $2\ 000$~events) and all cross cleaner modules activated around
+statistic of $2\ 000$~events) and all cross-cleaner modules activated around
 \(6\) overlaps of objects per event occur. The average number of objects
 overlapping with a different specific object was \( \sim 1.003\), where the
 maximum number of overlapping objects was found to be \(3\). 
@@ -255,7 +255,7 @@ The average number of objects causing another object to be dropped was \(5.5\),
 this is dominated by non-isolated photons.
 Of these objects, nearly all were required to be modified itself (case 1 of
 configurations needing intervention), few were required to be dropped itself (\(\sim
-0.0005\), case 2). No loops have been found in this sample.
+0.0005\), case 2). No loops were found in this sample.
 
 % ******************************************************************************
 
@@ -275,20 +275,20 @@ electron and a jet. It is important to distinguish between the three cases of
 Therefore the following procedure includes the possibilities to keep either the
 jet or the electron or both objects in the event.
 
-The Electron-Jet cross cleaning has been tested on a variety of samples. All
-plots in this section have been created from either a SUSY LM4 Sample from
+The Electron-Jet cross cleaning was tested on a variety of samples. All
+plots in this section were created from either a SUSY LM4 Sample from
 Summer08 production\\
 (\texttt{/SUSY\_LM4-sftsht/Summer08\_IDEAL\_V11\_redigi\_v1/GEN-SIM-RECO})\\
 or a sample of
 $Z\rightarrow ee$ events \\(\texttt{/Zee/Summer08\_IDEAL\_V11\_redigi\_v2/GEN-SIM-RECO}).
 
-The PAT objects have been generated using the default sequences provided in the
+The PAT objects were generated using the default sequences provided in the
 configuration files\\
 \texttt{PhysicsTools/PatAlgos/python/patLayer0\_cff.py} and\\
 \texttt{PhysicsTools/PatAlgos/python/patLayer1\_cff.py} in the CMSSW\_2\_2\_7
-release. Acceptance cuts for the pat objects as listed in
-Tab.~\ref{tab:PATobjCuts} have been applied on all samples used in this study.
-All other parameters have been set as listed in the appendix.
+release. Acceptance cuts for the PAT objects as listed in
+Tab.~\ref{tab:PATobjCuts} were applied to all samples used in this study.
+All other parameters were set as listed in the appendix.
 
 % ------------------------------------------------------------------------------
 \begin{table}[h]
@@ -338,7 +338,7 @@ calculation but these are not necessarily accessible in all analysis data
 formats like e.g. PAT Layer~1 files.}
 % Method using individual ECAL crystals 
 
-Starting point for this cleaning should be a collection of well identified
+The starting point for this cleaning should be a collection of well identified
 electrons, where the level of identification can be chosen from those provided
 by the EGamma POG ~\cite{elecID}. All electrons not passing the identification
 requirements are marked for removal if they are sharing energy with a jet.
@@ -346,7 +346,7 @@ requirements are marked for removal if they are sharing energy with a jet.
 The treatment of identified electrons depends on their isolation. While the
 possible choices for the isolation algorithm include the default PAT options
 like cone isolation in the Tracker, hadronic and electromagnetic calorimeter,
-the presetting is a combination of these three, i.e. 
+the default is a combination of these three, i.e. 
 \begin{equation}
     CombRelIso=\frac{a\cdot ECalIso+b\cdot HCalIso+c\cdot TrackIso}{p_T},
     \label{ElIsolation}
@@ -482,7 +482,7 @@ electrons are removed from the event. Analyses optimized for electron efficiency
 will need to revise the algorithm.
 
 Two control quantities that can be
-studied on Monte Carlo are the reconstruction efficiency and the contamination
+studied in Monte Carlo are the reconstruction efficiency and the contamination
 with fake electrons. Here we define efficiency as the ratio 
 \[\frac{\mathrm{No.\ of\ reconstructed\ electrons\ w\ generator\ match}}{\mathrm{No.\ of\ generated\ electrons}}\]
 and contamination as
@@ -572,7 +572,7 @@ double counting of energy in the event.
 
 The result for electron-jet cross cleaning is shown in Fig.~\ref{fig:met_ElecJet} in comparison to the missing transverse energy from the
 calorimeter towers, corrected for the jet energy scale (L2, L3). While they are
-in good agreement at the lower energy range (up to \(\sim 500 GeV\)), the
+in good agreement at the lower energy range (up to \(\sim 500~GeV)), the
 distributions differ in the tail. The gap between 'recoil' and 'calo' missing
 $E_T$ is closed by the cross-cleaner, demonstrating an effective removal of
 overlaps and therefore double counting of energy.
@@ -616,14 +616,14 @@ The Muon-Jet cross cleaning was tested on the\\
 Monte Carlo samples.
 
 All plots in this section are obtained from the LM4 Sample using CMSSW 2.2.8.
-The following CVS tags have been used on top of this release:
+The following CVS tags were used on top of this release:
 \begin{itemize}
     \item DataFormats/PatCandidates V03-18-09      
     \item PhysicsTools/PatAlgos     V04-14-25      
     \item PhysicsTools/PatUtils     V03-05-02      
 \end{itemize}
 The PAT objects
-have been generated using the default sequences provided in the configuration
+were generated using the default sequences provided in the configuration
 files\\
 \texttt{PhysicsTools/PatAlgos/python/patLayer0\_cff.py} and\\
 \texttt{PhysicsTools/PatAlgos/python/patLayer1\_cff.py}.
@@ -632,8 +632,8 @@ Some plots obtained from a $Z\rightarrow\mu\mu$ sample can be found in appendix~
 
 
 \subsection{Algorithm}
-In this cross-cleaner module all non-isolated muons are considered as part of
-the jet which is within a distance of $\Delta R=0.2$ . Isolation refers either
+In this cross-cleaner module non-isolated muons are considered part of
+any jet which is within a distance of $\Delta R=0.2$ away from them. Isolation refers either
 to both tracker and calorimeter or the CombRelIso variable. The muon objects
 are removed and their fourvector added to the jet object. 
 %(To avoid any double counting of energy we subtract the MIP
@@ -670,8 +670,8 @@ cleaning. The present isolation cut is $0.1$~GeV.
     \includegraphics[scale=0.8]{figures/MuonJet/LM4_iso_Muon_before.eps}
     \includegraphics[scale=0.8]{figures/MuonJet/LM4_iso_Muon_after.eps}
     \caption{Combined isolation for muons before (left) and after (right) the
-    muon-jet cross cleaning. Note, that only non-isolated muons in short
-    distance to a jet are removed in the cleaning.}
+    muon-jet cross cleaning. Note, that only non-isolated muons close 
+    to a jet are removed in the cleaning.}
 \label{fig:MuonIsolation}
 \end{center}
 \end{figure}
@@ -742,10 +742,10 @@ the muon, bremsstrahlung, or noise.
 %likely small. 
 The energy resolution for muons with and without a jet within
 \(\Delta R < 0.2\) is shown in Fig.~\ref{fig:genPt_vs_recoPt_isoMuon}. The
-muons with a jet in the named distance seem to be slightly higher energetic,
+muons with a jet within the given distance seem to be slightly more energetic,
 but no clear difference in the resolution can be seen. 
 
-A muon is no calorimeter object, therefore there is no double counted
+A muon is not a calorimeter object, therefore there is no double counted
 energy in the calorimeter by definition. For isolated muons no cross-cleaning
 action is taken.
 % ------------------------------------------------------------------------------
@@ -770,8 +770,8 @@ contamination\footnote{contamination and efficiency are defined as in the
 electron - jet cleaner} of the non-isolated muons. It drops from \(\sim 40 \%\)
 to \(\sim 10 \%\) with the default settings. The selection efficiency for all
 muons on the other hand also decreases to $\sim 90\%$. The
-drop of the efficiency is mainly based on the cut on the isolation and, in a
-smaller part, on the decision in which distance of the non-isolated muon to
+drop of the efficiency is mainly due to the cut on the isolation and, in a
+smaller part, on the decision on what distance from the non-isolated muon to
 search for a jet. The efficiency for all muons and the contamination of the
 non-isolated ones is shown in Fig.~\ref{fig:effCont_muon_MuonJet} versus 
 \(p_T\) and \(\eta\) the muons. 
@@ -849,7 +849,7 @@ cleaning has nearly no effect (cf. Fig~\ref{fig:met_MuonJet}).
 
 \section{Photon - Jet Cleaning}
 In the CMS default reconstruction photons are selected with rather loose
-criteria from all reconstructed superclusters in the event. Like in the case of
+criteria from all reconstructed superclusters in the event. As in the case of
 electrons an adequate photon identification must be applied in order to remove
 fake and/or non-isolated photons. Any photon entering the cross-cleaning must
 fulfill the requirements of a certain identification, which can be chosen from
@@ -990,7 +990,7 @@ Fig.~\ref{fig:pjMET}) a peak at 100\ GeV is observed, corresponding to the
 transverse momenta of the hard photons in this Monte Carlo sample. Clearly, a
 double counting of energy has taking place.  After the photon-jet cleaning this
 peak is significantly smaller (blue line in the left plot of
-Fig.\ref{fig:pjMET}) but only after an additional electron-jet cleaning the
+Fig.\ref{fig:pjMET}) but only after additional electron-jet cleaning the
 recoil missing $E_T$ becomes compatible to the calorimeter MET (right plot in
 Fig.~\ref{fig:pjMET}). Obviously, many of the jets and/or photons are
 also reconstructed as electrons so that energy has even been triple counted.
@@ -1012,7 +1012,7 @@ also reconstructed as electrons so that energy has even been triple counted.
 \subsubsection{SUSY Sample}
 In SUSY events in the LM4 scenario no high $p_T$-photons are produced in the
 decay chains of squarks and gluons. Therefore, all reconstructed photons are rather soft and only very
-few have a match on generator level. The expectation is that most of the
+few have match on generator level. The expectation is that most of the
 photons overlap with jets and should be removed in the cleaning procedure.
 
 This can actually be observed in the change of photon multiplicity due to the
