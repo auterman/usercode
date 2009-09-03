@@ -93,7 +93,7 @@ a specific analysis, e.g. an optimal electron resolution, or an optimal MET
 resolution, analysis dependent cross cleaning studies are inevitable. The
 chosen algorithm parameters should be considered default bench mark values.
 
-The inpus to the cleaning algorithm are collections of physics objects which pass the
+The inputs to the cleaning algorithm are collections of physics objects which pass the
 identification requirements chosen for the particular analysis. No input
 collection will be changed, but new cross-cleaned collections will be created.
 The cross-cleaning does not replace a good object-ID selection, but is meant to
@@ -244,7 +244,7 @@ modifier marking them for deletion. The new topology is sketched in
 Fig.~\ref{fig:loopReso}.
 
 \subsection{Statistics}
-The number of conflics depends on the sample and on the acceptance cuts on the
+The number of conflicts depends on the sample and on the acceptance cuts on the
 objects, but is not negligible. In a typical SUSY sample (here LM4 with a
 statistic of $2\ 000$~events) and all cross-cleaner modules activated around
 \(6\) overlaps of objects per event occur. The average number of objects
@@ -572,7 +572,7 @@ double counting of energy in the event.
 
 The result for electron-jet cross cleaning is shown in Fig.~\ref{fig:met_ElecJet} in comparison to the missing transverse energy from the
 calorimeter towers, corrected for the jet energy scale (L2, L3). While they are
-in good agreement at the lower energy range (up to \(\sim 500~GeV)), the
+in good agreement at the lower energy range (up to \(\sim 500~GeV\)), the
 distributions differ in the tail. The gap between 'recoil' and 'calo' missing
 $E_T$ is closed by the cross-cleaner, demonstrating an effective removal of
 overlaps and therefore double counting of energy.
@@ -683,7 +683,7 @@ Next, the distance \(\Delta R\) between the (non-isolated) muon and all jets in
 a certain value (the present default is \(\Delta R < 0.2\)), the muon will be
 removed, otherwise both muon and jets will be left alone.
 Fig.~\ref{fig:dR_MuonJet_noniso} shows the $\Delta R$ distribution before and
-after the cross cleaning. As the energy correcion of the jet is a vectorial
+after the cross cleaning. As the energy correction of the jet is a vectorial
 correction (it is the same as described in the electron-jet cleaner), it may
 happen that a jet, which is not in cleaning distance of a non-isolated muon
 before the cleaning, is moved into cleaning distance after the cross cleaning.
@@ -1121,7 +1121,9 @@ are advertised on the page on SUSY specific PAT extensions~\cite{susypat}.
 \section{Acknowledgments}
 We like to thank Oliver Buchm\"uller, Filip Moortgat, Fr\'ed\'eric Ronga,  Luc
 Pape, and the SUSY group for the fruitful discussions, shared ideas, and
-support.
+support. Special thanks go to Rob Bainbridge for fixing and improving the code,
+Georgia Karapostoli for her testing and contributions to the Electron-Jet
+cleaning, and all other users of this package who gave helpful feedback.
 
 %% *** USER VALIDATION **********************************************************
 %
