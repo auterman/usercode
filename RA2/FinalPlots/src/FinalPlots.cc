@@ -13,7 +13,7 @@
 //
 // Original Author:  Christian Autermann,68/112,2115,
 //         Created:  Sun Oct 18 20:00:45 CEST 2009
-// $Id: FinalPlots.cc,v 1.2 2009/10/19 09:59:01 auterman Exp $
+// $Id: FinalPlots.cc,v 1.3 2009/10/19 11:42:35 auterman Exp $
 //
 //
 
@@ -82,13 +82,13 @@ FinalPlots::beginJob(const edm::EventSetup&)
                           "TFile Service is not registered in cfg file" );
   }
 
-  std::string histname = "HT_"+name_;
+  std::string histname = "HT"+name_;
   HT_    = fs->make<TH1F>(histname.c_str(),";HT [GeV];events",   100, 0.0, 500.0);
 
-  histname = "MHT_"+name_;
+  histname = "MHT"+name_;
   MHT_   = fs->make<TH1F>(histname.c_str(),";MHT [GeV];events",  100, 0.0, 500.0);
 
-  histname = "MET_"+name_;
+  histname = "MET"+name_;
   MET_   = fs->make<TH1F>(histname.c_str(),";MET [GeV];events",  100, 0.0, 500.0);
 }
 
