@@ -13,7 +13,7 @@
 //
 // Original Author:  Christian Autermann,68/112,2115,
 //         Created:  Sun Oct 18 20:00:45 CEST 2009
-// $Id: FinalPlots.cc,v 1.1.1.1 2009/10/19 08:25:35 auterman Exp $
+// $Id: FinalPlots.cc,v 1.2 2009/10/19 09:59:01 auterman Exp $
 //
 //
 
@@ -61,7 +61,8 @@ class FinalPlots : public edm::EDAnalyzer {
 
       TH1F * HT_;
       TH1F * MHT_;
-      TH1F * MET_;      
+      TH1F * MET_;   
+   
 };
 
 FinalPlots::FinalPlots(const edm::ParameterSet& iConfig):
@@ -112,13 +113,23 @@ FinalPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace edm;
    using namespace std;
 
+//**************************************************
+// This is for debugging purposes only !!!!!
+double weight = 1.0;
+if      (name_=="JEC_UP")    weight = 1.08;
+else if (name_=="JEC_DN")    weight = 0.92;
+else if (name_=="method_UP") weight = 1.04;
+else if (name_=="method_DN") weight = 0.04;
+// This is for debugging purposes only !!!!!
+//**************************************************
+
    edm::Handle<edm::View<reco::Candidate> > jet_hnd;
    iEvent.getByLabel(Jet_, jet_hnd);
 
    edm::Handle<edm::View<reco::MET> > met_hnd;
    iEvent.getByLabel(Met_, met_hnd);
 
-   MET_->Fill( met_hnd->begin()->pt() );
+   MET_->Fill( met_hnd->begin()->pt(), weight );
    
    double ht=0.0;
    math::PtEtaPhiMLorentzVector htvec(0.0, 0.0, 0.0, 0.0);
@@ -129,8 +140,8 @@ FinalPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       htvec += jet->p4();
       ht+=jet->pt();
    }	
-   HT_ ->Fill( ht );
-   MHT_->Fill( htvec.pt() );
+   HT_ ->Fill( ht, weight );
+   MHT_->Fill( htvec.pt(), weight );
 
    //other variables
    //MPT...   
