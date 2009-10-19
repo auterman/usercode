@@ -13,7 +13,7 @@
 //
 // Original Author:  Christian Autermann,68/112,2115,
 //         Created:  Sun Oct 18 20:00:45 CEST 2009
-// $Id: FinalPlots.cc,v 1.3 2009/10/19 11:42:35 auterman Exp $
+// $Id: FinalPlots.cc,v 1.4 2009/10/19 13:05:04 auterman Exp $
 //
 //
 
@@ -116,10 +116,10 @@ FinalPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 //**************************************************
 // This is for debugging purposes only !!!!!
 double weight = 1.0;
-if      (name_=="JEC_UP")    weight = 1.08;
-else if (name_=="JEC_DN")    weight = 0.92;
-else if (name_=="method_UP") weight = 1.04;
-else if (name_=="method_DN") weight = 0.04;
+if      (name_=="_JEC_UP")    weight = 1.08;
+else if (name_=="_JEC_DN")    weight = 0.92;
+else if (name_=="_method_UP") weight = 1.04;
+else if (name_=="_method_DN") weight = 0.96;
 // This is for debugging purposes only !!!!!
 //**************************************************
 

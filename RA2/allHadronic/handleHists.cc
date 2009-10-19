@@ -5,6 +5,7 @@
 #include "THStack.h"
 #include "TLegend.h"
 #include "TStyle.h"
+#include "TFile.h"
 
 #include <iostream>
 #include <iomanip>
@@ -16,16 +17,39 @@ using namespace std;
 
 
   
-TH1 * handleHists::GetHist(const string file, const string hist)
+TH1 * handleHists::GetHist(const string file, const string hist, const string treename)
 {
+   TH1F * result;
+   
+   stringstream ss;
+   ss << hist<< "_"<<_plotindex++;
+   string name = ss.str(); //root can't handle two hists with same names
+   //For debugging: if not all background are available, create an empty hist:
+   if (file=="") {
+     result = new TH1F(name.c_str(), hist.c_str(), 100, 0.0, 500.0);
+     result->Fill(20);
+     return result;
+   }//can delete this, as soon as all samples (incl. data) are available
 
-//@@ Here the histograms need to be read!!!
-  string name = file+"_"+hist; //shitty root can't handle two hists with same names
-  TH1 * dummy = new TH1F(name.c_str(), hist.c_str(), 100, 0, 100);
-  dummy->Fill(20);
-  return dummy;
-//@@ Here the histograms need to be read!!!
-
+   //open root file
+   TFile f( file.c_str() );
+   if (f.IsZombie()) {
+       cout << "Error opening file '" << file << "'"<< endl;
+       exit(-1);
+   }
+   
+   //open requested histogram 'hist', in directory 'treename'
+   string dummy_name = hist;
+   if (treename!="") dummy_name = treename+"/"+hist;
+   result = (TH1F*)f.Get( dummy_name.c_str() );
+   if (!result) {
+     cerr << "Unable to read histogram '" <<dummy_name<< "' from file '"<<file<< "'!"<<endl;
+     exit(1);
+   }
+   result->SetTitle( hist.c_str() );
+   result->SetDirectory(0);
+   
+   return result;
 }
 
 handleHists::handleHists( ConfigFile* config)
@@ -45,32 +69,32 @@ handleHists::handleHists( ConfigFile* config)
   for (vector<string>::const_iterator var=vars.begin(); var!=vars.end(); ++var) {
 
     //read 'normal' histograms (without syst. uncertainties)
-    _data_hists.  push_back( GetHist(datafile, (*var) ) );
-    _signal_hists.push_back( GetHist(signalfile, (*var)) );
-    TH1 * qcd = GetHist(qcdfile, (*var));
-    TH1 * top = GetHist(ttbarfile, (*var));
-    TH1 * z    = GetHist(znunufile, (*var));
+    _data_hists.  push_back( GetHist(datafile, (*var), "finalPlot" ) );
+    _signal_hists.push_back( GetHist(signalfile, (*var), "finalPlot") );
+    TH1 * qcd = GetHist(qcdfile, (*var), "finalPlot");
+    TH1 * top = GetHist(ttbarfile, (*var), "finalPlot");
+    TH1 * z    = GetHist(znunufile, (*var), "finalPlot");
     _qcd_hists.   push_back( qcd );
     _ttbar_hists. push_back( top );
     _znunu_hists. push_back( z   );
     
     //read background histogram correlated uncertainties:
     for (vector<string>::const_iterator cor=corr_unc.begin(); cor!=corr_unc.end(); ++cor) {
-      _syst_up_corr[qcd].push_back( GetHist(qcdfile, (*var)+"_"+(*cor)+"_UP") );
-      _syst_dn_corr[qcd].push_back( GetHist(qcdfile, (*var)+"_"+(*cor)+"_DN") );
-      _syst_up_corr[top].push_back( GetHist(ttbarfile, (*var)+"_"+(*cor)+"_UP") );
-      _syst_dn_corr[top].push_back( GetHist(ttbarfile, (*var)+"_"+(*cor)+"_DN") );
-      _syst_up_corr[ z ].push_back( GetHist(znunufile, (*var)+"_"+(*cor)+"_UP") );
-      _syst_dn_corr[ z ].push_back( GetHist(znunufile, (*var)+"_"+(*cor)+"_DN") );
+      _syst_up_corr[qcd].push_back( GetHist(qcdfile, (*var)+"_"+(*cor)+"_UP", "finalPlot_JEC_UP") );
+      _syst_dn_corr[qcd].push_back( GetHist(qcdfile, (*var)+"_"+(*cor)+"_DN", "finalPlot_JEC_DN") );
+      _syst_up_corr[top].push_back( GetHist(ttbarfile, (*var)+"_"+(*cor)+"_UP", "finalPlot_JEC_UP") );
+      _syst_dn_corr[top].push_back( GetHist(ttbarfile, (*var)+"_"+(*cor)+"_DN", "finalPlot_JEC_DN") );
+      _syst_up_corr[ z ].push_back( GetHist(znunufile, (*var)+"_"+(*cor)+"_UP", "finalPlot_JEC_UP") );
+      _syst_dn_corr[ z ].push_back( GetHist(znunufile, (*var)+"_"+(*cor)+"_DN", "finalPlot_JEC_DN") );
     }
     //read background histogram un-correlated uncertainties:
     for (vector<string>::const_iterator uco=uncorr_unc.begin(); uco!=uncorr_unc.end(); ++uco) {
-      _syst_up_uncorr[qcd].push_back( GetHist(qcdfile, (*var)+"_"+(*uco)+"_UP") );
-      _syst_dn_uncorr[qcd].push_back( GetHist(qcdfile, (*var)+"_"+(*uco)+"_DN") );
-      _syst_up_uncorr[top].push_back( GetHist(ttbarfile, (*var)+"_"+(*uco)+"_UP") );
-      _syst_dn_uncorr[top].push_back( GetHist(ttbarfile, (*var)+"_"+(*uco)+"_DN") );
-      _syst_up_uncorr[ z ].push_back( GetHist(znunufile, (*var)+"_"+(*uco)+"_UP") );
-      _syst_dn_uncorr[ z ].push_back( GetHist(znunufile, (*var)+"_"+(*uco)+"_DN") );
+      _syst_up_uncorr[qcd].push_back( GetHist(qcdfile, (*var)+"_"+(*uco)+"_UP", "finalPlot_method_UP") );
+      _syst_dn_uncorr[qcd].push_back( GetHist(qcdfile, (*var)+"_"+(*uco)+"_DN", "finalPlot_method_DN") );
+      _syst_up_uncorr[top].push_back( GetHist(ttbarfile, (*var)+"_"+(*uco)+"_UP", "finalPlot_method_UP") );
+      _syst_dn_uncorr[top].push_back( GetHist(ttbarfile, (*var)+"_"+(*uco)+"_DN", "finalPlot_method_DN") );
+      _syst_up_uncorr[ z ].push_back( GetHist(znunufile, (*var)+"_"+(*uco)+"_UP", "finalPlot_method_UP") );
+      _syst_dn_uncorr[ z ].push_back( GetHist(znunufile, (*var)+"_"+(*uco)+"_DN", "finalPlot_method_DN") );
     }
     
   }//loop over all 'final variables'
@@ -137,7 +161,7 @@ TH1 * handleHists::GetSyst(const std::string dir, const TH1*h1, const TH1*h2, co
     cont += (dir=="UP" ? sqrt(relquadsum->GetBinContent(bin)) : -sqrt(relquadsum->GetBinContent(bin)));  
     sum->SetBinContent(bin, cont );
   }	
-  sum->SetLineStyle( 12 ); //dashed
+  sum->SetLineStyle( 9 ); //dashed
   
   delete relquadsum;
   return sum; //abolute syst. uncertainty, i.e. *not* relative
@@ -173,7 +197,7 @@ void handleHists::PlotHistograms(const string out)
     
     string name = "hs_"+var;
     string titel = ";"+var+" [GeV]; events";
-    THStack st(name.c_str(),titel.c_str());
+    THStack st(name.c_str(),"");
     st.Add( *z );
     st.Add( *t );
     st.Add( *q );
@@ -183,12 +207,14 @@ void handleHists::PlotHistograms(const string out)
  
     double maximum = (*d)->GetMaximum()+sqrt((*d)->GetMaximum());
     if ((*s)->GetMaximum()>maximum) maximum = (*s)->GetMaximum();
-    if (syst_up->GetMaximum()>maximum) maximum = syst_up->GetMaximum();
-    if (maximum>st.GetMaximum()) st.SetMaximum(maximum);
-    st.SetMinimum(0);
+    if (st.GetMaximum()>maximum) maximum = st.GetMaximum();
+    if (maximum>syst_up->GetMaximum()) syst_up->SetMaximum(maximum);
+    syst_up->SetMinimum(0);
+    syst_up->SetTitle(titel.c_str());
+    syst_up->GetYaxis()->SetTitleOffset(1.4);
   
     TLegend leg(0.5,0.7,0.9,0.9);
-    leg.SetFillColor(0);leg.SetShadowColor(0);
+    leg.SetFillColor(0);//leg.SetShadowColor(0);
     if ( (*d)->Integral()>0. ) leg.AddEntry( (*d), "Data","pe");
     if ( (*s)->Integral()>0. ) leg.AddEntry( (*s), "Signal","l");
     if ( (*q)->Integral()>0. ) leg.AddEntry( (*q), "QCD","f");
@@ -196,9 +222,9 @@ void handleHists::PlotHistograms(const string out)
     if ( (*z)->Integral()>0. ) leg.AddEntry( (*z), "Z->invis.","f");
     if ( (*q)->Integral()+(*t)->Integral()+(*z)->Integral()>0. ) leg.AddEntry( syst_up, "total sys. uncert.","l");
   
-    st.Draw();               //stacked backgrounds
-    syst_up->Draw("h,same"); //syst.uncertainty band upper border
-    syst_dn->Draw("h,same"); //syst.uncertainty band upper border
+    syst_up->Draw("h");      //syst.uncertainty band upper border
+    st.Draw("same");         //stacked backgrounds
+    syst_dn->Draw("h,same"); //syst.uncertainty band lower border
     (*s)->Draw("h,same");    //signal
     (*d)->Draw("pe,same");   //data with stat. errors
     leg.Draw();              //legend    
@@ -232,7 +258,7 @@ void handleHists::Print()
  
     cout << setw(10) << (*d)->GetTitle()
          << "  d: "     << (*d)->Integral()
-	 << ", s: "     << (*d)->Integral()
+	 << ", s: "     << (*s)->Integral()
 	 << ", b: "     << b
 	 << " "         << showpos << syst_up->Integral()-b
 	 << " "         << showpos << syst_dn->Integral()-b << noshowpos
@@ -246,6 +272,7 @@ void handleHists::Print()
 handleHists::~handleHists()
 {
   //delete all histograms
+  /*
   for (map<const TH1*, vector<TH1*> >::iterator it=_syst_up_corr.begin();it!=_syst_up_corr.end(); ++it)
     for (vector<TH1*>::iterator i=it->second.begin(); i!=it->second.end();++i)      delete *i;
   for (map<const TH1*, vector<TH1*> >::iterator it=_syst_dn_corr.begin();it!=_syst_up_corr.end(); ++it)
@@ -259,6 +286,7 @@ handleHists::~handleHists()
   for (vector<TH1*>::iterator it=_znunu_hists.begin(); it!=_znunu_hists.end();++it)    delete *it;
   for (vector<TH1*>::iterator it=_signal_hists.begin(); it!=_signal_hists.end();++it)    delete *it;
   for (vector<TH1*>::iterator it=_data_hists.begin(); it!=_data_hists.end();++it)    delete *it;
+  */
   _syst_up_corr.clear(); 
   _syst_dn_corr.clear(); 
   _syst_up_uncorr.clear();

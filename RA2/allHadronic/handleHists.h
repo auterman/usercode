@@ -19,7 +19,7 @@ class handleHists
   void Print();
   
  private:
-  TH1 * GetHist(const std::string file, const std::string hist);
+  TH1 * GetHist(const std::string file, const std::string hist, const std::string treename="");
   TH1 * GetSyst(const std::string, const TH1*h1, const TH1*h2=0, const TH1*h3=0);
  
   std::vector<TH1*> _qcd_hists; 
