@@ -13,7 +13,7 @@
 //
 // Original Author:  Christian Autermann,68/112,2115,
 //         Created:  Sun Oct 18 20:00:45 CEST 2009
-// $Id$
+// $Id: FinalPlots.cc,v 1.1.1.1 2009/10/19 08:25:35 auterman Exp $
 //
 //
 
@@ -67,7 +67,7 @@ class FinalPlots : public edm::EDAnalyzer {
 FinalPlots::FinalPlots(const edm::ParameterSet& iConfig):
   Jet_(  iConfig.getParameter<edm::InputTag>("Jet") ),
   Met_(  iConfig.getParameter<edm::InputTag>("MET") ),
-  name_( iConfig.getParameter<std::string>("uncertainty_name") )  
+  name_( iConfig.getParameter<std::string>("uncertainty_name") )
 {
 }
 
