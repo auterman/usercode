@@ -29,3 +29,19 @@ finalPlot_method_DN = cms.EDAnalyzer('FinalPlots',
      MET              = cms.InputTag('layer1METs'),
      uncertainty_name = cms.string(  '_method_DN')
 )
+
+
+
+##E.g. for closure tests:
+finalPlot_MCtruth = cms.EDAnalyzer('FinalPlots',
+     Jet              = cms.InputTag('selectedLayer1Jets'),
+     MET              = cms.InputTag('layer1METs'),
+     uncertainty_name = cms.string(  '')
+)
+
+finalPlot_Prediction = cms.EDAnalyzer('FinalPlots',
+     Jet              = cms.InputTag('selectedLayer1Jets'),
+     MET              = cms.InputTag('layer1METs'),
+     uncertainty_name = cms.string(  '')
+)
+
