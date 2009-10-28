@@ -1,0 +1,18 @@
+<use name=FWCore/Framework>
+<use name=FWCore/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/ServiceRegistry>
+<use name=root>
+<use name=DataFormats/JetReco>
+<use name=DataFormats/METReco>
+<use name=DataFormats/Candidate>
+<flags EDM_PLUGIN=1>
+<export>
+   <lib name=RA2QCDSmearProd>
+   <use name=FWCore/Framework>
+   <use name=FWCore/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=DataFormats/JetReco>
+   <use name=DataFormats/METReco>
+   <use name=DataFormats/Candidate>
+</export>
