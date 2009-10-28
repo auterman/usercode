@@ -33,6 +33,8 @@ class handleHists
   std::map<const TH1*, std::vector<TH1*> > _syst_up_uncorr; //_backgd_hists[0]
   std::map<const TH1*, std::vector<TH1*> > _syst_dn_uncorr;
   
+  std::string ndata, nsignal, nznunu, nttbar, nqcd;
+  
   int _plotindex; //internal counter to make internal hist names unique
 };
 

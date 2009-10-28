@@ -27,7 +27,7 @@ TH1 * handleHists::GetHist(const string file, const string hist, const string tr
    //For debugging: if not all background are available, create an empty hist:
    if (file=="") {
      result = new TH1F(name.c_str(), hist.c_str(), 100, 0.0, 500.0);
-     result->Fill(20);
+     //result->Fill(20);
      return result;
    }//can delete this, as soon as all samples (incl. data) are available
 
@@ -56,10 +56,20 @@ handleHists::handleHists( ConfigFile* config)
 {
   _plotindex=0;
   string qcdfile    = config->read<string>("qcd-rootfile","");
+  string qcdtree    = config->read<string>("qcd-treename","");
+         nqcd       = config->read<string>("qcd-leg-name","QCD");
   string ttbarfile  = config->read<string>("ttbar-rootfile","");
+  string ttbartree  = config->read<string>("ttbar-treename","");
+         nttbar     = config->read<string>("ttbar-leg-name","t#bar{t}");
   string znunufile  = config->read<string>("znunu-rootfile","");
+  string znunutree  = config->read<string>("znunu-treename","");
+         nznunu     = config->read<string>("znunu-leg-name","Z#to#nu#nu");
   string signalfile = config->read<string>("signal-rootfile","");
+  string signaltree = config->read<string>("signal-treename","");
+         nsignal    = config->read<string>("signal-leg-name","Signal");
   string datafile   = config->read<string>("data-rootfile","");
+  string datatree   = config->read<string>("data-treename","");
+         ndata      = config->read<string>("data-leg-name","Data");
   
   vector<string> vars = bag_of_string(config->read<string>("final variables","HT"));
   vector<string> corr_unc = bag_of_string(config->read<string>("correlated uncertainties","JEC"));
@@ -69,11 +79,11 @@ handleHists::handleHists( ConfigFile* config)
   for (vector<string>::const_iterator var=vars.begin(); var!=vars.end(); ++var) {
 
     //read 'normal' histograms (without syst. uncertainties)
-    _data_hists.  push_back( GetHist(datafile, (*var), "finalPlot" ) );
-    _signal_hists.push_back( GetHist(signalfile, (*var), "finalPlot") );
-    TH1 * qcd = GetHist(qcdfile, (*var), "finalPlot");
-    TH1 * top = GetHist(ttbarfile, (*var), "finalPlot");
-    TH1 * z    = GetHist(znunufile, (*var), "finalPlot");
+    _data_hists.  push_back( GetHist(datafile, (*var), datatree ) );
+    _signal_hists.push_back( GetHist(signalfile, (*var), signaltree) );
+    TH1 * qcd = GetHist(qcdfile, (*var), qcdtree);
+    TH1 * top = GetHist(ttbarfile, (*var), ttbartree);
+    TH1 * z    = GetHist(znunufile, (*var), znunutree);
     _qcd_hists.   push_back( qcd );
     _ttbar_hists. push_back( top );
     _znunu_hists. push_back( z   );
@@ -169,6 +179,9 @@ TH1 * handleHists::GetSyst(const std::string dir, const TH1*h1, const TH1*h2, co
 
 void handleHists::PlotHistograms(const string out)
 {
+  gStyle->SetFrameBorderMode(0);
+  gStyle->SetFrameFillColor(0);
+  gStyle->SetTitleFillColor(0); 
   gStyle->SetOptStat(0);
   gStyle->SetCanvasColor(0);
   gStyle->SetHistFillColor(0);
@@ -194,6 +207,7 @@ void handleHists::PlotHistograms(const string out)
     (*z)->SetFillColor( kGreen );
     (*s)->SetLineColor( kRed );
     (*d)->SetMarkerStyle( 8 );
+    (*s)->SetLineWidth( 4 );
     
     string name = "hs_"+var;
     string titel = ";"+var+" [GeV]; events";
@@ -214,12 +228,12 @@ void handleHists::PlotHistograms(const string out)
     syst_up->GetYaxis()->SetTitleOffset(1.4);
   
     TLegend leg(0.5,0.7,0.9,0.9);
-    leg.SetFillColor(0);//leg.SetShadowColor(0);
-    if ( (*d)->Integral()>0. ) leg.AddEntry( (*d), "Data","pe");
-    if ( (*s)->Integral()>0. ) leg.AddEntry( (*s), "Signal","l");
-    if ( (*q)->Integral()>0. ) leg.AddEntry( (*q), "QCD","f");
-    if ( (*t)->Integral()>0. ) leg.AddEntry( (*t), "TTbar","f");
-    if ( (*z)->Integral()>0. ) leg.AddEntry( (*z), "Z->invis.","f");
+    leg.SetFillColor(0);leg.SetBorderSize(1);
+    if ( (*d)->Integral()>0. ) leg.AddEntry( (*d), ndata.c_str(),"pe");
+    if ( (*s)->Integral()>0. ) leg.AddEntry( (*s), nsignal.c_str(),"l");
+    if ( (*q)->Integral()>0. ) leg.AddEntry( (*q), nqcd.c_str(),"f");
+    if ( (*t)->Integral()>0. ) leg.AddEntry( (*t), nttbar.c_str(),"f");
+    if ( (*z)->Integral()>0. ) leg.AddEntry( (*z), nznunu.c_str(),"f");
     if ( (*q)->Integral()+(*t)->Integral()+(*z)->Integral()>0. ) leg.AddEntry( syst_up, "total sys. uncert.","l");
   
     syst_up->Draw("h");      //syst.uncertainty band upper border
