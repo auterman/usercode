@@ -13,7 +13,7 @@
 //
 // Original Author:  Christian Autermann,68/112,2115,
 //         Created:  Sun Oct 18 20:00:45 CEST 2009
-// $Id: FinalPlots.cc,v 1.4 2009/10/19 13:05:04 auterman Exp $
+// $Id: FinalPlots.cc,v 1.5 2009/10/19 15:02:33 auterman Exp $
 //
 //
 
@@ -54,10 +54,11 @@ class FinalPlots : public edm::EDAnalyzer {
       virtual void endJob() ;
 
       // ----------member data ---------------------------
-      
+      edm::InputTag weightName_;
       edm::InputTag Jet_;
       edm::InputTag Met_;
       std::string name_;
+      double weight_;
 
       TH1F * HT_;
       TH1F * MHT_;
@@ -66,6 +67,7 @@ class FinalPlots : public edm::EDAnalyzer {
 };
 
 FinalPlots::FinalPlots(const edm::ParameterSet& iConfig):
+  weightName_(  iConfig.getParameter<edm::InputTag>("weightName") ),
   Jet_(  iConfig.getParameter<edm::InputTag>("Jet") ),
   Met_(  iConfig.getParameter<edm::InputTag>("MET") ),
   name_( iConfig.getParameter<std::string>("uncertainty_name") )
@@ -113,13 +115,15 @@ FinalPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace edm;
    using namespace std;
 
+   edm::Handle< double > event_weight;
+   iEvent.getByLabel(weightName_, event_weight);
+   weight_ = (event_weight.isValid() ? (*event_weight) : 1.0);
 //**************************************************
 // This is for debugging purposes only !!!!!
-double weight = 1.0;
-if      (name_=="_JEC_UP")    weight = 1.08;
-else if (name_=="_JEC_DN")    weight = 0.92;
-else if (name_=="_method_UP") weight = 1.04;
-else if (name_=="_method_DN") weight = 0.96;
+if      (name_=="_JEC_UP")    weight *= 1.08;
+else if (name_=="_JEC_DN")    weight *= 0.92;
+else if (name_=="_method_UP") weight *= 1.04;
+else if (name_=="_method_DN") weight *= 0.96;
 // This is for debugging purposes only !!!!!
 //**************************************************
 

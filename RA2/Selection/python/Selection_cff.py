@@ -1,22 +1,39 @@
 import FWCore.ParameterSet.Config as cms
 
 from RA2.Selection.RA2SelectionDefault_cfi import *
-
 SelectionDefault = cms.EDFilter("Selection",
     selections = RA2SelectionDefault,
-    
-# only store what passes these selections
-# If empty, stores information on all events
     filterSelection = cms.vstring(
-    'JetPreSelection',
-    'PrimaryVertex', 
-    'DirectLeptonVeto',
-    'JetSelection',
-    'MET',
-    'METdPhiMin'
-  ),
-
-    # Weight to add to each event
-    #weightSource= cms.InputTag("Summer08WeightProducer"),
-    #eventWeight = cms.double(1)
+      'JetPreSelection',
+      'PrimaryVertex', 
+      'JetEMFrac', 
+      'ChargedFrac',
+      'LeptonVeto',
+      'JetSelection',
+      'MET',
+      'METdPhiMin'
+      #'HLTHT240'
+    ),
+    weightName = cms.InputTag('weightProducer:weight') 
 )
+RA2SelectionDefault.selectionSequence = SelectionDefault.filterSelection
+
+
+from RA2.Selection.RA2SelectionQCDSmear_cfi import *
+SelectionQCDSmear = cms.EDFilter("Selection",
+    selections = RA2SelectionQCDSmear,
+    filterSelection = cms.vstring(
+      'JetPreSelection',
+      'PrimaryVertex', 
+      'JetEMFrac', 
+      'ChargedFrac',
+      'LeptonVeto',
+      'JetSelection',
+      'MET',
+      'METdPhiMin'
+      #'HLTHT240'
+    ),
+    weightName = cms.InputTag('weightProducer:weight')
+)
+RA2SelectionQCDSmear.selectionSequence = SelectionQCDSmear.filterSelection
+

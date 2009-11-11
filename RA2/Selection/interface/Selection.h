@@ -44,6 +44,20 @@ private:
   SelectorSequence sequence_;                  ///< Interface to selectors
   std::vector<std::string> filterSelection_;   ///< Container for filter selection (i.e., hard cuts)
   std::vector<size_t> filterSelectionIndices_; ///< Selector indices for filter selection
+  edm::InputTag weightName_;
+  double weight_;                              ///event weight (if available, 1 otherwise)
+  unsigned Nevents;
+  
+  //Statistics
+  struct TStatistics{
+    //@@ FixMe: Make NTotal static!
+    TStatistics():NTotal(0),NSelected(0),Nminus1total(0),Nminus1(0),NCumulative(0){};
+    double NTotal,NSelected, Nminus1total, Nminus1, NCumulative;
+    double Eff(){ return (NTotal==0 ? 0.0 : NSelected/(double)NTotal); };
+    double EffNminus1(){ return (Nminus1total==0 ? 0.0 : Nminus1/(double)Nminus1total); };
+    double EffCumulative(){ return (NTotal==0 ? 0.0 : NCumulative/(double)NTotal); };
+  };
+  std::vector<TStatistics> SelectionStats_;
 };
 
 #endif
