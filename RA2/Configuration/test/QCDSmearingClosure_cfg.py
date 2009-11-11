@@ -9,8 +9,8 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32( -1 ) )
 process.source = cms.Source("PoolSource",
     # replace 'myfile.root' with the source file you want to use
     fileNames = cms.untracked.vstring(
-       'file:/rdata2/uhh-cms014/data/auterman/data/RelVal3_3_0TTbar-GEN-SIM-RECO-STARTUP31X_V8-v1.root'
-       #'/store/relval/CMSSW_3_3_0/RelValTTbar/GEN-SIM-RECO/STARTUP31X_V8-v1/0001/3291E09D-67B7-DE11-9ED6-003048678C9A.root'
+       #'file:/rdata2/uhh-cms014/data/auterman/data/RelVal3_3_0TTbar-GEN-SIM-RECO-STARTUP31X_V8-v1.root'
+       '/store/relval/CMSSW_3_3_0/RelValTTbar/GEN-SIM-RECO/STARTUP31X_V8-v1/0001/3291E09D-67B7-DE11-9ED6-003048678C9A.root'
     )
 )
 

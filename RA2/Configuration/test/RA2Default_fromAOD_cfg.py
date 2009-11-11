@@ -14,8 +14,8 @@ switchTo31Xdefaults(process)
 
 process.maxEvents.input = 100
 process.source.fileNames = [
-       #'/store/relval/CMSSW_3_3_0/RelValTTbar/GEN-SIM-RECO/STARTUP31X_V8-v1/0001/3291E09D-67B7-DE11-9ED6-003048678C9A.root'
-       'file:/rdata2/uhh-cms014/data/auterman/data/RelVal3_3_0TTbar-GEN-SIM-RECO-STARTUP31X_V8-v1.root'
+       '/store/relval/CMSSW_3_3_0/RelValTTbar/GEN-SIM-RECO/STARTUP31X_V8-v1/0001/3291E09D-67B7-DE11-9ED6-003048678C9A.root'
+       #'file:/rdata2/uhh-cms014/data/auterman/data/RelVal3_3_0TTbar-GEN-SIM-RECO-STARTUP31X_V8-v1.root'
     ]
 #process.MessageLogger.cout = cms.untracked.PSet(
 #        default = cms.untracked.PSet(
@@ -24,7 +24,7 @@ process.source.fileNames = [
 
 ## An event weight producer ----------------------------------------
 process.load("RA2.WeightProducer.weightproducer_cfi")
-process.weightProducer.weight = 2.0  # weight per event for this sample
+process.weightProducer.weight = 1.0  # weight per event for this sample
 
 ## The RA2 Selection -----------------------------------------------
 process.load("RA2.Selection.Selection_cff")
