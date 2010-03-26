@@ -1,0 +1,20 @@
+<use name=FWCore/Framework>
+<use name=FWCore/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=root>
+<use name=DataFormats/JetReco>
+<use name=DataFormats/PatCandidates>
+<use name=DataFormats/METReco>
+<use name=FWCore/ServiceRegistry>
+<use name=PhysicsTools/UtilAlgos>
+<use name=Geometry/CaloGeometry>
+<use name=Geometry/Records>
+<use name=TrackPropagation/SteppingHelixPropagator>
+
+<flags EDM_PLUGIN=1>
+<export>
+   <lib name=AnalysisFinalPlots>
+   <use name=FWCore/Framework>
+   <use name=FWCore/PluginManager>
+   <use name=FWCore/ParameterSet>
+</export>
