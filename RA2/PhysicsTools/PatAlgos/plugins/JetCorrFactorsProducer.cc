@@ -112,8 +112,11 @@ JetCorrFactorsProducer::JetCorrFactorsProducer(const edm::ParameterSet& iConfig)
     jetCorrectorB_       = new FactorizedJetCorrector(levels_, tags_, flavorTag(corr, type, kBeauty));
   }
 
-  if (uncertaintyName_.find("Uncertainty")!=std::string::npos)
-    jtuncrt_ = new JetCorrectionUncertainty( "CondFormats/JetMETObjects/data/"+uncertaintyName_+".txt" );
+  if (uncertaintyName_.find("Uncertainty")!=std::string::npos){
+    std::string fileName("CondFormats/JetMETObjects/data/"+uncertaintyName_+".txt");
+    edm::FileInPath fip(fileName);  
+    jtuncrt_ = new JetCorrectionUncertainty( fip.fullPath().c_str() );
+  }
   else       
     jtuncrt_ = 0;
 
