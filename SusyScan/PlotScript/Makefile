@@ -7,38 +7,40 @@ ROOTCFLAGS=$(shell root-config --cflags)
 ROOTLIBS=$(shell root-config --libs) -lMinuit
 
 CFLAGS = $(SPECIALFLAGS) -I. -I./include -I$(SRT_PUBLIC_CONTEXT)/include -I$(ROOTSYS)/include -Wno-deprecated -m32 -Wa,--32
-LFLAGS = $(SPECIALFLAGS) -L../../lib/$(SRT_SUBDIR)/ -lz -m32 -lg2c
+LFLAGS = $(SPECIALFLAGS) -L../../lib/$(SRT_SUBDIR)/ -lz -m32 
 
 
 RCXX=$(CFLAGS) $(ROOTCFLAGS)
 RLXX=$(LFLAGS) $(ROOTLIBS)
 
-SRC=scan.C
+SRC=SusyScan.cc ConfigFile.cc
 
-%.o: %.C
+%.o: %.cc
 		$(C) $(RCXX) -c $<
 
-all: runjunk
+all: scan plot
 
 
-scan.o: scan.C scan.h
-		$(C) $(RCXX) -c scan.C 
+ConfigFile.o: ConfigFile.cc ConfigFile.h
+		$(C) $(RCXX) -c ConfigFile.cc 
 
-runjunk: $(SRC:.C=.o) 
-		$(LD) $(SRC:.C=.o) $(RLXX) $(JCORR) -o crap
-		@echo '-> Calibration executable created.'
+SusyScan.o: SusyScan.cc SusyScan.h
+		$(C) $(RCXX) -c SusyScan.cc 
+
+scan.o: scan.cc scan.h
+		$(C) $(RCXX) -c scan.cc 
+
+scan: $(SRC:.cc=.o) scan.o 
+		$(LD) $(SRC:.cc=.o) scan.o $(RLXX) $(JCORR) -o scan
+		@echo '-> scan executable created.'
+
+plot.o: plot.cc plot.h
+		$(C) $(RCXX) -c plot.cc 
+
+plot: $(SRC:.cc=.o) plot.o 
+		$(LD) $(SRC:.cc=.o) plot.o $(RLXX) $(JCORR) -o plot
+		@echo '-> plot executable created.'
 
 clean:
-		@rm -rf ti_files
-		@rm -f *~
 		@rm -f *.o 
-		@rm -f *#
-		@rm -f .nfs*
-		@rm -f *.bkp
-		@rm -f crap
-		@rm -f *.ps
-		@rm -f *.eps
-		@rm -f *.cfi
-		@rm -f fort.*
-		@rm -f .#*
-
+		@rm -f scan plot
