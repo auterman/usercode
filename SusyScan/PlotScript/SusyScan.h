@@ -41,6 +41,36 @@ class SusyScan{
   double CLs_b_p2_obs;
   double CLsb_b_exp;
   double CLsb_b_obs;
+  
+  double M1;
+  double M2;
+  double M3;
+  double MGL;
+  double MUL;
+  double MB1;
+  double MSN;
+  double MNTAU;
+  double MZ1;
+  double MW1;
+  double MHL;
+  double MUR;
+  double MB2;
+  double MEL;
+  double MTAU1;
+  double MZ2;
+  double MW2;
+  double MHH;
+  double MDL;
+  double MT1;
+  double MER;
+  double MTAU2;
+  double MZ3;
+  double MHA;
+  double MDR;
+  double MT2;
+  double MZ4;
+  double MHp;
+
 
 };
 

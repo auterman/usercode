@@ -13,7 +13,7 @@ LFLAGS = $(SPECIALFLAGS) -L../../lib/$(SRT_SUBDIR)/ -lz -m32
 RCXX=$(CFLAGS) $(ROOTCFLAGS)
 RLXX=$(LFLAGS) $(ROOTLIBS)
 
-SRC=SusyScan.cc ConfigFile.cc
+SRC=SusyScan.cc ConfigFile.cc GeneratorMasses.cc IsoMassLine.cc TheLimits.cc 
 
 %.o: %.cc
 		$(C) $(RCXX) -c $<
@@ -26,6 +26,15 @@ ConfigFile.o: ConfigFile.cc ConfigFile.h
 
 SusyScan.o: SusyScan.cc SusyScan.h
 		$(C) $(RCXX) -c SusyScan.cc 
+
+GeneratorMasses.o: GeneratorMasses.cc GeneratorMasses.h
+		$(C) $(RCXX) -c GeneratorMasses.cc 
+
+IsoMassLine.o: IsoMassLine.cc IsoMassLine.h
+		$(C) $(RCXX) -c IsoMassLine.cc 
+
+TheLimits.o: TheLimits.cc TheLimits.h
+		$(C) $(RCXX) -c TheLimits.cc 
 
 scan.o: scan.cc scan.h
 		$(C) $(RCXX) -c scan.cc 
