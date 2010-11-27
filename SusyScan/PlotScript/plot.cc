@@ -3,6 +3,7 @@
 #include "GeneratorMasses.h"
 #include "PlotTools.h"
 #include "TheLimits.h"
+#include "GlobalFunctions.h"
 
 #include "TRint.h"
 #include "TROOT.h"
@@ -23,38 +24,17 @@
 #include <string>
 #include <cmath>
 
-const double Luminosity = 31.2; //[pb^-1]
-double Mzero(const SusyScan* p){ return p->Mzero; }
-double Mhalf(const SusyScan* p){ return p->Mhalf; }
-double MGluino(const SusyScan* p){ return p->MGL; }
-double MSquarkL(const SusyScan* p){ return p->MUL; }
-double MSquarkR(const SusyScan* p){ return p->MUR; }
-double MChi1(const SusyScan* p){ return p->MZ1; }
-double MChi2(const SusyScan* p){ return p->MZ2; }
-double MChi3(const SusyScan* p){ return p->MZ3; }
-double MChi4(const SusyScan* p){ return p->MZ4; }
-double MCha1(const SusyScan* p){ return p->MW1; }
-double MCha2(const SusyScan* p){ return p->MW2; }
-double Xsection(const SusyScan* p){ return p->Xsection; }
-double ExpXsecLimit(const SusyScan* p){ return p->ExpXsecLimit; }
-double ObsXsecLimit(const SusyScan* p){ return p->ObsXsecLimit; }
-double ExpExclusion(const SusyScan* p){ return (ExpXsecLimit(p)<Xsection(p)&&ExpXsecLimit(p)>0.01?1:-1); }
-double ObsExclusion(const SusyScan* p){ return (ObsXsecLimit(p)<Xsection(p)&&ObsXsecLimit(p)>0.01?1:-1); }
-double SoverSqrtB(const SusyScan* p){ return p->signal/(sqrt(p->background)+p->background_uncertainty+p->signal_uncertainty); }
-double XsecOverObserved(const SusyScan* p){ return (ObsXsecLimit(p)==0 ? 9999. : Xsection(p)/ObsXsecLimit(p)); }
-double XsecOverExpected(const SusyScan* p){ return (ObsXsecLimit(p)==0 ? 9999. : Xsection(p)/ObsXsecLimit(p)); }
-double SignalAcceptance(const SusyScan* p){ return  p->signal / (Luminosity*Xsection(p)); }
-double NSignExpLimit(const SusyScan* p){ return  p->signal * ExpXsecLimit(p)/Xsection(p); }
-  
 
 int plot(int argc, char** argv)
 {
+   //interactive root session
    TApplication theApp("App", 0, 0);
    if (gROOT->IsBatch()) {
       fprintf(stderr, "%s: cannot run in batch mode\n", argv[0]);
       return 1;
    }   
 
+   //Style stuff
    gStyle->SetHistFillColor(0);
    gStyle->SetPalette(1);
    gStyle->SetCanvasColor(0);
@@ -94,6 +74,7 @@ int plot(int argc, char** argv)
    c1->SetBottomMargin( 0.10 );
    c1->cd();
    
+   //Get limits and generator masses ---------------------------------------------------
    TheLimits * genpoints = new TheLimits();
    for (int i = 1; i<argc; ++i)
    {
@@ -102,9 +83,11 @@ int plot(int argc, char** argv)
    genpoints->FillGeneratorMasses("tb10_mu1_a0_massscan.dat");
    genpoints->match();
 
-   //c1->SetLogz(1);
 
+   //the plotting ----------------------------------------------------------------------
+   //c1->SetLogz(1);
    PlotTools<SusyScan> * plotTools = new PlotTools<SusyScan>(genpoints->GetScan());
+   PlotTools<GeneratorMasses> * plotMasses = new PlotTools<GeneratorMasses>(genpoints->GetGeneratorMasses());
 
    TH2F*h = new TH2F("xsec",";m_{0} [GeV]; m_{1/2} [GeV]; x-section [pb]",
                      100,0,1009.9,50,0,500);
@@ -114,7 +97,8 @@ int plot(int argc, char** argv)
    //plotTools->Area(h, Mzero, Mhalf, XsecOverExpected);
    //plotTools->Area(h, Mzero, Mhalf, SignalAcceptance);
    //plotTools->Area(h, Mzero, Mhalf, NSignExpLimit);
-   plotTools->Area(h, Mzero, Mhalf, ObsExclusion);
+   //plotTools->Area(h, Mzero, Mhalf, ObsExclusion);
+   plotTools->Area(h, Mzero, Mhalf, ExpExclusion);
    //h->SetMaximum(27);
    //h->SetMinimum(0.01);
    //c1->SetLogz(1);
@@ -125,8 +109,14 @@ int plot(int argc, char** argv)
    TGraph * gl500 = plotTools->Line(Mzero, Mhalf, MGluino, 500);
    gl500->Draw();
 
-   TGraph * sq500 = plotTools->Line(Mzero, Mhalf, MSquarkL, 500, 10);
+   TGraph * sq500 = plotTools->Line(Mzero, Mhalf, MSquarkL, 500, 8);
+   sq500->SetLineWidth(2);
    sq500->Draw();
+
+   TGraph * sq500_m = plotMasses->Line(Mzero, Mhalf, MSquarkL, 500, 10);
+   sq500_m->SetLineWidth(2); sq500_m->SetLineColor(7);
+   sq500_m->Draw();
+   
 
    TH2F*h_qg = new TH2F("AccMGMSQ",";m_{#tilde{q}} [GeV]; m_{#tilde{g}} [GeV]; signal acceptance",
                      60,200,1400,50,200,1200);
