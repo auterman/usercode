@@ -1,7 +1,7 @@
 #include "plot.h"
 #include "SusyScan.h"
 #include "GeneratorMasses.h"
-#include "IsoMassLine.h"
+#include "PlotTools.h"
 #include "TheLimits.h"
 
 #include "TRint.h"
@@ -57,8 +57,6 @@ int plot(int argc, char** argv)
 
    gStyle->SetHistFillColor(0);
    gStyle->SetPalette(1);
-   //gStyle->SetFillColor(0);
-   //gStyle->SetOptStat(kFALSE);
    gStyle->SetCanvasColor(0);
    gStyle->SetCanvasBorderMode(0);
    gStyle->SetPadColor(0);
@@ -97,26 +95,26 @@ int plot(int argc, char** argv)
    c1->cd();
    
    std::vector<GeneratorMasses> genmasses = FillGeneratorMasses("tb10_mu1_a0_massscan.dat");
-   TheLimits * doIt = new TheLimits();
+   TheLimits * genpoints = new TheLimits();
    for (int i = 1; i<argc; ++i)
    {
-     doIt->add( new SusyScan(argv[i]) );
+     genpoints->add( new SusyScan(argv[i]) );
    }
-   doIt->match(genmasses);
+   genpoints->match(genmasses);
 
    //c1->SetLogz(1);
 
-   IsoMassLine<SusyScan> * mline = new IsoMassLine<SusyScan>(doIt->GetScan());
+   PlotTools<SusyScan> * plotTools = new PlotTools<SusyScan>(genpoints->GetScan());
 
    TH2F*h = new TH2F("xsec",";m_{0} [GeV]; m_{1/2} [GeV]; x-section [pb]",
                      100,0,1009.9,50,0,500);
-   //doIt->plot(h, Mzero, Mhalf, ObsXsecLimit);
-   //doIt->plot(h, Mzero, Mhalf, Xsection);
-   //doIt->plot(h, Mzero, Mhalf, XsecOverObserved);
-   //doIt->plot(h, Mzero, Mhalf, XsecOverExpected);
-   //doIt->plot(h, Mzero, Mhalf, SignalAcceptance);
-   //doIt->plot(h, Mzero, Mhalf, NSignExpLimit);
-   doIt->plot(h, Mzero, Mhalf, ObsExclusion);
+   //plotTools->Area(h, Mzero, Mhalf, ObsXsecLimit);
+   //plotTools->Area(h, Mzero, Mhalf, Xsection);
+   //plotTools->Area(h, Mzero, Mhalf, XsecOverObserved);
+   //plotTools->Area(h, Mzero, Mhalf, XsecOverExpected);
+   //plotTools->Area(h, Mzero, Mhalf, SignalAcceptance);
+   //plotTools->Area(h, Mzero, Mhalf, NSignExpLimit);
+   plotTools->Area(h, Mzero, Mhalf, ObsExclusion);
    //h->SetMaximum(27);
    //h->SetMinimum(0.01);
    //c1->SetLogz(1);
@@ -124,16 +122,16 @@ int plot(int argc, char** argv)
    h->GetZaxis()->SetTitleOffset(1.2);
    h->Draw("colz");
    
-   TGraph * gl500 = mline->get(Mzero, Mhalf, MGluino, 500);
+   TGraph * gl500 = plotTools->Line(Mzero, Mhalf, MGluino, 500);
    gl500->Draw();
 
-   TGraph * sq500 = mline->get(Mzero, Mhalf, MSquarkL, 500, 10);
+   TGraph * sq500 = plotTools->Line(Mzero, Mhalf, MSquarkL, 500, 10);
    sq500->Draw();
 
    TH2F*h_qg = new TH2F("AccMGMSQ",";m_{#tilde{q}} [GeV]; m_{#tilde{g}} [GeV]; signal acceptance",
                      60,200,1400,50,200,1200);
-   doIt->plot(h_qg, MSquarkL, MGluino, SignalAcceptance);
-   doIt->plot(h_qg, MSquarkL, MGluino, NSignExpLimit);
+   plotTools->Area(h_qg, MSquarkL, MGluino, SignalAcceptance);
+   plotTools->Area(h_qg, MSquarkL, MGluino, NSignExpLimit);
    //h_qg->SetMaximum(1.0);
    h_qg->SetMinimum(0.01);
 
@@ -152,7 +150,5 @@ int plot(int argc, char** argv)
 
 int main(int argc, char** argv)
 {
- // TRint *theApp = new TRint("ROOT example", &argc, argv);
-  
   return plot(argc, argv);
 }

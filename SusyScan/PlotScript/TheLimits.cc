@@ -1,30 +1,17 @@
 #include "TheLimits.h"
 #include "SusyScan.h"
 #include "GeneratorMasses.h"
-#include "IsoMassLine.h"
-#include "TGraph.h"
-
-#include "TH2.h"
-#include "TH2F.h"
-
-void TheLimits::plot(TH2*h, double(*x)(const SusyScan*), double(*y)(const SusyScan*), double(*f)(const SusyScan*) )
-{
-  for (std::vector<SusyScan*>::const_iterator it=_scan.begin();it!=_scan.end();++it )
-    //h->Fill( x(*it), y(*it), f(*it) );
-    h->SetBinContent( h->GetXaxis()->FindBin(x(*it)), 
-                      h->GetYaxis()->FindBin(y(*it)), f(*it) );
-}
 
 void TheLimits::match(const std::vector<GeneratorMasses> genm)
 {
   for (std::vector<SusyScan*>::iterator it=_scan.begin();it!=_scan.end();++it){
     bool match = false;
     for (std::vector<GeneratorMasses>::const_iterator gt=genm.begin();gt!=genm.end();++gt){
-      if ((*it)->Mzero==gt->MZERO && 
-          (*it)->Mhalf==gt->MHALF && 
-	  (*it)->Azero==gt->AZERO &&
-	  (*it)->TanBeta==gt->TANB &&
-	  (*it)->Mu==gt->SGNMU ) {
+      if ((*it)->Mzero==gt->Mzero && 
+          (*it)->Mhalf==gt->Mhalf && 
+	  (*it)->Azero==gt->Azero &&
+	  (*it)->TanBeta==gt->TanBeta &&
+	  (*it)->Mu==gt->Mu ) {
         (*it)->M1 = gt->M1;
         (*it)->M2 = gt->M2;
         (*it)->M3 = gt->M3;

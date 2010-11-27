@@ -13,7 +13,7 @@ LFLAGS = $(SPECIALFLAGS) -L../../lib/$(SRT_SUBDIR)/ -lz -m32
 RCXX=$(CFLAGS) $(ROOTCFLAGS)
 RLXX=$(LFLAGS) $(ROOTLIBS)
 
-SRC=SusyScan.cc ConfigFile.cc GeneratorMasses.cc IsoMassLine.cc TheLimits.cc 
+SRC=SusyScan.cc ConfigFile.cc GeneratorMasses.cc PlotTools.cc TheLimits.cc 
 
 %.o: %.cc
 		$(C) $(RCXX) -c $<
@@ -30,18 +30,11 @@ SusyScan.o: SusyScan.cc SusyScan.h
 GeneratorMasses.o: GeneratorMasses.cc GeneratorMasses.h
 		$(C) $(RCXX) -c GeneratorMasses.cc 
 
-IsoMassLine.o: IsoMassLine.cc IsoMassLine.h
-		$(C) $(RCXX) -c IsoMassLine.cc 
+PlotTools.o: PlotTools.cc PlotTools.h
+		$(C) $(RCXX) -c PlotTools.cc 
 
 TheLimits.o: TheLimits.cc TheLimits.h
 		$(C) $(RCXX) -c TheLimits.cc 
-
-scan.o: scan.cc scan.h
-		$(C) $(RCXX) -c scan.cc 
-
-scan: $(SRC:.cc=.o) scan.o 
-		$(LD) $(SRC:.cc=.o) scan.o $(RLXX) $(JCORR) -o scan
-		@echo '-> scan executable created.'
 
 plot.o: plot.cc plot.h
 		$(C) $(RCXX) -c plot.cc 

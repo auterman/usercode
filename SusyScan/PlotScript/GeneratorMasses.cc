@@ -12,12 +12,12 @@ std::vector<GeneratorMasses> FillGeneratorMasses(std::string file)
    std::vector<GeneratorMasses> points;
    while (1) {
       GeneratorMasses p;
-      masses_file >> p.MZERO      
-                  >> p.MHALF	  
-                  >> p.TANB	  
-                  >> p.SGNMU	  
-                  >> p.AZERO	  
-                  >> p.MTOP	  
+      masses_file >> p.Mzero
+                  >> p.Mhalf
+                  >> p.TanBeta
+                  >> p.Mu  
+                  >> p.Azero
+                  >> p.Mtop  
                   >> p.muQ	  
                   >> p.Q	  
                   >> p.M1	  
@@ -50,8 +50,8 @@ std::vector<GeneratorMasses> FillGeneratorMasses(std::string file)
                   >> p.MHp;
 
       if (!masses_file.good()) break;
-      if (fabs(p.SGNMU)!=1.) {
-         std::cerr << "check lines near m0=" << p.MZERO << ", m1/2=" << p.MHALF	 << std::endl;
+      if (fabs(p.Mu)!=1.) {
+         std::cerr << "check lines near m0=" << p.Mzero << ", m1/2=" << p.Mhalf	 << std::endl;
          break;
       }	
       points.push_back( p );

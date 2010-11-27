@@ -7,12 +7,12 @@
 class GeneratorMasses {
  public:
 //  GeneratorMasses(){}
-  double MZERO;
-  double MHALF;
-  double TANB;
-  double SGNMU;
-  double AZERO;
-  double MTOP;
+  double Mzero;
+  double Mhalf;
+  double TanBeta;
+  double Mu;
+  double Azero;
+  double Mtop;
   double muQ;
   double Q;
   double M1;

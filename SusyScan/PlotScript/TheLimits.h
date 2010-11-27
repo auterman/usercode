@@ -12,7 +12,6 @@ class TheLimits{
   TheLimits(){}
 
   void add(SusyScan*s){_scan.push_back(s);}
-  void plot(TH2*, double(*x)(const SusyScan*), double(*y)(const SusyScan*), double(*f)(const SusyScan*) );
   void match(const std::vector<GeneratorMasses>);
   
   std::vector<SusyScan*> * GetScan(){return &_scan;}
