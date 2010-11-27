@@ -106,7 +106,7 @@ int plot(int argc, char** argv)
 
    //c1->SetLogz(1);
 
-   IsoMassLine * mline = new IsoMassLine(doIt->GetScan());
+   IsoMassLine<SusyScan> * mline = new IsoMassLine<SusyScan>(doIt->GetScan());
 
    TH2F*h = new TH2F("xsec",";m_{0} [GeV]; m_{1/2} [GeV]; x-section [pb]",
                      100,0,1009.9,50,0,500);

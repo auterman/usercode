@@ -2,6 +2,7 @@
 #include "SusyScan.h"
 #include "GeneratorMasses.h"
 #include "IsoMassLine.h"
+#include "TGraph.h"
 
 #include "TH2.h"
 #include "TH2F.h"
