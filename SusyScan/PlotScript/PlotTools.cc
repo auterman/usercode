@@ -15,7 +15,7 @@
 
 template<class T>
 TGraph * PlotTools<T>::Line( double(*x)(const T*), double(*y)(const T*), 
-                              double(*func)(const T*), const double mass, const double diff )
+                             double(*func)(const T*), const double mass, const double diff )
 {
   TGraph * result = new TGraph(1);
   std::sort(_scan->begin(),_scan->end(),sort_by(x));
@@ -30,7 +30,7 @@ TGraph * PlotTools<T>::Line( double(*x)(const T*), double(*y)(const T*),
 
 template<class T>
 void PlotTools<T>::Area( TH2*h, double(*x)(const T*), double(*y)(const T*), 
-                                  double(*f)(const T*) )
+                         double(*f)(const T*) )
 {
   for (typename std::vector<T*>::const_iterator it=_scan->begin();it!=_scan->end();++it){
     h->SetBinContent( h->GetXaxis()->FindBin(x(*it)), 

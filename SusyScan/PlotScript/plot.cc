@@ -94,13 +94,13 @@ int plot(int argc, char** argv)
    c1->SetBottomMargin( 0.10 );
    c1->cd();
    
-   std::vector<GeneratorMasses> genmasses = FillGeneratorMasses("tb10_mu1_a0_massscan.dat");
    TheLimits * genpoints = new TheLimits();
    for (int i = 1; i<argc; ++i)
    {
      genpoints->add( new SusyScan(argv[i]) );
    }
-   genpoints->match(genmasses);
+   genpoints->FillGeneratorMasses("tb10_mu1_a0_massscan.dat");
+   genpoints->match();
 
    //c1->SetLogz(1);
 

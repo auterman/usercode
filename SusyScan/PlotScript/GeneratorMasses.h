@@ -45,6 +45,4 @@ class GeneratorMasses {
   double MHp;
 };
 
-std::vector<GeneratorMasses> FillGeneratorMasses(std::string file);
-
 #endif

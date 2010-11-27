@@ -2,6 +2,7 @@
 #define THELIMITS_H
 
 #include <vector>
+#include <string>
 
 class SusyScan;
 class TH2;
@@ -12,12 +13,16 @@ class TheLimits{
   TheLimits(){}
 
   void add(SusyScan*s){_scan.push_back(s);}
-  void match(const std::vector<GeneratorMasses>);
+  void FillGeneratorMasses(std::string file);
+
+  void match();
   
   std::vector<SusyScan*> * GetScan(){return &_scan;}
+  std::vector<GeneratorMasses*> * GetGeneratorMasses(){return &_masses;}
   
  private:
-  std::vector<SusyScan*> _scan;
+  std::vector<SusyScan*> _scan; 
+  std::vector<GeneratorMasses*> _masses;
 };
 
 

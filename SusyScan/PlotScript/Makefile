@@ -18,7 +18,7 @@ SRC=SusyScan.cc ConfigFile.cc GeneratorMasses.cc PlotTools.cc TheLimits.cc
 %.o: %.cc
 		$(C) $(RCXX) -c $<
 
-all: scan plot
+all: plot
 
 
 ConfigFile.o: ConfigFile.cc ConfigFile.h
