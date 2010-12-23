@@ -25,7 +25,8 @@ double SoverSqrtB(const SusyScan* p){ return p->signal/(sqrt(p->background)+p->b
 double XsecOverObserved(const SusyScan* p){ return (ObsXsecLimit(p)==0 ? 9999. : Xsection(p)/ObsXsecLimit(p)); }
 double XsecOverExpected(const SusyScan* p){ return (ObsXsecLimit(p)==0 ? 9999. : Xsection(p)/ObsXsecLimit(p)); }
 double SignalAcceptance(const SusyScan* p){ return  p->signal / (Luminosity*Xsection(p)); }
-double NSignExpLimit(const SusyScan* p){ return  p->signal * ExpXsecLimit(p)/Xsection(p); }
+double ExpNSignLimit(const SusyScan* p){ return  p->signal * ExpXsecLimit(p)/Xsection(p); }
+double ObsNSignLimit(const SusyScan* p){ return  p->signal * ObsXsecLimit(p)/Xsection(p); }
 
 
 

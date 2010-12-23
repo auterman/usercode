@@ -28,7 +28,7 @@
 int plot(int argc, char** argv)
 {
    //interactive root session
-   TApplication theApp("App", 0, 0);
+   //TApplication theApp("App", 0, 0);
    if (gROOT->IsBatch()) {
       fprintf(stderr, "%s: cannot run in batch mode\n", argv[0]);
       return 1;
@@ -85,56 +85,177 @@ int plot(int argc, char** argv)
 
 
    //the plotting ----------------------------------------------------------------------
-   //c1->SetLogz(1);
+   //plotting helper functions
    PlotTools<SusyScan> * plotTools = new PlotTools<SusyScan>(genpoints->GetScan());
    PlotTools<GeneratorMasses> * plotMasses = new PlotTools<GeneratorMasses>(genpoints->GetGeneratorMasses());
 
-   TH2F*h = new TH2F("xsec",";m_{0} [GeV]; m_{1/2} [GeV]; x-section [pb]",
-                     100,0,1009.9,50,0,500);
-   //plotTools->Area(h, Mzero, Mhalf, ObsXsecLimit);
-   //plotTools->Area(h, Mzero, Mhalf, Xsection);
-   //plotTools->Area(h, Mzero, Mhalf, XsecOverObserved);
-   //plotTools->Area(h, Mzero, Mhalf, XsecOverExpected);
-   //plotTools->Area(h, Mzero, Mhalf, SignalAcceptance);
-   //plotTools->Area(h, Mzero, Mhalf, NSignExpLimit);
-   //plotTools->Area(h, Mzero, Mhalf, ObsExclusion);
-   plotTools->Area(h, Mzero, Mhalf, ExpExclusion);
+   //iso mass lines
+   TGraph * gl500 = plotMasses->Line(Mzero, Mhalf, MGluino, 500);
+   TGraph * sq500 = plotMasses->Line(Mzero, Mhalf, MSquarkL, 500, 10);
+   sq500->SetLineWidth(2); sq500->SetLineColor(7);
+
+   TGraph * chi100 = plotMasses->Line(Mzero, Mhalf, MChi1, 50, 20);
+   TGraph * cha200 = plotMasses->Line(Mzero, Mhalf, MCha1, 200, 20);
+   cha200->SetLineColor(2);
+
+   //the histograms
+   c1->SetLogz(1);
    //h->SetMaximum(27);
    //h->SetMinimum(0.01);
-   //c1->SetLogz(1);
-   h->GetYaxis()->SetTitleOffset(1.3);
-   h->GetZaxis()->SetTitleOffset(1.2);
-   h->Draw("colz");
    
-   TGraph * gl500 = plotTools->Line(Mzero, Mhalf, MGluino, 500);
-   gl500->Draw();
-
-   TGraph * sq500 = plotTools->Line(Mzero, Mhalf, MSquarkL, 500, 8);
-   sq500->SetLineWidth(2);
-   sq500->Draw();
-
-   TGraph * sq500_m = plotMasses->Line(Mzero, Mhalf, MSquarkL, 500, 10);
-   sq500_m->SetLineWidth(2); sq500_m->SetLineColor(7);
-   sq500_m->Draw();
+   // cross-section in M0 - M1/2
+   TH2F*hxsec = new TH2F("xsec",";m_{0} [GeV]; m_{1/2} [GeV]; cross section [pb]",
+                     100,0,1009.9,50,0,500);
+   plotTools->Area(hxsec, Mzero, Mhalf, Xsection);
+   hxsec->SetMinimum(0.01);
+   //sq500->Draw();
+   //gl500->Draw();
+   hxsec->Draw("colz");
+   c1->SaveAs("results/Xsection_m0_m12.png");
+   std::string wait;
+   //std::cin>>wait;
    
+   // Observed Limit in M0 - M1/2
+   TH2F*hobslimit = new TH2F("obslimit",";m_{0} [GeV]; m_{1/2} [GeV]; 95% CL Observed Limit [pb]",
+                     100,0,1009.9,50,0,500);
+   plotTools->Area(hobslimit, Mzero, Mhalf, ObsXsecLimit);
+   hobslimit->SetMinimum(0.01);
+   hobslimit->Draw("colz");
+   c1->SaveAs("results/ObsLimit_m0_m12.png");
+   
+   // Expected Limit in M0 - M1/2
+   TH2F*hexplimit = new TH2F("explimit",";m_{0} [GeV]; m_{1/2} [GeV]; 95% CL Expected Limit [pb]",
+                     100,0,1009.9,50,0,500);
+   plotTools->Area(hexplimit, Mzero, Mhalf, ExpXsecLimit);
+   hexplimit->SetMinimum(0.01);
+   hexplimit->Draw("colz");
+   c1->SaveAs("results/ExpLimit_m0_m12.png");
+   
+   // Signal Acceptance in M0 - M1/2
+   TH2F*hsigacc = new TH2F("sigacc",";m_{0} [GeV]; m_{1/2} [GeV]; Signal Acceptance",
+                     100,0,1009.9,50,0,500);
+   plotTools->Area(hsigacc, Mzero, Mhalf, SignalAcceptance);
+   hsigacc->SetMinimum(0.01);
+   hsigacc->SetMaximum(1.0);
+   hsigacc->Draw("colz");
+   chi100->Draw();
+   cha200->Draw();
+   gl500 ->Draw();
+    sq500 ->Draw();
+   c1->SaveAs("results/SigAcc_m0_m12.png");
+   
+   // Exp. Limit on Number of Signal Events in M0 - M1/2
+   TH2F*hexplimitnsig = new TH2F("explimitnsig",";m_{0} [GeV]; m_{1/2} [GeV]; 95% CL exp. limit signal events [# ]",
+                     100,0,1009.9,50,0,500);
+   plotTools->Area(hexplimitnsig, Mzero, Mhalf, ExpNSignLimit);
+   hexplimitnsig->SetMinimum(0.01);
+   hexplimitnsig->Draw("colz");
+   c1->SaveAs("results/ExpLimitOnNSig_m0_m12.png");
+   
+   // Obs. Limit on Number of Signal Events in M0 - M1/2
+   TH2F*hobslimitnsig = new TH2F("obslimitnsig",";m_{0} [GeV]; m_{1/2} [GeV]; 95% CL obs. limit signal events [# ]",
+                     100,0,1009.9,50,0,500);
+   plotTools->Area(hobslimitnsig, Mzero, Mhalf, ObsNSignLimit);
+   hobslimitnsig->SetMinimum(0.01);
+   hobslimitnsig->Draw("colz");
+   c1->SaveAs("results/ObsLimitOnNSig_m0_m12.png");
+   
+   c1->SetLogz(0);
+   // Expected Exclusion in M0 - M1/2
+   TH2F*hexpexcl = new TH2F("expexcl",";m_{0} [GeV]; m_{1/2} [GeV]; 95% CL Expected Exclusion",
+                     100,0,1009.9,50,0,500);
+   plotTools->Area(hexpexcl, Mzero, Mhalf, ExpExclusion);
+   hexpexcl->Draw("colz");
+   c1->SaveAs("results/ExpExclusion_m0_m12.png");
+   
+   // Observed Exclusion in M0 - M1/2
+   TH2F*hobsexcl = new TH2F("obsexcl",";m_{0} [GeV]; m_{1/2} [GeV]; 95% CL Observed Exclusion",
+                     100,0,1009.9,50,0,500);
+   plotTools->Area(hobsexcl, Mzero, Mhalf, ObsExclusion);
+   hobsexcl->Draw("colz");
+   c1->SaveAs("results/ObsExclusion_m0_m12.png");
 
-   TH2F*h_qg = new TH2F("AccMGMSQ",";m_{#tilde{q}} [GeV]; m_{#tilde{g}} [GeV]; signal acceptance",
+   //plotTools->Area(h, Mzero, Mhalf, XsecOverObserved);
+   //plotTools->Area(h, Mzero, Mhalf, XsecOverExpected);
+
+
+   //-----------------------------------------------------------------------------------
+   c1->SetLogz(1);
+
+   TGraph * mz500 = plotMasses->Line( MSquarkL, MGluino, Mzero, 500, 1);
+   TGraph * mh250 = plotMasses->Line( MSquarkL, MGluino, Mhalf, 250, 1);
+
+   // cross-section in M0 - M1/2
+   TH2F*hxsec_qg = new TH2F("xsec_qg",";m_{#tilde{q}} [GeV]; m_{#tilde{g}} [GeV]; cross section [pb]",
                      60,200,1400,50,200,1200);
-   plotTools->Area(h_qg, MSquarkL, MGluino, SignalAcceptance);
-   plotTools->Area(h_qg, MSquarkL, MGluino, NSignExpLimit);
-   //h_qg->SetMaximum(1.0);
-   h_qg->SetMinimum(0.01);
-
-   //c1->SetLogz(1);
-   h_qg->GetYaxis()->SetTitleOffset(1.3);
-   //h_qg->Draw("colz");
+   plotTools->Area(hxsec_qg, MSquarkL, MGluino, Xsection);
+   hxsec_qg->SetMinimum(0.01);
+   hxsec_qg->Draw("colz");
+   mz500->Draw();
+   mh250->Draw();
+   c1->SaveAs("results/Xsection_mSql_mGl.png");
    
+   // Observed Limit in M0 - M1/2
+   TH2F*hobslimit_qg = new TH2F("obslimit_qg",";m_{#tilde{q}} [GeV]; m_{#tilde{g}} [GeV]; 95% CL Observed Limit [pb]",
+                     60,200,1400,50,200,1200);
+   plotTools->Area(hobslimit_qg, MSquarkL, MGluino, ObsXsecLimit);
+   hobslimit_qg->SetMinimum(0.01);
+   hobslimit_qg->Draw("colz");
+   c1->SaveAs("results/ObsLimit_mSql_mGl.png");
+   
+   // Expected Limit in M0 - M1/2
+   TH2F*hexplimit_qg = new TH2F("explimit_qg",";m_{#tilde{q}} [GeV]; m_{#tilde{g}} [GeV]; 95% CL Expected Limit [pb]",
+                     60,200,1400,50,200,1200);
+   plotTools->Area(hexplimit_qg, MSquarkL, MGluino, ExpXsecLimit);
+   hexplimit_qg->SetMinimum(0.01);
+   hexplimit_qg->Draw("colz");
+   c1->SaveAs("results/ExpLimit_mSql_mGl.png");
+   
+   // Signal Acceptance in M0 - M1/2
+   TH2F*hsigacc_qg = new TH2F("sigacc_qg",";m_{#tilde{q}} [GeV]; m_{#tilde{g}} [GeV]; Signal Acceptance",
+                     60,200,1400,50,200,1200);
+   plotTools->Area(hsigacc_qg, MSquarkL, MGluino, SignalAcceptance);
+   hsigacc_qg->SetMinimum(0.01);
+   hsigacc_qg->SetMaximum(1.0);
+   hsigacc_qg->Draw("colz");
+   c1->SaveAs("results/SigAcc_mSql_mGl.png");
+   
+   // Exp. Limit on Number of Signal Events in M0 - M1/2
+   TH2F*hexplimitnsig_qg = new TH2F("explimitnsig_qg",";m_{#tilde{q}} [GeV]; m_{#tilde{g}} [GeV]; 95% CL exp. limit signal events [# ]",
+                     60,200,1400,50,200,1200);
+   plotTools->Area(hexplimitnsig_qg, MSquarkL, MGluino, ExpNSignLimit);
+   hexplimitnsig_qg->SetMinimum(0.01);
+   hexplimitnsig_qg->Draw("colz");
+   c1->SaveAs("results/ExpLimitOnNSig_mSql_mGl.png");
+   
+   // Obs. Limit on Number of Signal Events in M0 - M1/2
+   TH2F*hobslimitnsig_qg = new TH2F("obslimitnsig_qg",";m_{#tilde{q}} [GeV]; m_{#tilde{g}} [GeV]; 95% CL obs. limit signal events [# ]",
+                     60,200,1400,50,200,1200);
+   plotTools->Area(hobslimitnsig_qg, MSquarkL, MGluino, ObsNSignLimit);
+   hobslimitnsig_qg->SetMinimum(0.01);
+   hobslimitnsig_qg->Draw("colz");
+   c1->SaveAs("results/ObsLimitOnNSig_mSql_mGl.png");
+   
+   c1->SetLogz(0);
+   // Expected Exclusion in M0 - M1/2
+   TH2F*hexpexcl_qg = new TH2F("expexcl_qg",";m_{#tilde{q}} [GeV]; m_{#tilde{g}} [GeV]; 95% CL Expected Exclusion",
+                     60,200,1400,50,200,1200);
+   plotTools->Area(hexpexcl_qg, MSquarkL, MGluino, ExpExclusion);
+   hexpexcl_qg->Draw("colz");
+   c1->SaveAs("results/ExpExclusion_mSql_mGl.png");
+   
+   // Observed Exclusion in M0 - M1/2
+   TH2F*hobsexcl_qg = new TH2F("obsexcl_qg",";m_{#tilde{q}} [GeV]; m_{#tilde{g}} [GeV]; 95% CL Observed Exclusion",
+                     60,200,1400,50,200,1200);
+   plotTools->Area(hobsexcl_qg, MSquarkL, MGluino, ObsExclusion);
+   hobsexcl_qg->Draw("colz");
+   c1->SaveAs("results/ObsExclusion_mSql_mGl.png");
    
    
    //c1->SaveAs("plot.pdf");
 
 
-   theApp.Run();
+   //theApp.Run();
 }
 
 
