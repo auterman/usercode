@@ -19,8 +19,8 @@ double MCha2(const SusyScan* p){ return p->MW2; }
 double Xsection(const SusyScan* p){ return p->Xsection; }
 double ExpXsecLimit(const SusyScan* p){ return p->ExpXsecLimit; }
 double ObsXsecLimit(const SusyScan* p){ return p->ObsXsecLimit; }
-double ExpExclusion(const SusyScan* p){ return (ExpXsecLimit(p)<Xsection(p)&&ExpXsecLimit(p)>0.01?0.01:1); }
-double ObsExclusion(const SusyScan* p){ return (ObsXsecLimit(p)<Xsection(p)&&ObsXsecLimit(p)>0.01?0.01:1); }
+double ExpExclusion(const SusyScan* p){ return (ExpXsecLimit(p)<Xsection(p)&&ExpXsecLimit(p)>0.01?1:0.01); }
+double ObsExclusion(const SusyScan* p){ return (ObsXsecLimit(p)<Xsection(p)&&ObsXsecLimit(p)>0.01?1:0.01); }
 double SoverSqrtB(const SusyScan* p){ return p->signal/(sqrt(p->background)+p->background_uncertainty+p->signal_uncertainty); }
 double XsecOverObserved(const SusyScan* p){ return (ObsXsecLimit(p)==0 ? 9999. : Xsection(p)/ObsXsecLimit(p)); }
 double XsecOverExpected(const SusyScan* p){ return (ExpXsecLimit(p)==0 ? 9999. : Xsection(p)/ExpXsecLimit(p)); }
@@ -31,8 +31,8 @@ double PLExpNSignLimit(const SusyScan* p){ return  p->PLExpNsigLimit; }
 double PLObsNSignLimit(const SusyScan* p){ return  p->PLExpNsigLimit; }
 double PLExpXsecLimit(const SusyScan* p){ return p->PLExpXsecLimit; }
 double PLObsXsecLimit(const SusyScan* p){ return p->PLObsXsecLimit; }
-double PLExpExclusion(const SusyScan* p){ return (PLExpXsecLimit(p)<Xsection(p)&&PLExpXsecLimit(p)>0.01?0.01:1); }
-double PLObsExclusion(const SusyScan* p){ return (PLObsXsecLimit(p)<Xsection(p)&&PLObsXsecLimit(p)>0.01?0.01:1); }
+double PLExpExclusion(const SusyScan* p){ return (PLExpXsecLimit(p)<Xsection(p)&&PLExpXsecLimit(p)>0.01?1:0.01); }
+double PLObsExclusion(const SusyScan* p){ return (PLObsXsecLimit(p)<Xsection(p)&&PLObsXsecLimit(p)>0.01?1:0.01); }
 
 
 

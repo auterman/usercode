@@ -21,10 +21,11 @@
 #include "Riostream.h"
 #include "TCanvas.h"
 #include "TLegend.h"
+#include "TLatex.h"
 
 #include <string>
 #include <cmath>
-
+#include <stdio.h>
 
 int plot(int argc, char** argv)
 {
@@ -184,17 +185,42 @@ int plot(int argc, char** argv)
    hPLobsexcl->Draw("colz");
    c1->SaveAs("results/PL_ObsExclusion_m0_m12.png");
 
+   // TestContours in M0 - M1/2
+   //TH2F*texcl = new TH2F("texcl",";m_{0} [GeV]; m_{1/2} [GeV]; 95% CL Expected Exclusion",
+   //                  100,0,1009.9,35,100,450);
+   //TH2F*tPLexpexcl=(TH2F*)hexcl->Clone();
+   //plotTools->Area(tPLexpexcl, Mzero, Mhalf, PLExpExclusion);
+   //std::vector<TGraph*> contours = plotTools->GetContours(hexpexcl,3); 
+   //std::vector<TGraph*> contours = plotTools->GetContours(hobsexcl,3);
+   std::vector<TGraph*> contours = plotTools->GetContours(hPLobsexcl,3);
+   //hPLexpexcl
+   //hexcl->Draw("colz");
+   //hexpexcl->Draw("colz");
+   //hobsexcl->Draw("colz");
+   hPLobsexcl->Draw("colz");
+   int col=0;
+   for (std::vector<TGraph*>::iterator cont=contours.begin(); cont!=contours.end(); ++cont){
+     if (! *cont) continue;
+     double x, y;
+     (*cont)->GetPoint(0, x, y);
+     (*cont)->SetLineColor(col);
+     (*cont)->Draw("l");
+     TLatex l; l.SetTextSize(0.04); l.SetTextColor(col++);
+     char val[20];
+     sprintf(val,"%d",cont-contours.begin());
+     l.DrawLatex(x,y,val); 
+   }
+   c1->SaveAs("results/ExclusionTestContours_m0_m12.png");
+
    // Exclusion in M0 - M1/2
    TH2F*hexcl = new TH2F("hexcl",";m_{0} [GeV]; m_{1/2} [GeV]; 95% CL Expected Exclusion",
                      100,0,1009.9,35,100,450);
-   TGraph * gexpexcl = plotTools->GetContour(hexpexcl,3,1); 
-   TGraph * gobsexcl = plotTools->GetContour(hobsexcl,3,1);
-   //TH2F*hPLobsexcl=(TH2F*)hexcl->Clone();
-   //plotTools->Area(hPLobsexcl, Mzero, Mhalf, PLObsExclusion);   
-   TGraph * gPLobsexcl = plotTools->GetContour(hPLobsexcl,3,1); 
-   TH2F*hPLexpexcl=(TH2F*)hexcl->Clone();
-   plotTools->Area(hPLexpexcl, Mzero, Mhalf, PLExpExclusion);
-   TGraph * gPLexpexcl = plotTools->GetContour(hPLexpexcl,3,1); 
+   TGraph * gexpexcl = plotTools->GetContour(hexpexcl,3,7); 
+   TGraph * gobsexcl = plotTools->GetContour(hobsexcl,3,3);
+   TGraph * gPLobsexcl = plotTools->GetContour(hPLobsexcl,3,3); 
+   //TH2F*hPLexpexcl=(TH2F*)hexcl->Clone();
+   //plotTools->Area(hPLexpexcl, Mzero, Mhalf, PLExpExclusion);
+   TGraph * gPLexpexcl = 0;//plotTools->GetContour(hPLexpexcl,3,1); 
    hexcl->Draw("colz");
    if (gobsexcl) gobsexcl->Draw("l");
    if (gexpexcl) gexpexcl->SetLineStyle(2);
@@ -205,10 +231,10 @@ int plot(int argc, char** argv)
    if (gPLexpexcl) gPLexpexcl->Draw("l");
    TLegend * leg = new TLegend(0.45,0.78,0.85,0.89);
    leg->SetBorderSize(0);leg->SetFillColor(0);
-   leg->AddEntry(gobsexcl,"Observed (TLimit, No Error)","l");
-   leg->AddEntry(gexpexcl,"Expected (TLimit, No Error)","l");
-   leg->AddEntry(gPLobsexcl,"Observed (ProfileLikelihood)","l");
-   leg->AddEntry(gPLexpexcl,"Expected (ProfileLikelihood)","l");
+   if (gobsexcl) leg->AddEntry(gobsexcl,"Observed (CLs, TLimit)","l");
+   if (gexpexcl) leg->AddEntry(gexpexcl,"Expected (CLs, TLimit)","l");
+   if (gPLobsexcl) leg->AddEntry(gPLobsexcl,"Observed (PL, RooStat)","l");
+   if (gPLexpexcl) leg->AddEntry(gPLexpexcl,"Expected (PL, RooStat)","l");
    leg->Draw();
    c1->SaveAs("results/Exclusion_m0_m12.png");
 
@@ -294,6 +320,33 @@ int plot(int argc, char** argv)
    //}
    c1->SaveAs("results/ObsExclusion_mSql_mGl.png");
    
+   // TestContours in M0 - M1/2
+   TH2F*texcl_qg = new TH2F("texcl_qg",";m_{#tilde{q}} [GeV]; m_{#tilde{g}} [GeV]; 95% CL Observed Exclusion",
+                     60,200,1400,50,200,1200);
+   TH2F*tPLobsexcl_qg=(TH2F*)texcl_qg->Clone();
+   plotTools->Area(tPLobsexcl_qg, MSquarkL, MGluino, PLObsExclusion);
+   //std::vector<TGraph*> contours_qg = plotTools->GetContours(hexpexcl_qg,3); 
+   //std::vector<TGraph*> contours_qg = plotTools->GetContours(hobsexcl_qg,3);
+   std::vector<TGraph*> contours_qg = plotTools->GetContours(tPLobsexcl_qg,3);
+   //hPLexpexcl_qg
+   //hexcl_qg->Draw("colz");
+   //hexpexcl_qg->Draw("colz");
+   //hobsexcl_qg->Draw("colz");
+   tPLobsexcl_qg->Draw("colz");
+   int col_gl=kBlue-10;
+   for (std::vector<TGraph*>::iterator cont=contours_qg.begin(); cont!=contours_qg.end(); ++cont){
+     if (! *cont) continue;
+     double x, y;
+     (*cont)->GetPoint(0, x, y);
+     (*cont)->SetLineColor(col_gl);(*cont)->SetLineWidth(3);
+     (*cont)->Draw("l");
+     TLatex l; l.SetTextSize(0.04); l.SetTextColor(col_gl++);
+     char val[20];
+     sprintf(val,"%d",cont-contours_qg.begin());
+     l.DrawLatex(x,y,val); 
+   }
+   c1->SaveAs("results/ExclusionTestContours_mSql_mGl.png");
+
    // Observed Exclusion in squark - gluino mass
    TH2F*hPLobsexcl_qg = new TH2F("plobsexcl_qg",";m_{#tilde{q}} [GeV]; m_{#tilde{g}} [GeV]; 95% CL Observed Exclusion",
                      60,200,1400,50,200,1200);
@@ -304,28 +357,25 @@ int plot(int argc, char** argv)
    // Exclusion in squark - gluino mass
    TH2F*hexcl_qg = new TH2F("hexcl_qg",";m_{#tilde{q}} [GeV]; m_{#tilde{g}} [GeV]; 95% CL Observed Exclusion",
                      60,200,1400,50,200,1200);
-   TGraph * gexpexcl_qg = plotTools->GetContour(hexpexcl_qg,3,1); 
+   TGraph * gexpexcl_qg = plotTools->GetContour(hexpexcl_qg,3,10); 
    if (gexpexcl_qg) gexpexcl_qg->SetLineStyle(2);
-/*   TGraph * gobsexcl_qg = plotTools->GetContour(hobsexcl_qg,3,1);
+   TGraph * gobsexcl_qg = plotTools->GetContour(hobsexcl_qg,3,6);
    TH2F*hPLexpexcl_qg=(TH2F*)hexcl_qg->Clone();
    plotTools->Area(hPLexpexcl_qg, Mzero, Mhalf, PLExpExclusion);   
-   TGraph * gPLexpexcl_qg = plotTools->GetContour(hPLexpexcl_qg,3,1); gPLexpexcl_qg->SetLineStyle(2);gPLexpexcl_qg->SetLineColor(2);
-   //TH2F*hPLobsexcl_qg=(TH2F*)hexcl_qg->Clone();
-   //plotTools->Area(hPLobsexcl_qg, Mzero, Mhalf, PLObsExclusion);
-   TGraph * gPLobsexcl_qg = plotTools->GetContour(hPLobsexcl_qg,3,1); gPLobsexcl_qg->SetLineColor(2);
+   TGraph * gPLexpexcl_qg = 0;//plotTools->GetContour(hPLexpexcl_qg,3,1); gPLexpexcl_qg->SetLineStyle(2);gPLexpexcl_qg->SetLineColor(2);
+   TGraph * gPLobsexcl_qg = plotTools->GetContour(hPLobsexcl_qg,3,8); gPLobsexcl_qg->SetLineColor(2);
    hexcl_qg->Draw("colz");
-   gobsexcl_qg->Draw("l");
-   gexpexcl_qg->Draw("l");
-   gPLobsexcl_qg->Draw("l");
-   gPLexpexcl_qg->Draw("l");
+   if (gobsexcl_qg) gobsexcl_qg->Draw("l");
+   if (gexpexcl_qg) gexpexcl_qg->Draw("l");
+   if (gPLobsexcl_qg) gPLobsexcl_qg->Draw("l");
+   if (gPLexpexcl_qg) gPLexpexcl_qg->Draw("l");
    TLegend * leg_qg = new TLegend(0.45,0.78,0.85,0.89);
    leg_qg->SetBorderSize(0);leg_qg->SetFillColor(0);
-   leg_qg->AddEntry(gobsexcl_qg,"Observed (TLimit, No Error)","l");
-   leg_qg->AddEntry(gexpexcl_qg,"Expected (TLimit, No Error)","l");
-   leg_qg->AddEntry(gPLobsexcl_qg,"Observed (ProfileLikelihood)","l");
-   leg_qg->AddEntry(gPLexpexcl_qg,"Expected (ProfileLikelihood)","l");
+   if (gobsexcl_qg) leg_qg->AddEntry(gobsexcl_qg,"Observed (CLs, TLimit)","l");
+   if (gexpexcl_qg) leg_qg->AddEntry(gexpexcl_qg,"Expected (CLs, TLimit)","l");
+   if (gPLobsexcl_qg) leg_qg->AddEntry(gPLobsexcl_qg,"Observed (PL, RooStat)","l");
+   if (gPLexpexcl_qg) leg_qg->AddEntry(gPLexpexcl_qg,"Expected (PL, RooStat)","l");
    leg_qg->Draw();
-*/
    c1->SaveAs("results/Exclusion_mSql_mGl.png");
    
    //c1->SaveAs("plot.pdf");

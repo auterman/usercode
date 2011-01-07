@@ -10,6 +10,7 @@
 #include "TH2F.h"
 #include "TObjArray.h"
 #include "TPad.h"
+#include "TCanvas.h"
 #include "TRint.h"
 #include "TROOT.h"
 
@@ -46,8 +47,7 @@ std::vector<TGraph*> PlotTools<T>::GetContours(TH2*h, int ncont)
    plot->SetContour(ncont);
    
    plot->SetFillColor(1);
-   //plot->Draw("CONT List");
-   plot->Draw("CONT List");
+   plot->Draw("CONT Z List");
    gPad->Update();
    TObjArray *contours = (TObjArray*)gROOT->GetListOfSpecials()->FindObject("contours");
    int ncontours      = contours->GetSize();
@@ -55,8 +55,12 @@ std::vector<TGraph*> PlotTools<T>::GetContours(TH2*h, int ncont)
    std::vector<TGraph*> result;
    for (int i=0;i<ncontours;++i){
      TList *list = (TList*)contours->At(i);
-     if ((TGraph*)list->First())
-     result.push_back( (TGraph*)list->First() );
+     TGraph* curv = (TGraph*)list->First();
+     if (curv) result.push_back( curv );
+     for(int j = 0; j < list->GetSize(); j++){
+         curv = (TGraph*)list->After(curv); // Get Next graph
+         if (curv) result.push_back( curv );
+     }
    }  
    delete plot;
    return result;
@@ -65,11 +69,18 @@ std::vector<TGraph*> PlotTools<T>::GetContours(TH2*h, int ncont)
 template<class T>
 TGraph * PlotTools<T>::GetContour(TH2*h, int ncont, int flag)
 {
+   return (TGraph*)GetContours(h, ncont).at(flag)->Clone();
+}
+
+/*
+template<class T>
+TGraph * PlotTools<T>::GetContour(TH2*h, int ncont, int flag)
+{
    if (!h) return 0;
    TH2 * plot = (TH2*)h->Clone();
    plot->SetContour(ncont);
    plot->SetFillColor(1);
-   plot->Draw("CONT List");
+   plot->Draw("CONT Z List");
    gPad->Update();
    TObjArray *contours = (TObjArray*)gROOT->GetListOfSpecials()->FindObject("contours");
    int ncontours       = contours->GetSize();
@@ -79,9 +90,10 @@ TGraph * PlotTools<T>::GetContour(TH2*h, int ncont, int flag)
    if (list) gr1 = (TGraph*)list->First()->Clone();
    if (gr1)  gr1->SetLineWidth(2);
    if (plot) delete plot;
-   if (list) delete list;
+   //don't delete contours or list: These belongs to gROOT !!!
    return gr1;
 }
+*/
 
 template class PlotTools<SusyScan>;
 template class PlotTools<GeneratorMasses>;
