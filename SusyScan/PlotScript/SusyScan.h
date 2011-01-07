@@ -41,6 +41,10 @@ class SusyScan{
   double CLs_b_p2_obs;
   double CLsb_b_exp;
   double CLsb_b_obs;
+  double PLExpXsecLimit;
+  double PLObsXsecLimit;
+  double PLExpNsigLimit;
+  double PLObsNsigLimit;
   
   double M1;
   double M2;

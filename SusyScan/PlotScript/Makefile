@@ -6,8 +6,8 @@ SPECIALFLAGS=-g # -O2 -g
 ROOTCFLAGS=$(shell root-config --cflags)
 ROOTLIBS=$(shell root-config --libs) -lMinuit
 
-CFLAGS = $(SPECIALFLAGS) -I. -I./include -I$(SRT_PUBLIC_CONTEXT)/include -I$(ROOTSYS)/include -Wno-deprecated -m32 -Wa,--32
-LFLAGS = $(SPECIALFLAGS) -L../../lib/$(SRT_SUBDIR)/ -lz -m32 
+CFLAGS = $(SPECIALFLAGS) -I. -I./include -I$(SRT_PUBLIC_CONTEXT)/include -I$(ROOTSYS)/include -Wno-deprecated
+LFLAGS = $(SPECIALFLAGS) -lz 
 
 
 RCXX=$(CFLAGS) $(ROOTCFLAGS)

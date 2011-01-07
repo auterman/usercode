@@ -39,20 +39,47 @@ void PlotTools<T>::Area( TH2*h, double(*x)(const T*), double(*y)(const T*),
 }
 
 template<class T>
-TGraph * PlotTools<T>::GetContour(TH2*plot, int flag)
+std::vector<TGraph*> PlotTools<T>::GetContours(TH2*h, int ncont)
 {
-   plot->SetContour(2);
-   plot->SetContourLevel(0,0);
-   plot->SetContourLevel(1,0.5);
+   if (!h) return std::vector<TGraph*>();
+   TH2 * plot = (TH2*)h->Clone();
+   plot->SetContour(ncont);
+   
    plot->SetFillColor(1);
+   //plot->Draw("CONT List");
    plot->Draw("CONT List");
    gPad->Update();
    TObjArray *contours = (TObjArray*)gROOT->GetListOfSpecials()->FindObject("contours");
    int ncontours      = contours->GetSize();
    //std::cout << "N contours = " << ncontours << std::endl;
-   TList *list	      = (TList*)contours->At(0);
-   //list->GetSize();
-   TGraph *gr1 = (TGraph*)list->First();
+   std::vector<TGraph*> result;
+   for (int i=0;i<ncontours;++i){
+     TList *list = (TList*)contours->At(i);
+     if ((TGraph*)list->First())
+     result.push_back( (TGraph*)list->First() );
+   }  
+   delete plot;
+   return result;
+}
+
+template<class T>
+TGraph * PlotTools<T>::GetContour(TH2*h, int ncont, int flag)
+{
+   if (!h) return 0;
+   TH2 * plot = (TH2*)h->Clone();
+   plot->SetContour(ncont);
+   plot->SetFillColor(1);
+   plot->Draw("CONT List");
+   gPad->Update();
+   TObjArray *contours = (TObjArray*)gROOT->GetListOfSpecials()->FindObject("contours");
+   int ncontours       = contours->GetSize();
+   TList *list	       = 0;
+   TGraph *gr1         = 0;
+   if (flag<ncontours) list = (TList*)contours->At(flag);
+   if (list) gr1 = (TGraph*)list->First()->Clone();
+   if (gr1)  gr1->SetLineWidth(2);
+   if (plot) delete plot;
+   if (list) delete list;
    return gr1;
 }
 

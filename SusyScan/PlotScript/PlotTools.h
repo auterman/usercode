@@ -18,7 +18,8 @@ class PlotTools {
   void Area(  TH2*h, double(*x)(const T*), double(*y)(const T*), 
               double(*func)(const T*));
   
-  TGraph * GetContour(TH2*, int flag=0);
+  TGraph * GetContour(TH2*, int ncont=20, int flag=0);
+  std::vector<TGraph *> GetContours(TH2*, int ncont=20);
 
  private:
   std::vector<T*> * _scan; 

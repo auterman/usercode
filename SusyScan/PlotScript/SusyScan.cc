@@ -38,4 +38,8 @@ SusyScan::SusyScan(std::string filename)
   CLs_b_p2_obs 	= config.read<double>("CLs_b_p2_obs", 0);
   CLsb_b_exp 	= config.read<double>("CLsb_b_exp", 0);
   CLsb_b_obs 	= config.read<double>("CLsb_b_obs", 0);
+  PLExpXsecLimit= config.read<double>("RooSimpleProfile.xsec.ExpUpperLimit", 0);
+  PLObsXsecLimit= config.read<double>("RooSimpleProfile.xsec.ObsUpperLimit", 0);
+  PLExpNsigLimit= config.read<double>("RooSimpleProfile.signal.ExpUpperLimit", 0);
+  PLObsNsigLimit= config.read<double>("RooSimpleProfile.signal.ObsUpperLimit", 0);
 }
