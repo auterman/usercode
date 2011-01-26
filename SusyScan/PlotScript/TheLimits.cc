@@ -104,3 +104,45 @@ void TheLimits::FillGeneratorMasses(std::string file)
       _masses.push_back( p );
    }
 }
+
+
+void TheLimits::OverwriteLimits(std::string flag)
+{
+  for (std::vector<SusyScan*>::iterator it=_scan.begin();it!=_scan.end();++it){
+    if (flag=="ABCD_MHT") {
+      (*it)->ExpNsigLimit = 17.85;
+      (*it)->PLExpNsigLimit = 12.558;
+      (*it)->FCExpNsigLimit = 15.75;
+      (*it)->MCMCExpNsigLimit = 15.8085;
+      (*it)->ObsNsigLimit = 10.0637;
+      (*it)->PLObsNsigLimit = 4.22124;
+      (*it)->FCObsNsigLimit  = 0.75;
+      (*it)->MCMCObsNsigLimit  = 8.75403;
+    }
+    else if (flag=="ABCD_HT") {
+      (*it)->ExpNsigLimit = 24.0438;
+      (*it)->PLExpNsigLimit = 17.8537;
+      (*it)->FCExpNsigLimit = 22.05;
+      (*it)->MCMCExpNsigLimit = 20.781;
+      (*it)->ObsNsigLimit    = 18.24;
+      (*it)->PLObsNsigLimit = 9.70375;
+      (*it)->FCObsNsigLimit  = 11.85;
+      (*it)->MCMCObsNsigLimit  = 14.34;
+    }
+    
+    
+      (*it)->ExpXsecLimit    = (*it)->ExpNsigLimit * (*it)->Xsection / (*it)->signal;
+      (*it)->PLExpXsecLimit  = (*it)->PLExpNsigLimit  * (*it)->Xsection / (*it)->signal;
+      (*it)->FCExpXsecLimit  = (*it)->FCExpNsigLimit  * (*it)->Xsection / (*it)->signal;
+      (*it)->MCMCExpXsecLimit= (*it)->MCMCExpNsigLimit  * (*it)->Xsection / (*it)->signal;
+      (*it)->ObsXsecLimit    = (*it)->ObsNsigLimit  * (*it)->Xsection / (*it)->signal;
+      (*it)->PLObsXsecLimit  = (*it)->PLObsNsigLimit  * (*it)->Xsection / (*it)->signal;
+      (*it)->FCObsXsecLimit  = (*it)->FCObsNsigLimit   * (*it)->Xsection / (*it)->signal;
+      (*it)->MCMCObsXsecLimit= (*it)->MCMCObsNsigLimit  * (*it)->Xsection / (*it)->signal;
+    
+  
+  } 
+
+
+}
+

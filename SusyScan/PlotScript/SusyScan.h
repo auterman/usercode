@@ -21,6 +21,8 @@ class SusyScan{
   double Xsection;
   double ExpXsecLimit;
   double ObsXsecLimit;
+  double ExpNsigLimit;
+  double ObsNsigLimit;
   double lnQ_b_exp;
   double lnQ_b_obs;
   double lnQ_sb_exp;
@@ -45,6 +47,14 @@ class SusyScan{
   double PLObsXsecLimit;
   double PLExpNsigLimit;
   double PLObsNsigLimit;
+  double FCExpXsecLimit;
+  double FCObsXsecLimit;
+  double FCExpNsigLimit;
+  double FCObsNsigLimit;
+  double MCMCExpXsecLimit;
+  double MCMCObsXsecLimit;
+  double MCMCExpNsigLimit;
+  double MCMCObsNsigLimit;
   
   double M1;
   double M2;

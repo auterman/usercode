@@ -18,6 +18,8 @@ class PlotTools {
   void Area(  TH2*h, double(*x)(const T*), double(*y)(const T*), 
               double(*func)(const T*));
   
+  void Graph(  TGraph*g, double(*x)(const T*), double(*y)(const T*), double ymin=-999. );
+  
   TGraph * GetContour(TH2*, int ncont=20, int flag=0);
   std::vector<TGraph *> GetContours(TH2*, int ncont=20);
 
@@ -31,6 +33,13 @@ class PlotTools {
   private:
    double(*_f)(const T*);
  };
+ 
+ class sort_TGraph{
+  public:
+   sort_TGraph(){}
+   bool operator()(const TGraph*g1, const TGraph*g2);
+ };
+ 
 };
 
 #endif

@@ -18,6 +18,8 @@ SusyScan::SusyScan(std::string filename)
   Xsection 	= config.read<double>("Xsection", 0);
   ExpXsecLimit 	= config.read<double>("ExpXsecLimit", 0);
   ObsXsecLimit 	= config.read<double>("ObsXsecLimit", 0);
+  ExpNsigLimit 	= config.read<double>("ExpNsigLimit", 0);
+  ObsNsigLimit 	= config.read<double>("ObsNsigLimit", 0);
   lnQ_b_exp 	= config.read<double>("-2lnQ_b@exp", 0);
   lnQ_b_obs 	= config.read<double>("-2lnQ_b@obs", 0);
   lnQ_sb_exp 	= config.read<double>("-2lnQ_sb@exp", 0);
@@ -42,4 +44,12 @@ SusyScan::SusyScan(std::string filename)
   PLObsXsecLimit= config.read<double>("RooSimpleProfile.xsec.ObsUpperLimit", 0);
   PLExpNsigLimit= config.read<double>("RooSimpleProfile.signal.ExpUpperLimit", 0);
   PLObsNsigLimit= config.read<double>("RooSimpleProfile.signal.ObsUpperLimit", 0);
+  FCExpXsecLimit= config.read<double>("RooFC.xsec.ExpUpperLimit", 0);
+  FCObsXsecLimit= config.read<double>("RooFC.xsec.ObsUpperLimit", 0);
+  FCExpNsigLimit= config.read<double>("RooFC.signal.ExpUpperLimit", 0);
+  FCObsNsigLimit= config.read<double>("RooFC.signal.ObsUpperLimit", 0);
+  MCMCExpXsecLimit= config.read<double>("RooMCMC.xsec.ExpUpperLimit", 0);
+  MCMCObsXsecLimit= config.read<double>("RooMCMC.xsec.ObsUpperLimit", 0);
+  MCMCExpNsigLimit= config.read<double>("RooMCMC.signal.ExpUpperLimit", 0);
+  MCMCObsNsigLimit= config.read<double>("RooMCMC.signal.ObsUpperLimit", 0);
 }

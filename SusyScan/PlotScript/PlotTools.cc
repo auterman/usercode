@@ -4,6 +4,7 @@
 
 #include <cmath>
 #include <algorithm>
+#include <iostream>
 
 #include "TGraph.h"
 #include "TH2.h"
@@ -40,18 +41,27 @@ void PlotTools<T>::Area( TH2*h, double(*x)(const T*), double(*y)(const T*),
 }
 
 template<class T>
+void PlotTools<T>::Graph( TGraph*g, double(*x)(const T*), double(*y)(const T*),double ymin)
+{
+  unsigned i = g->GetN();
+  std::sort(_scan->begin(),_scan->end(),sort_by(x));
+  for (typename std::vector<T*>::const_iterator it=_scan->begin();it!=_scan->end();++it){
+    if (y(*it)>=ymin) g->SetPoint(i++, x(*it), y(*it));
+    //std::cout << i << ": x="<<x(*it)<< ", y="<<y(*it)<< std::endl;
+  } 
+}
+
+template<class T>
 std::vector<TGraph*> PlotTools<T>::GetContours(TH2*h, int ncont)
 {
    if (!h) return std::vector<TGraph*>();
    TH2 * plot = (TH2*)h->Clone();
    plot->SetContour(ncont);
-   
    plot->SetFillColor(1);
    plot->Draw("CONT Z List");
    gPad->Update();
    TObjArray *contours = (TObjArray*)gROOT->GetListOfSpecials()->FindObject("contours");
    int ncontours      = contours->GetSize();
-   //std::cout << "N contours = " << ncontours << std::endl;
    std::vector<TGraph*> result;
    for (int i=0;i<ncontours;++i){
      TList *list = (TList*)contours->At(i);
@@ -63,6 +73,7 @@ std::vector<TGraph*> PlotTools<T>::GetContours(TH2*h, int ncont)
      }
    }  
    delete plot;
+   std::sort(result.begin(),result.end(),sort_TGraph());
    return result;
 }
 
@@ -72,28 +83,12 @@ TGraph * PlotTools<T>::GetContour(TH2*h, int ncont, int flag)
    return (TGraph*)GetContours(h, ncont).at(flag)->Clone();
 }
 
-/*
 template<class T>
-TGraph * PlotTools<T>::GetContour(TH2*h, int ncont, int flag)
-{
-   if (!h) return 0;
-   TH2 * plot = (TH2*)h->Clone();
-   plot->SetContour(ncont);
-   plot->SetFillColor(1);
-   plot->Draw("CONT Z List");
-   gPad->Update();
-   TObjArray *contours = (TObjArray*)gROOT->GetListOfSpecials()->FindObject("contours");
-   int ncontours       = contours->GetSize();
-   TList *list	       = 0;
-   TGraph *gr1         = 0;
-   if (flag<ncontours) list = (TList*)contours->At(flag);
-   if (list) gr1 = (TGraph*)list->First()->Clone();
-   if (gr1)  gr1->SetLineWidth(2);
-   if (plot) delete plot;
-   //don't delete contours or list: These belongs to gROOT !!!
-   return gr1;
+bool PlotTools<T>::sort_TGraph::operator()(const TGraph*g1, const TGraph*g2)
+{ 
+   return g1->GetN() > g2->GetN();
 }
-*/
+
 
 template class PlotTools<SusyScan>;
 template class PlotTools<GeneratorMasses>;

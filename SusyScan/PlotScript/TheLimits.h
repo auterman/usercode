@@ -20,6 +20,8 @@ class TheLimits{
   std::vector<SusyScan*> * GetScan(){return &_scan;}
   std::vector<GeneratorMasses*> * GetGeneratorMasses(){return &_masses;}
   
+  void OverwriteLimits(std::string flag);
+  
  private:
   std::vector<SusyScan*> _scan; 
   std::vector<GeneratorMasses*> _masses;
