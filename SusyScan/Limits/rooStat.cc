@@ -260,6 +260,10 @@ void rooStat(int argc, char *argv[])
     timeinfo = localtime ( &rawtime );
     ofstream ofile;
     ofile.open (argv[file]);
+    if (ofile.good())
+      std::cout << "writing '"<<argv[file]<<"'"<<std::endl;
+    else if ( (ofile.rdstate() & ifstream::failbit ) != 0 )
+      std::cerr << "ERROR opening '"<<argv[file]<<"'! Does the directory exist?"<<std::endl;
     ofile << config.getComment() << asctime (timeinfo) 
 	  << config.getComment()<< "\n"
 	  << config;
