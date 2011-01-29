@@ -28,6 +28,8 @@ double SignalUncertainty(const SusyScan* p){ return p->signal_uncertainty; }
 double SignalRelUncertainty(const SusyScan* p){ return p->signal_uncertainty/p->signal; }
 double ExpExclusion(const SusyScan* p){ return (ExpXsecLimit(p)<Xsection(p)&&ExpXsecLimit(p)>0.01?1:0.01); }
 double ObsExclusion(const SusyScan* p){ return (ObsXsecLimit(p)<Xsection(p)&&ObsXsecLimit(p)>0.01?1:0.01); }
+double ExpExclCL(const SusyScan* p){ return (p->CLs_b_xsec<=0.05 ? 1:0.01); }
+double ObsExclCL(const SusyScan* p){ return (p->CLs_xsec<=0.05 ? 1:0.01); }
 double SoverSqrtB(const SusyScan* p){ return p->signal/(sqrt(p->background)+p->background_uncertainty+p->signal_uncertainty); }
 double XsecOverObserved(const SusyScan* p){ return (ObsXsecLimit(p)==0 ? 9999. : Xsection(p)/ObsXsecLimit(p)); }
 double XsecOverExpected(const SusyScan* p){ return (ExpXsecLimit(p)==0 ? 9999. : Xsection(p)/ExpXsecLimit(p)); }

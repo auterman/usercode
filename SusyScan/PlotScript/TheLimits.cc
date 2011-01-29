@@ -6,6 +6,27 @@
 #include <iostream>
 #include <cmath>
 
+void TheLimits::Fill(int argc, char** argv)
+{
+   for (int i = 1; i<argc; ++i)
+   {
+     add( new SusyScan(argv[i]) );
+   }
+}
+
+void TheLimits::Fill(const std::string filelist)
+{
+   std::ifstream masses_file;
+   masses_file.open(filelist.c_str());
+   std::string file;
+   while (1) {
+      GeneratorMasses * p = new GeneratorMasses;
+      masses_file >> file;
+      if (!masses_file.good()) break;
+      add( new SusyScan(file));
+   }
+   masses_file.close();
+}
 
 void TheLimits::match()
 {

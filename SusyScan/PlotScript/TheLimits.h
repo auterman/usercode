@@ -12,6 +12,9 @@ class TheLimits{
  public:
   TheLimits(){}
 
+  void Fill(int argc, char** argv);
+  void Fill(const std::string filelist);
+
   void add(SusyScan*s){_scan.push_back(s);}
   void FillGeneratorMasses(std::string file);
 
