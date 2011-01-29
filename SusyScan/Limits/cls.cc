@@ -993,6 +993,37 @@ void cls::WriteResult(ConfigFile * config)
   delete data;
 }
 
+
+void cls::WriteConfidence(ConfigFile * config)
+{
+  TH1D * backgd = (TH1D*)backgd_->Clone();
+  TH1D * signal = (TH1D*)signal_->Clone();
+  TH1D * data   = (TH1D*)data_->Clone();
+  TLimitDataSource * source = new TLimitDataSource();
+  if (!syst_) source->AddChannel(signal,backgd,data);
+  else        source->AddChannel(signal,backgd,data,(TH1D*)esup_,(TH1D*)esdn_,(TH1D*)ebup_,(TH1D*)ebdn_,names_);
+  TConfidenceLevel * conf = TLimit::ComputeLimit(source,fNMC_,stat_);
+
+  config->add("CLsUseStat",    stat_);
+  config->add("CLs@xsec",      conf->CLs());
+  config->add("CLs_b@xsec",    conf->GetExpectedCLs_b());
+  config->add("CLs_b_p1@xsec", conf->GetExpectedCLs_b(1));
+  config->add("CLs_b_n1@xsec", conf->GetExpectedCLs_b(-1));
+  config->add("CLs_b_p2@xsec", conf->GetExpectedCLs_b(2));
+  config->add("CLs_b_n2@xsec", conf->GetExpectedCLs_b(-2));
+  config->add("CLb_b@xsec",    conf->GetExpectedCLb_b());
+  config->add("CLsb_b@xsec",   conf->GetExpectedCLsb_b());
+  config->add("-2lnQ_b@xsec",  conf->GetExpectedStatistic_b());
+  config->add("-2lnQ_sb@xsec", conf->GetExpectedStatistic_sb());
+  delete signal;
+  delete conf;
+  delete source;
+  delete backgd;
+  delete data;
+}
+
+
+
 void cls::WriteResult(const std::string out)
 {
   if (out=="") {

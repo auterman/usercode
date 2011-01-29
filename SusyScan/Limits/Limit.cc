@@ -7,6 +7,7 @@
 #include <string>
 #include <iostream>
 #include <cmath>
+#include <cstdlib>
 
 //ROOT
 #include "TH1.h"
@@ -24,11 +25,16 @@ void Limit(int argc, char *argv[])
   for (int file=1; file<argc; ++file){   
     std::cout << "opening: "<<argv[file]<<std::endl;
     ConfigFile config(argv[file]);
+
     int    ndata = config.read<int>("data");
     double nback  = config.read<double>("background");
     double bkgUncert = config.read<double>("background.uncertainty");
     double signal  = config.read<double>("signal");
     double sigUncert = config.read<double>("signal.uncertainty");
+    //config.add("data", ndata);
+    //config.add("background", nback);
+    //config.add("background.uncertainty", bkgUncert);
+
     char * n = new char[32];
     sprintf(n,"bkgd%d",file); TH1 * bgd  = new TH1F(n, "",1,0,1);
     sprintf(n,"data%d",file); TH1 * data = new TH1F(n, "",1,0,1);
@@ -49,7 +55,8 @@ void Limit(int argc, char *argv[])
     //limit_sys.Draw();
 
     try {
-      limit_sys.WriteResult( &config );
+      //limit_sys.WriteResult( &config );
+      limit_sys.WriteConfidence( &config );
     }
     catch(exception& e){
       cout << "Exception catched: " << e.what();

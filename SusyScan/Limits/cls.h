@@ -31,6 +31,7 @@ class cls
 
   void WriteResult(const std::string out);
   void WriteResult(ConfigFile *);
+  void WriteConfidence(ConfigFile *);
   double GetObservedXsecLimit(double cl, double min=0, double max=1000);
   double GetExpectedXsecLimit(double cl, double min=0, double max=1000);
   void Draw(bool doeps=false);
