@@ -31,6 +31,15 @@ void Limit(int argc, char *argv[])
     double bkgUncert = config.read<double>("background.uncertainty");
     double signal  = config.read<double>("signal");
     double sigUncert = config.read<double>("signal.uncertainty");
+
+    double sigControl = config.read<double>("signal.controlregion.IsoMuon");
+    double sigSignal  = config.read<double>("signal.signalregion.IsoMuon");
+    double bkgControl = config.read<double>("background.controlregion.IsoMuon");
+    double bkgSignal  = config.read<double>("background.signalregion.IsoMuon");
+    
+    nback -= sigSignal;
+    //bkgUncert += sigSignal * sigUncert/signal;
+    
     //config.add("data", ndata);
     //config.add("background", nback);
     //config.add("background.uncertainty", bkgUncert);
