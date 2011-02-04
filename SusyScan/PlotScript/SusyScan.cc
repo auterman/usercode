@@ -11,6 +11,7 @@ SusyScan::SusyScan(std::string filename)
   Azero 	= config.read<double>("Azero", 0);
   Run 		= config.read<double>("Run", 0);
   background 	= config.read<double>("background", 0);
+  signal_contamination 	= config.read<double>("signal.signalregion.IsoMuon", 10);
   background_uncertainty = config.read<double>("background.uncertainty", 0);
   data 		= config.read<double>("data", 0);
   signal 	= config.read<double>("signal", 0);

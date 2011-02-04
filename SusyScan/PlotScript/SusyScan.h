@@ -14,6 +14,7 @@ class SusyScan{
   double Azero;
   double Run;
   double background;
+  double signal_contamination;
   double background_uncertainty;
   double data;
   double signal;

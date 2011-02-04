@@ -29,6 +29,10 @@ double SignalRelUncertainty(const SusyScan* p){ return p->signal_uncertainty/p->
 double ExpExclusion(const SusyScan* p){ return (ExpXsecLimit(p)<Xsection(p)&&ExpXsecLimit(p)>0.01?1:0.01); }
 double ObsExclusion(const SusyScan* p){ return (ObsXsecLimit(p)<Xsection(p)&&ObsXsecLimit(p)>0.01?1:0.01); }
 double ExpExclCL(const SusyScan* p){ return (p->CLs_b_xsec<=0.05 ? 1:0.01); }
+double ExpExclCLm2sigma(const SusyScan* p){ return (p->CLs_b_n2_xsec<=0.05 ? 1:0.01); }
+double ExpExclCLm1sigma(const SusyScan* p){ return (p->CLs_b_n1_xsec<=0.05 ? 1:0.01); }
+double ExpExclCLp1sigma(const SusyScan* p){ return (p->CLs_b_p1_xsec<=0.05 ? 1:0.01); }
+double ExpExclCLp2sigma(const SusyScan* p){ return (p->CLs_b_p2_xsec<=0.05 ? 1:0.01); }
 double ObsExclCL(const SusyScan* p){ return (p->CLs_xsec<=0.05 ? 1:0.01); }
 double SoverSqrtB(const SusyScan* p){ return p->signal/(sqrt(p->background)+p->background_uncertainty+p->signal_uncertainty); }
 double XsecOverObserved(const SusyScan* p){ return (ObsXsecLimit(p)==0 ? 9999. : Xsection(p)/ObsXsecLimit(p)); }
@@ -54,6 +58,7 @@ double MCMCExpXsecLimit(const SusyScan* p){ return p->MCMCExpXsecLimit; }
 double MCMCObsXsecLimit(const SusyScan* p){ return p->MCMCObsXsecLimit; }
 double MCMCExpExclusion(const SusyScan* p){ return (MCMCExpXsecLimit(p)<Xsection(p)&&MCMCExpXsecLimit(p)>0.01?1:0.01); }
 double MCMCObsExclusion(const SusyScan* p){ return (MCMCObsXsecLimit(p)<Xsection(p)&&MCMCObsXsecLimit(p)>0.01?1:0.01); }
+double SignalContamination(const SusyScan* p){ return p->signal_contamination; }
 
 double Mzero(const GeneratorMasses* p){ return p->Mzero; }
 double Mhalf(const GeneratorMasses* p){ return p->Mhalf; }
