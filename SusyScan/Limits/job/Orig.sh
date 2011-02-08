@@ -16,6 +16,7 @@
   #$ -m ae
   exec > "$TMPDIR"/stdout.txt 2>"$TMPDIR"/stderr.txt
   JOBNAME=AUniquePlaceholderName
+  LIMITDIR=LimitDirPlaceholderName
   RESULTPATH=/scratch/hh/lustre/cms/user/auterman/jobs/$JOBNAME
   #RESULTPATH=/afs/naf.desy.de/user/a/auterman/Jobs/$JOBNAME
 
@@ -57,8 +58,8 @@
     echo $i
     cat $i
     file="${i##*/}"
-    echo "copying limits/$file to $RESULTPATH/results/$file"
-    cp limits/$file job$SGE_TASK_ID/results/$file  
+    echo "copying $LIMITDIR/$file to $RESULTPATH/results/$file"
+    cp $LIMITDIR/$file job$SGE_TASK_ID/results/$file  
     echo "calling ./Limit job$SGE_TASK_ID/results/$file"  
     ./Limit job$SGE_TASK_ID/results/$file
   done
