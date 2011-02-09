@@ -34,6 +34,7 @@ template<class T>
 void PlotTools<T>::Area( TH2*h, double(*x)(const T*), double(*y)(const T*), 
                          double(*f)(const T*) )
 {
+  //std::cout<< _scan->size() <<",  &scan="<<_scan<<std::endl;
   for (typename std::vector<T*>::const_iterator it=_scan->begin();it!=_scan->end();++it){
     h->SetBinContent( h->GetXaxis()->FindBin(x(*it)), 
                       h->GetYaxis()->FindBin(y(*it)), f(*it) );
@@ -84,9 +85,39 @@ TGraph * PlotTools<T>::GetContour(TH2*h, int ncont, int flag)
 }
 
 template<class T>
+TGraph * PlotTools<T>::GetContour(TH2*h,double(*x)(const T*), double(*y)(const T*), 
+                      double(*func)(const T*), int ncont, int flag,
+		      int color, int style){
+  TH2*hist = (TH2*)h->Clone();
+  Area(hist, x, y, func);
+  TGraph * graph = GetContour(hist, ncont, flag);
+  graph->SetLineColor(color);
+  graph->SetLineStyle(style);
+  return graph;
+}
+
+template<class T>
 bool PlotTools<T>::sort_TGraph::operator()(const TGraph*g1, const TGraph*g2)
 { 
    return g1->GetN() > g2->GetN();
+}
+
+TGraph * MakeBand(TGraph *g1, TGraph *g2, bool b){
+  TGraph * res = new TGraph(g1->GetN()+g2->GetN());
+  int p=0;
+  for (int i=0; i<g1->GetN(); ++i) {
+    double x, y;
+    g1->GetPoint(i, x, y);
+    res->SetPoint(p++, x, y);
+  }
+  for (int i=g2->GetN()-1; i>=0; --i) {
+    double x, y;
+    g2->GetPoint(i, x, y);
+    res->SetPoint(p++, x, y);
+  }
+  res->SetLineColor( g1->GetLineColor() );
+  res->SetFillColor( g2->GetLineColor() );
+  return res;
 }
 
 

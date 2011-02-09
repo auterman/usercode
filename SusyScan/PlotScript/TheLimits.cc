@@ -25,6 +25,7 @@ void TheLimits::Fill(const std::string filelist)
       if (!masses_file.good()) break;
       add( new SusyScan(file));
    }
+   //std::cout << filelist << ": "<< _scan.size() <<std::endl;
    masses_file.close();
 }
 

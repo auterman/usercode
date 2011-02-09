@@ -80,36 +80,24 @@ int plot(int argc, char** argv)
    //Get limits and generator masses ---------------------------------------------------
    TheLimits * genpoints = new TheLimits();
    //genpoints->Fill(argc, argv); 
-   genpoints->Fill("limits_MHT/filelist.txt"); 
+   genpoints->Fill("limits_MHT_tb3/filelist.txt"); 
 
    TheLimits * genpointsHT = new TheLimits();
-   genpointsHT->Fill("limits_HT/filelist.txt"); 
-
-   TheLimits * genpointsHT_SC = new TheLimits();
-   genpointsHT_SC->Fill("limits_HT_SigCont/filelist.txt"); 
-
-   TheLimits * genpointsMHT_SC = new TheLimits();
-   genpointsMHT_SC->Fill("limits_MHT_SigCont/filelist.txt"); 
+   genpointsHT->Fill("limits_HT_tb3/filelist.txt"); 
 
    
    //Replace read limits with specific numbers
    //genpoints->OverwriteLimits("ABCD_MHT");
    
-   genpoints->FillGeneratorMasses("tb10_mu1_a0_massscan.dat");
+   genpoints->FillGeneratorMasses("tb3_mu1_a0_massscan.dat");
    genpoints->match();
-   genpointsHT->FillGeneratorMasses("tb10_mu1_a0_massscan.dat");
+   genpointsHT->FillGeneratorMasses("tb3_mu1_a0_massscan.dat");
    genpointsHT->match();
-   genpointsHT_SC->FillGeneratorMasses("tb10_mu1_a0_massscan.dat");
-   genpointsHT_SC->match();
-   genpointsMHT_SC->FillGeneratorMasses("tb10_mu1_a0_massscan.dat");
-   genpointsMHT_SC->match();
 
    //the plotting ----------------------------------------------------------------------
    //plotting helper functions
    PlotTools<SusyScan> * plotTools = new PlotTools<SusyScan>(genpoints->GetScan());
    PlotTools<SusyScan> * plotToolsHT = new PlotTools<SusyScan>(genpointsHT->GetScan());
-   PlotTools<SusyScan> * plotToolsHT_SC = new PlotTools<SusyScan>(genpointsHT_SC->GetScan());
-   PlotTools<SusyScan> * plotToolsMHT_SC = new PlotTools<SusyScan>(genpointsHT_SC->GetScan());
    PlotTools<GeneratorMasses> * plotMasses = new PlotTools<GeneratorMasses>(genpoints->GetGeneratorMasses());
 
    //iso mass lines
@@ -129,35 +117,35 @@ int plot(int argc, char** argv)
 /**/
    // cross-section in M0 - M1/2
    TH2F*hxsec = new TH2F("xsec",";m_{0} [GeV]; m_{1/2} [GeV]; cross section [pb]",
-                     100,0,1009.9,50,0,500);
+                     50,0,509.9,25,100,350);
    plotTools->Area(hxsec, Mzero, Mhalf, Xsection);
    hxsec->SetMinimum(0.01);
    //sq500->Draw();
    //gl500->Draw();
    hxsec->Draw("colz");
-   c1->SaveAs("results/Xsection_m0_m12_tb10.pdf");
+   c1->SaveAs("results_tb3/Xsection_m0_m12_tb3.pdf");
    std::string wait;
    //std::cin>>wait;
 
    // Observed Limit in M0 - M1/2
    TH2F*hobslimit = new TH2F("obslimit",";m_{0} [GeV]; m_{1/2} [GeV]; 95% CL Observed Limit [pb]",
-                     100,0,1009.9,50,0,500);
+                     50,0,509.9,25,100,350);
    plotTools->Area(hobslimit, Mzero, Mhalf, ObsXsecLimit);
    hobslimit->SetMinimum(0.01);
    hobslimit->Draw("colz");
-   c1->SaveAs("results/ObsLimit_m0_m12_tb10.pdf");
+   c1->SaveAs("results_tb3/ObsLimit_m0_m12_tb3.pdf");
    
    // Expected Limit in M0 - M1/2
    TH2F*hexplimit = new TH2F("explimit",";m_{0} [GeV]; m_{1/2} [GeV]; 95% CL Expected Limit [pb]",
-                     100,0,1009.9,50,0,500);
+                     50,0,509.9,25,100,350);
    plotTools->Area(hexplimit, Mzero, Mhalf, ExpXsecLimit);
    hexplimit->SetMinimum(0.01);
    hexplimit->Draw("colz");
-   c1->SaveAs("results/ExpLimit_m0_m12_tb10.pdf");
+   c1->SaveAs("results_tb3/ExpLimit_m0_m12_tb3.pdf");
    
    // Signal Acceptance in M0 - M1/2   
    TH2F*hsigacc = new TH2F("sigacc",";m_{0} [GeV]; m_{1/2} [GeV]; Signal Acceptance",
-                     100,0,1009.9,50,0,500);
+                     50,0,509.9,25,100,350);
    plotTools->Area(hsigacc, Mzero, Mhalf, SignalAcceptance);
    hsigacc->SetMinimum(0.01);
    hsigacc->SetMaximum(1.0);
@@ -165,53 +153,53 @@ int plot(int argc, char** argv)
    chi100->Draw();
    cha200->Draw();
    gl500 ->Draw();
-    sq500 ->Draw();
-   c1->SaveAs("results/SigAcc_m0_m12_tb10.pdf");
+   sq500 ->Draw();
+   c1->SaveAs("results_tb3/SigAcc_m0_m12_tb3.pdf");
    
    // Exp. Limit on Number of Signal Events in M0 - M1/2
    c1->SetLogz(0);
    TH2F*hexplimitnsig = new TH2F("explimitnsig",";m_{0} [GeV]; m_{1/2} [GeV]; 95% CL exp. limit signal events [# ]",
-                     100,0,1009.9,50,0,500);
+                     50,0,509.9,25,100,350);
    plotTools->Area(hexplimitnsig, Mzero, Mhalf, ExpNSignLimit);
    hexplimitnsig->SetMinimum(0.0);
    hexplimitnsig->SetMaximum(20);
    hexplimitnsig->Draw("colz");
-   c1->SaveAs("results/ExpLimitOnNSig_m0_m12_tb10.pdf");
+   c1->SaveAs("results_tb3/ExpLimitOnNSig_m0_m12_tb3.pdf");
    
    // Obs. Limit on Number of Signal Events in M0 - M1/2
    TH2F*hobslimitnsig = new TH2F("obslimitnsig",";m_{0} [GeV]; m_{1/2} [GeV]; 95% CL obs. limit signal events [# ]",
-                     100,0,1009.9,50,0,500);
+                     50,0,509.9,25,100,350);
    plotTools->Area(hobslimitnsig, Mzero, Mhalf, ObsNSignLimit);
    hobslimitnsig->SetMinimum(0.0);
    hobslimitnsig->SetMaximum(20);
    hobslimitnsig->Draw("colz");
-   c1->SaveAs("results/ObsLimitOnNSig_m0_m12_tb10.pdf");
+   c1->SaveAs("results_tb3/ObsLimitOnNSig_m0_m12_tb3.pdf");
    
    c1->SetLogz(0);
    // Expected Exclusion in M0 - M1/2
    TH2F*hexpexcl = new TH2F("expexcl",";m_{0} [GeV]; m_{1/2} [GeV]; 95% CL Expected Exclusion",
-                     100,0,1009.9,35,100,450);
+                     50,0,509.9,35,100,450);
    plotTools->Area(hexpexcl, Mzero, Mhalf, ExpExclCL);
    hexpexcl->Draw("colz");
-   c1->SaveAs("results/ExpExclusion_m0_m12_tb10.pdf");
+   c1->SaveAs("results_tb3/ExpExclusion_m0_m12_tb3.pdf");
    
    // Observed Exclusion in M0 - M1/2
    TH2F*hobsexcl = new TH2F("obsexcl",";m_{0} [GeV]; m_{1/2} [GeV]; 95% CL Observed Exclusion",
-                     100,0,1009.9,35,100,450);
+                     50,0,509.9,35,100,450);
    plotTools->Area(hobsexcl, Mzero, Mhalf, ObsExclCL);
    hobsexcl->Draw("colz");
-   c1->SaveAs("results/ObsExclusion_m0_m12_tb10.pdf");
+   c1->SaveAs("results_tb3/ObsExclusion_m0_m12_tb3.pdf");
 
    // Observed Exclusion in M0 - M1/2
    TH2F*hPLobsexcl = new TH2F("plobsexcl",";m_{0} [GeV]; m_{1/2} [GeV]; 95% CL Observed Exclusion",
-                     100,0,1009.9,35,100,450);
+                     50,0,509.9,35,100,450);
    plotTools->Area(hPLobsexcl, Mzero, Mhalf, PLObsExclusion);
    hPLobsexcl->Draw("colz");
-   c1->SaveAs("results/PL_ObsExclusion_m0_m12_tb10.pdf");
+   c1->SaveAs("results_tb3/PL_ObsExclusion_m0_m12_tb3.pdf");
 
    // TestContours in M0 - M1/2
    TH2F*texcl = new TH2F("texcl",";m_{0} [GeV]; m_{1/2} [GeV]; 95% CL Expected Exclusion",
-                     100,0,1009.9,35,100,450);
+                     50,0,509.9,35,100,450);
    TH2F*texpexcl=(TH2F*)texcl->Clone();
    plotTools->Area(texpexcl, Mzero, Mhalf, MCMCExpExclusion);
    TH2F*tobsexcl=(TH2F*)texcl->Clone();
@@ -236,17 +224,16 @@ int plot(int argc, char** argv)
      l.DrawLatex(x,y,val); 
      //if (cont-contours.begin()>3) break;
    }
-   c1->SaveAs("results/ExclusionTestContours_m0_m12_tb10.pdf");
+   c1->SaveAs("results_tb3/ExclusionTestContours_m0_m12_tb3.pdf");
 
 
    // Exclusion in M0 - M1/2
    TH2F*hexcl = new TH2F("hexcl",";m_{0} [GeV]; m_{1/2} [GeV]; 95% CL Expected Exclusion",
-                     100,0,1009.9,35,100,450);
+                     50,0,509.9,35,100,450);
    TGraph * gexpexcl         = plotTools     ->GetContour(hexcl,Mzero,Mhalf,ExpExclCL,       3,0, 2,2); 
    TGraph * gobsexcl         = plotTools     ->GetContour(hexcl,Mzero,Mhalf,ObsExclCL,       3,0, 2,1);
    TGraph * gMCMCexpexcl     = plotToolsHT   ->GetContour(hexcl,Mzero,Mhalf,MCMCExpExclusion,3,0, 3,2); 
    TGraph * gMCMCobsexcl     = plotToolsHT   ->GetContour(hexcl,Mzero,Mhalf,MCMCObsExclusion,3,0, 3,1); 
-   TGraph * gCLsExpExclHT_SC = plotToolsHT_SC->GetContour(hexcl,Mzero,Mhalf,ExpExclCL,       3,0, 4,2); 
    TGraph * gCLsExpExclHT    = plotToolsHT   ->GetContour(hexcl,Mzero,Mhalf,ExpExclCL,       3,0, 1,2); 
    TGraph * gCLsObsExclHT    = plotToolsHT   ->GetContour(hexcl,Mzero,Mhalf,ObsExclCL,       3,0, 1,1); 
    TGraph * gCLsExpExclHTm1  = plotToolsHT   ->GetContour(hexcl,Mzero,Mhalf,ExpExclCLm1sigma,3,0, 5,2); 
@@ -255,7 +242,6 @@ int plot(int argc, char** argv)
    hexcl->Draw("colz");   
    if (gCLsExp1Sigma)    gCLsExp1Sigma->Draw("lf");
    if (gexpexcl)         gexpexcl->Draw("l");
-   if (gCLsExpExclHT_SC) gCLsExpExclHT_SC->Draw("l");
    if (gCLsExpExclHT)    gCLsExpExclHT->Draw("l");
    if (gMCMCexpexcl)     gMCMCexpexcl->Draw("l");
    if (gCLsObsExclHT)    gCLsObsExclHT->Draw("l");
@@ -317,7 +303,6 @@ int plot(int argc, char** argv)
    if (gexpexcl) leg->AddEntry(gexpexcl,"LO Expected (MHT, CLs, TLimit)","l");
    if (gCLsObsExclHT) leg->AddEntry(gCLsObsExclHT,"LO Observed (HT, CLs, TLimit)","l");
    if (gCLsExpExclHT) leg->AddEntry(gCLsExpExclHT,"LO Expected (HT, CLs, TLimit)","l");
-   if (gCLsExpExclHT_SC) leg->AddEntry(gCLsExpExclHT_SC,"LO Expected (HT, CLs, sig cont)","l");
    //if (gPLobsexcl) leg->AddEntry(gPLobsexcl,"Observed (PL, RooStat)","l");
    //if (gPLexpexcl) leg->AddEntry(gPLexpexcl,"Expected (PL, RooStat)","l");
    //if (gFCobsexcl) leg->AddEntry(gFCobsexcl,"Observed (FC, RooStat)","l");
@@ -328,32 +313,32 @@ int plot(int argc, char** argv)
    if (sSecond) leg->AddEntry(sSecond,"RA1 NLO Expected");
    leg->Draw();
    gPad->RedrawAxis();
-   c1->SaveAs("results/Exclusion_m0_m12_tb10.pdf");
+   c1->SaveAs("results_tb3/Exclusion_m0_m12_tb3.pdf");
 
    // Signal Contamination in M0 - M1/2
    c1->SetLogz(0);
    TH2F*hsigcont = new TH2F("sigcont",";m_{0} [GeV]; m_{1/2}; number of signal in bkg yield [events]",
-                     100,0,1009.9,50,0,500);
-   plotToolsHT_SC->Area(hsigcont, Mzero, Mhalf, SignalContamination);
+                     50,0,509.9,25,100,350);
+   plotToolsHT->Area(hsigcont, Mzero, Mhalf, SignalContamination);
    hsigcont->SetMinimum(0.01);
    hsigcont->SetMaximum(20);
    hsigcont->Draw("colz");
    if (gCLsObsExclHT)    gCLsObsExclHT->Draw("l");
-   c1->SaveAs("results/SignalContamination_HT_m0_m12_tb10.pdf");
+   c1->SaveAs("results_tb3/SignalContamination_HT_m0_m12_tb3.pdf");
    
    // Signal Contamination in M0 - M1/2
    c1->SetLogz(0);
    TH2F*hsigcontMHT = new TH2F("sigcontMHT",";m_{0} [GeV]; m_{1/2}; number of signal in bkg yield [events]",
-                     100,0,1009.9,50,0,500);
-   plotToolsMHT_SC->Area(hsigcontMHT, Mzero, Mhalf, SignalContamination);
+                     50,0,509.9,25,100,350);
+   plotTools->Area(hsigcontMHT, Mzero, Mhalf, SignalContamination);
    hsigcontMHT->SetMinimum(0.01);
    hsigcontMHT->SetMaximum(20);
    hsigcontMHT->Draw("colz");
    if (gobsexcl)    gobsexcl->Draw("l");
-   c1->SaveAs("results/SignalContamination_MHT_m0_m12_tb10.pdf");
+   c1->SaveAs("results_tb3/SignalContamination_MHT_m0_m12_tb3.pdf");
    
 
-
+/*
    //-----------------------------------------------------------------------------------
    c1->SetLogz(1);
 
@@ -368,7 +353,7 @@ int plot(int argc, char** argv)
    hxsec_qg->Draw("colz");
    mz500->Draw();
    mh250->Draw();
-   c1->SaveAs("results/Xsection_mSql_mGl_tb10.pdf");
+   c1->SaveAs("results_tb3/Xsection_mSql_mGl_tb3.pdf");
    
    // Observed Limit in squark - gluino mass
    TH2F*hobslimit_qg = new TH2F("obslimit_qg",";m_{#tilde{q}} [GeV]; m_{#tilde{g}} [GeV]; 95% CL Observed Limit [pb]",
@@ -376,7 +361,7 @@ int plot(int argc, char** argv)
    plotTools->Area(hobslimit_qg, MSquarkL, MGluino, ObsXsecLimit);
    hobslimit_qg->SetMinimum(0.01);
    hobslimit_qg->Draw("colz");
-   c1->SaveAs("results/ObsLimit_mSql_mGl_tb10.pdf");
+   c1->SaveAs("results_tb3/ObsLimit_mSql_mGl_tb3.pdf");
    
    // Expected Limit in squark - gluino mass
    TH2F*hexplimit_qg = new TH2F("explimit_qg",";m_{#tilde{q}} [GeV]; m_{#tilde{g}} [GeV]; 95% CL Expected Limit [pb]",
@@ -384,7 +369,7 @@ int plot(int argc, char** argv)
    plotTools->Area(hexplimit_qg, MSquarkL, MGluino, ExpXsecLimit);
    hexplimit_qg->SetMinimum(0.01);
    hexplimit_qg->Draw("colz");
-   c1->SaveAs("results/ExpLimit_mSql_mGl_tb10.pdf");
+   c1->SaveAs("results_tb3/ExpLimit_mSql_mGl_tb3.pdf");
    
    // Signal Acceptance in squark - gluino mass
    TH2F*hsigacc_qg = new TH2F("sigacc_qg",";m_{#tilde{q}} [GeV]; m_{#tilde{g}} [GeV]; Signal Acceptance",
@@ -393,7 +378,7 @@ int plot(int argc, char** argv)
    hsigacc_qg->SetMinimum(0.01);
    hsigacc_qg->SetMaximum(1.0);
    hsigacc_qg->Draw("colz");
-   c1->SaveAs("results/SigAcc_mSql_mGl_tb10.pdf");
+   c1->SaveAs("results_tb3/SigAcc_mSql_mGl_tb3.pdf");
    
    // Exp. Limit on Number of Signal Events in squark - gluino mass
    c1->SetLogz(0);
@@ -403,7 +388,7 @@ int plot(int argc, char** argv)
    hexplimitnsig_qg->SetMinimum(0.0);
    hexplimitnsig_qg->SetMaximum(20);
    hexplimitnsig_qg->Draw("colz");
-   c1->SaveAs("results/ExpLimitOnNSig_mSql_mGl_tb10.pdf");
+   c1->SaveAs("results_tb3/ExpLimitOnNSig_mSql_mGl_tb3.pdf");
    
    // Obs. Limit on Number of Signal Events in squark - gluino mass
    TH2F*hobslimitnsig_qg = new TH2F("obslimitnsig_qg",";m_{#tilde{q}} [GeV]; m_{#tilde{g}} [GeV]; 95% CL obs. limit signal events [# ]",
@@ -412,7 +397,7 @@ int plot(int argc, char** argv)
    hobslimitnsig_qg->SetMinimum(0.0);
    hobslimitnsig_qg->SetMaximum(20);
    hobslimitnsig_qg->Draw("colz");
-   c1->SaveAs("results/ObsLimitOnNSig_mSql_mGl_tb10.pdf");
+   c1->SaveAs("results_tb3/ObsLimitOnNSig_mSql_mGl_tb3.pdf");
    
    c1->SetLogz(0);
    // Expected Exclusion in squark - gluino mass
@@ -420,7 +405,7 @@ int plot(int argc, char** argv)
                      60,200,1400,50,200,1200);
    plotTools->Area(hexpexcl_qg, MSquarkL, MGluino, ExpExclCL);
    hexpexcl_qg->Draw("colz");
-   c1->SaveAs("results/ExpExclusion_mSql_mGl_tb10.pdf");
+   c1->SaveAs("results_tb3/ExpExclusion_mSql_mGl_tb3.pdf");
    
    // Observed Exclusion in squark - gluino mass
    TH2F*hobsexcl_qg = new TH2F("obsexcl_qg",";m_{#tilde{q}} [GeV]; m_{#tilde{g}} [GeV]; 95% CL Observed Exclusion",
@@ -432,7 +417,7 @@ int plot(int argc, char** argv)
    //  if (! *g) continue;
    // // (*g)->Draw("l");
    //}
-   c1->SaveAs("results/ObsExclusion_mSql_mGl_tb10.pdf");
+   c1->SaveAs("results_tb3/ObsExclusion_mSql_mGl_tb3.pdf");
    
    // TestContours in M0 - M1/2
    TH2F*texcl_qg = new TH2F("texcl_qg",";m_{#tilde{q}} [GeV]; m_{#tilde{g}} [GeV]; 95% CL Observed Exclusion",
@@ -463,14 +448,14 @@ int plot(int argc, char** argv)
      l.DrawLatex(x,y,val); 
      if (cont-contours_qg.begin()>3) break;
    }
-   c1->SaveAs("results/ExclusionTestContours_mSql_mGl_tb10.pdf");
+   c1->SaveAs("results_tb3/ExclusionTestContours_mSql_mGl_tb3.pdf");
 
    // Observed Exclusion in squark - gluino mass
    TH2F*hPLobsexcl_qg = new TH2F("plobsexcl_qg",";m_{#tilde{q}} [GeV]; m_{#tilde{g}} [GeV]; 95% CL Observed Exclusion",
                      60,200,1400,50,200,1200);
    plotTools->Area(hPLobsexcl_qg, MSquarkL, MGluino, PLObsExclusion);
    //hPLobsexcl_qg->Draw("colz");
-   //c1->SaveAs("results/PL_ObsExclusion_mSql_mGl_tb10.pdf");
+   //c1->SaveAs("results_tb3/PL_ObsExclusion_mSql_mGl_tb3.pdf");
    
 
 
@@ -512,9 +497,9 @@ int plot(int argc, char** argv)
    //if (gPLobsexcl_qg) leg_qg->AddEntry(gPLobsexcl_qg,"Observed (PL, RooStat)","l");
    //if (gPLexpexcl_qg) leg_qg->AddEntry(gPLexpexcl_qg,"Expected (PL, RooStat)","l");
    leg_qg->Draw();
-   c1->SaveAs("results/Exclusion_mSql_mGl_tb10.pdf");
-   
-   //c1->SaveAs("plot_tb10.pdf");
+   c1->SaveAs("results_tb3/Exclusion_mSql_mGl_tb3.pdf");
+*/   
+   //c1->SaveAs("plot_tb3.pdf");
 
    c1->SetLogy(1);
    c1->SetLogx(1);
@@ -572,7 +557,7 @@ int plot(int argc, char** argv)
    leg_S->AddEntry(gMCMCObsUncert,"Observed (MCMC, RooStat)","l");
    leg_S->AddEntry(gMCMCExpUncert,"Expected (MCMC, RooStat)","l");
    leg_S->Draw();
-   c1->SaveAs("results/UncertaintyScan.pdf");
+   c1->SaveAs("results_tb3/UncertaintyScan.pdf");
 
    //theApp.Run();
 }

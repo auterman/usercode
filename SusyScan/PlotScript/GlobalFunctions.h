@@ -6,6 +6,7 @@
 #include "TSpline.h"
 
 #include <cmath>
+#include <iostream>
 
 
 double Luminosity = 36.3; //[pb^-1]
@@ -58,7 +59,7 @@ double MCMCExpXsecLimit(const SusyScan* p){ return p->MCMCExpXsecLimit; }
 double MCMCObsXsecLimit(const SusyScan* p){ return p->MCMCObsXsecLimit; }
 double MCMCExpExclusion(const SusyScan* p){ return (MCMCExpXsecLimit(p)<Xsection(p)&&MCMCExpXsecLimit(p)>0.01?1:0.01); }
 double MCMCObsExclusion(const SusyScan* p){ return (MCMCObsXsecLimit(p)<Xsection(p)&&MCMCObsXsecLimit(p)>0.01?1:0.01); }
-double SignalContamination(const SusyScan* p){ return p->signal_contamination; }
+double SignalContamination(const SusyScan* p){return p->signal_contamination; }
 
 double Mzero(const GeneratorMasses* p){ return p->Mzero; }
 double Mhalf(const GeneratorMasses* p){ return p->Mhalf; }
