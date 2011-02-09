@@ -253,15 +253,15 @@ int plot(int argc, char** argv)
    //if (gPLexpexcl)     gPLexpexcl->Draw("l");
    //if (gFCexpexcl)     gFCexpexcl->Draw("l");
    //set old exclusion Limits
-   TGraph* LEP_ch = set_lep_ch();
-   TGraph* LEP_sl = set_lep_sl();//slepton curve
-   TGraph* TEV_sg_cdf = set_tev_sg_cdf();//squark gluino cdf
-   TGraph* TEV_sg_d0 = set_tev_sg_d0();//squark gluino d0
-   TGraph* TEV_tlp_cdf = set_tev_tlp_cdf();//trilepton cdf
-   TGraph* TEV_tlp_d0 = set_tev_tlp_d0();//trilepton d0
-   TGraph* stau = set_tev_stau();//stau 
-   TGraph* TEV_sn_d0_1 = set_sneutrino_d0_1();
-   TGraph* TEV_sn_d0_2 = set_sneutrino_d0_2();
+   TGraph* LEP_ch = set_lep_ch(3);
+   TGraph* LEP_sl = set_lep_sl(3);//slepton curve
+   TGraph* TEV_sg_cdf = set_tev_sg_cdf(3);//squark gluino cdf
+   TGraph* TEV_sg_d0 = set_tev_sg_d0(3);//squark gluino d0
+   //TGraph* TEV_tlp_cdf = set_tev_tlp_cdf(10);//trilepton cdf
+   //TGraph* TEV_tlp_d0 = set_tev_tlp_d0(10);//trilepton d0
+   TGraph* stau = set_tev_stau(3);//stau 
+   TGraph* TEV_sn_d0_1 = set_sneutrino_d0_1(3);
+   TGraph* TEV_sn_d0_2 = set_sneutrino_d0_2(3);
    TGraphErrors* First  = getObserved_NLO_tanBeta3();
    TGraphErrors* Second = getExpected_NLO_tanBeta3();//getLO_jetMultis();
    TGraphErrors* Third  = getLO_tanBeta3();
@@ -282,8 +282,8 @@ int plot(int argc, char** argv)
    sThird->SetLineWidth(3);
    TEV_sn_d0_1->Draw("fsame");
    TEV_sn_d0_2->Draw("fsame");
-   TEV_sg_d0->Draw("fsame");
-   TEV_sg_cdf->Draw("fsame");
+   //TEV_sg_d0->Draw("fsame");
+   //TEV_sg_cdf->Draw("fsame");
    LEP_ch->Draw("fsame");
    LEP_sl->Draw("fsame");
    stau->Draw("fsame");
@@ -301,9 +301,9 @@ int plot(int argc, char** argv)
    TLegend * leg = new TLegend(0.45,0.7,0.85,0.89);
    leg->SetBorderSize(0);leg->SetFillColor(0);
    //if (gobsexcl) leg->AddEntry(gobsexcl,"Observed (MHT, CLs, TLimit)","l");
+   if (gCLsObsExclHT) leg->AddEntry(gCLsObsExclHT,"LO Observed (HT, CLs)","l");
+   if (gCLsExpExclHT) leg->AddEntry(gCLsExpExclHT,"LO Expected (HT, CLs)","l");
    if (gexpexcl) leg->AddEntry(gexpexcl,"LO Expected (MHT, CLs, TLimit)","l");
-   if (gCLsObsExclHT) leg->AddEntry(gCLsObsExclHT,"LO Observed (HT, CLs, TLimit)","l");
-   if (gCLsExpExclHT) leg->AddEntry(gCLsExpExclHT,"LO Expected (HT, CLs, TLimit)","l");
    //if (gPLobsexcl) leg->AddEntry(gPLobsexcl,"Observed (PL, RooStat)","l");
    //if (gPLexpexcl) leg->AddEntry(gPLexpexcl,"Expected (PL, RooStat)","l");
    //if (gFCobsexcl) leg->AddEntry(gFCobsexcl,"Observed (FC, RooStat)","l");
