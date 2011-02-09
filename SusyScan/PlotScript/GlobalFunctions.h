@@ -209,7 +209,7 @@ TGraph* set_tev_stau(){
 }
 
 
-TGraphErrors* getLO_signalCont(){
+TGraphErrors* getLO_tanBeta3(){
 
 
 
@@ -220,14 +220,9 @@ TGraphErrors* getLO_signalCont(){
   Double_t eyl[9];
   
   // cout << " n " << hist->GetXaxis()->GetNbins() << endl;
-
-  for(int i = 0; i < nl; i++){
-    exl[i] = 5;
-    eyl[i] = 5;
-
-  }
   
-  xl[0] = 0;
+ 
+   xl[0] = 0;
   yl[0] = 265;
   xl[1] = 100;
   yl[1] = 258;
@@ -241,13 +236,124 @@ TGraphErrors* getLO_signalCont(){
   yl[5] = 177;
   xl[6] = 400;
   yl[6] = 140;
-  xl[7] = 460;
+  xl[7] = 450;
   yl[7] = 120;
-  xl[8] = 490;
+  xl[8] = 520;
   yl[8] =100;
 
+  
+  TGraphErrors* gr1 = new TGraphErrors(nl,xl,yl,exl,eyl);
+  gr1->SetMarkerColor(kGreen+2);
+  gr1->SetMarkerStyle(21);
+  
+  
+  //gr1->Draw("LP");
 
- 
+  TSpline3 *s = new TSpline3("grs",gr1);
+  s->SetLineColor(kGreen+2);
+  s->SetLineStyle(4);
+  s->SetLineWidth(3);
+  
+
+  return gr1;
+
+
+
+}
+
+TGraphErrors* getLO_tanBeta10(){
+
+
+
+  Int_t nl = 10;
+  Double_t xl[10];
+  Double_t yl[10];
+  Double_t exl[10];
+  Double_t eyl[10];
+  
+  // cout << " n " << hist->GetXaxis()->GetNbins() << endl;
+  
+  xl[0] = 0;
+  yl[0] = 270;
+  xl[1] = 100;
+  yl[1] = 260;
+  xl[2] = 200;
+  yl[2] = 250;
+  xl[3] = 250;
+  yl[3] = 240;
+  xl[4] = 300;
+  yl[4] = 210;
+  xl[5] = 350;
+  yl[5] = 174;
+  xl[6] = 400;
+  yl[6] = 147;
+  xl[7] = 450;
+  yl[7] = 127;
+  xl[8] = 500;
+  yl[8] =115;
+  xl[9] = 520;
+  yl[9] = 112;
+  
+  
+  
+  
+  
+  
+  TGraphErrors* gr1 = new TGraphErrors(nl,xl,yl,exl,eyl);
+  gr1->SetMarkerColor(kGreen+2);
+  gr1->SetMarkerStyle(21);
+  
+  
+  //gr1->Draw("LP");
+
+  TSpline3 *s = new TSpline3("grs",gr1);
+  s->SetLineColor(kGreen+2);
+  s->SetLineStyle(4);
+  s->SetLineWidth(3);
+  
+
+  return gr1;
+
+
+
+}
+
+TGraphErrors* getLO_tanBeta50(){
+
+
+
+  Int_t nl = 10;
+  Double_t xl[10];
+  Double_t yl[10];
+  Double_t exl[10];
+  Double_t eyl[10];
+  
+  // cout << " n " << hist->GetXaxis()->GetNbins() << endl;
+  
+
+  xl[0] = 200;
+  yl[0] = 239;
+  xl[1] = 210;
+  yl[1] = 249;
+  xl[2] = 229;
+  yl[2] = 260;
+  xl[3] = 250;
+  yl[3] = 245;
+  xl[4] = 300;
+  yl[4] = 210;
+  xl[5] = 350;
+  yl[5] = 180;
+  xl[6] = 400;
+  yl[6] = 160;
+  xl[7] = 450;
+  yl[7] = 150;
+  xl[8] = 500;
+  yl[8] =140;
+  xl[9] = 520;
+  yl[9] = 137;
+  
+  
+  
   
   
   
@@ -271,7 +377,8 @@ TGraphErrors* getLO_signalCont(){
 }
 
 
-TGraphErrors* getExpected_NLOunc(){
+
+TGraphErrors* getExpected_NLO_tanBeta3(){
 
  Int_t nl = 11;
   Double_t xl[11];
@@ -279,15 +386,7 @@ TGraphErrors* getExpected_NLOunc(){
   Double_t exl[11];
   Double_t eyl[11];
   
-  // cout << " n " << hist->GetXaxis()->GetNbins() << endl;
-  
-  for(int i = 0; i < nl; i++){
-    exl[i] = 5;
-    eyl[i] = 5;
-
-  }
-
-  xl[0] = 35;
+    xl[0] = 0;
   yl[0] = 283;
   xl[1] = 100;
   yl[1] = 280;
@@ -308,13 +407,80 @@ TGraphErrors* getExpected_NLOunc(){
   xl[9] = 500;
   yl[9] = 155;
   xl[10] = 550;
-  yl[10] = 50;
+  yl[10] = 150;
+
+ 
   
+  TGraphErrors* gr1 = new TGraphErrors(nl,xl,yl,exl,eyl);
+  gr1->SetMarkerColor(kBlue);
+  gr1->SetMarkerStyle(21);
+  
+  
+  //gr1->Draw("LP");
+
+  TSpline3 *s = new TSpline3("grs",gr1);
+  s->SetLineColor(kBlue);
+  s->SetLineStyle(2);
+  s->SetLineWidth(3);
+  
+
+  return gr1;
+
+
+
+
+
+}
+
+TGraphErrors* getExpected_NLO_tanBeta10(){
+
+ Int_t nl = 11;
+  Double_t xl[11];
+  Double_t yl[11];
+  Double_t exl[11];
+  Double_t eyl[11];
+  
+  // cout << " n " << hist->GetXaxis()->GetNbins() << endl;
+  
+   xl[0] = 0;
+  yl[0] = 283;
+  xl[1] = 100;
+  yl[1] = 280;
+  xl[2] = 150;
+  yl[2] = 279;
+  xl[3] = 200;
+  yl[3] = 275;
+  xl[4] = 250;
+  yl[4] = 270;
+  xl[5] = 300;
+  yl[5] = 255;
+  xl[6] = 350;
+  yl[6] = 225;
+  xl[7] = 400;
+  yl[7] = 195;
+  xl[8] = 450;
+  yl[8] = 175;
+  xl[9] = 500;
+  yl[9] = 165;
+  xl[10] = 550;
+  yl[10] = 150;
+
+
+
   
   
   TGraphErrors* gr1 = new TGraphErrors(nl,xl,yl,exl,eyl);
-  gr1->SetMarkerColor(kWhite);
- 
+  gr1->SetMarkerColor(kBlue);
+  gr1->SetMarkerStyle(21);
+  
+  
+  //gr1->Draw("LP");
+
+  TSpline3 *s = new TSpline3("grs",gr1);
+  s->SetLineColor(kBlue);
+  s->SetLineStyle(2);
+  s->SetLineWidth(3);
+  
 
   return gr1;
 
@@ -325,9 +491,66 @@ TGraphErrors* getExpected_NLOunc(){
 }
 
 
-TGraphErrors* getObserved_NLOunc(){
+TGraphErrors* getExpected_NLO_tanBeta50(){
 
-  Int_t nl = 11;
+ Int_t nl = 10;
+  Double_t xl[10];
+  Double_t yl[10];
+  Double_t exl[10];
+  Double_t eyl[10];
+  
+  // cout << " n " << hist->GetXaxis()->GetNbins() << endl;
+  
+   xl[0] = 200;
+  yl[0] = 287;
+  xl[1] = 220;
+  yl[1] = 287;
+  xl[2] = 245;
+  yl[2] = 287;
+  xl[3] = 270;
+  yl[3] = 265;
+  xl[4] = 300;
+  yl[4] = 245;
+  xl[5] = 350;
+  yl[5] = 222;
+  xl[6] = 400;
+  yl[6] = 197;
+  xl[7] = 450;
+  yl[7] = 180;
+  xl[8] = 500;
+  yl[8] = 168;
+  xl[9] = 550;
+  yl[9] = 145;
+
+
+
+  
+  
+  TGraphErrors* gr1 = new TGraphErrors(nl,xl,yl,exl,eyl);
+  gr1->SetMarkerColor(kBlue);
+  gr1->SetMarkerStyle(21);
+  
+  
+  //gr1->Draw("LP");
+
+  TSpline3 *s = new TSpline3("grs",gr1);
+  s->SetLineColor(kBlue);
+  s->SetLineStyle(2);
+  s->SetLineWidth(3);
+  
+
+  return gr1;
+
+
+
+
+
+}
+
+
+TGraphErrors* getObserved_NLO_tanBeta3(){
+
+ Int_t nl = 11;
   Double_t xl[11];
   Double_t yl[11];
   Double_t exl[11];
@@ -335,14 +558,10 @@ TGraphErrors* getObserved_NLOunc(){
   
   // cout << " n " << hist->GetXaxis()->GetNbins() << endl;
   
-  for(int i = 0; i < nl; i++){
-    exl[i] = 5;
-    eyl[i] = 5;
 
-  }
-
-  xl[0] = 35;
-  yl[0] = 272;
+  
+  xl[0] = 0;
+  yl[0] = 274;
   xl[1] = 100;
   yl[1] = 270;
   xl[2] = 150;
@@ -352,24 +571,142 @@ TGraphErrors* getObserved_NLOunc(){
   xl[4] = 250;
   yl[4] = 255;
   xl[5] = 300;
-  yl[5] = 236;
+  yl[5] = 230;
   xl[6] = 350;
-  yl[6] = 198;
+  yl[6] = 195;
   xl[7] = 400;
-  yl[7] = 168;
+  yl[7] = 160;
   xl[8] = 450;
-  yl[8] = 150;
-  xl[9] = 490;
-  yl[9] = 135;
-  xl[10] = 503;
+  yl[8] = 140;
+  xl[9] = 480;
+  yl[9] = 130;
+  xl[10] = 530;
   yl[10] = 120;
+ 
   
   
   
   TGraphErrors* gr1 = new TGraphErrors(nl,xl,yl,exl,eyl);
-  gr1->SetMarkerColor(kWhite);
-  gr1->SetLineColor(kWhite);
-  // gr1->SetMarkerStyle(21);
+  gr1->SetMarkerColor(kBlue);
+  gr1->SetMarkerStyle(21);
+  
+  
+  //gr1->Draw("LP");
+
+  TSpline3 *s = new TSpline3("grs",gr1);
+  s->SetLineColor(kRed);
+  // s->SetLineStyle(2);
+  s->SetLineWidth(3);
+  
+
+  return gr1;
+
+
+
+
+
+}
+
+
+
+TGraphErrors* getObserved_NLO_tanBeta10(){
+
+ Int_t nl = 11;
+  Double_t xl[11];
+  Double_t yl[11];
+  Double_t exl[11];
+  Double_t eyl[11];
+  
+  // cout << " n " << hist->GetXaxis()->GetNbins() << endl;
+  
+   xl[0] = 0;
+  yl[0] = 278;
+  xl[1] = 100;
+  yl[1] = 270;
+  xl[2] = 150;
+  yl[2] = 267;
+  xl[3] = 200;
+  yl[3] = 262;
+  xl[4] = 250;
+  yl[4] = 250;
+  xl[5] = 300;
+  yl[5] = 225;
+  xl[6] = 350;
+  yl[6] = 192;
+  xl[7] = 400;
+  yl[7] = 163;
+  xl[8] = 450;
+  yl[8] = 148;
+  xl[9] = 500;
+  yl[9] = 140;
+  xl[10] = 520;
+  yl[10] = 137;
+  
+ 
+ 
+  
+  
+  TGraphErrors* gr1 = new TGraphErrors(nl,xl,yl,exl,eyl);
+  gr1->SetMarkerColor(kBlue);
+  gr1->SetMarkerStyle(21);
+  
+  
+  //gr1->Draw("LP");
+
+  TSpline3 *s = new TSpline3("grs",gr1);
+  s->SetLineColor(kRed);
+  //  s->SetLineStyle(2);
+  s->SetLineWidth(3);
+  
+
+  return gr1;
+
+
+
+
+
+}
+
+
+TGraphErrors* getObserved_NLO_tanBeta50(){
+
+ Int_t nl = 10;
+  Double_t xl[10];
+  Double_t yl[10];
+  Double_t exl[10];
+  Double_t eyl[10];
+  
+  // cout << " n " << hist->GetXaxis()->GetNbins() << endl;
+  
+
+  xl[0] = 200;
+  yl[0] = 243;
+  xl[1] = 220;
+  yl[1] = 264;
+  xl[2] = 235;
+  yl[2] = 278;
+  xl[3] = 250;
+  yl[3] = 267;
+  xl[4] = 300;
+  yl[4] = 230;
+  xl[5] = 350;
+  yl[5] = 205;
+  xl[6] = 400;
+  yl[6] = 184;
+  xl[7] = 450;
+  yl[7] = 168;
+  xl[8] = 500;
+  yl[8] = 156;
+  xl[9] = 520;
+  yl[9] = 148;
+  
+ 
+ 
+  
+  
+  TGraphErrors* gr1 = new TGraphErrors(nl,xl,yl,exl,eyl);
+  gr1->SetMarkerColor(kBlue);
+  gr1->SetMarkerStyle(21);
   
   
   //gr1->Draw("LP");
