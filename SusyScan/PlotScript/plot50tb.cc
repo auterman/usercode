@@ -262,9 +262,9 @@ int plot(int argc, char** argv)
    TGraph* stau = set_tev_stau();//stau 
    TGraph* TEV_sn_d0_1 = set_sneutrino_d0_1();
    TGraph* TEV_sn_d0_2 = set_sneutrino_d0_2();
-   TGraphErrors* First = getObserved_NLOunc();
-   TGraphErrors* Second = getExpected_NLOunc();//getLO_jetMultis();
-   TGraphErrors* Third = getLO_signalCont();
+   TGraphErrors* First  = getObserved_NLO_tanBeta50();
+   TGraphErrors* Second = getExpected_NLO_tanBeta50();//getLO_jetMultis();
+   TGraphErrors* Third  = getLO_tanBeta50();
    First->GetXaxis()->SetRangeUser(0,505);
    First->GetYaxis()->SetRangeUser(80,500);
    First->GetXaxis()->SetTitle("m_{0} (GeV)");
@@ -289,6 +289,7 @@ int plot(int argc, char** argv)
    stau->Draw("fsame");
    sFirst->Draw("same");
    sSecond->Draw("same");
+   sThird->Draw("same");
    TLatex b; b.SetTextSize(0.02); b.SetTextColor(1);
    //b.DrawLatex( 10,420,"#tilde{#tau} LSP"); 
    //b.DrawLatex(  6,150,"LEP2"); 
@@ -309,8 +310,9 @@ int plot(int argc, char** argv)
    //if (gFCexpexcl) leg->AddEntry(gFCexpexcl,"Expected (FC, RooStat)","l");
    //if (gMCMCobsexcl) leg->AddEntry(gMCMCobsexcl,"Observed (MHT, MCMC, RooStat)","l");
    if (gMCMCexpexcl) leg->AddEntry(gMCMCexpexcl,"LO Expected (HT, MCMC, RooStat)","l");
-   if (sFirst)  leg->AddEntry(sFirst, "RA1 NLO Observed");
-   if (sSecond) leg->AddEntry(sSecond,"RA1 NLO Expected");
+   if (sFirst)  leg->AddEntry(sFirst, "NLO RA1 Observed");
+   if (sSecond) leg->AddEntry(sSecond,"NLO RA1 Expected");
+   if (sThird) leg->AddEntry(sThird,"LO RA1 Observed");
    leg->Draw();
    gPad->RedrawAxis();
    c1->SaveAs("results_tb50/Exclusion_m0_m12_tb50.pdf");
