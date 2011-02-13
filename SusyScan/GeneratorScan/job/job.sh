@@ -51,7 +51,7 @@
   m_zero_max=$(($m_zero+10))
   while [ "$m_zero" -lt "$m_zero_max" ]
   do
-    m_half=100
+    m_half=5
     while [ "$m_half" -le 500 ]
     do
        echo "mzero = $m_zero,  mhalf = $m_half" >> log_$JOB.txt
@@ -59,10 +59,10 @@
        ./fill isa.out scan_$JOB.dat
        #runPythia.sh $m_zero $m_half $tanb $A_zero $signmu
        #./fill_xsec pythia.out scan_xsec.dat
-       m_half=$(($m_half+10))
+       m_half=$(($m_half+5))
     done
 
-    m_zero=$(($m_zero+10))
+    m_zero=$(($m_zero+5))
   done
 
   
@@ -71,3 +71,4 @@
 
   cp scan_$JOB.dat /afs/naf.desy.de/user/a/auterman/production/SusyScan/GeneratorScan/job/.
   cp log_$JOB.txt /afs/naf.desy.de/user/a/auterman/production/SusyScan/GeneratorScan/job/.
+## qsub -t 20-100 -l h_cpu=00:59:00 -l h_vmem=2000M job.sh
