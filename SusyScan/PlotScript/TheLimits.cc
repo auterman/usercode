@@ -119,6 +119,7 @@ void TheLimits::FillGeneratorMasses(std::string file)
                   >> p->MHp;
 
       if (!masses_file.good()) break;
+      //std::cout << p->Mzero<<", "<<p->Mhalf<<", "<<p->TanBeta<<std::endl;
       if (fabs(p->Mu)!=1.) {
          std::cerr << "check lines near m0=" << p->Mzero << ", m1/2=" << p->Mhalf << std::endl;
          break;

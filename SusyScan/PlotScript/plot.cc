@@ -95,13 +95,13 @@ int plot(int argc, char** argv)
    //Replace read limits with specific numbers
    //genpoints->OverwriteLimits("ABCD_MHT");
    
-   genpoints->FillGeneratorMasses("tb10_mu1_a0_massscan.dat");
+   genpoints->FillGeneratorMasses("GenScan_tb10.dat");
    genpoints->match();
-   genpointsHT->FillGeneratorMasses("tb10_mu1_a0_massscan.dat");
+   genpointsHT->FillGeneratorMasses("GenScan_tb10.dat");
    genpointsHT->match();
-   genpointsHT_SC->FillGeneratorMasses("tb10_mu1_a0_massscan.dat");
+   genpointsHT_SC->FillGeneratorMasses("GenScan_tb10.dat");
    genpointsHT_SC->match();
-   genpointsMHT_SC->FillGeneratorMasses("tb10_mu1_a0_massscan.dat");
+   genpointsMHT_SC->FillGeneratorMasses("GenScan_tb10.dat");
    genpointsMHT_SC->match();
 
    //the plotting ----------------------------------------------------------------------
@@ -300,8 +300,8 @@ int plot(int argc, char** argv)
    sThird->SetLineWidth(3);
    TEV_sn_d0_1->Draw("fsame");
    TEV_sn_d0_2->Draw("fsame");
-   //TEV_sg_d0->Draw("fsame");
-   //TEV_sg_cdf->Draw("fsame");
+   TEV_sg_d0->Draw("fsame");
+   TEV_sg_cdf->Draw("fsame");
    LEP_ch->Draw("fsame");
    LEP_sl->Draw("fsame");
    stau->Draw("fsame");
@@ -313,8 +313,8 @@ int plot(int argc, char** argv)
    b.DrawLatex(  6,150,"LEP2"); 
    b.DrawLatex( 22,138,"#tilde{l}^{#pm}"); 
    b.DrawLatex(360,110,"LEP2 #tilde{#chi}^{#pm}"); 
-   b.DrawLatex(100,140,"CDF"); 
-   b.DrawLatex(248,129,"D0 #tilde{g}, #tilde{q}"); 
+   b.DrawLatex(90,160,"CDF"); 
+   //b.DrawLatex(248,129,"D0 #tilde{g}, #tilde{q}"); 
    b.DrawLatex( 80,180,"D0 #tilde{#nu}"); 
 
    TLegend * leg = new TLegend(0.45,0.7,0.85,0.89);

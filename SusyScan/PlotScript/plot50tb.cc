@@ -89,9 +89,9 @@ int plot(int argc, char** argv)
    //Replace read limits with specific numbers
    //genpoints->OverwriteLimits("ABCD_MHT");
    
-   genpoints->FillGeneratorMasses("tb50_mu1_a0_massscan.dat");
+   genpoints->FillGeneratorMasses("GenScan_tb50.dat");
    genpoints->match();
-   genpointsHT->FillGeneratorMasses("tb50_mu1_a0_massscan.dat");
+   genpointsHT->FillGeneratorMasses("GenScan_tb50.dat");
    genpointsHT->match();
 
    //the plotting ----------------------------------------------------------------------
@@ -282,8 +282,8 @@ int plot(int argc, char** argv)
    sThird->SetLineWidth(3);
    TEV_sn_d0_1->Draw("fsame");
    TEV_sn_d0_2->Draw("fsame");
-   //TEV_sg_d0->Draw("fsame");
-   //TEV_sg_cdf->Draw("fsame");
+   TEV_sg_d0->Draw("fsame");
+   TEV_sg_cdf->Draw("fsame");
    LEP_ch->Draw("fsame");
    LEP_sl->Draw("fsame");
    stau->Draw("fsame");
@@ -292,11 +292,11 @@ int plot(int argc, char** argv)
    sThird->Draw("same");
    TLatex b; b.SetTextSize(0.02); b.SetTextColor(1);
    //b.DrawLatex( 10,420,"#tilde{#tau} LSP"); 
-   //b.DrawLatex(  6,150,"LEP2"); 
+   b.DrawLatex(230,145,"LEP2"); 
    //b.DrawLatex( 22,138,"#tilde{l}^{#pm}"); 
    //b.DrawLatex(360,110,"LEP2 #tilde{#chi}^{#pm}"); 
    //b.DrawLatex(100,140,"CDF"); 
-   b.DrawLatex(230,145,"D0 #tilde{g}, #tilde{q}"); 
+   //b.DrawLatex(230,145,"D0 #tilde{g}, #tilde{q}"); 
    //b.DrawLatex( 80,180,"D0 #tilde{#nu}"); 
    TLegend * leg = new TLegend(0.45,0.7,0.85,0.89);
    leg->SetBorderSize(0);leg->SetFillColor(0);
@@ -340,7 +340,6 @@ int plot(int argc, char** argv)
    c1->SaveAs("results_tb50/SignalContamination_MHT_m0_m12_tb50.pdf");
    
 
-/*
    //-----------------------------------------------------------------------------------
    c1->SetLogz(1);
 
@@ -349,7 +348,7 @@ int plot(int argc, char** argv)
 
    // cross-section in squark - gluino mass
    TH2F*hxsec_qg = new TH2F("xsec_qg",";m_{#tilde{q}} [GeV]; m_{#tilde{g}} [GeV]; cross section [pb]",
-                     60,200,1400,50,200,1200);
+                     40,200,900,30,200,900);
    plotTools->Area(hxsec_qg, MSquarkL, MGluino, Xsection);
    hxsec_qg->SetMinimum(0.01);
    hxsec_qg->Draw("colz");
@@ -359,7 +358,7 @@ int plot(int argc, char** argv)
    
    // Observed Limit in squark - gluino mass
    TH2F*hobslimit_qg = new TH2F("obslimit_qg",";m_{#tilde{q}} [GeV]; m_{#tilde{g}} [GeV]; 95% CL Observed Limit [pb]",
-                     60,200,1400,50,200,1200);
+                     40,200,900,30,200,900);
    plotTools->Area(hobslimit_qg, MSquarkL, MGluino, ObsXsecLimit);
    hobslimit_qg->SetMinimum(0.01);
    hobslimit_qg->Draw("colz");
@@ -367,7 +366,7 @@ int plot(int argc, char** argv)
    
    // Expected Limit in squark - gluino mass
    TH2F*hexplimit_qg = new TH2F("explimit_qg",";m_{#tilde{q}} [GeV]; m_{#tilde{g}} [GeV]; 95% CL Expected Limit [pb]",
-                     60,200,1400,50,200,1200);
+                     40,200,900,30,200,900);
    plotTools->Area(hexplimit_qg, MSquarkL, MGluino, ExpXsecLimit);
    hexplimit_qg->SetMinimum(0.01);
    hexplimit_qg->Draw("colz");
@@ -375,7 +374,7 @@ int plot(int argc, char** argv)
    
    // Signal Acceptance in squark - gluino mass
    TH2F*hsigacc_qg = new TH2F("sigacc_qg",";m_{#tilde{q}} [GeV]; m_{#tilde{g}} [GeV]; Signal Acceptance",
-                     60,200,1400,50,200,1200);
+                     40,200,900,30,200,900);
    plotTools->Area(hsigacc_qg, MSquarkL, MGluino, SignalAcceptance);
    hsigacc_qg->SetMinimum(0.01);
    hsigacc_qg->SetMaximum(1.0);
@@ -385,7 +384,7 @@ int plot(int argc, char** argv)
    // Exp. Limit on Number of Signal Events in squark - gluino mass
    c1->SetLogz(0);
    TH2F*hexplimitnsig_qg = new TH2F("explimitnsig_qg",";m_{#tilde{q}} [GeV]; m_{#tilde{g}} [GeV]; 95% CL exp. limit signal events [# ]",
-                     60,200,1400,50,200,1200);
+                     40,200,900,30,200,900);
    plotTools->Area(hexplimitnsig_qg, MSquarkL, MGluino, ExpNSignLimit);
    hexplimitnsig_qg->SetMinimum(0.0);
    hexplimitnsig_qg->SetMaximum(20);
@@ -394,7 +393,7 @@ int plot(int argc, char** argv)
    
    // Obs. Limit on Number of Signal Events in squark - gluino mass
    TH2F*hobslimitnsig_qg = new TH2F("obslimitnsig_qg",";m_{#tilde{q}} [GeV]; m_{#tilde{g}} [GeV]; 95% CL obs. limit signal events [# ]",
-                     60,200,1400,50,200,1200);
+                     40,200,900,30,200,900);
    plotTools->Area(hobslimitnsig_qg, MSquarkL, MGluino, ObsNSignLimit);
    hobslimitnsig_qg->SetMinimum(0.0);
    hobslimitnsig_qg->SetMaximum(20);
@@ -404,14 +403,14 @@ int plot(int argc, char** argv)
    c1->SetLogz(0);
    // Expected Exclusion in squark - gluino mass
    TH2F*hexpexcl_qg = new TH2F("expexcl_qg",";m_{#tilde{q}} [GeV]; m_{#tilde{g}} [GeV]; 95% CL Expected Exclusion",
-                     60,200,1400,50,200,1200);
+                     40,200,900,30,200,900);
    plotTools->Area(hexpexcl_qg, MSquarkL, MGluino, ExpExclCL);
    hexpexcl_qg->Draw("colz");
    c1->SaveAs("results_tb50/ExpExclusion_mSql_mGl_tb50.pdf");
    
    // Observed Exclusion in squark - gluino mass
    TH2F*hobsexcl_qg = new TH2F("obsexcl_qg",";m_{#tilde{q}} [GeV]; m_{#tilde{g}} [GeV]; 95% CL Observed Exclusion",
-                     60,200,1400,50,200,1200);
+                     40,200,900,30,200,900);
    plotTools->Area(hobsexcl_qg, MSquarkL, MGluino, ObsExclCL);
    //std::vector<TGraph *> vobsexcl_qg = plotTools->GetContours(hobsexcl_qg);
    hobsexcl_qg->Draw("colz");
@@ -423,7 +422,7 @@ int plot(int argc, char** argv)
    
    // TestContours in M0 - M1/2
    TH2F*texcl_qg = new TH2F("texcl_qg",";m_{#tilde{q}} [GeV]; m_{#tilde{g}} [GeV]; 95% CL Observed Exclusion",
-                     60,200,1400,50,200,1200);
+                     40,200,900,30,200,900);
    TH2F*tPLobsexcl_qg=(TH2F*)texcl_qg->Clone();
    plotTools->Area(tPLobsexcl_qg, MSquarkL, MGluino, PLObsExclusion);
    TH2F*tPLexpexcl_qg=(TH2F*)texcl_qg->Clone();
@@ -454,55 +453,48 @@ int plot(int argc, char** argv)
 
    // Observed Exclusion in squark - gluino mass
    TH2F*hPLobsexcl_qg = new TH2F("plobsexcl_qg",";m_{#tilde{q}} [GeV]; m_{#tilde{g}} [GeV]; 95% CL Observed Exclusion",
-                     60,200,1400,50,200,1200);
+                     40,200,900,30,200,900);
    plotTools->Area(hPLobsexcl_qg, MSquarkL, MGluino, PLObsExclusion);
    //hPLobsexcl_qg->Draw("colz");
    //c1->SaveAs("results_tb50/PL_ObsExclusion_mSql_mGl_tb50.pdf");
    
 
 
-
-
    // Exclusion in squark - gluino mass ----------------------------------------
    TH2F*hexcl_qg = new TH2F("hexcl_qg",";m_{#tilde{q}} [GeV]; m_{#tilde{g}} [GeV]; 95% CL Observed Exclusion",
-                     60,200,1400,50,200,1200);
-   TGraph * gexpexcl_qg = plotTools->GetContour(hexpexcl_qg,3,0); 
-   if (gexpexcl_qg) gexpexcl_qg->SetLineStyle(2);
-   TGraph * gobsexcl_qg = plotTools->GetContour(hobsexcl_qg,3,0);
-   TH2F*hPLexpexcl_qg=(TH2F*)hexcl_qg->Clone();
-   plotTools->Area(hPLexpexcl_qg, MSquarkL, MGluino, PLExpExclusion);   
-   TGraph * gPLexpexcl_qg = plotTools->GetContour(hPLexpexcl_qg,3,0); 
-   if (gPLexpexcl_qg)   {gPLexpexcl_qg->SetLineStyle(2);gPLexpexcl_qg->SetLineColor(2);}
-   TGraph * gPLobsexcl_qg = plotTools->GetContour(hPLobsexcl_qg,3,0); 
-   if (gPLobsexcl_qg) gPLobsexcl_qg->SetLineColor(2);
-   TH2F*hCLsExpHT_qg=(TH2F*)hexcl_qg->Clone();
-   TH2F*hCLsObsHT_qg=(TH2F*)hexcl_qg->Clone();
-   plotToolsHT->Area(hCLsExpHT_qg, MSquarkL, MGluino, ExpExclCL);
-   plotToolsHT->Area(hCLsObsHT_qg, MSquarkL, MGluino, ObsExclCL);
-   TGraph * gCLsExpExclHT_qg = plotTools->GetContour(hCLsExpHT_qg,3,0); 
-   TGraph * gCLsObsExclHT_qg = plotTools->GetContour(hCLsObsHT_qg,3,0); 
-   if (gCLsObsExclHT_qg) gCLsObsExclHT_qg->SetLineColor(2);
-   if (gCLsExpExclHT_qg) {gCLsExpExclHT_qg->SetLineStyle(2);gCLsExpExclHT_qg->SetLineColor(2);}
+                     40,200,900,30,200,900);
+   TGraph * gexpexcl_qg         = plotTools->GetContour(hexcl_qg,MSquarkL,MGluino,ExpExclCL,       3,0, 2,2); 
+   TGraph * gobsexcl_qg         = plotTools->GetContour(hexcl_qg,MSquarkL,MGluino,ObsExclCL,       3,0, 2,1);
+   TGraph * gMCMCexpexcl_qg     = plotToolsHT->GetContour(hexcl_qg,MSquarkL,MGluino,MCMCExpExclusion,3,0, 3,2); 
+   TGraph * gMCMCobsexcl_qg     = plotToolsHT->GetContour(hexcl_qg,MSquarkL,MGluino,MCMCObsExclusion,3,0, 3,1); 
+   TGraph * gCLsExpExclHT_qg    = plotToolsHT->GetContour(hexcl_qg,MSquarkL,MGluino,ExpExclCL,       3,0, 1,2); 
+   TGraph * gCLsObsExclHT_qg    = plotToolsHT->GetContour(hexcl_qg,MSquarkL,MGluino,ObsExclCL,       3,0, 1,1); 
+   TGraph * gCLsExpExclHTm1_qg  = plotToolsHT->GetContour(hexcl_qg,MSquarkL,MGluino,ExpExclCLm1sigma,3,0, 5,2); 
+   TGraph * gCLsExpExclHTp1_qg  = plotToolsHT->GetContour(hexcl_qg,MSquarkL,MGluino,ExpExclCLp1sigma,3,0, 5,2); 
+   TGraph * gCLsExp1Sigma_qg    = MakeBand(gCLsExpExclHTp1_qg, gCLsExpExclHTm1_qg);
    hexcl_qg->Draw("");
-   if (gobsexcl_qg) gobsexcl_qg->Draw("l");
+   //
+   if (gCLsExp1Sigma_qg) gCLsExp1Sigma_qg->Draw("lf");   
+   if (gobsexcl_qg)      gobsexcl_qg->Draw("l");
    if (gCLsObsExclHT_qg) gCLsObsExclHT_qg->Draw("l");
-   if (gexpexcl_qg) gexpexcl_qg->Draw("l");
-   //if (gPLobsexcl_qg) gPLobsexcl_qg->Draw("l");
-   //if (gPLexpexcl_qg) gPLexpexcl_qg->Draw("l");
+   if (gexpexcl_qg)      gexpexcl_qg->Draw("l");
    if (gCLsExpExclHT_qg) gCLsExpExclHT_qg->Draw("l");
+   //
    TLegend * leg_qg = new TLegend(0.45,0.78,0.85,0.89);
    leg_qg->SetBorderSize(0);leg_qg->SetFillColor(0);
-   if (gobsexcl_qg) leg_qg->AddEntry(gobsexcl_qg,"Observed (MHT, CLs, TLimit)","l");
-   if (gexpexcl_qg) leg_qg->AddEntry(gexpexcl_qg,"Expected (MHT, CLs, TLimit)","l");
-   if (gCLsObsExclHT_qg) leg_qg->AddEntry(gCLsObsExclHT_qg,"Observed (HT, CLs, TLimit)","l");
-   if (gCLsExpExclHT_qg) leg_qg->AddEntry(gCLsExpExclHT_qg,"Expected (HT, CLs, TLimit)","l");
+   if (gobsexcl_qg) leg_qg->AddEntry(gobsexcl_qg,"LO Observed (MHT, CLs)","l");
+   if (gexpexcl_qg) leg_qg->AddEntry(gexpexcl_qg,"LO Expected (MHT, CLs)","l");
+   if (gCLsObsExclHT_qg) leg_qg->AddEntry(gCLsObsExclHT_qg,"LO Observed (HT, CLs)","l");
+   if (gCLsExpExclHT_qg) leg_qg->AddEntry(gCLsExpExclHT_qg,"LO Expected (HT, CLs)","l");
    //if (gPLobsexcl_qg) leg_qg->AddEntry(gPLobsexcl_qg,"Observed (PL, RooStat)","l");
    //if (gPLexpexcl_qg) leg_qg->AddEntry(gPLexpexcl_qg,"Expected (PL, RooStat)","l");
    leg_qg->Draw();
    c1->SaveAs("results_tb50/Exclusion_mSql_mGl_tb50.pdf");
+   //c1->SaveAs("plot_tb10.pdf");
+
+
    
    //c1->SaveAs("plot_tb50.pdf");
-*/
    c1->SetLogy(1);
    c1->SetLogx(1);
    TH2F*hUncertScan = new TH2F("hUncertScan",";relative signal uncertainty; number of signal events",

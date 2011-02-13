@@ -29,6 +29,9 @@ class PlotTools {
                       double(*func)(const T*), int ncont=20, int flag=0,
 		      int color=1, int style=1);
 
+  void Print(double(*x)(const T*), double(*x)(const T*), double(*y)(const T*), 
+             TGraph*, double p=10.);
+
  private:
   std::vector<T*> * _scan; 
   

@@ -95,6 +95,22 @@ TGraph * PlotTools<T>::GetContour(TH2*h,double(*x)(const T*), double(*y)(const T
   graph->SetLineStyle(style);
   return graph;
 }
+ 
+template<class T>
+void PlotTools<T>::Print(double(*f)(const T*), double(*x)(const T*), double(*y)(const T*), TGraph*g, double p)
+{
+   for (typename std::vector<T*>::const_iterator it=_scan->begin();it!=_scan->end();++it){
+     for (int j=0; j<g->GetN(); ++j) {
+       double gx, gy;
+       g->GetPoint(j, gx, gy);
+       if ( (x(*it)-gx)*(x(*it)-gx) +  (y(*it)-gy)*(y(*it)-gy) < p*p)
+         std::cout << x(*it) << ", " << y(*it) << " :: " << f(*it) << std::endl;
+     }
+   } 
+
+}
+
+
 
 template<class T>
 bool PlotTools<T>::sort_TGraph::operator()(const TGraph*g1, const TGraph*g2)
