@@ -25,6 +25,10 @@ double MChi3(const SusyScan* p){ return p->MZ3; }
 double MChi4(const SusyScan* p){ return p->MZ4; }
 double MCha1(const SusyScan* p){ return p->MW1; }
 double MCha2(const SusyScan* p){ return p->MW2; }
+double SignalUncertKfactor(const SusyScan* p){return fabs(p->signal_kfactor_UP-p->signal_kfactor_DN)/(2.0*p->signal_kfactor); }
+double SignalUncertJEC(const SusyScan* p){ return (fabs(p->signal_JEC_UP)+fabs(p->signal_JEC_DN))/(2.0*p->signal); }
+double SignalUncertMuIso(const SusyScan* p){ return (fabs(p->signal_MuIso_UP)+fabs(p->signal_MuIso_DN))/(2.0*p->signal); }
+
 double Xsection(const SusyScan* p){ return p->Xsection; }
 double ExpXsecLimit(const SusyScan* p){ return p->ExpXsecLimit; }
 double ObsXsecLimit(const SusyScan* p){ return p->ObsXsecLimit; }
@@ -64,6 +68,46 @@ double MCMCObsXsecLimit(const SusyScan* p){ return p->MCMCObsXsecLimit; }
 double MCMCExpExclusion(const SusyScan* p){ return (MCMCExpXsecLimit(p)<Xsection(p)&&MCMCExpXsecLimit(p)>0.01?1:0.01); }
 double MCMCObsExclusion(const SusyScan* p){ return (MCMCObsXsecLimit(p)<Xsection(p)&&MCMCObsXsecLimit(p)>0.01?1:0.01); }
 double SignalContamination(const SusyScan* p){return p->signal_contamination; }
+
+double NLOXsection(const SusyScan* p){ return p->Xsection * p->signal_kfactor; }
+double NLOExpXsecLimit(const SusyScan* p){ return p->NLO_ExpXsecLimit; }
+double NLOObsXsecLimit(const SusyScan* p){ return p->NLO_ObsXsecLimit; }
+double NLOSignal(const SusyScan* p){ return p->NLO_signal; }
+double NLOSignalUncertainty(const SusyScan* p){ return p->NLO_signal_uncertainty; }
+double NLOSignalRelUncertainty(const SusyScan* p){ return p->NLO_signal_uncertainty/p->NLO_signal; }
+double NLOExpExclusion(const SusyScan* p){ return (NLOExpXsecLimit(p)<NLOXsection(p)&&NLOExpXsecLimit(p)>0.01?1:0.01); }
+double NLOObsExclusion(const SusyScan* p){ return (NLOObsXsecLimit(p)<NLOXsection(p)&&NLOObsXsecLimit(p)>0.01?1:0.01); }
+double NLOExpExclCL(const SusyScan* p){ return (p->NLO_CLs_b_xsec<=0.05 ? 1:0.01); }
+double NLOExpExclCLm2sigma(const SusyScan* p){ return (p->NLO_CLs_b_n2_xsec<=0.05 ? 1:0.01); }
+double NLOExpExclCLm1sigma(const SusyScan* p){ return (p->NLO_CLs_b_n1_xsec<=0.05 ? 1:0.01); }
+double NLOExpExclCLp1sigma(const SusyScan* p){ return (p->NLO_CLs_b_p1_xsec<=0.05 ? 1:0.01); }
+double NLOExpExclCLp2sigma(const SusyScan* p){ return (p->NLO_CLs_b_p2_xsec<=0.05 ? 1:0.01); }
+double NLOObsExclCL(const SusyScan* p){ return (p->NLO_CLs_xsec<=0.05 ? 1:0.01); }
+double NLOSoverSqrtB(const SusyScan* p){ return p->NLO_signal/(sqrt(p->background)+p->background_uncertainty+p->NLO_signal_uncertainty); }
+double NLOXsecOverObserved(const SusyScan* p){ return (NLOObsXsecLimit(p)==0 ? 9999. : NLOXsection(p)/NLOObsXsecLimit(p)); }
+double NLOXsecOverExpected(const SusyScan* p){ return (NLOExpXsecLimit(p)==0 ? 9999. : NLOXsection(p)/NLOExpXsecLimit(p)); }
+double NLOSignalAcceptance(const SusyScan* p){ return  p->NLO_signal / (Luminosity*NLOXsection(p)); }
+double NLOExpNSignLimit(const SusyScan* p){ return  p->NLO_ExpNsigLimit; }
+double NLOObsNSignLimit(const SusyScan* p){ return  p->NLO_ObsNsigLimit; }
+double NLOPLExpNSignLimit(const SusyScan* p){ return  p->NLO_PLExpNsigLimit; }
+double NLOPLObsNSignLimit(const SusyScan* p){ return  p->NLO_PLObsNsigLimit; }
+double NLOPLExpXsecLimit(const SusyScan* p){ return p->NLO_PLExpXsecLimit; }
+double NLOPLObsXsecLimit(const SusyScan* p){ return p->NLO_PLObsXsecLimit; }
+double NLOPLExpExclusion(const SusyScan* p){ return (NLOPLExpXsecLimit(p)<NLOXsection(p)&&NLOPLExpXsecLimit(p)>0.01?1:0.01); }
+double NLOPLObsExclusion(const SusyScan* p){ return (NLOPLObsXsecLimit(p)<NLOXsection(p)&&NLOPLObsXsecLimit(p)>0.01?1:0.01); }
+double NLOFCExpNSignLimit(const SusyScan* p){ return  p->NLO_FCExpNsigLimit; }
+double NLOFCObsNSignLimit(const SusyScan* p){ return  p->NLO_FCObsNsigLimit; }
+double NLOFCExpXsecLimit(const SusyScan* p){ return p->NLO_FCExpXsecLimit; }
+double NLOFCObsXsecLimit(const SusyScan* p){ return p->NLO_FCObsXsecLimit; }
+double NLOFCExpExclusion(const SusyScan* p){ return (NLOFCExpXsecLimit(p)<NLOXsection(p)&&NLOFCExpXsecLimit(p)>0.01?1:0.01); }
+double NLOFCObsExclusion(const SusyScan* p){ return (NLOFCObsXsecLimit(p)<NLOXsection(p)&&NLOFCObsXsecLimit(p)>0.01?1:0.01); }
+double NLOMCMCExpNSignLimit(const SusyScan* p){ return  p->NLO_MCMCExpNsigLimit; }
+double NLOMCMCObsNSignLimit(const SusyScan* p){ return  p->NLO_MCMCObsNsigLimit; }
+double NLOMCMCExpXsecLimit(const SusyScan* p){ return p->NLO_MCMCExpXsecLimit; }
+double NLOMCMCObsXsecLimit(const SusyScan* p){ return p->NLO_MCMCObsXsecLimit; }
+double NLOMCMCExpExclusion(const SusyScan* p){ return (NLOMCMCExpXsecLimit(p)<NLOXsection(p)&&NLOMCMCExpXsecLimit(p)>0.01?1:0.01); }
+double NLOMCMCObsExclusion(const SusyScan* p){ return (NLOMCMCObsXsecLimit(p)<NLOXsection(p)&&NLOMCMCObsXsecLimit(p)>0.01?1:0.01); }
+double NLOSignalContamination(const SusyScan* p){return p->NLO_signal_contamination; }
 
 double Mzero(const GeneratorMasses* p){ return p->Mzero; }
 double Mhalf(const GeneratorMasses* p){ return p->Mhalf; }

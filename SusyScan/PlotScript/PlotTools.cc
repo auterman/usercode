@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include "TGraph.h"
+#include "TF1.h"
 #include "TH2.h"
 #include "TH2F.h"
 #include "TObjArray.h"
@@ -134,6 +135,45 @@ TGraph * MakeBand(TGraph *g1, TGraph *g2, bool b){
   res->SetLineColor( g1->GetLineColor() );
   res->SetFillColor( g2->GetLineColor() );
   return res;
+}
+
+void Smooth(TGraph * g, int N)
+{
+  TGraph * old = (TGraph*)g->Clone();
+  //int N = (n%2==0?n+1:n);
+  if (N>2*g->GetN()) N=2*g->GetN()-1;
+
+
+  double gauss[N];
+  double sigma = (double)N/4.;
+  double sum=0;
+  double lim=(double)N/2.;
+  TF1 *fb = new TF1("fb","gaus(0)",-lim,lim);
+  fb->SetParameter(0, 1./(sqrt(2*3.1415)*sigma) );
+  fb->SetParameter(1, 0);
+  fb->SetParameter(2, sigma);
+  for (int i=0; i<N; ++i){
+    gauss[i]=fb->Integral(-lim+i,-lim+i+1);
+    sum+=gauss[i]; 
+  }
+  for (int i=0; i<N; ++i)
+    gauss[i] /= sum;
+
+  for (int i=0; i<g->GetN(); ++i){
+    double av=0., x, x0, y;
+    int points=0;
+    for (int j=i-N/2; j<=i+N/2; ++j){
+      if      (j<0)          old->GetPoint(0, x, y);
+      else if (j>=g->GetN()) old->GetPoint(old->GetN()-1, x, y);
+      else                   old->GetPoint(j, x, y);
+      if (i==j) x0=x;
+      av += y * gauss[points];
+      ++points;
+    }
+    //g->SetPoint(i, x0, av/(double)points); 
+    g->SetPoint(i, x0, av); 
+  }
+  delete old;
 }
 
 

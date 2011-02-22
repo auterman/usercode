@@ -230,28 +230,27 @@ int plot(int argc, char** argv)
    // Exclusion in M0 - M1/2
    TH2F*hexcl = new TH2F("hexcl",";m_{0} [GeV]; m_{1/2} [GeV]; 95% CL Expected Exclusion",
                      40,200,600,26,140,400);
-   TGraph * gexpexcl         = plotTools     ->GetContour(hexcl,Mzero,Mhalf,ExpExclCL,       3,0, 2,2); 
-   TGraph * gobsexcl         = plotTools     ->GetContour(hexcl,Mzero,Mhalf,ObsExclCL,       3,0, 2,1);
-   TGraph * gMCMCexpexcl     = plotToolsHT   ->GetContour(hexcl,Mzero,Mhalf,MCMCExpExclusion,3,0, 3,2); 
-   TGraph * gMCMCobsexcl     = plotToolsHT   ->GetContour(hexcl,Mzero,Mhalf,MCMCObsExclusion,3,0, 3,1); 
-   TGraph * gCLsExpExclHT    = plotToolsHT   ->GetContour(hexcl,Mzero,Mhalf,ExpExclCL,       3,0, 1,2); 
-   TGraph * gCLsObsExclHT    = plotToolsHT   ->GetContour(hexcl,Mzero,Mhalf,ObsExclCL,       3,0, 1,1); 
-   TGraph * gCLsExpExclHTm1  = plotToolsHT   ->GetContour(hexcl,Mzero,Mhalf,ExpExclCLm1sigma,3,0, 5,2); 
-   TGraph * gCLsExpExclHTp1  = plotToolsHT   ->GetContour(hexcl,Mzero,Mhalf,ExpExclCLp1sigma,3,0, 5,2); 
+   TGraph * gexpexcl         = plotTools     ->GetContour(hexcl,Mzero,Mhalf,NLOExpExclCL,       3,0, 2,2); 
+   TGraph * gexpexcl_LO      = plotTools     ->GetContour(hexcl,Mzero,Mhalf,ExpExclCL,       3,0, 2,4); 
+   TGraph * gobsexcl         = plotTools     ->GetContour(hexcl,Mzero,Mhalf,NLOObsExclCL,       3,0, 2,1);
+   TGraph * gMCMCexpexcl_LO  = plotToolsHT   ->GetContour(hexcl,Mzero,Mhalf,MCMCExpExclusion,3,0, 3,4); 
+   TGraph * gMCMCobsexcl_LO  = plotToolsHT   ->GetContour(hexcl,Mzero,Mhalf,MCMCObsExclusion,3,0, 3,1); 
+   TGraph * gCLsExpExclHT_LO = plotToolsHT   ->GetContour(hexcl,Mzero,Mhalf,ExpExclCL,       3,0, 1,4); 
+   TGraph * gCLsExpExclHT    = plotToolsHT   ->GetContour(hexcl,Mzero,Mhalf,NLOExpExclCL,       3,0, 1,2); 
+   TGraph * gCLsObsExclHT    = plotToolsHT   ->GetContour(hexcl,Mzero,Mhalf,NLOObsExclCL,       3,0, 1,1); 
+   TGraph * gCLsExpExclHTm1  = plotToolsHT   ->GetContour(hexcl,Mzero,Mhalf,NLOExpExclCLm1sigma,3,0, 5,2); 
+   TGraph * gCLsExpExclHTp1  = plotToolsHT   ->GetContour(hexcl,Mzero,Mhalf,NLOExpExclCLp1sigma,3,0, 5,2); 
+   Smooth( gCLsExpExclHT_LO, 33 ); gCLsExpExclHT_LO->SetLineWidth( 3 );
+   Smooth( gCLsObsExclHT, 33); gCLsObsExclHT->SetLineWidth( 3 );
+   Smooth( gCLsExpExclHT, 33 ); gCLsExpExclHT->SetLineWidth( 3 );
+   Smooth( gexpexcl, 33 );
+   Smooth( gobsexcl, 33 );
+   Smooth( gMCMCexpexcl_LO, 33 );
+   Smooth( gCLsExpExclHTm1, 33 );
+   Smooth( gCLsExpExclHTp1, 33 );
    TGraph * gCLsExp1Sigma    = MakeBand(gCLsExpExclHTp1, gCLsExpExclHTm1);
-   hexcl->Draw("colz");   
-   if (gCLsExp1Sigma)    gCLsExp1Sigma->Draw("lf");
-   if (gexpexcl)         gexpexcl->Draw("l");
-   if (gCLsExpExclHT)    gCLsExpExclHT->Draw("l");
-   if (gMCMCexpexcl)     gMCMCexpexcl->Draw("l");
-   if (gCLsObsExclHT)    gCLsObsExclHT->Draw("l");
-   //if (gobsexcl)       gobsexcl->Draw("l");
-   //if (gPLobsexcl)     gPLobsexcl->Draw("l");
-   //if (gFCobsexcl)     gFCobsexcl->Draw("l");
-   //if (gMCMCobsexcl)   gMCMCobsexcl->Draw("l");
-   //if (gFCexpexcl)     gFCexpexcl->Draw("l");
-   //if (gPLexpexcl)     gPLexpexcl->Draw("l");
-   //if (gFCexpexcl)     gFCexpexcl->Draw("l");
+   hexcl->Draw("colz"); 
+   gCLsExp1Sigma->Draw("f");  
    //set old exclusion Limits
    TGraph* LEP_ch = set_lep_ch(50);
    TGraph* LEP_sl = set_lep_sl(50);//slepton curve
@@ -271,15 +270,15 @@ int plot(int argc, char** argv)
    First->GetYaxis()->SetTitle("m_{1/2} (GeV)");
    TSpline3 *sFirst = new TSpline3("sFirst",First);
    sFirst->SetLineColor(kBlue);
-   sFirst->SetLineWidth(3);
+   //sFirst->SetLineWidth(3);
    TSpline3 *sSecond = new TSpline3("sSecond",Second);
    sSecond->SetLineColor(kBlue);
    sSecond->SetLineStyle(2);
-   sSecond->SetLineWidth(3);
+   //sSecond->SetLineWidth(3);
    TSpline3 *sThird = new TSpline3("sThird",Third);
-   sThird->SetLineColor(kGreen+2);
+   sThird->SetLineColor(kBlue);
    sThird->SetLineStyle(4);
-   sThird->SetLineWidth(3);
+   //sThird->SetLineWidth(3);
    TEV_sn_d0_1->Draw("fsame");
    TEV_sn_d0_2->Draw("fsame");
    TEV_sg_d0->Draw("fsame");
@@ -290,6 +289,11 @@ int plot(int argc, char** argv)
    sFirst->Draw("same");
    sSecond->Draw("same");
    sThird->Draw("same");
+   if (gexpexcl)         gexpexcl->Draw("l");
+   if (gCLsExpExclHT)    gCLsExpExclHT->Draw("l");
+   if (gCLsExpExclHT_LO)    gCLsExpExclHT_LO->Draw("l");
+   if (gMCMCexpexcl_LO)     gMCMCexpexcl_LO->Draw("l");
+   if (gCLsObsExclHT)    gCLsObsExclHT->Draw("l");
    TLatex b; b.SetTextSize(0.02); b.SetTextColor(1);
    //b.DrawLatex( 10,420,"#tilde{#tau} LSP"); 
    b.DrawLatex(230,145,"LEP2"); 
@@ -300,19 +304,16 @@ int plot(int argc, char** argv)
    //b.DrawLatex( 80,180,"D0 #tilde{#nu}"); 
    TLegend * leg = new TLegend(0.45,0.7,0.85,0.89);
    leg->SetBorderSize(0);leg->SetFillColor(0);
+   TGraph * expLeg = (TGraph*)gCLsExpExclHT->Clone();expLeg->SetFillStyle(gCLsExp1Sigma->GetFillStyle());expLeg->SetFillColor(gCLsExp1Sigma->GetFillColor());
    //if (gobsexcl) leg->AddEntry(gobsexcl,"Observed (MHT, CLs, TLimit)","l");
-   if (gCLsObsExclHT) leg->AddEntry(gCLsObsExclHT,"LO Observed (HT, CLs)","l");
-   if (gCLsExpExclHT) leg->AddEntry(gCLsExpExclHT,"LO Expected (HT, CLs)","l");
-   if (gexpexcl) leg->AddEntry(gexpexcl,"LO Expected (MHT, CLs)","l");
-   //if (gPLobsexcl) leg->AddEntry(gPLobsexcl,"Observed (PL, RooStat)","l");
-   //if (gPLexpexcl) leg->AddEntry(gPLexpexcl,"Expected (PL, RooStat)","l");
-   //if (gFCobsexcl) leg->AddEntry(gFCobsexcl,"Observed (FC, RooStat)","l");
-   //if (gFCexpexcl) leg->AddEntry(gFCexpexcl,"Expected (FC, RooStat)","l");
-   //if (gMCMCobsexcl) leg->AddEntry(gMCMCobsexcl,"Observed (MHT, MCMC, RooStat)","l");
-   if (gMCMCexpexcl) leg->AddEntry(gMCMCexpexcl,"LO Expected (HT, MCMC, RooStat)","l");
-   if (sFirst)  leg->AddEntry(sFirst, "NLO RA1 Observed");
-   if (sSecond) leg->AddEntry(sSecond,"NLO RA1 Expected");
-   if (sThird) leg->AddEntry(sThird,"LO RA1 Observed");
+   if (gCLsObsExclHT) leg->AddEntry(gCLsObsExclHT,      "NLO Observed (HT, CLs)","l");
+   if (gCLsExpExclHT) leg->AddEntry(expLeg       ,      "NLO Expected (HT, CLs)","l");
+   if (gCLsExpExclHT_LO) leg->AddEntry(gCLsExpExclHT_LO,"LO Expected (HT, CLs)","l");
+   if (gMCMCexpexcl_LO) leg->AddEntry(gMCMCexpexcl_LO,  "LO Expected (HT, MCMC, RooStat)","l");
+   if (gexpexcl) leg->AddEntry(gexpexcl,                "NLO Expected (MHT, CLs)","l");
+   if (sSecond) leg->AddEntry(sSecond,                  "NLO #alpha_{T} Expected");
+   if (sFirst)  leg->AddEntry(sFirst,                   "NLO #alpha_{T} Observed");
+   if (sThird) leg->AddEntry(sThird,                    "LO #alpha_{T} Expected");
    leg->Draw();
    gPad->RedrawAxis();
    c1->SaveAs("results_tb50/Exclusion_m0_m12_tb50.pdf");
@@ -338,6 +339,80 @@ int plot(int argc, char** argv)
    hsigcontMHT->Draw("colz");
    if (gobsexcl)    gobsexcl->Draw("l");
    c1->SaveAs("results_tb50/SignalContamination_MHT_m0_m12_tb50.pdf");
+   
+   // Signal JEC Uncertainty  MHT   
+   c1->SetLogz(0);
+   TH2F*hsig_jec_mht = new TH2F("sigjecmht",";m_{0} [GeV]; m_{1/2} [GeV]; Signal JEC uncertainty",
+                     40,200,600,26,140,400);
+   plotTools->Area(hsig_jec_mht, Mzero, Mhalf, SignalUncertJEC);
+   hsig_jec_mht->SetMinimum(0.0);
+   hsig_jec_mht->SetMaximum(0.25);
+   hsig_jec_mht->SetContour(10);
+   hsig_jec_mht->Draw("colz");
+   if (gobsexcl)    gobsexcl->Draw("l");
+   c1->SaveAs("results_tb50/SigJEC_MHT_m0_m12_tb50.pdf");
+   
+   // Signal JEC Uncertainty  HT   
+   c1->SetLogz(0);
+   TH2F*hsig_jec_ht = new TH2F("sigjecht",";m_{0} [GeV]; m_{1/2} [GeV]; Signal JEC uncertainty",
+                     40,200,600,26,140,400);
+   plotTools->Area(hsig_jec_ht, Mzero, Mhalf, SignalUncertJEC);
+   hsig_jec_ht->SetMinimum(0.0);
+   hsig_jec_ht->SetMaximum(0.25);
+   hsig_jec_ht->SetContour(10);
+   hsig_jec_ht->Draw("colz");
+   if (gCLsObsExclHT)    gCLsObsExclHT->Draw("l");
+   c1->SaveAs("results_tb50/SigJEC_HT_m0_m12_tb50.pdf");
+   
+
+   // Signal MuIso Uncertainty  MHT   
+   c1->SetLogz(0);
+   TH2F*hsig_MuIso_mht = new TH2F("sigMuIsomht",";m_{0} [GeV]; m_{1/2} [GeV]; Signal #mu_{iso} uncertainty",
+                     40,200,600,26,140,400);
+   plotTools->Area(hsig_MuIso_mht, Mzero, Mhalf, SignalUncertMuIso);
+   hsig_MuIso_mht->SetMinimum(0.0);
+   hsig_MuIso_mht->SetMaximum(0.05);
+   hsig_MuIso_mht->SetContour(5);
+   hsig_MuIso_mht->Draw("colz");
+   if (gobsexcl)    gobsexcl->Draw("l");
+   c1->SaveAs("results_tb50/SigMuIso_MHT_m0_m12_tb50.pdf");
+   
+   // Signal MuIso Uncertainty  HT   
+   c1->SetLogz(0);
+   TH2F*hsig_MuIso_ht = new TH2F("sigMuIsoht",";m_{0} [GeV]; m_{1/2} [GeV]; Signal #mu_{iso} uncertainty",
+                     40,200,600,26,140,400);
+   plotTools->Area(hsig_MuIso_ht, Mzero, Mhalf, SignalUncertMuIso);
+   hsig_MuIso_ht->SetMinimum(0.0);
+   hsig_MuIso_ht->SetMaximum(0.05);
+   hsig_MuIso_ht->SetContour(5);
+   hsig_MuIso_ht->Draw("colz");
+   if (gCLsObsExclHT)    gCLsObsExclHT->Draw("l");
+   c1->SaveAs("results_tb50/SigMuIso_HT_m0_m12_tb50.pdf");
+   
+
+   // Signal kFactor Uncertainty  MHT   
+   c1->SetLogz(0);
+   TH2F*hsig_kFactor_mht = new TH2F("sigkFactormht",";m_{0} [GeV]; m_{1/2} [GeV]; Signal #mu_{iso} uncertainty",
+                     40,200,600,26,140,400);
+   plotTools->Area(hsig_kFactor_mht, Mzero, Mhalf, SignalUncertKfactor);
+   hsig_kFactor_mht->SetMinimum(0.1);
+   hsig_kFactor_mht->SetMaximum(0.2);
+   hsig_kFactor_mht->SetContour(10);
+   hsig_kFactor_mht->Draw("colz");
+   if (gobsexcl)    gobsexcl->Draw("l");
+   c1->SaveAs("results_tb50/SigkFactor_MHT_m0_m12_tb50.pdf");
+   
+   // Signal kFactor Uncertainty  HT   
+   c1->SetLogz(0);
+   TH2F*hsig_kFactor_ht = new TH2F("sigkFactorht",";m_{0} [GeV]; m_{1/2} [GeV]; Signal #mu_{iso} uncertainty",
+                     40,200,600,26,140,400);
+   plotTools->Area(hsig_kFactor_ht, Mzero, Mhalf, SignalUncertKfactor);
+   hsig_kFactor_ht->SetMinimum(0.1);
+   hsig_kFactor_ht->SetMaximum(0.2);
+   hsig_kFactor_ht->SetContour(10);
+   hsig_kFactor_ht->Draw("colz");
+   if (gCLsObsExclHT)    gCLsObsExclHT->Draw("l");
+   c1->SaveAs("results_tb50/SigkFactor_HT_m0_m12_tb50.pdf");
    
 
    //-----------------------------------------------------------------------------------
@@ -463,14 +538,16 @@ int plot(int argc, char** argv)
    // Exclusion in squark - gluino mass ----------------------------------------
    TH2F*hexcl_qg = new TH2F("hexcl_qg",";m_{#tilde{q}} [GeV]; m_{#tilde{g}} [GeV]; 95% CL Observed Exclusion",
                      40,200,900,30,200,900);
-   TGraph * gexpexcl_qg         = plotTools->GetContour(hexcl_qg,MSquarkL,MGluino,ExpExclCL,       3,0, 2,2); 
-   TGraph * gobsexcl_qg         = plotTools->GetContour(hexcl_qg,MSquarkL,MGluino,ObsExclCL,       3,0, 2,1);
+   TGraph * gexpexcl_qg         = plotTools->GetContour(hexcl_qg,MSquarkL,MGluino,  NLOExpExclCL,       3,0, 2,2); 
+   TGraph * gexpexcl_qg_LO      = plotTools->GetContour(hexcl_qg,MSquarkL,MGluino,  ExpExclCL,       3,0, 2,4); 
+   TGraph * gobsexcl_qg         = plotTools->GetContour(hexcl_qg,MSquarkL,MGluino,  NLOObsExclCL,       3,0, 2,1);
    TGraph * gMCMCexpexcl_qg     = plotToolsHT->GetContour(hexcl_qg,MSquarkL,MGluino,MCMCExpExclusion,3,0, 3,2); 
    TGraph * gMCMCobsexcl_qg     = plotToolsHT->GetContour(hexcl_qg,MSquarkL,MGluino,MCMCObsExclusion,3,0, 3,1); 
-   TGraph * gCLsExpExclHT_qg    = plotToolsHT->GetContour(hexcl_qg,MSquarkL,MGluino,ExpExclCL,       3,0, 1,2); 
-   TGraph * gCLsObsExclHT_qg    = plotToolsHT->GetContour(hexcl_qg,MSquarkL,MGluino,ObsExclCL,       3,0, 1,1); 
-   TGraph * gCLsExpExclHTm1_qg  = plotToolsHT->GetContour(hexcl_qg,MSquarkL,MGluino,ExpExclCLm1sigma,3,0, 5,2); 
-   TGraph * gCLsExpExclHTp1_qg  = plotToolsHT->GetContour(hexcl_qg,MSquarkL,MGluino,ExpExclCLp1sigma,3,0, 5,2); 
+   TGraph * gCLsExpExclHT_qg    = plotToolsHT->GetContour(hexcl_qg,MSquarkL,MGluino,NLOExpExclCL,       3,0, 1,2); 
+   TGraph * gCLsExpExclHT_qg_LO = plotToolsHT->GetContour(hexcl_qg,MSquarkL,MGluino,ExpExclCL,       3,0, 1,4); 
+   TGraph * gCLsObsExclHT_qg    = plotToolsHT->GetContour(hexcl_qg,MSquarkL,MGluino,NLOObsExclCL,       3,0, 1,1); 
+   TGraph * gCLsExpExclHTm1_qg  = plotToolsHT->GetContour(hexcl_qg,MSquarkL,MGluino,NLOExpExclCLm1sigma,3,0, 5,2); 
+   TGraph * gCLsExpExclHTp1_qg  = plotToolsHT->GetContour(hexcl_qg,MSquarkL,MGluino,NLOExpExclCLp1sigma,3,0, 5,2); 
    TGraph * gCLsExp1Sigma_qg    = MakeBand(gCLsExpExclHTp1_qg, gCLsExpExclHTm1_qg);
    hexcl_qg->Draw("");
    //
@@ -478,14 +555,19 @@ int plot(int argc, char** argv)
    if (gobsexcl_qg)      gobsexcl_qg->Draw("l");
    if (gCLsObsExclHT_qg) gCLsObsExclHT_qg->Draw("l");
    if (gexpexcl_qg)      gexpexcl_qg->Draw("l");
+   if (gexpexcl_qg_LO)   gexpexcl_qg_LO->Draw("l");
    if (gCLsExpExclHT_qg) gCLsExpExclHT_qg->Draw("l");
+   if (gCLsExpExclHT_qg_LO) gCLsExpExclHT_qg_LO->Draw("l");
    //
    TLegend * leg_qg = new TLegend(0.45,0.78,0.85,0.89);
    leg_qg->SetBorderSize(0);leg_qg->SetFillColor(0);
-   if (gobsexcl_qg) leg_qg->AddEntry(gobsexcl_qg,"LO Observed (MHT, CLs)","l");
-   if (gexpexcl_qg) leg_qg->AddEntry(gexpexcl_qg,"LO Expected (MHT, CLs)","l");
-   if (gCLsObsExclHT_qg) leg_qg->AddEntry(gCLsObsExclHT_qg,"LO Observed (HT, CLs)","l");
-   if (gCLsExpExclHT_qg) leg_qg->AddEntry(gCLsExpExclHT_qg,"LO Expected (HT, CLs)","l");
+   TGraph * expLeg_qg = (TGraph*)gCLsExpExclHT_qg->Clone();expLeg_qg->SetFillStyle(gCLsExp1Sigma_qg->GetFillStyle());expLeg_qg->SetFillColor(gCLsExp1Sigma_qg->GetFillColor());
+   if (gobsexcl_qg) leg_qg->AddEntry(gobsexcl_qg,"NLO Observed (MHT, CLs)","l");
+   if (gexpexcl_qg) leg_qg->AddEntry(gexpexcl_qg,"NLO Expected (MHT, CLs)","l");
+   if (gexpexcl_qg_LO) leg_qg->AddEntry(gexpexcl_qg_LO,"LO Expected (MHT, CLs)","l");
+   if (gCLsObsExclHT_qg) leg_qg->AddEntry(gCLsObsExclHT_qg,"NLO Observed (HT, CLs)","l");
+   if (gCLsExpExclHT_qg) leg_qg->AddEntry(expLeg_qg,"NLO Expected (HT, CLs)","lf");
+   if (gCLsExpExclHT_qg_LO) leg_qg->AddEntry(gCLsExpExclHT_qg_LO,"LO Expected (HT, CLs)","l");
    //if (gPLobsexcl_qg) leg_qg->AddEntry(gPLobsexcl_qg,"Observed (PL, RooStat)","l");
    //if (gPLexpexcl_qg) leg_qg->AddEntry(gPLexpexcl_qg,"Expected (PL, RooStat)","l");
    leg_qg->Draw();

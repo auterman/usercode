@@ -9,6 +9,8 @@ class TH2;
 
 TGraph * MakeBand(TGraph *g1, TGraph *g2, bool b=false);
 
+void Smooth(TGraph * g, int n=3);
+
 template<class T>
 class PlotTools {
  public:
