@@ -34,6 +34,10 @@ class PlotTools {
   void Print(double(*x)(const T*), double(*x)(const T*), double(*y)(const T*), 
              TGraph*, double p=10.);
 
+  TGraph * ChooseBest(TGraph*,TGraph*,TGraph*,TGraph*,double x=0,double y=0);
+  
+  TH2 * BinWiseOr(TH2*, TH2*);
+
  private:
   std::vector<T*> * _scan; 
   

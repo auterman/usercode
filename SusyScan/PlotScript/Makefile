@@ -36,21 +36,21 @@ PlotTools.o: PlotTools.cc PlotTools.h GlobalFunctions.h
 TheLimits.o: TheLimits.cc TheLimits.h
 		$(C) $(RCXX) -c TheLimits.cc 
 
-plot.o: plot.cc plot.h GlobalFunctions.h
+plot.o: plot.cc plot.h GlobalFunctions.h StyleSettings.h
 		$(C) $(RCXX) -c plot.cc 
 
 plot: $(SRC:.cc=.o) plot.o 
 		$(LD) $(SRC:.cc=.o) plot.o $(RLXX) $(JCORR) -o plot
 		@echo '-> plot executable created.'
 
-plot3tb.o: plot3tb.cc GlobalFunctions.h
+plot3tb.o: plot3tb.cc GlobalFunctions.h StyleSettings.h
 		$(C) $(RCXX) -c plot3tb.cc 
 
 plot3tb: $(SRC:.cc=.o) plot3tb.o 
 		$(LD) $(SRC:.cc=.o) plot3tb.o $(RLXX) $(JCORR) -o plot3tb
 		@echo '-> plot3tb executable created.'
 
-plot50tb.o: plot50tb.cc GlobalFunctions.h
+plot50tb.o: plot50tb.cc GlobalFunctions.h StyleSettings.h
 		$(C) $(RCXX) -c plot50tb.cc 
 
 plot50tb: $(SRC:.cc=.o) plot50tb.o 

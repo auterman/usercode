@@ -4,6 +4,7 @@
 #include "PlotTools.h"
 #include "TheLimits.h"
 #include "GlobalFunctions.h"
+#include "StyleSettings.h"
 
 #include "TRint.h"
 #include "TROOT.h"
@@ -38,6 +39,7 @@ int plot(int argc, char** argv)
    }   
 
    //Style stuff
+   /*
    gStyle->SetHistFillColor(0);
    gStyle->SetPalette(1);
    gStyle->SetCanvasColor(0);
@@ -68,22 +70,25 @@ int plot(int argc, char** argv)
    gStyle->SetLabelSize(0.03,"X");
    gStyle->SetLabelSize(0.03,"Y");
    gStyle->SetLabelSize(0.03,"Z");
+   */
+   util::StyleSettings::paperNoTitle();
+   gStyle->SetPadBottomMargin(0.18);
  
    //gROOT->SetStyle("MyStyle");
    TCanvas * c1 = new TCanvas("c1","c1",600,600);
-   c1->SetFillStyle   ( 4000 );
-   c1->SetLeftMargin  ( 0.15 );
-   c1->SetRightMargin ( 0.15 );
-   c1->SetBottomMargin( 0.10 );
+   //c1->SetFillStyle   ( 4000 );
+   //c1->SetLeftMargin  ( 0.15 );
+   //c1->SetRightMargin ( 0.15 );
+   //c1->SetBottomMargin( 0.10 );
    c1->cd();
    
    //Get limits and generator masses ---------------------------------------------------
    TheLimits * genpoints = new TheLimits();
    //genpoints->Fill(argc, argv); 
-   genpoints->Fill("limits_MHT_tb3/filelist.txt"); 
+   genpoints->Fill("limits_MHT_tb3-20110301/filelist.txt"); 
 
    TheLimits * genpointsHT = new TheLimits();
-   genpointsHT->Fill("limits_HT_tb3/filelist.txt"); 
+   genpointsHT->Fill("limits_HT_tb3-20110301/filelist.txt"); 
 
    
    //Replace read limits with specific numbers
@@ -197,19 +202,12 @@ int plot(int argc, char** argv)
    hPLobsexcl->Draw("colz");
    c1->SaveAs("results_tb3/PL_ObsExclusion_m0_m12_tb3.pdf");
 
-   // TestContours in M0 - M1/2
+   // TestContours in M0 - M1/2  ===================================================================
    TH2F*texcl = new TH2F("texcl",";m_{0} [GeV]; m_{1/2} [GeV]; 95% CL Expected Exclusion",
                      50,0,509.9,35,100,450);
    TH2F*texpexcl=(TH2F*)texcl->Clone();
-   plotTools->Area(texpexcl, Mzero, Mhalf, NLOExpExclCL);
-   TH2F*tobsexcl=(TH2F*)texcl->Clone();
-   plotTools->Area(tobsexcl, Mzero, Mhalf, MCMCObsExclusion);
-   std::vector<TGraph*> contours = plotTools->GetContours(texpexcl,3); 
-   //std::vector<TGraph*> contours = plotTools->GetContours(tobsexcl,3);
-   //hPLexpexcl
-   //hexcl->Draw("colz");
-   //hexpexcl->Draw("colz");
-   //hobsexcl->Draw("colz");
+   plotToolsHT->Area(texpexcl, Mzero, Mhalf, NLOExpExclCLm1sigma);
+   std::vector<TGraph*> contours = plotToolsHT->GetContours(texpexcl,3); 
    texpexcl->Draw("colz");
    int col=kBlue-10;
    for (std::vector<TGraph*>::iterator cont=contours.begin(); cont!=contours.end(); ++cont){
@@ -222,7 +220,6 @@ int plot(int argc, char** argv)
      char val[20];
      sprintf(val,"%d",(int)(cont-contours.begin()));
      l.DrawLatex(x,y,val); 
-     //if (cont-contours.begin()>3) break;
    }
    c1->SaveAs("results_tb3/ExclusionTestContours_m0_m12_tb3.pdf");
 
@@ -230,28 +227,56 @@ int plot(int argc, char** argv)
    // Exclusion in M0 - M1/2
    TH2F*hexcl = new TH2F("hexcl",";m_{0} [GeV]; m_{1/2} [GeV]; 95% CL Expected Exclusion",
                      50,0,509.9,35,100,450);
-   TGraph * gexpexcl         = plotTools     ->GetContour(hexcl,Mzero,Mhalf,NLOExpExclCL,       3,2, 2,2); 
-   TGraph * gobsexcl         = plotTools     ->GetContour(hexcl,Mzero,Mhalf,NLOObsExclCL,       3,2, 2,1);
-   TGraph * gMCMCexpexcl     = plotToolsHT   ->GetContour(hexcl,Mzero,Mhalf,MCMCExpExclusion,3,0, 3,2); 
-   TGraph * gMCMCobsexcl     = plotToolsHT   ->GetContour(hexcl,Mzero,Mhalf,MCMCObsExclusion,3,0, 3,1); 
-   TGraph * gCLsExpExclHT    = plotToolsHT   ->GetContour(hexcl,Mzero,Mhalf,NLOExpExclCL,       3,0, 1,2); 
-   TGraph * gCLsObsExclHT    = plotToolsHT   ->GetContour(hexcl,Mzero,Mhalf,NLOObsExclCL,       3,0, 1,1); 
-   TGraph * gCLsExpExclHT_LO = plotToolsHT   ->GetContour(hexcl,Mzero,Mhalf,ExpExclCL,       3,0, 1,4); 
-   TGraph * gCLsObsExclHT_LO = plotToolsHT   ->GetContour(hexcl,Mzero,Mhalf,ObsExclCL,       3,0, 1,1); 
-   TGraph * gCLsExpExclHTm1  = plotToolsHT   ->GetContour(hexcl,Mzero,Mhalf,NLOExpExclCLm1sigma,3,0, 5,2); 
-   TGraph * gCLsExpExclHTp1  = plotToolsHT   ->GetContour(hexcl,Mzero,Mhalf,NLOExpExclCLp1sigma,3,0, 5,2); 
-   //TGraph * tt=(TGraph * )gCLsObsExclHT->Clone();
-   Smooth( gCLsObsExclHT_LO, 33); gCLsExpExclHT_LO->SetLineWidth( 3 );
-   Smooth( gCLsExpExclHT_LO, 33 ); 
+   TH2F*hs = new TH2F("hs","",50,0,509.9,35,100,450);
+   TGraph * gexpexcl         = plotTools  ->GetContour(hs,Mzero,Mhalf,NLOExpExclCL,       3,2, 2,2); 
+   TGraph * gexpexcl_LO      = plotTools  ->GetContour(hs,Mzero,Mhalf,ExpExclCL,          3,0, 2,4); 
+   TGraph * gobsexcl         = plotTools  ->GetContour(hs,Mzero,Mhalf,NLOObsExclCL,       3,2, 2,1);
+   TGraph * gMCMCexpexcl     = plotToolsHT->GetContour(hs,Mzero,Mhalf,MCMCExpExclusion,   3,0, 3,2); 
+   TGraph * gMCMCobsexcl     = plotToolsHT->GetContour(hs,Mzero,Mhalf,MCMCObsExclusion,   3,0, 3,1); 
+   TGraph * gFCexpexclHT     = plotToolsHT->GetContour(hs,Mzero,Mhalf,NLOFCExpExclusion,  3,0, 3,2); 
+   TGraph * gFCexpexclHT_LO  = plotToolsHT->GetContour(hs,Mzero,Mhalf,FCExpExclusion,     3,0, 3,4); 
+   TGraph * gFCexpexclMHT    = plotTools->GetContour(hs,Mzero,Mhalf,NLOFCExpExclusion,    3,0, 3,2); 
+   TGraph * gFCexpexclMHT_LO = plotTools->GetContour(hs,Mzero,Mhalf,FCExpExclusion,       3,0, 3,4); 
+   TGraph * gFCobsexclHT     = plotToolsHT->GetContour(hs,Mzero,Mhalf,NLOFCObsExclusion,  3,0, 3,1); 
+   TGraph * gFCobsexclMHT    = plotToolsHT->GetContour(hs,Mzero,Mhalf,NLOFCObsExclusion,  3,0, 3,1); 
+   TGraph * gCLsExpExclHT    = plotToolsHT->GetContour(hs,Mzero,Mhalf,NLOExpExclCL,	  3,2, 1,2); 
+   TGraph * gCLsObsExclHT    = plotToolsHT->GetContour(hs,Mzero,Mhalf,NLOObsExclCL,	  3,0, 1,1); 
+   TGraph * gCLsExpExclHT_LO = plotToolsHT->GetContour(hs,Mzero,Mhalf,ExpExclCL,	  3,0, 1,4); 
+   TGraph * gCLsObsExclHT_LO = plotToolsHT->GetContour(hs,Mzero,Mhalf,ObsExclCL,	  3,0, 1,1); 
+   TGraph * gCLsExpExclHTm1  = plotToolsHT->GetContour(hs,Mzero,Mhalf,NLOExpExclCLm1sigma,3,2, 5,2); 
+   TGraph * gCLsExpExclHTp1  = plotToolsHT->GetContour(hs,Mzero,Mhalf,NLOExpExclCLp1sigma,3,2, 5,2); 
+   TGraph * gCLsExpExclMHTm1 = plotTools  ->GetContour(hs,Mzero,Mhalf,NLOExpExclCLm1sigma,  3,2, 5,2); 
+   TGraph * gCLsExpExclMHTp1 = plotTools  ->GetContour(hs,Mzero,Mhalf,NLOExpExclCLp1sigma,  3,2, 5,2); 
+   TGraph * gCheck1 = (TGraph*)gobsexcl->Clone();
+   TGraph * gCheck2 = (TGraph*)gexpexcl->Clone();
    Smooth( gCLsObsExclHT, 33); gCLsObsExclHT->SetLineWidth( 3 );
    Smooth( gCLsExpExclHT, 33 ); gCLsExpExclHT->SetLineWidth( 3 );
+   Smooth( gCLsObsExclHT_LO, 33); gCLsObsExclHT_LO->SetLineWidth( 3 );
+   Smooth( gCLsExpExclHT_LO, 33 ); gCLsExpExclHT_LO->SetLineWidth( 3 );
    Smooth( gexpexcl, 33 );
    Smooth( gobsexcl, 33 );
-   Smooth( gMCMCexpexcl, 33 );
+   Smooth( gobsexcl, 33 );
+   Smooth( gexpexcl_LO, 33 );
+   Smooth( gFCexpexclHT, 33 );
+   Smooth( gFCexpexclHT_LO, 33 );gFCexpexclHT_LO->SetLineWidth( 3 );
+   Smooth( gFCexpexclMHT, 33 );
+   Smooth( gFCexpexclMHT_LO, 33 );
+   Smooth( gFCobsexclHT, 33 );gFCobsexclHT->SetLineWidth( 3 );
+   Smooth( gFCobsexclMHT, 33 );
    Smooth( gCLsExpExclHTm1, 33 );
    Smooth( gCLsExpExclHTp1, 33 );
-   TGraph * gCLsExp1Sigma    = MakeBand(gCLsExpExclHTp1, gCLsExpExclHTm1);
-   hexcl->Draw("colz");   
+   Smooth( gCLsExpExclMHTm1, 33 );
+   Smooth( gCLsExpExclMHTp1, 33 );
+   TGraph * CLsObsNLO = plotToolsHT->ChooseBest(gCLsObsExclHT,gobsexcl, gCLsObsExclHT,gobsexcl);
+   TGraph * CLsExpNLO = plotToolsHT->ChooseBest(gCLsExpExclHT,gexpexcl, gCLsExpExclHT,gexpexcl);
+   TGraph * CLsExpLO  = plotToolsHT->ChooseBest(gCLsExpExclHT_LO,gexpexcl_LO, gCLsExpExclHT_LO,gexpexcl_LO);
+   TGraph * FCExpLO   = plotToolsHT->ChooseBest(gFCexpexclHT_LO,gFCexpexclMHT_LO,gFCexpexclHT_LO,gFCexpexclMHT_LO);
+   TGraph * FCObsNLO  = plotToolsHT->ChooseBest(gFCobsexclHT,gFCobsexclMHT,gFCobsexclHT,gFCobsexclMHT);
+   TGraph * gCLsExpExclp1 = plotToolsHT->ChooseBest(gCLsExpExclHTp1,gCLsExpExclMHTp1, gCLsExpExclHTp1,gCLsExpExclMHTp1);
+   TGraph * gCLsExpExclm1 = plotToolsHT->ChooseBest(gCLsExpExclHTm1,gCLsExpExclMHTm1, gCLsExpExclHTm1,gCLsExpExclMHTm1);
+   TGraph * gCLsExp1Sigma    = MakeBand(gCLsExpExclp1, gCLsExpExclm1);
+   hexcl->GetYaxis()->SetTitleOffset(1.3);
+   hexcl->Draw("colz");
    //set old exclusion Limits
    TGraph* LEP_ch = set_lep_ch(3);
    TGraph* LEP_sl = set_lep_sl(3);//slepton curve
@@ -280,6 +305,16 @@ int plot(int argc, char** argv)
    sThird->SetLineColor(kBlue);
    sThird->SetLineStyle(4);
    //sThird->SetLineWidth(3);
+   //gCheck1->Draw("same");
+   //gCheck2->Draw("same");
+   //gexpexcl->Draw("l");
+   //gobsexcl->Draw("l");
+   //gexpexcl_LO->Draw("l");
+   //gCLsExpExclHT_LO->Draw("l");
+   //gCLsObsExclHT->Draw("l");
+   //gCLsExpExclHT->Draw("l");
+   //gFCexpexclHT_LO->Draw("l");
+   //gFCexpexclMHT_LO->Draw("l");
    if (gCLsExp1Sigma)    gCLsExp1Sigma->Draw("lf");
    TEV_sn_d0_1->Draw("fsame");
    TEV_sn_d0_2->Draw("fsame");
@@ -291,38 +326,41 @@ int plot(int argc, char** argv)
    sFirst->Draw("same");
    sSecond->Draw("same");
    sThird->Draw("same");
-   if (gexpexcl)         gexpexcl->Draw("l");
-   if (gobsexcl)         gobsexcl->Draw("l");
-   if (gCLsExpExclHT)    gCLsExpExclHT->Draw("l");
-   if (gMCMCexpexcl)     gMCMCexpexcl->Draw("l");
-   if (gCLsObsExclHT)    gCLsObsExclHT->Draw("l");
-   if (gCLsExpExclHT_LO)    gCLsExpExclHT_LO->Draw("l");
+   CLsObsNLO->Draw("l");
+   CLsExpNLO->Draw("l");
+   CLsExpLO->Draw("l");
+   FCExpLO->Draw("l");
+   //FCObsNLO->Draw("l");
+   
+   //gl500->Draw("c"); gl600->Draw("c"); gl700->Draw("c"); gl800->Draw("c"); gl900->Draw("c"); gl1000->Draw("c");
+   //sq500->Draw("c"); sq600->Draw("c"); sq700->Draw("c"); sq800->Draw("c"); sq900->Draw("c"); sq1000->Draw("c");
+   //TLegend * leg = new TLegend(0.55,0.7,0.84,0.89);
+   //leg->SetBorderSize(0);leg->SetFillColor(0);leg->SetTextFont(42);
+   TLegend * leg = new TLegend(0.6,0.66,0.96,0.90);
+   leg->SetBorderSize(0);leg->SetFillColor(0);leg->SetFillStyle(4000);leg->SetTextFont(42);
 
-   TLatex b; b.SetTextSize(0.02); b.SetTextColor(1);
-   b.DrawLatex( 10,420,"#tilde{#tau} LSP"); 
-   b.DrawLatex(  6,150,"LEP2"); 
-   b.DrawLatex( 22,138,"#tilde{l}^{#pm}"); 
-   b.DrawLatex(360,110,"LEP2 #tilde{#chi}^{#pm}"); 
-   //b.DrawLatex(100,140,"CDF"); 
-   //b.DrawLatex(248,129,"D0 #tilde{g}, #tilde{q}"); 
-   b.DrawLatex( 80,180,"D0 #tilde{#nu}"); 
-   TLegend * leg = new TLegend(0.45,0.7,0.85,0.89);
-   leg->SetBorderSize(0);leg->SetFillColor(0);
-   TGraph * expLeg = (TGraph*)gCLsExpExclHT->Clone();expLeg->SetFillStyle(gCLsExp1Sigma->GetFillStyle());expLeg->SetFillColor(gCLsExp1Sigma->GetFillColor());
-   if (gCLsExpExclHT) leg->AddEntry(expLeg       ,"NLO Expected (HT, CLs)","lf");
-   if (gCLsObsExclHT) leg->AddEntry(gCLsObsExclHT,"NLO Observed (HT, CLs)","l");
-   if (gCLsExpExclHT_LO) leg->AddEntry(gCLsExpExclHT_LO,"LO Expected (HT, CLs)","l");
+   TGraph * expLeg = (TGraph*)CLsExpNLO->Clone();expLeg->SetFillStyle(gCLsExp1Sigma->GetFillStyle());expLeg->SetFillColor(gCLsExp1Sigma->GetFillColor());
+   leg->SetHeader("CMS preliminary, 95%CL");
+   leg->AddEntry(expLeg,   "Expected (CLs, NLO)","l");
+   leg->AddEntry(CLsObsNLO,"Observed (CLs, NLO)","l");
+   leg->AddEntry(CLsExpLO, "Expected (CLs, LO)","l");
+   leg->AddEntry(FCExpLO,  "Expected (FC, LO)","l");
+   //if (gobsexcl) leg->AddEntry(gobsexcl,"Observed (MHT, CLs, TLimit)","l");
+   //if (gCLsExpExclHT) leg->AddEntry(expLeg       ,"NLO Expected (HT, CLs)","l");
+   //if (gCLsObsExclHT) leg->AddEntry(gCLsObsExclHT,"NLO Observed (HT, CLs)","l");
+   //if (gCLsObsExclHT_LO) leg->AddEntry(gCLsObsExclHT_LO,"LO Observed (HT, CLs)","l");
+   //if (gCLsExpExclHT_LO) leg->AddEntry(gCLsExpExclHT_LO,"LO Expected (HT, CLs)","l");
    //if (gPLobsexcl) leg->AddEntry(gPLobsexcl,"Observed (PL, RooStat)","l");
    //if (gPLexpexcl) leg->AddEntry(gPLexpexcl,"Expected (PL, RooStat)","l");
-   //if (gFCobsexcl) leg->AddEntry(gFCobsexcl,"Observed (FC, RooStat)","l");
-   //if (gFCexpexcl) leg->AddEntry(gFCexpexcl,"Expected (FC, RooStat)","l");
+   //if (gFCobsexcl) leg->AddEntry(gFCobsexcl,"NLO Observed (HT, FC, RooStat)","l");
+   //if (gFCexpexcl) leg->AddEntry(gFCexpexcl,"NLO Expected (HT, FC, RooStat)","l");
    //if (gMCMCobsexcl) leg->AddEntry(gMCMCobsexcl,"Observed (MHT, MCMC, RooStat)","l");
-   if (gMCMCexpexcl) leg->AddEntry(gMCMCexpexcl,"LO Expected (HT, MCMC, RooStat)","l");
-   if (gexpexcl) leg->AddEntry(gexpexcl,"NLO Expected (MHT, CLs, TLimit)","l");
-   if (gobsexcl) leg->AddEntry(gobsexcl,"NLO Observed (MHT, CLs, TLimit)","l");
-   if (sSecond) leg->AddEntry(sSecond,"NLO #alpha_{T} Expected");
-   if (sFirst)  leg->AddEntry(sFirst, "NLO #alpha_{T} Observed");
-   if (sThird) leg->AddEntry(sThird,"LO #alpha_{T} Expected");
+   //if (gMCMCexpexcl) leg->AddEntry(gMCMCexpexcl,"LO Expected (HT, MCMC, RooStat)","l");
+   //if (gexpexcl) leg->AddEntry(gexpexcl,"NLO Expected (MHT, CLs)","l");
+   //if (gobsexcl) leg->AddEntry(gobsexcl,"NLO Observed (MHT, CLs)","l");
+   if (sSecond) leg->AddEntry(sSecond,"#alpha_{T} Expected (FC, NLO)");
+   if (sFirst)  leg->AddEntry(sFirst, "#alpha_{T} Observed (FC, NLO)");
+   if (sThird)  leg->AddEntry(sThird, "#alpha_{T} Expected (FC, LO)");
    leg->Draw();
    gPad->RedrawAxis();
    c1->SaveAs("results_tb3/Exclusion_m0_m12_tb3.pdf");
@@ -368,7 +406,7 @@ int plot(int argc, char** argv)
    c1->SetLogz(0);
    TH2F*hsig_jec_ht = new TH2F("sigjecht",";m_{0} [GeV]; m_{1/2} [GeV]; Signal JEC uncertainty",
                     50,0,509.9,25,100,350);
-   plotTools->Area(hsig_jec_ht, Mzero, Mhalf, SignalUncertJEC);
+   plotToolsHT->Area(hsig_jec_ht, Mzero, Mhalf, SignalUncertJEC);
    hsig_jec_ht->SetMinimum(0.0);
    hsig_jec_ht->SetMaximum(0.25);
    hsig_jec_ht->SetContour(10);
@@ -393,7 +431,7 @@ int plot(int argc, char** argv)
    c1->SetLogz(0);
    TH2F*hsig_MuIso_ht = new TH2F("sigMuIsoht",";m_{0} [GeV]; m_{1/2} [GeV]; Signal #mu_{iso} uncertainty",
                     50,0,509.9,25,100,350);
-   plotTools->Area(hsig_MuIso_ht, Mzero, Mhalf, SignalUncertMuIso);
+   plotToolsHT->Area(hsig_MuIso_ht, Mzero, Mhalf, SignalUncertMuIso);
    hsig_MuIso_ht->SetMinimum(0.0);
    hsig_MuIso_ht->SetMaximum(0.05);
    hsig_MuIso_ht->SetContour(5);
@@ -418,7 +456,7 @@ int plot(int argc, char** argv)
    c1->SetLogz(0);
    TH2F*hsig_kFactor_ht = new TH2F("sigkFactorht",";m_{0} [GeV]; m_{1/2} [GeV]; Signal #mu_{iso} uncertainty",
                     50,0,509.9,25,100,350);
-   plotTools->Area(hsig_kFactor_ht, Mzero, Mhalf, SignalUncertKfactor);
+   plotToolsHT->Area(hsig_kFactor_ht, Mzero, Mhalf, SignalUncertKfactor);
    hsig_kFactor_ht->SetMinimum(0.1);
    hsig_kFactor_ht->SetMaximum(0.2);
    hsig_kFactor_ht->SetContour(10);

@@ -28,6 +28,7 @@ double MCha2(const SusyScan* p){ return p->MW2; }
 double SignalUncertKfactor(const SusyScan* p){return fabs(p->signal_kfactor_UP-p->signal_kfactor_DN)/(2.0*p->signal_kfactor); }
 double SignalUncertJEC(const SusyScan* p){ return (fabs(p->signal_JEC_UP)+fabs(p->signal_JEC_DN))/(2.0*p->signal); }
 double SignalUncertMuIso(const SusyScan* p){ return (fabs(p->signal_MuIso_UP)+fabs(p->signal_MuIso_DN))/(2.0*p->signal); }
+double SignalKfactor(const SusyScan* p){return p->signal_kfactor; }
 
 double Xsection(const SusyScan* p){ return p->Xsection; }
 double ExpXsecLimit(const SusyScan* p){ return p->ExpXsecLimit; }
@@ -148,8 +149,8 @@ TGraph* set_sneutrino_d0_2(Int_t tanBeta){
 
 TGraph* set_lep_ch_tanBeta10(){
 
-  double ch_m0[11];
-  double ch_m12[11];
+  double ch_m0[12];
+  double ch_m12[12];
 
   ch_m0[0] = 0;
   ch_m0[1] = 100;
@@ -160,8 +161,9 @@ TGraph* set_lep_ch_tanBeta10(){
   ch_m0[6] = 600;
   ch_m0[7] = 700;
   ch_m0[8] = 800; 
-  ch_m0[9] = 800;
-  ch_m0[10] = 0;
+  ch_m0[9] = 1000;
+  ch_m0[10] = 1000;
+  ch_m0[11] = 0;
 
   ch_m12[0] = 163;
   ch_m12[1] = 162;
@@ -172,11 +174,12 @@ TGraph* set_lep_ch_tanBeta10(){
   ch_m12[6] = 157;
   ch_m12[7] = 156;
   ch_m12[8] = 155.4;
-  ch_m12[9] = 0;
+  ch_m12[9] = 154;
   ch_m12[10] = 0;
+  ch_m12[11] = 0;
   
   
-  TGraph* ch_gr = new TGraph(11,ch_m0,ch_m12);
+  TGraph* ch_gr = new TGraph(12,ch_m0,ch_m12);
 
   ch_gr->SetFillColor(3);
   ch_gr->SetLineColor(3);
@@ -458,6 +461,45 @@ TGraph* set_tev_stau(Int_t tanBeta){
 
 }
 
+TGraph* sq_LEP(){
+    double sq[] = {0,0,100,100};
+    double gl[] = {0,2000,2000,0};   
+    TGraph* res = new TGraph(4,sq,gl);
+    res->SetFillColor(kBlue);
+    return res;
+}
+
+TGraph* gl_TEV(){
+    double sq[] = {0,2000,2000,0};
+    double gl[] = {0,0,190,190};   
+    TGraph* res = new TGraph(4,sq,gl);
+    res->SetFillColor(kGreen+2);
+    return res;
+}
+
+TGraph* gl_CDF(){
+    double sq[] = {0,2000,2000,0};
+    double gl[] = {190,190,230,230};   
+    TGraph* res = new TGraph(4,sq,gl);
+    res->SetFillColor(kOrange+5);
+    return res;
+}
+
+TGraph* gl_DEZ(){
+    double sq[] = {0,2000,2000,0};
+    double gl[] = {230,230,255,255};   
+    TGraph* res = new TGraph(4,sq,gl);
+    res->SetFillColor(kYellow-5);
+    return res;
+}
+
+TGraph* gl_WHT(){
+    double sq[] = {101,2000,2000,101};
+    double gl[] = {256,256,400,400};   
+    TGraph* res = new TGraph(4,sq,gl);
+    res->SetFillColor(kWhite);
+    return res;
+}
 
 
 

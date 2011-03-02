@@ -27,6 +27,8 @@ TGraph * PlotTools<T>::Line( double(*x)(const T*), double(*y)(const T*),
      if ( fabs(func( *it)-mass)<diff )
        result->SetPoint(i++, x(*it), y(*it));
   } 
+  result->SetLineWidth(0.5);
+  result->SetLineColor(kGray);
   return result;
 }
 
@@ -111,6 +113,39 @@ void PlotTools<T>::Print(double(*f)(const T*), double(*x)(const T*), double(*y)(
 
 }
 
+template<class T>
+TGraph * PlotTools<T>::ChooseBest(TGraph*r1,TGraph*r2,TGraph*g1,TGraph*g2,double x,double y)
+{
+  TGraph * res = new TGraph(0);
+  for (int i=0; i<r1->GetN(); ++i) {
+    double rx, r1y;
+    r1->GetPoint(i,rx,r1y);
+    double r2y = r2->Eval(rx);
+    double g1y=g1->Eval(rx);
+    double resy = (r1y>=r2y?g1y:g2->Eval(rx));
+    if (rx>x&&r1y>y)
+      res->SetPoint(i,rx,resy);
+    else
+      res->SetPoint(i,rx,g1y);
+  }
+  res->SetLineColor(g1->GetLineColor());
+  res->SetLineWidth(g1->GetLineWidth());
+  res->SetLineStyle(g1->GetLineStyle());
+  res->SetFillColor(g1->GetFillColor());
+  res->SetFillStyle(g1->GetFillStyle());
+  return res;
+}
+
+template<class T>
+TH2 * PlotTools<T>::BinWiseOr(TH2*h1, TH2*h2)
+{
+  TH2 * res = (TH2*)h1->Clone();
+  for (int x=0; x<=res->GetXaxis()->GetNbins(); ++x)
+    for (int y=0; y<=res->GetYaxis()->GetNbins(); ++y)
+      if (h2->GetBinContent(x,y)>0.5)
+        res->SetBinContent(x,y,h2->GetBinContent(x,y));
+  return res;	
+}
 
 
 template<class T>
@@ -134,6 +169,7 @@ TGraph * MakeBand(TGraph *g1, TGraph *g2, bool b){
   }
   res->SetLineColor( g1->GetLineColor() );
   res->SetFillColor( g2->GetLineColor() );
+  res->SetFillStyle(4050);
   return res;
 }
 
