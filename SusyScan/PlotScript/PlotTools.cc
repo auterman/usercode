@@ -56,6 +56,40 @@ void PlotTools<T>::Graph( TGraph*g, double(*x)(const T*), double(*y)(const T*),d
 }
 
 template<class T>
+std::vector<TGraph*> PlotTools<T>::GetContours005(TH2*h, int ncont)
+{
+   double conts[1];
+   conts[0] = 0.05;
+   if (!h) return std::vector<TGraph*>();
+   TH2 * plot = (TH2*)h->Clone();
+   plot->SetContour(1, conts);
+   plot->SetFillColor(1);
+   plot->Draw("CONT Z List");
+   gPad->Update();
+   TObjArray *contours = (TObjArray*)gROOT->GetListOfSpecials()->FindObject("contours");
+   int ncontours      = contours->GetSize();
+   std::vector<TGraph*> result;
+   for (int i=0;i<ncontours;++i){
+     TList *list = (TList*)contours->At(i);
+     TGraph* curv = (TGraph*)list->First();
+     if (curv) result.push_back( curv );
+     for(int j = 0; j < list->GetSize(); j++){
+         curv = (TGraph*)list->After(curv); // Get Next graph
+         if (curv) result.push_back( curv );
+     }
+   }  
+   delete plot;
+   std::sort(result.begin(),result.end(),sort_TGraph());
+   return result;
+}
+
+template<class T>
+TGraph * PlotTools<T>::GetContour005(TH2*h, int ncont, int flag)
+{
+   return (TGraph*)GetContours005(h, ncont).at(flag)->Clone();
+}
+
+template<class T>
 std::vector<TGraph*> PlotTools<T>::GetContours(TH2*h, int ncont)
 {
    if (!h) return std::vector<TGraph*>();
@@ -94,6 +128,18 @@ TGraph * PlotTools<T>::GetContour(TH2*h,double(*x)(const T*), double(*y)(const T
   TH2*hist = (TH2*)h->Clone();
   Area(hist, x, y, func);
   TGraph * graph = GetContour(hist, ncont, flag);
+  graph->SetLineColor(color);
+  graph->SetLineStyle(style);
+  return graph;
+}
+ 
+template<class T>
+TGraph * PlotTools<T>::GetContour005(TH2*h,double(*x)(const T*), double(*y)(const T*), 
+                      double(*func)(const T*), int ncont, int flag,
+		      int color, int style){
+  TH2*hist = (TH2*)h->Clone();
+  Area(hist, x, y, func);
+  TGraph * graph = GetContour005(hist, ncont, flag);
   graph->SetLineColor(color);
   graph->SetLineStyle(style);
   return graph;
@@ -196,20 +242,86 @@ void Smooth(TGraph * g, int N)
     gauss[i] /= sum;
 
   for (int i=0; i<g->GetN(); ++i){
-    double av=0., x, x0, y;
+    double avy=0., avx=0., x, x0, y;
     int points=0;
     for (int j=i-N/2; j<=i+N/2; ++j){
       if      (j<0)          old->GetPoint(0, x, y);
       else if (j>=g->GetN()) old->GetPoint(old->GetN()-1, x, y);
       else                   old->GetPoint(j, x, y);
       if (i==j) x0=x;
-      av += y * gauss[points];
+      avy += y * gauss[points];
+      avx += x * gauss[points];
       ++points;
     }
-    //g->SetPoint(i, x0, av/(double)points); 
-    g->SetPoint(i, x0, av); 
+    if (i-N/2<0 || i+N/2>=g->GetN()) g->SetPoint(i, x0, avy);
+    else g->SetPoint(i, avx, avy); 
   }
   delete old;
+}
+
+
+void Smooth2D(TGraph * g, int N)
+{
+  //TGraph * old = (TGraph*)g->Clone();
+  TGraph * old = Close2D(g);
+  //int N = (n%2==0?n+1:n);
+  if (N>2*g->GetN()) N=2*g->GetN()-1;
+
+
+  double gauss[N];
+  double sigma = (double)N/4.;
+  double sum=0;
+  double lim=(double)N/2.;
+  TF1 *fb = new TF1("fb","gaus(0)",-lim,lim);
+  fb->SetParameter(0, 1./(sqrt(2*3.1415)*sigma) );
+  fb->SetParameter(1, 0);
+  fb->SetParameter(2, sigma);
+  for (int i=0; i<N; ++i){
+    gauss[i]=fb->Integral(-lim+i,-lim+i+1);
+    sum+=gauss[i]; 
+  }
+  for (int i=0; i<N; ++i)
+    gauss[i] /= sum;
+
+  for (int i=0; i<g->GetN(); ++i){
+    double avy=0., avx=0, x, x0, y;
+    int points=0;
+    for (int j=i-N/2; j<=i+N/2; ++j){
+      //if      (j<0)          old->GetPoint(old->GetN()+j, x, y);
+      //else if (j>=g->GetN()) old->GetPoint(j-old->GetN(), x, y);
+      if      (j<0)          old->GetPoint(0, x, y);
+      else if (j>=g->GetN()) old->GetPoint(old->GetN()-1, x, y);
+      else                   old->GetPoint(j, x, y);
+      if (i==j) x0=x;
+      avy += y * gauss[points];
+      avx += x * gauss[points];
+      ++points;
+    }
+    g->SetPoint(i, avx, avy); 
+  }
+  delete old;
+}
+
+TGraph * Close2D(TGraph * g)
+{
+  double x, y;
+  g->GetPoint(0,x,y);
+  g->SetPoint(g->GetN(),x,y);
+  
+  int i=0;
+  for (;i<g->GetN();++i){
+    g->GetPoint(i,x,y);
+    if (x<450&&y<450) break;
+  }  
+  int p=0;
+  TGraph * f = new TGraph(0);
+  for (int j=i+1;j!=i;++j){
+    if (j==g->GetN()) j=0;
+    g->GetPoint(j,x,y);
+    if (y<110+(x-120)*390/442||(x<330&&y<1000)||(x<500&&y<600)) continue;
+    f->SetPoint(p++,x,y);
+  }  
+  return f; 
 }
 
 

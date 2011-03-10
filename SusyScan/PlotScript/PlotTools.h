@@ -10,6 +10,8 @@ class TH2;
 TGraph * MakeBand(TGraph *g1, TGraph *g2, bool b=false);
 
 void Smooth(TGraph * g, int n=3);
+void Smooth2D(TGraph * g, int n=3);
+TGraph* Close2D(TGraph * g);
 
 template<class T>
 class PlotTools {
@@ -27,7 +29,14 @@ class PlotTools {
   TGraph * GetContour(TH2*, int ncont=20, int flag=0);
   std::vector<TGraph *> GetContours(TH2*, int ncont=20);
 
+  TGraph * GetContour005(TH2*, int ncont=20, int flag=0);
+  std::vector<TGraph *> GetContours005(TH2*, int ncont=20);
+
   TGraph * GetContour(TH2*,double(*x)(const T*), double(*y)(const T*), 
+                      double(*func)(const T*), int ncont=20, int flag=0,
+		      int color=1, int style=1);
+
+  TGraph * GetContour005(TH2*,double(*x)(const T*), double(*y)(const T*), 
                       double(*func)(const T*), int ncont=20, int flag=0,
 		      int color=1, int style=1);
 

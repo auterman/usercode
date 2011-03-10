@@ -18,7 +18,7 @@ SRC=SusyScan.cc ConfigFile.cc GeneratorMasses.cc PlotTools.cc TheLimits.cc
 %.o: %.cc
 		$(C) $(RCXX) -c $<
 
-all: plot plot3tb plot50tb
+all: plot plot3tb plot50tb plotComp
 
 
 ConfigFile.o: ConfigFile.cc ConfigFile.h
@@ -56,6 +56,13 @@ plot50tb.o: plot50tb.cc GlobalFunctions.h StyleSettings.h
 plot50tb: $(SRC:.cc=.o) plot50tb.o 
 		$(LD) $(SRC:.cc=.o) plot50tb.o $(RLXX) $(JCORR) -o plot50tb
 		@echo '-> plot50tb executable created.'
+
+plotComp.o: plotComp.cc GlobalFunctions.h StyleSettings.h
+		$(C) $(RCXX) -c plotComp.cc 
+
+plotComp: $(SRC:.cc=.o) plotComp.o 
+		$(LD) $(SRC:.cc=.o) plotComp.o $(RLXX) $(JCORR) -o plotComp
+		@echo '-> plotComp executable created.'
 
 clean:
 		@rm -f *.o 

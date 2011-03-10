@@ -1,13 +1,18 @@
 #include "SusyScan.h"
 #include "GeneratorMasses.h"
+#include "ExclusionPlot.h"
 
 #include "TGraph.h"
 #include "TLatex.h"
 #include "TF1.h"
+#include "TH1F.h"
 #include "TGraphErrors.h"
 #include "TSpline.h"
 #include "TStyle.h"
 #include "TMath.h"
+#include "TRint.h"
+#include "TROOT.h"
+#include "TPad.h"
 
 #include <cmath>
 #include <iostream>
@@ -25,10 +30,12 @@ double MChi3(const SusyScan* p){ return p->MZ3; }
 double MChi4(const SusyScan* p){ return p->MZ4; }
 double MCha1(const SusyScan* p){ return p->MW1; }
 double MCha2(const SusyScan* p){ return p->MW2; }
+double MTAU1(const SusyScan* p){ return p->MTAU1; }
 double SignalUncertKfactor(const SusyScan* p){return fabs(p->signal_kfactor_UP-p->signal_kfactor_DN)/(2.0*p->signal_kfactor); }
 double SignalUncertJEC(const SusyScan* p){ return (fabs(p->signal_JEC_UP)+fabs(p->signal_JEC_DN))/(2.0*p->signal); }
 double SignalUncertMuIso(const SusyScan* p){ return (fabs(p->signal_MuIso_UP)+fabs(p->signal_MuIso_DN))/(2.0*p->signal); }
 double SignalKfactor(const SusyScan* p){return p->signal_kfactor; }
+double ChargedLSP(const SusyScan* p){ return (fabs(p->MTAU1) < fabs(p->MZ1) ? 0.01 : 1); }
 
 double Xsection(const SusyScan* p){ return p->Xsection; }
 double ExpXsecLimit(const SusyScan* p){ return p->ExpXsecLimit; }
@@ -78,12 +85,16 @@ double NLOSignalUncertainty(const SusyScan* p){ return p->NLO_signal_uncertainty
 double NLOSignalRelUncertainty(const SusyScan* p){ return p->NLO_signal_uncertainty/p->NLO_signal; }
 double NLOExpExclusion(const SusyScan* p){ return (NLOExpXsecLimit(p)<NLOXsection(p)&&NLOExpXsecLimit(p)>0.01?1:0.01); }
 double NLOObsExclusion(const SusyScan* p){ return (NLOObsXsecLimit(p)<NLOXsection(p)&&NLOObsXsecLimit(p)>0.01?1:0.01); }
+
+double NLOExpCL(const SusyScan* p){ return (p->NLO_CLs_b_xsec); }
+
 double NLOExpExclCL(const SusyScan* p){ return (p->NLO_CLs_b_xsec<=0.05 ? 1:0.01); }
 double NLOExpExclCLm2sigma(const SusyScan* p){ return (p->NLO_CLs_b_n2_xsec<=0.05 ? 1:0.01); }
 double NLOExpExclCLm1sigma(const SusyScan* p){ return (p->NLO_CLs_b_n1_xsec<=0.05 ? 1:0.01); }
 double NLOExpExclCLp1sigma(const SusyScan* p){ return (p->NLO_CLs_b_p1_xsec<=0.05 ? 1:0.01); }
 double NLOExpExclCLp2sigma(const SusyScan* p){ return (p->NLO_CLs_b_p2_xsec<=0.05 ? 1:0.01); }
 double NLOObsExclCL(const SusyScan* p){ return (p->NLO_CLs_xsec<=0.05 ? 1:0.01); }
+
 double NLOSoverSqrtB(const SusyScan* p){ return p->NLO_signal/(sqrt(p->background)+p->background_uncertainty+p->NLO_signal_uncertainty); }
 double NLOXsecOverObserved(const SusyScan* p){ return (NLOObsXsecLimit(p)==0 ? 9999. : NLOXsection(p)/NLOObsXsecLimit(p)); }
 double NLOXsecOverExpected(const SusyScan* p){ return (NLOExpXsecLimit(p)==0 ? 9999. : NLOXsection(p)/NLOExpXsecLimit(p)); }
@@ -122,6 +133,33 @@ double MChi4(const GeneratorMasses* p){ return p->MZ4; }
 double MCha1(const GeneratorMasses* p){ return p->MW1; }
 double MCha2(const GeneratorMasses* p){ return p->MW2; }
 
+
+
+void setPlottingStyle(TH1F& hsig){
+  
+  hsig.SetStats(kFALSE);
+  
+  hsig.SetAxisRange(80,500,"Y");
+  hsig.SetAxisRange(0,520,"X");
+  hsig.SetAxisRange(200,520,"X");
+
+  hsig.GetXaxis()->SetTitle("m_{0} (GeV)");
+  hsig.GetYaxis()->SetTitle("m_{1/2} (GeV)");
+  hsig.GetYaxis()->SetTitleOffset(0.8);
+  hsig.GetYaxis()->SetTitleSize(0.06);
+  hsig.GetYaxis()->SetLabelSize(0.06);
+  hsig.GetXaxis()->SetTitleOffset(0.9);
+  hsig.GetXaxis()->SetTitleSize(0.06);
+  hsig.GetXaxis()->SetLabelSize(0.06);
+
+  hsig.SetLineWidth(1);  
+  hsig.SetLineColor(kBlue);  
+  
+}
+
+
+
+
 TGraph* set_sneutrino_d0_1(Int_t tanBeta){
   double sn_m0[14]= {0,  0, 48, 55, 80, 90,100,105,109,105,100, 72, 55,0};
   double sn_m12[14]={0,140,210,220,237,241,242,241,230,220,210,170,150,0};
@@ -129,7 +167,7 @@ TGraph* set_sneutrino_d0_1(Int_t tanBeta){
   TGraph* sn_d0_gr = new TGraph(14,sn_m0,sn_m12);
 
   sn_d0_gr->SetFillColor(kGreen+3);
-  sn_d0_gr->SetFillStyle(1001);
+  sn_d0_gr->SetFillStyle(3001);
 
   return sn_d0_gr;
 }
@@ -141,11 +179,16 @@ TGraph* set_sneutrino_d0_2(Int_t tanBeta){
   TGraph* sn_d0_gr_2 = new TGraph(9,sn_m0,sn_m12);
 
   sn_d0_gr_2->SetFillColor(kGreen+3);
-  sn_d0_gr_2->SetFillStyle(1001);
+  sn_d0_gr_2->SetFillStyle(3001);
 
   return sn_d0_gr_2;
 }
 
+TGraph* set_lep_ch(Int_t tanBeta){
+  if(tanBeta == 3) return set_lep_ch_tanBeta3();
+  if(tanBeta == 10) return set_lep_ch_tanBeta10();
+  if(tanBeta == 50) return set_lep_ch_tanBeta50();
+}
 
 TGraph* set_lep_ch_tanBeta10(){
 
@@ -174,7 +217,7 @@ TGraph* set_lep_ch_tanBeta10(){
   ch_m12[6] = 157;
   ch_m12[7] = 156;
   ch_m12[8] = 155.4;
-  ch_m12[9] = 154;
+  ch_m12[9] = 155.05;
   ch_m12[10] = 0;
   ch_m12[11] = 0;
   
@@ -184,7 +227,7 @@ TGraph* set_lep_ch_tanBeta10(){
   ch_gr->SetFillColor(3);
   ch_gr->SetLineColor(3);
   //  ch_gr->SetLineWidth(3);
-  ch_gr->SetFillStyle(1001);
+  ch_gr->SetFillStyle(3001);
 
   return ch_gr;
 
@@ -238,7 +281,7 @@ TGraph* set_lep_ch_tanBeta3(){
   ch_gr->SetFillColor(3);
   ch_gr->SetLineColor(3);
   // ch_gr->SetLineWidth(3);
-  ch_gr->SetFillStyle(1001);
+  ch_gr->SetFillStyle(3001);
 
   return ch_gr;
 
@@ -299,18 +342,13 @@ TGraph* set_lep_ch_tanBeta50(){
 
   ch_gr->SetFillColor(3);
   ch_gr->SetLineColor(3);
-  ch_gr->SetFillStyle(1001);
+  ch_gr->SetFillStyle(3001);
 
   return ch_gr;
 
 }
 
 
-TGraph* set_lep_ch(Int_t tanBeta){
-  if(tanBeta == 3) return set_lep_ch_tanBeta3();
-  if(tanBeta == 10) return set_lep_ch_tanBeta10();
-  if(tanBeta == 50) return set_lep_ch_tanBeta50();
-}
 
 
 TGraph* set_lep_sl(Int_t tanBeta){
@@ -320,37 +358,26 @@ TGraph* set_lep_sl(Int_t tanBeta){
   //  double sl_m12[] = {0,245,240,220,200,150,100,50,0}; 
   
   //contour from D0 trilepton paper (PLB 680 (2009) 34-43)
-
-  double *sl_m0 = 0;
-  double *sl_m12 = 0;
-  int n = 0;
-
-  double sl_m0_3[] ={0,  0, 10, 20, 30, 40, 50, 60, 70, 77,88,95};
-  double sl_m12_3[]={0,245,242,239,232,222,209,189,165,140,60,0};
-  int n_3 = 12;
-
-  double sl_m0_10[]={ 0,  0, 11, 20, 24, 49, 70, 82,88,90};
-  double sl_m12_10[]={0,240,237,233,230,200,150,100,50,0};
-  int n_10 = 10;
-
+  TGraph* lep_sl = 0;
   if (tanBeta==3){
-    sl_m0 = sl_m0_3;
-    sl_m12 = sl_m12_3;
-    n = n_3;
+    double sl_m0[] ={0,  0, 10, 20, 30, 40, 50, 60, 70, 77,88,95};
+    double sl_m12[]={0,245,242,239,232,222,209,189,165,140,60,0};
+    int n = 12;
+    lep_sl = new TGraph(n,sl_m0,sl_m12);
   }
   //CMS PTDR-II
   //* Selectron_R line mass=99, ISASUGRA7.69, A0=0, m_top=175, tan(beta]=10
   if (tanBeta==10 || tanBeta==50){
-    sl_m0 = sl_m0_10;
-    sl_m12 = sl_m12_10;
-    n = n_10;
+    double sl_m0[]={ 0,  0, 11, 20, 24, 49, 70, 82,88,90};
+    double sl_m12[]={0,240,237,233,230,200,150,100,50,0};
+    int n = 10;
+    lep_sl = new TGraph(n,sl_m0,sl_m12);
   }
 
-  TGraph* lep_sl = new TGraph(n,sl_m0,sl_m12);
 
   lep_sl->SetFillColor(5);
   lep_sl->SetLineColor(5);
-  lep_sl->SetFillStyle(1001);
+  lep_sl->SetFillStyle(3001);
   
   return lep_sl;
 }
@@ -373,7 +400,7 @@ TGraph* set_tev_sg_cdf(Int_t tanBeta){
   sg_gr->SetFillColor(2);
   sg_gr->SetLineColor(2);
   //  sg_gr->SetLineWidth(3);
-  sg_gr->SetFillStyle(1001); 
+  sg_gr->SetFillStyle(3001); 
 
   return sg_gr;
 
@@ -381,21 +408,20 @@ TGraph* set_tev_sg_cdf(Int_t tanBeta){
 
 TGraph* set_tev_sg_d0(Int_t tanBeta){
 
-  //  double sgd_m0[] = {0, 0,  50, 100,150,200,250,300,350,400,450,500,550,600,600};
-  //  double sgd_m12[] = {0,168,167,162,157,145,125,120,110,108,95, 94 ,94 ,93,0};
-  //  int np=15;
-  double sgd_m0[]= {0,  0, 30, 80,150,240,320,400,500,600,600,0};
-  double sgd_m12[]={0,167,166,162,156,138,121,109,105,105,  0,0};
-  int npd=12;
+  //official D0 contour from P. Verdier
+  double sgd_m0[]= {0,  0., 25., 80.,100.,150.,192.,250.,300. ,350.,400.,450. ,500.,600.,600.,0.};
+  double sgd_m12[]={0,167.,167.,163.,162.,157.,149.,136.,125.5,116.,109.,106.5,105.,105.,  0.,0.};
+  int npd=16;
 
   TGraph* sgd_gr = new TGraph(npd,sgd_m0,sgd_m12);
 
   gStyle->SetHatchesLineWidth(3);
 
-  sgd_gr->SetFillColor(kMagenta+3);
-  sgd_gr->SetLineColor(kMagenta+3);
+  sgd_gr->SetFillColor(kMagenta+1);
+  sgd_gr->SetLineColor(kMagenta+1);
   sgd_gr->SetLineWidth(3);
   sgd_gr->SetFillStyle(3335);
+  //sgd_gr->SetFillStyle(3001);
 
   return sgd_gr;
 
@@ -461,45 +487,6 @@ TGraph* set_tev_stau(Int_t tanBeta){
 
 }
 
-TGraph* sq_LEP(){
-    double sq[] = {0,0,100,100};
-    double gl[] = {0,2000,2000,0};   
-    TGraph* res = new TGraph(4,sq,gl);
-    res->SetFillColor(kBlue);
-    return res;
-}
-
-TGraph* gl_TEV(){
-    double sq[] = {0,2000,2000,0};
-    double gl[] = {0,0,190,190};   
-    TGraph* res = new TGraph(4,sq,gl);
-    res->SetFillColor(kGreen+2);
-    return res;
-}
-
-TGraph* gl_CDF(){
-    double sq[] = {0,2000,2000,0};
-    double gl[] = {190,190,230,230};   
-    TGraph* res = new TGraph(4,sq,gl);
-    res->SetFillColor(kOrange+5);
-    return res;
-}
-
-TGraph* gl_DEZ(){
-    double sq[] = {0,2000,2000,0};
-    double gl[] = {230,230,255,255};   
-    TGraph* res = new TGraph(4,sq,gl);
-    res->SetFillColor(kYellow-5);
-    return res;
-}
-
-TGraph* gl_WHT(){
-    double sq[] = {101,2000,2000,101};
-    double gl[] = {256,256,400,400};   
-    TGraph* res = new TGraph(4,sq,gl);
-    res->SetFillColor(kWhite);
-    return res;
-}
 
 
 
@@ -552,7 +539,7 @@ TLatex* constant_squark_text(Int_t it,TF1& lnsq,Int_t tanBeta_){
   Double_t place_x = 170;
   if(tanBeta_ == 50)place_x = 290;
   TLatex* t3 = new TLatex(place_x+10*(it-1),lnsq.Eval(place_x+10*(it-1))+5,legnm);
-  t3->SetTextSize(0.03);
+  t3->SetTextSize(0.02);
   t3->SetTextAngle(-8);
   t3->SetTextColor(kGray+2);
 
@@ -566,7 +553,7 @@ TLatex* constant_gluino_text(Int_t it,TF1& lngl){
 
   sprintf(legnm,"#font[12]{#tilde{g}}#font[92]{(%i)GeV}",500+150*(it-1));
   TLatex* t4 = new TLatex(423,18+lngl.Eval(480),legnm);
-  t4->SetTextSize(0.03);
+  t4->SetTextSize(0.02);
   t4->SetTextAlign(13);
   t4->SetTextColor(kGray+2);
 
@@ -574,519 +561,377 @@ TLatex* constant_gluino_text(Int_t it,TF1& lngl){
 }
 
 
-TGraphErrors* getLO_tanBeta3(){
+
+TLegend* makeStauLegend(Double_t txtsz,Int_t tanBeta_){
+  Double_t ypos_1 = 0.86;
+  Double_t ypos_2 = 0.88;
+  Double_t xpos_1 = 0.16;
+  Double_t xpos_2 = 0.17;
+  if(tanBeta_ == 50){
+    xpos_1 = 0.17;
+    xpos_2 = 0.18;
+    ypos_1 = 0.76;
+    ypos_2 = 0.78;
+
+  }
+  TLegend* legst = new TLegend(xpos_1,ypos_1,xpos_2,ypos_2);
+  legst->SetHeader("#tilde{#tau} = LSP");
+  legst->SetFillStyle(0);
+  legst->SetBorderSize(0);
+  legst->SetTextSize(0.03);
+
+  return legst;
+}
 
 
+TLegend* makeExpLegend(TGraph& sg_gr, TGraph& sgd_gr,TGraph& ch_gr,TGraph& sl_gr,TGraph& tev_sn,Double_t txtsz,Int_t tanbeta){
+  TLegend* legexp = new TLegend(0.64,0.65,0.99,0.9,NULL,"brNDC");
+  legexp->SetFillColor(0);
+  legexp->SetShadowColor(0);
+  legexp->SetTextSize(txtsz);
+  legexp->SetBorderSize(0);
 
-  Int_t nl = 9;
-  Double_t xl[9];
-  Double_t yl[9];
-  Double_t exl[9];
-  Double_t eyl[9];
+  sg_gr.SetLineColor(1);
+  legexp->AddEntry(&sg_gr,"CDF  #tilde{#font[12]{g}}, #tilde{#font[12]{q}}, #scale[0.8]{tan#beta=5, #mu<0}","f"); 
+  //  sgd_gr.SetLineColor(1);
+  //  sgd_gr.SetLineWidth(1);
+
+  legexp->AddEntry(&sgd_gr,"D0   #tilde{#font[12]{g}}, #tilde{#font[12]{q}}, #scale[0.8]{tan#beta=3, #mu<0}","f");  
+  ch_gr.SetLineColor(1);
+  legexp->AddEntry(&ch_gr,"LEP2   #tilde{#chi}_{1}^{#pm}","f");  
   
-  // cout << " n " << hist->GetXaxis()->GetNbins() << endl;
-  
+  sl_gr.SetLineColor(1);
+  if(tanbeta != 50) legexp->AddEntry(&sl_gr,"LEP2   #tilde{#font[12]{l}}^{#pm}","f"); 
+  if(tanbeta == 3) legexp->AddEntry(&tev_sn,"D0  #chi^{#pm}_{1}, #chi^{0}_{2}","f");  
  
-   xl[0] = 0;
-  yl[0] = 265;
-  xl[1] = 100;
-  yl[1] = 258;
-  xl[2] = 200;
-  yl[2] = 250;
-  xl[3] = 250;
-  yl[3] = 240;
-  xl[4] = 300;
-  yl[4] = 210;
-  xl[5] = 340;
-  yl[5] = 177;
-  xl[6] = 400;
-  yl[6] = 140;
-  xl[7] = 450;
-  yl[7] = 120;
-  xl[8] = 520;
-  yl[8] =100;
 
-  
-  TGraphErrors* gr1 = new TGraphErrors(nl,xl,yl,exl,eyl);
-  gr1->SetMarkerColor(kGreen+2);
-  gr1->SetMarkerStyle(21);
-  
-  
-  //gr1->Draw("LP");
-
-  TSpline3 *s = new TSpline3("grs",gr1);
-  s->SetLineColor(kGreen+2);
-  s->SetLineStyle(4);
-  s->SetLineWidth(3);
-  
-
-  return gr1;
-
-
-
-}
-
-TGraphErrors* getLO_tanBeta10(){
-
-
-
-  Int_t nl = 10;
-  Double_t xl[10];
-  Double_t yl[10];
-  Double_t exl[10];
-  Double_t eyl[10];
-  
-  // cout << " n " << hist->GetXaxis()->GetNbins() << endl;
-  
-  xl[0] = 0;
-  yl[0] = 270;
-  xl[1] = 100;
-  yl[1] = 260;
-  xl[2] = 200;
-  yl[2] = 250;
-  xl[3] = 250;
-  yl[3] = 240;
-  xl[4] = 300;
-  yl[4] = 210;
-  xl[5] = 350;
-  yl[5] = 174;
-  xl[6] = 400;
-  yl[6] = 147;
-  xl[7] = 450;
-  yl[7] = 127;
-  xl[8] = 500;
-  yl[8] =115;
-  xl[9] = 520;
-  yl[9] = 112;
-  
-  
-  
-  
-  
-  
-  TGraphErrors* gr1 = new TGraphErrors(nl,xl,yl,exl,eyl);
-  gr1->SetMarkerColor(kGreen+2);
-  gr1->SetMarkerStyle(21);
-  
-  
-  //gr1->Draw("LP");
-
-  TSpline3 *s = new TSpline3("grs",gr1);
-  s->SetLineColor(kGreen+2);
-  s->SetLineStyle(4);
-  s->SetLineWidth(3);
-  
-
-  return gr1;
-
-
-
-}
-
-TGraphErrors* getLO_tanBeta50(){
-
-
-
-  Int_t nl = 10;
-  Double_t xl[10];
-  Double_t yl[10];
-  Double_t exl[10];
-  Double_t eyl[10];
-  
-  // cout << " n " << hist->GetXaxis()->GetNbins() << endl;
-  
-
-  xl[0] = 200;
-  yl[0] = 239;
-  xl[1] = 210;
-  yl[1] = 249;
-  xl[2] = 229;
-  yl[2] = 260;
-  xl[3] = 250;
-  yl[3] = 245;
-  xl[4] = 300;
-  yl[4] = 210;
-  xl[5] = 350;
-  yl[5] = 180;
-  xl[6] = 400;
-  yl[6] = 160;
-  xl[7] = 450;
-  yl[7] = 150;
-  xl[8] = 500;
-  yl[8] =140;
-  xl[9] = 520;
-  yl[9] = 137;
-  
-  
-  
-  
-  
-  
-  TGraphErrors* gr1 = new TGraphErrors(nl,xl,yl,exl,eyl);
-  gr1->SetMarkerColor(kGreen+2);
-  gr1->SetMarkerStyle(21);
-  
-  
-  //gr1->Draw("LP");
-
-  TSpline3 *s = new TSpline3("grs",gr1);
-  s->SetLineColor(kGreen+2);
-  s->SetLineStyle(4);
-  s->SetLineWidth(3);
-  
-
-  return gr1;
-
-
+  return legexp;
 
 }
 
 
+TGraph* getGraph(TH2F* h1, double level){
 
-TGraphErrors* getExpected_NLO_tanBeta3(){
-
- Int_t nl = 11;
-  Double_t xl[11];
-  Double_t yl[11];
-  Double_t exl[11];
-  Double_t eyl[11];
+  h1->SetContour(1);
+  h1->SetContourLevel(0,level);
+  h1->Draw("CONT LIST");
+  gPad->Update();
   
-    xl[0] = 0;
-  yl[0] = 283;
-  xl[1] = 100;
-  yl[1] = 280;
-  xl[2] = 150;
-  yl[2] = 279;
-  xl[3] = 200;
-  yl[3] = 275;
-  xl[4] = 250;
-  yl[4] = 270;
-  xl[5] = 300;
-  yl[5] = 255;
-  xl[6] = 350;
-  yl[6] = 225;
-  xl[7] = 400;
-  yl[7] = 195;
-  xl[8] = 450;
-  yl[8] = 175;
-  xl[9] = 500;
-  yl[9] = 155;
-  xl[10] = 550;
-  yl[10] = 150;
+  TObjArray* contours = (TObjArray*)gROOT->GetListOfSpecials()->FindObject("contours");
 
- 
-  
-  TGraphErrors* gr1 = new TGraphErrors(nl,xl,yl,exl,eyl);
-  gr1->SetMarkerColor(kBlue);
-  gr1->SetMarkerStyle(21);
-  
-  
-  //gr1->Draw("LP");
+  std::cout << "contours: " << contours << std::endl;
+  // Draw contours
+  TList* graphList = (TList*)(contours->At(0));
+  std::cout << "number of graphs: " << graphList->GetSize() << std::endl;
+  TGraph* myGraph = 0;
+  for (int igraph = 0; igraph<graphList->GetSize();++igraph) {
+    myGraph = (TGraph*)graphList->At(igraph);
 
-  TSpline3 *s = new TSpline3("grs",gr1);
-  s->SetLineColor(kBlue);
-  s->SetLineStyle(2);
-  s->SetLineWidth(3);
-  
+    std::cout << " - graph " << igraph << " has " << myGraph->GetN() << " points" << std::endl;
+    if (myGraph->GetN() > 50){
+      std::cout << "Drawing " << myGraph->GetN() <<" points" << std::endl;
+      //      myGraph->Print("all");
+      //      myGraph->SetLineColor(9);
+      //      myGraph->SetLineColor(46);
+      //myGraph->SetLineWidth(3);
+      //      myGraph->SetLineStyle(2);
+      //      myGraph->SetMarkerStyle(20);
+      //      myGraph->SetMarkerColor(9);
 
-  return gr1;
+      //      myGraph->Draw("C");
+      //      cvsSys->Update();
 
-
-
-
-
+    //    TString graphName("graph"+name+"_");
+    //    graphName += igraph;
+    //    myGraph->SetName(graphName);
+      break;
+    }
+  }
+  return myGraph;
 }
 
-TGraphErrors* getExpected_NLO_tanBeta10(){
+TH2F* fillHoles(TH2F* h2){
 
- Int_t nl = 11;
-  Double_t xl[11];
-  Double_t yl[11];
-  Double_t exl[11];
-  Double_t eyl[11];
-  
-  // cout << " n " << hist->GetXaxis()->GetNbins() << endl;
-  
-   xl[0] = 0;
-  yl[0] = 283;
-  xl[1] = 100;
-  yl[1] = 280;
-  xl[2] = 150;
-  yl[2] = 279;
-  xl[3] = 200;
-  yl[3] = 275;
-  xl[4] = 250;
-  yl[4] = 270;
-  xl[5] = 300;
-  yl[5] = 255;
-  xl[6] = 350;
-  yl[6] = 225;
-  xl[7] = 400;
-  yl[7] = 195;
-  xl[8] = 450;
-  yl[8] = 175;
-  xl[9] = 500;
-  yl[9] = 165;
-  xl[10] = 550;
-  yl[10] = 150;
+  int nx = h2->GetNbinsX();
+  int ny = h2->GetNbinsY();
+  std::cout << "Nbins: " << nx << " " << ny << std::endl;
 
+  for (int i=1;i<nx+1;i++){
+    for (int j=ny;j>0;j--){
+      int pos = j;
+      int count =0;
+      if (h2->GetBinContent(i,j)==0 && h2->GetBinContent(i-1,j)==-1 && h2->GetBinContent(i+1,j)==-1) h2->SetBinContent(i,j,-1.);
 
+      if (h2->GetBinContent(i,j)==1 
+	  && h2->GetBinContent(i-1,j)==-1 
+	  && h2->GetBinContent(i+1,j)==-1 
+	  && h2->GetBinContent(i,j+1)==-1 
+	  && h2->GetBinContent(i,j-1)==-1) 
+	h2->SetBinContent(i,j,-1.);
 
-  
-  
-  TGraphErrors* gr1 = new TGraphErrors(nl,xl,yl,exl,eyl);
-  gr1->SetMarkerColor(kBlue);
-  gr1->SetMarkerStyle(21);
-  
-  
-  //gr1->Draw("LP");
-
-  TSpline3 *s = new TSpline3("grs",gr1);
-  s->SetLineColor(kBlue);
-  s->SetLineStyle(2);
-  s->SetLineWidth(3);
-  
-
-  return gr1;
-
-
-
-
-
-}
-
-
-TGraphErrors* getExpected_NLO_tanBeta50(){
-
- Int_t nl = 10;
-  Double_t xl[10];
-  Double_t yl[10];
-  Double_t exl[10];
-  Double_t eyl[10];
-  
-  // cout << " n " << hist->GetXaxis()->GetNbins() << endl;
-  
-   xl[0] = 200;
-  yl[0] = 287;
-  xl[1] = 220;
-  yl[1] = 287;
-  xl[2] = 245;
-  yl[2] = 287;
-  xl[3] = 270;
-  yl[3] = 265;
-  xl[4] = 300;
-  yl[4] = 245;
-  xl[5] = 350;
-  yl[5] = 222;
-  xl[6] = 400;
-  yl[6] = 197;
-  xl[7] = 450;
-  yl[7] = 180;
-  xl[8] = 500;
-  yl[8] = 168;
-  xl[9] = 550;
-  yl[9] = 145;
-
-
-
-  
-  
-  TGraphErrors* gr1 = new TGraphErrors(nl,xl,yl,exl,eyl);
-  gr1->SetMarkerColor(kBlue);
-  gr1->SetMarkerStyle(21);
-  
-  
-  //gr1->Draw("LP");
-
-  TSpline3 *s = new TSpline3("grs",gr1);
-  s->SetLineColor(kBlue);
-  s->SetLineStyle(2);
-  s->SetLineWidth(3);
-  
-
-  return gr1;
-
-
-
-
-
-}
-
-
-TGraphErrors* getObserved_NLO_tanBeta3(){
-
- Int_t nl = 11;
-  Double_t xl[11];
-  Double_t yl[11];
-  Double_t exl[11];
-  Double_t eyl[11];
-  
-  // cout << " n " << hist->GetXaxis()->GetNbins() << endl;
-  
-
-  
-  xl[0] = 0;
-  yl[0] = 274;
-  xl[1] = 100;
-  yl[1] = 270;
-  xl[2] = 150;
-  yl[2] = 268;
-  xl[3] = 200;
-  yl[3] = 265;
-  xl[4] = 250;
-  yl[4] = 255;
-  xl[5] = 300;
-  yl[5] = 230;
-  xl[6] = 350;
-  yl[6] = 195;
-  xl[7] = 400;
-  yl[7] = 160;
-  xl[8] = 450;
-  yl[8] = 140;
-  xl[9] = 480;
-  yl[9] = 130;
-  xl[10] = 530;
-  yl[10] = 120;
- 
-  
-  
-  
-  TGraphErrors* gr1 = new TGraphErrors(nl,xl,yl,exl,eyl);
-  gr1->SetMarkerColor(kBlue);
-  gr1->SetMarkerStyle(21);
-  
-  
-  //gr1->Draw("LP");
-
-  TSpline3 *s = new TSpline3("grs",gr1);
-  s->SetLineColor(kRed);
-  // s->SetLineStyle(2);
-  s->SetLineWidth(3);
-  
-
-  return gr1;
-
-
-
-
-
+      //      if (h2->GetBinContent(i,j)<0){
+      if (h2->GetBinContent(i,j)<0 && h2->GetBinContent(i,j-1)<0){
+       	//      cout <<" bin content " << i <<" " <<  j<< " " << pos << " " << h2->GetBinContent(i,j) <<endl;
+       	for (int k=pos;k>0;k--){
+       	  h2->SetBinContent(i,k,-1.);
+	}
+	break;
+      }
+      
+      
+    }
+  }
+  return h2;
 }
 
 
 
-TGraphErrors* getObserved_NLO_tanBeta10(){
-
- Int_t nl = 11;
-  Double_t xl[11];
-  Double_t yl[11];
-  Double_t exl[11];
-  Double_t eyl[11];
-  
-  // cout << " n " << hist->GetXaxis()->GetNbins() << endl;
-  
-   xl[0] = 0;
-  yl[0] = 278;
-  xl[1] = 100;
-  yl[1] = 270;
-  xl[2] = 150;
-  yl[2] = 267;
-  xl[3] = 200;
-  yl[3] = 262;
-  xl[4] = 250;
-  yl[4] = 250;
-  xl[5] = 300;
-  yl[5] = 225;
-  xl[6] = 350;
-  yl[6] = 192;
-  xl[7] = 400;
-  yl[7] = 163;
-  xl[8] = 450;
-  yl[8] = 148;
-  xl[9] = 500;
-  yl[9] = 140;
-  xl[10] = 520;
-  yl[10] = 137;
-  
- 
- 
-  
-  
-  TGraphErrors* gr1 = new TGraphErrors(nl,xl,yl,exl,eyl);
-  gr1->SetMarkerColor(kBlue);
-  gr1->SetMarkerStyle(21);
-  
-  
-  //gr1->Draw("LP");
-
-  TSpline3 *s = new TSpline3("grs",gr1);
-  s->SetLineColor(kRed);
-  //  s->SetLineStyle(2);
-  s->SetLineWidth(3);
-  
-
-  return gr1;
 
 
 
 
 
+
+
+
+
+//old------------------------------------------------------------------------
+
+TGraph* sq_LEP(){//sq-gl
+    double sq[] = {0,0,100,100};
+    double gl[] = {0,2000,2000,0};   
+    TGraph* res = new TGraph(4,sq,gl);
+    res->SetFillColor(kBlue);
+    return res;
+}
+TGraph* gl_TEV(){//sq-gl
+    double sq[] = {0,2000,2000,0};
+    double gl[] = {0,0,190,190};   
+    TGraph* res = new TGraph(4,sq,gl);
+    res->SetFillColor(kGreen+2);
+    return res;
+}
+
+TGraph* gl_CDF(){//sq-gl
+    double sq[] = {0,2000,2000,0};
+    double gl[] = {190,190,230,230};   
+    TGraph* res = new TGraph(4,sq,gl);
+    res->SetFillColor(kOrange+5);
+    return res;
+}
+
+TGraph* gl_DEZ(){//sq-gl
+    double sq[] = {0,2000,2000,0};
+    double gl[] = {230,230,255,255};   
+    TGraph* res = new TGraph(4,sq,gl);
+    res->SetFillColor(kYellow-5);
+    return res;
+}
+
+TGraph* gl_WHT(){//sq-gl
+    double sq[] = {101,2000,2000,101};
+    double gl[] = {256,256,400,400};   
+    TGraph* res = new TGraph(4,sq,gl);
+    res->SetFillColor(kWhite);
+    return res;
 }
 
 
-TGraphErrors* getObserved_NLO_tanBeta50(){
-
- Int_t nl = 10;
-  Double_t xl[10];
-  Double_t yl[10];
-  Double_t exl[10];
-  Double_t eyl[10];
-  
-  // cout << " n " << hist->GetXaxis()->GetNbins() << endl;
-  
-
-  xl[0] = 200;
-  yl[0] = 243;
-  xl[1] = 220;
-  yl[1] = 264;
-  xl[2] = 235;
-  yl[2] = 278;
-  xl[3] = 250;
-  yl[3] = 267;
-  xl[4] = 300;
-  yl[4] = 230;
-  xl[5] = 350;
-  yl[5] = 205;
-  xl[6] = 400;
-  yl[6] = 184;
-  xl[7] = 450;
-  yl[7] = 168;
-  xl[8] = 500;
-  yl[8] = 156;
-  xl[9] = 520;
-  yl[9] = 148;
-  
- 
- 
-  
-  
-  TGraphErrors* gr1 = new TGraphErrors(nl,xl,yl,exl,eyl);
-  gr1->SetMarkerColor(kBlue);
-  gr1->SetMarkerStyle(21);
-  
-  
-  //gr1->Draw("LP");
-
-  TSpline3 *s = new TSpline3("grs",gr1);
-  s->SetLineColor(kRed);
-  //  s->SetLineStyle(2);
-  s->SetLineWidth(3);
-  
-
-  return gr1;
-
-
-
-
-
+////////////////////////////////////////////
+TGraph* gl_LEP(){//gl-sq
+    double sq[] = {0,0,100,100};
+    double gl[] = {0,2000,2000,0};
+    TGraph* res = new TGraph(4,gl,sq);
+    res->SetFillColor(kBlue);
+    return res;
 }
 
+TGraph* sq_TEV(){//gl-sq
+    double sq[] = {0,2000,2000,330,250,300,200,150,100,0};
+    double gl[] = {0,0,190,190,260,300,500,560,500,500};
+
+    TGraph* res = new TGraph(10,gl,sq);
+    res->SetFillColor(kGreen+2);
+    return res;
+}
+
+TGraph* sq_CDF(){//gl-sq
+    double sq[] = {0,2000,2000,480,460,420,410,380,390,290,0};
+    double gl[] = {0,0,280,280,300,310,330,340,440,320,320};
+    TGraph* res = new TGraph(11,gl,sq);
+    res->SetFillColor(kOrange+5);
+    return res;
+}
+TGraph* sq_DEZ(){//gl-sq
+    double sq[] = {0,2000,2000,460,430,400,390,290,0};
+    double gl[] = {0,0,305,305,320,350,440,320,320};
+    TGraph* res = new TGraph(9,gl,sq);
+    res->SetFillColor(kYellow-5);
+    return res;
+}
+
+TGraph* glsq_NoSol(){//sq-gl
+    gStyle->SetHatchesSpacing(2.0);
+    gStyle->SetHatchesLineWidth(1);
+    double sq[] = {83,83,110,1297.6,0,   0};
+    double gl[] = { 0,63,120,1466,  1466,0};   
+    TGraph* res = new TGraph(6,gl,sq);
+    res->SetLineColor(1);
+    res->SetLineWidth(2);
+    res->SetFillStyle(3354);
+    return res;
+}
+
+
+
+
+
+TGraph * Atlas_m0_m12_tb3_obs()
+{
+   TGraph *graph = new TGraph(71);
+   graph->SetLineWidth(2);
+   graph->SetPoint(0,54,357.341);
+   graph->SetPoint(1,82,358.4171);
+   graph->SetPoint(2,110,359.8179);
+   graph->SetPoint(3,110.934,359.875);
+   graph->SetPoint(4,138,361.5302);
+   graph->SetPoint(5,166,362.5696);
+   graph->SetPoint(6,189.0676,359.875);
+   graph->SetPoint(7,194,359.1415);
+   graph->SetPoint(8,222,354.5211);
+   graph->SetPoint(9,248.1714,351.625);
+   graph->SetPoint(10,250,351.4583);
+   graph->SetPoint(11,278,349.4991);
+   graph->SetPoint(12,306,343.4051);
+   graph->SetPoint(13,306.1313,343.375);
+   graph->SetPoint(14,334,335.3855);
+   graph->SetPoint(15,334.7966,335.125);
+   graph->SetPoint(16,350.8793,326.875);
+   graph->SetPoint(17,362,319.7823);
+   graph->SetPoint(18,364.6568,318.625);
+   graph->SetPoint(19,383.5969,310.375);
+   graph->SetPoint(20,390,308.6978);
+   graph->SetPoint(21,415.0931,302.125);
+   graph->SetPoint(22,418,300.2992);
+   graph->SetPoint(23,423.9359,293.875);
+   graph->SetPoint(24,431.0348,285.625);
+   graph->SetPoint(25,441.6066,277.375);
+   graph->SetPoint(26,446,275.3629);
+   graph->SetPoint(27,468.0485,269.125);
+   graph->SetPoint(28,474,267.2393);
+   graph->SetPoint(29,486.3632,260.875);
+   graph->SetPoint(30,495.8534,252.625);
+   graph->SetPoint(31,502,244.7684);
+   graph->SetPoint(32,502.3699,244.375);
+   graph->SetPoint(33,508.424,236.125);
+   graph->SetPoint(34,514.4781,227.875);
+   graph->SetPoint(35,518.8059,219.625);
+   graph->SetPoint(36,521.5056,211.375);
+   graph->SetPoint(37,524.324,203.125);
+   graph->SetPoint(38,527.1424,194.875);
+   graph->SetPoint(39,530,193.5052);
+   graph->SetPoint(40,552.5782,186.625);
+   graph->SetPoint(41,558,185.8767);
+   graph->SetPoint(42,586,180.1476);
+   graph->SetPoint(43,592.2836,178.375);
+   graph->SetPoint(44,614,171.422);
+   graph->SetPoint(45,617.5927,170.125);
+   graph->SetPoint(46,627.5396,161.875);
+   graph->SetPoint(47,642,157.9876);
+   graph->SetPoint(48,658.2277,153.625);
+   graph->SetPoint(49,670,151.1225);
+   graph->SetPoint(50,698,146.9886);
+   graph->SetPoint(51,711.5425,145.375);
+   graph->SetPoint(52,726,143.6935);
+   graph->SetPoint(53,754,140.0648);
+   graph->SetPoint(54,782,137.4563);
+   graph->SetPoint(55,783.0426,137.125);
+   graph->SetPoint(56,796.0326,128.875);
+   graph->SetPoint(57,810,125.0328);
+   graph->SetPoint(58,826.0235,120.625);
+   graph->SetPoint(59,838,117.3305);
+   graph->SetPoint(60,866,116.7462);
+   graph->SetPoint(61,894,116.1044);
+   graph->SetPoint(62,922,114.6645);
+   graph->SetPoint(63,950,116.937);
+   graph->SetPoint(64,978,117.6956);
+   graph->SetPoint(65,1006,115.198);
+   graph->SetPoint(66,1034,113.1166);
+   graph->SetPoint(67,1038.967,112.375);
+   graph->SetPoint(68,1062,108.0997);
+   graph->SetPoint(69,1090,104.373);
+   graph->SetPoint(70,1096.429,104.125);
+   graph->SetFillColor(0);
+   return graph;
+}
+TGraph * Atlas_mGl_mSq_obs()
+{
+   //x:gluino mass, y:squark mass
+   TGraph *graph = new TGraph(64);
+   graph->SetLineWidth(2);
+   graph->SetPoint(0,511.2569,1976.25);
+   graph->SetPoint(1,513.125,1936.181);
+   graph->SetPoint(2,513.4714,1928.75);
+   graph->SetPoint(3,515.6859,1881.25);
+   graph->SetPoint(4,517.9004,1833.75);
+   graph->SetPoint(5,520.1148,1786.25);
+   graph->SetPoint(6,522.3293,1738.75);
+   graph->SetPoint(7,524.5438,1691.25);
+   graph->SetPoint(8,526.1095,1643.75);
+   graph->SetPoint(9,526.5267,1596.25);
+   graph->SetPoint(10,526.9924,1548.75);
+   graph->SetPoint(11,527.2745,1501.25);
+   graph->SetPoint(12,526.9487,1453.75);
+   graph->SetPoint(13,526.6228,1406.25);
+   graph->SetPoint(14,532.902,1358.75);
+   graph->SetPoint(15,540.182,1311.25);
+   graph->SetPoint(16,547.4619,1263.75);
+   graph->SetPoint(17,558.0438,1216.25);
+   graph->SetPoint(18,561.875,1203.002);
+   graph->SetPoint(19,579.4475,1168.75);
+   graph->SetPoint(20,603.8166,1121.25);
+   graph->SetPoint(21,610.625,1107.979);
+   graph->SetPoint(22,630.8311,1073.75);
+   graph->SetPoint(23,658.8712,1026.25);
+   graph->SetPoint(24,659.375,1025.691);
+   graph->SetPoint(25,703.8609,978.75);
+   graph->SetPoint(26,708.125,975.5966);
+   graph->SetPoint(27,756.875,945.0332);
+   graph->SetPoint(28,778.5082,931.25);
+   graph->SetPoint(29,805.625,916.3566);
+   graph->SetPoint(30,847.5791,883.75);
+   graph->SetPoint(31,854.375,879.4212);
+   graph->SetPoint(32,903.125,848.0476);
+   graph->SetPoint(33,927.7959,836.25);
+   graph->SetPoint(34,951.875,823.2943);
+   graph->SetPoint(35,1000.625,790.1523);
+   graph->SetPoint(36,1004.488,788.75);
+   graph->SetPoint(37,1049.375,774.2142);
+   graph->SetPoint(38,1098.125,755.1404);
+   graph->SetPoint(39,1130.904,741.25);
+   graph->SetPoint(40,1146.875,736.2226);
+   graph->SetPoint(41,1195.625,720.3208);
+   graph->SetPoint(42,1244.375,701.1234);
+   graph->SetPoint(43,1266.694,693.75);
+   graph->SetPoint(44,1293.125,685.9941);
+   graph->SetPoint(45,1341.875,668.9126);
+   graph->SetPoint(46,1390.625,652.8072);
+   graph->SetPoint(47,1439.375,647.4204);
+   graph->SetPoint(48,1448.107,646.25);
+   graph->SetPoint(49,1488.125,638.5908);
+   graph->SetPoint(50,1536.875,620.8084);
+   graph->SetPoint(51,1585.625,603.026);
+   graph->SetPoint(52,1597.347,598.75);
+   graph->SetPoint(53,1634.375,581.9133);
+   graph->SetPoint(54,1683.125,559.7463);
+   graph->SetPoint(55,1701.81,551.25);
+   graph->SetPoint(56,1731.875,537.5793);
+   graph->SetPoint(57,1780.625,515.4123);
+   graph->SetPoint(58,1806.273,503.75);
+   graph->SetPoint(59,1829.375,493.2101);
+   graph->SetPoint(60,1878.125,471.0784);
+   graph->SetPoint(61,1910.736,456.25);
+   graph->SetPoint(62,1926.875,448.241);
+   graph->SetPoint(63,1975.625,426.7444);
+   return graph;
+}
