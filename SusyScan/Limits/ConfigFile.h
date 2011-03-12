@@ -143,7 +143,9 @@ public:
 	struct key_not_found {  // thrown only by T read(key) variant of read()
 		string key;
 		key_not_found( const string& key_ = string() )
-			: key(key_) {} };
+			: key(key_) {
+			std::cout<<"key:"<<key<<std::endl;
+			} };
 };
 
 

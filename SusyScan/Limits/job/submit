@@ -2,7 +2,7 @@
 #rm -f results/*
 #rm -rf jobRoo*
 echo "Submitting limits: $1"
-DATESTR=`date +%F-%k-%M`-Limit-$1
+DATESTR=`date +%F-%H-%M`-Limit-$1
 WORKPATH=/scratch/hh/lustre/cms/user/auterman/jobs/$DATESTR
 #WORKPATH=/afs/naf.desy.de/user/a/auterman/Jobs/$DATESTR
 ##THISDIR=`pwd`

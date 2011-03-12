@@ -29,9 +29,9 @@ class cls
   void SetUncertainty(TH1 *es,TH1 *eb,TObjArray *names){esup_=esdn_=es; ebup_=ebdn_=eb;names_=names;syst_=true;};
   void SetUncertainty(TH1 *esup,TH1 *esdn,TH1 *ebup,TH1 *ebdn, TObjArray *names){esup_=esup;esdn_=esdn; ebup_=ebup;ebdn_=ebdn; names_=names;syst_=true;};
 
-  void WriteResult(const std::string out);
-  void WriteResult(ConfigFile *);
-  void WriteConfidence(ConfigFile *);
+  void WriteResult(const std::string out, double xsec, const std::string s="");
+  void WriteResult(ConfigFile *, double xsec, const std::string s="");
+  void WriteConfidence(ConfigFile *, const std::string s="");
   double GetObservedXsecLimit(double cl, double min=0, double max=1000);
   double GetExpectedXsecLimit(double cl, double min=0, double max=1000);
   void Draw(bool doeps=false);

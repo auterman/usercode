@@ -6,6 +6,6 @@ do
   #echo "cp $i to $DIR"
   cp ~/jobs/$i/job*/results/* $DIR/. 
   NUM=`grep -L CLs $DIR/* | wc -l`
-  echo "$NUM jobs in $DIR not finished: issue './Limit \`grep -L CLs $DIR/*\`'" 
+  echo "$NUM jobs in $DIR not finished; issue: ./Limit \`grep -L CLs $DIR/*\`" 
 done
 

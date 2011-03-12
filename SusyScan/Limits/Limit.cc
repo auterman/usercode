@@ -29,15 +29,20 @@ void Limit(int argc, char *argv[])
     int    ndata = config.read<int>("data");
     double nback  = config.read<double>("background");
     double bkgUncert = config.read<double>("background.uncertainty");
-    double signal  = config.read<double>("signal");
-    double sigUncert = config.read<double>("signal.uncertainty");
-
-    double sigControl = config.read<double>("signal.controlregion.IsoMuon");
-    double sigSignal  = config.read<double>("signal.signalregion.IsoMuon");
+    double signal  = config.read<double>("signal.LO");
+    double sigUncert = config.read<double>("signal.LO.uncertainty");
+    double sigSignal = config.read<double>("signal.LO.signalregion.IsoMuon");
+    double sigSigTau  = config.read<double>("signal.LO.signalregion.Tau");
+    double signalNLO  = config.read<double>("signal.NLO");
+    double sigUncertNLO = config.read<double>("signal.NLO.uncertainty");
+    double sigSignalNLO = config.read<double>("signal.NLO.signalregion.IsoMuon");
+    double sigSigTauNLO = config.read<double>("signal.NLO.signalregion.Tau");
     double bkgControl = config.read<double>("background.controlregion.IsoMuon");
     double bkgSignal  = config.read<double>("background.signalregion.IsoMuon");
+  
+    double xsec = config.read<double>("Xsection");
+    double kfactor = config.read<double>("signal.kFactor");
     
-    nback -= sigSignal;
     //bkgUncert += sigSignal * sigUncert/signal;
     
     //config.add("data", ndata);
@@ -50,7 +55,8 @@ void Limit(int argc, char *argv[])
     sprintf(n,"sig%d", file); TH1 * sig  = new TH1F(n,"",1,0,1);
     data->SetBinContent(1,ndata);
     data->SetBinError(1,sqrt(ndata));
-    bgd->SetBinContent(1,nback);
+    double bLO=(nback - sigSignal -sigSigTau<0?0:nback - sigSignal -sigSigTau);
+     bgd->SetBinContent(1,bLO);
     bgd->SetBinError(1,bkgUncert);
     sig->SetBinContent(1,signal);
     sig->SetBinError(1,sigUncert);
@@ -63,9 +69,30 @@ void Limit(int argc, char *argv[])
     limit_sys.SetNMC(50000); //number of pseudo-experiments for each CL calculation
     //limit_sys.Draw();
 
+    sprintf(n,"bkgdNLO%d",file); TH1 * bgdNLO  = new TH1F(n, "",1,0,1);
+    sprintf(n,"dataNLO%d",file); TH1 * dataNLO = new TH1F(n, "",1,0,1);
+    sprintf(n,"sigNLO%d", file); TH1 * sigNLO  = new TH1F(n,"",1,0,1);
+    dataNLO->SetBinContent(1,ndata);
+    dataNLO->SetBinError(1,sqrt(ndata));
+    
+    double bNLO=(nback - sigSignalNLO -sigSigTauNLO<0?0:nback - sigSignalNLO - sigSigTauNLO);
+    bgdNLO->SetBinContent(1,bNLO);
+    bgdNLO->SetBinError(1,bkgUncert);
+    sigNLO->SetBinContent(1,signalNLO);
+    sigNLO->SetBinError(1,sigUncertNLO);
+
+    cls limit_sys_NLO("cls_limit_NLO.ps",
+    	  sigNLO,  // signal with total syst. and stat. errors
+    	  bgdNLO,  // with total syst. and stat. errors
+    	  dataNLO); 
+    limit_sys_NLO.SetStat(true); //Consider Bin-Errors (containing the full syst. uncertainties)
+    limit_sys_NLO.SetNMC(50000); //number of pseudo-experiments for each CL calculation
+    //limit_sys.Draw();
+
     try {
-      //limit_sys.WriteResult( &config );
-      limit_sys.WriteConfidence( &config );
+      //limit_sys.WriteResult( &config, xsec );
+      limit_sys.WriteConfidence( &config, "LO." );
+      limit_sys_NLO.WriteConfidence( &config, "NLO." );
     }
     catch(exception& e){
       cout << "Exception catched: " << e.what();

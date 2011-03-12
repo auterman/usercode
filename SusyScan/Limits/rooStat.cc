@@ -64,7 +64,10 @@ double simpleProfile2(ConfigFile * config, string Type,
   /////////////////////////////////////////
   char * name = new char[1024];
   RooWorkspace* wspace = new RooWorkspace();
-  sprintf(name,"Poisson::countingModel(obs[50,0,200],sum(s[50,0,100]*ratioSigEff[1.,0,2.],b[50,0,100]*ratioBkgEff[1.,0.,2.]))");
+  //sprintf(name,"Poisson::countingModel(obs[50,0,200],sum(s[50,0,100]*ratioSigEff[1.,0,2.],b[50,0,100]*ratioBkgEff[1.,0.,2.]))");
+  double d=(dat>sig+bkg+bkg_uncertainty+sig_uncertainty?dat:sig+bkg+bkg_uncertainty+sig_uncertainty);
+  sprintf(name,"Poisson::countingModel(obs[%f,0,%f],sum(s[%f,%f,%f]*ratioSigEff[1.,0,2.],b[%f,0,%f]*ratioBkgEff[1.,0.,2.]))",
+                 dat,d*2.0, ExpNsigLimit, 0.3*ExpNsigLimit, ExpNsigLimit*2., bkg, bkg*2.);
   wspace->factory(name); // counting model
   //wspace->factory("Gaussian::sigConstraint(1,ratioSigEff,0.257)"); // 5% signal efficiency uncertainty
   //wspace->factory("Gaussian::bkgConstraint(1,ratioBkgEff,0.136)"); // 10% background efficiency uncertainty
@@ -130,20 +133,49 @@ double simpleProfile2(ConfigFile * config, string Type,
   plotInt.SetTitle("Profile Likelihood Ratio and Posterior for S");
   plotInt.Draw();
 
-  // Second, use a Calculator based on the Feldman Cousins technique
-//  FeldmanCousins fc(*data, modelConfig);
-//  fc.UseAdaptiveSampling(true);
-//  fc.FluctuateNumDataEntries(false); // number counting analysis: dataset always has 1 entry with N events observed
-//  fc.SetNBins(100); // number of points to test per parameter
-//  fc.SetTestSize(.10); //95% single sided
-//  fc.AdditionalNToysFactor(5);
-//  //  fc.SaveBeltToFile(true); // optional
-//  ConfInterval* fcint = NULL;
-//  fcint = fc.GetInterval();  // that was easy.
+ // Get Lower and Upper limits from Profile Calculator
+  double up = ((LikelihoodInterval*) lrint)->UpperLimit(*s);
+  cout << Type << ":  d:"<<dat<<", b:"<<bkg<<"+-"<<bkg_uncertainty
+       <<";  s:"<<sig<<"+-"<<sig_uncertainty <<std::endl;
+  cout << "Profile lower limit on s = " << ((LikelihoodInterval*) lrint)->LowerLimit(*s) << endl;
+  cout << "Profile upper limit on s = " << up << endl;
+  config->add("RooSimpleProfile.signal."+Type+"UpperLimit", up);
+  config->add("RooSimpleProfile.xsec."+Type+"UpperLimit", up/sig * xsec);
 
+/*
+
+  // Second, use a Calculator based on the Feldman Cousins technique
+  FeldmanCousins fc(*data, modelConfig);
+  fc.UseAdaptiveSampling(true);
+  fc.FluctuateNumDataEntries(false); // number counting analysis: dataset always has 1 entry with N events observed
+  fc.SetNBins(50); // number of points to test per parameter
+  fc.SetTestSize(.10); //95% single sided
+  fc.AdditionalNToysFactor(2);
+  //  fc.SaveBeltToFile(true); // optional
+  ConfInterval* fcint = NULL;
+  fcint = fc.GetInterval();  // that was easy.
+
+
+  // Get Lower and Upper limits from FeldmanCousins with profile construction
+  if (fcint != NULL) {
+     double fcul = ((PointSetInterval*) fcint)->UpperLimit(*s);
+     double fcll = ((PointSetInterval*) fcint)->LowerLimit(*s);
+     cout << "FC lower limit on s = " << fcll << endl;
+     cout << "FC upper limit on s = " << fcul << endl;
+     config->add("RooFC.signal."+Type+"UpperLimit", fcul);
+     config->add("RooFC.xsec."+Type+"UpperLimit", fcul/sig * xsec);
+     //TLine* fcllLine = new TLine(fcll, 0, fcll, 1);
+     //TLine* fculLine = new TLine(fcul, 0, fcul, 1);
+     //fcllLine->SetLineColor(kRed);
+     //fculLine->SetLineColor(kRed);
+     //fcllLine->Draw("same");
+     //fculLine->Draw("same");
+     dataCanvas->Update();
+  }
+*/
   RooFitResult* fit = modelWithConstraints->fitTo(*data, Save(true));
 
-  // Third, use a Calculator based on Markov Chain monte carlo
+ // Third, use a Calculator based on Markov Chain monte carlo
   // Before configuring the calculator, let's make a ProposalFunction
   // that will achieve a high acceptance rate
   ProposalHelper ph;
@@ -161,32 +193,8 @@ double simpleProfile2(ConfigFile * config, string Type,
   mc.SetLeftSideTailFraction(0.5);  // find a "central" interval
   MCMCInterval* mcInt = (MCMCInterval*)mc.GetInterval();  // that was easy
 
-  // Get Lower and Upper limits from Profile Calculator
-  double up = ((LikelihoodInterval*) lrint)->UpperLimit(*s);
-  cout << Type << ":  d:"<<dat<<", b:"<<bkg<<"+-"<<bkg_uncertainty
-       <<";  s:"<<sig<<"+-"<<sig_uncertainty <<std::endl;
-  cout << "Profile lower limit on s = " << ((LikelihoodInterval*) lrint)->LowerLimit(*s) << endl;
-  cout << "Profile upper limit on s = " << up << endl;
-  config->add("RooSimpleProfile.signal."+Type+"UpperLimit", up);
-  config->add("RooSimpleProfile.xsec."+Type+"UpperLimit", up/sig * xsec);
 
-//  // Get Lower and Upper limits from FeldmanCousins with profile construction
-//  if (fcint != NULL) {
-//     double fcul = ((PointSetInterval*) fcint)->UpperLimit(*s);
-//     double fcll = ((PointSetInterval*) fcint)->LowerLimit(*s);
-//     cout << "FC lower limit on s = " << fcll << endl;
-//     cout << "FC upper limit on s = " << fcul << endl;
-//     config->add("RooFC.signal."+Type+"UpperLimit", fcul);
-//     config->add("RooFC.xsec."+Type+"UpperLimit", fcul/sig * xsec);
-//     //TLine* fcllLine = new TLine(fcll, 0, fcll, 1);
-//     //TLine* fculLine = new TLine(fcul, 0, fcul, 1);
-//     //fcllLine->SetLineColor(kRed);
-//     //fculLine->SetLineColor(kRed);
-//     //fcllLine->Draw("same");
-//     //fculLine->Draw("same");
-//     dataCanvas->Update();
-//  }
-/*
+ /*
 
   // Plot MCMC interval and print some statistics
   MCMCIntervalPlot mcPlot(*mcInt);
@@ -200,7 +208,7 @@ double simpleProfile2(ConfigFile * config, string Type,
   cout << "MCMC upper limit on s = " << mcul << endl;
   cout << "MCMC Actual confidence level: "
      << mcInt->GetActualConfidenceLevel() << endl;
-
+  cout << "CLs Exp upper limit on s = "<<ExpNsigLimit << endl;
   config->add("RooMCMC.signal."+Type+"UpperLimit", mcul);
   config->add("RooMCMC.xsec."+Type+"UpperLimit", mcul/sig * xsec);
 /*
@@ -245,13 +253,33 @@ void rooStat(int argc, char *argv[])
     int data = config.read<int>("data");
     double bkg  = config.read<double>("background");
     double bkgUncert = config.read<double>("background.uncertainty");
-    double sig  = config.read<double>("signal");
-    double sigUncert = config.read<double>("signal.uncertainty");
-    double xsec = config.read<double>("Xsection",1.0);
-    double ExpNsigLimit = config.read<double>("ExpNsigLimit",100.0);
+    double sig  = config.read<double>("signal.LO");
+    double sigUncert = config.read<double>("signal.LO.uncertainty");
+    double sigNLO  = config.read<double>("signal.NLO");
+    double sigUncertNLO = config.read<double>("signal.NLO.uncertainty");
+    double xsec = config.read<double>("Xsection");
+    double kfactor = config.read<double>("signal.kFactor");
+    double ExpNsigLimit = config.read<double>("RooMCMC.signal.LO.ExpUpperLimit",18.0);
+    double ExpNsigLimitNLO = config.read<double>("RooMCMC.signal.NLO.ExpUpperLimit",18.0);
+    double ObsNsigLimit = config.read<double>("RooMCMC.signal.LO.ObsUpperLimit",18.0);
+    double ObsNsigLimitNLO = config.read<double>("RooMCMC.signal.NLO.ObsUpperLimit",18.0);
 
-    simpleProfile2(&config, "Obs", data, bkg, bkgUncert, sig, sigUncert, xsec, ExpNsigLimit);
-    simpleProfile2(&config, "Exp", bkg, bkg, bkgUncert, sig, sigUncert, xsec, ExpNsigLimit);
+
+    double sigSigTau = config.read<double>("signal.LO.signalregion.Tau");
+    double sigSignal  = config.read<double>("signal.LO.signalregion.IsoMuon");
+    double sigSigTauNLO = config.read<double>("signal.NLO.signalregion.Tau");
+    double sigSignalNLO  = config.read<double>("signal.NLO.signalregion.IsoMuon");
+    double bkgControl = config.read<double>("background.controlregion.IsoMuon");
+    double bkgSignal  = config.read<double>("background.signalregion.IsoMuon");
+    
+    double b_reduc = (bkg-sigSignal-sigSigTau<0?0:bkg-sigSignal-sigSigTau);
+    
+    simpleProfile2(&config, "LO.Obs", data, b_reduc, bkgUncert, sig, sigUncert, xsec, ObsNsigLimit);
+    simpleProfile2(&config, "LO.Exp", b_reduc, b_reduc, bkgUncert, sig, sigUncert, xsec, ExpNsigLimit);
+
+    b_reduc = (bkg-sigSignalNLO-sigSigTauNLO<0?0:bkg-sigSignalNLO-sigSigTauNLO);
+    simpleProfile2(&config, "NLO.Obs", data, b_reduc, bkgUncert, sigNLO, sigUncertNLO, xsec*kfactor, ObsNsigLimitNLO);
+    simpleProfile2(&config, "NLO.Exp", b_reduc, b_reduc, bkgUncert, sigNLO, sigUncertNLO, xsec*kfactor, ExpNsigLimitNLO);
 
     //write stuff:  
     time_t rawtime;
@@ -273,5 +301,10 @@ void rooStat(int argc, char *argv[])
 
 int main(int argc, char *argv[])
 {
-  rooStat(argc,argv);
+  try{ 
+      rooStat(argc,argv);
+  }
+    catch(exception& e){
+      cout << "Exception catched: " << e.what();
+  }
 }

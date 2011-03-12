@@ -1,16 +1,20 @@
 #rm -f RooResults.txt
 #rm -f results/*
 #rm -rf jobRoo*
-DATESTR=`date +%F-%k-%M`-RooLimit
+echo "Submitting limits: $1"
+DATESTR=`date +%F-%H-%M`-RooLimit-$1
 WORKPATH=/scratch/hh/lustre/cms/user/auterman/jobs/$DATESTR
 #WORKPATH=/afs/naf.desy.de/user/a/auterman/Jobs/$DATESTR
 ##THISDIR=`pwd`
 mkdir $WORKPATH
 mkdir $DATESTR
-ls ../limits/*.dat > $DATESTR/limits.txt
-split -a 4 -l 5 -d $DATESTR/limits.txt $DATESTR/limit_
+ls ../$1/*.dat > $DATESTR/limits.txt
+#split -a 4 -l 10 -d $DATESTR/limits.txt $DATESTR/limit_
+split -a 4 -l 1 -d $DATESTR/limits.txt $DATESTR/limit_
 mv $DATESTR/limit_0000 $DATESTR/limit_0`ls -l $DATESTR/limit_* | wc -l`
 rm -f Job.sh
-sed "s/AUniquePlaceholderName/$DATESTR/g" JobRooOrig.sh > JobRoo.sh
-chmod a+x JobRoo.sh
-echo "qsub -j y -o /dev/null -t 1-`ls -l $DATESTR/limit_* | wc -l` -l h_cpu=00:14:59 -l h_vmem=4000M JobRoo.sh"
+sed "s/AUniquePlaceholderName/$DATESTR/g" RooOrig.sh > .temp
+sed "s/LimitDirPlaceholderName/$1/g" .temp > Roo$1.sh
+chmod a+x Roo$1.sh
+#echo "qsub -j y -o /dev/null -t 1-`ls -l $DATESTR/limit_* | wc -l` -l h_cpu=12:00:00 -l h_vmem=4000M Roo$1.sh"
+echo "qsub -j y -o /dev/null -t 1-`ls -l $DATESTR/limit_* | wc -l` -l h_cpu=12:00:00 -l h_vmem=4000M Roo$1.sh"
