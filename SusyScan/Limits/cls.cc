@@ -41,8 +41,9 @@ cls::cls():
     isPseudoData = false;
 }
 
-cls::cls(std::string n,TH1*s,TH1*b,TH1*d):
-    plotindex_(0),fNMC_(50000),outputfilename_(n),signal_(s),backgd_(b),data_(d)
+cls::cls(std::string n,TH1*s,TH1*b,TH1*d,TH1*b_NoS):
+   plotindex_(0),fNMC_(50000),outputfilename_(n),signal_(s),backgd_(b),data_(d),
+   backgd_NoSig_(b_NoS)
 {
   stat_=false;syst_=false;
   do1DScan_ = false;
@@ -1005,16 +1006,28 @@ void cls::WriteConfidence(ConfigFile * config, const std::string s)
   TConfidenceLevel * conf = TLimit::ComputeLimit(source,fNMC_,stat_);
 
   config->add(s+"CLsUseStat",    stat_);
-  config->add(s+"CLs@xsec",      conf->CLs());
-  config->add(s+"CLs_b@xsec",    conf->GetExpectedCLs_b());
+  config->add(s+"CLs@xsec",	 conf->CLs());
+  config->add(s+"CLs_b@xsec",	 conf->GetExpectedCLs_b());
   config->add(s+"CLs_b_p1@xsec", conf->GetExpectedCLs_b(1));
   config->add(s+"CLs_b_n1@xsec", conf->GetExpectedCLs_b(-1));
   config->add(s+"CLs_b_p2@xsec", conf->GetExpectedCLs_b(2));
   config->add(s+"CLs_b_n2@xsec", conf->GetExpectedCLs_b(-2));
-  config->add(s+"CLb_b@xsec",    conf->GetExpectedCLb_b());
+  config->add(s+"CLb_b@xsec",	 conf->GetExpectedCLb_b());
   config->add(s+"CLsb_b@xsec",   conf->GetExpectedCLsb_b());
   config->add(s+"-2lnQ_b@xsec",  conf->GetExpectedStatistic_b());
   config->add(s+"-2lnQ_sb@xsec", conf->GetExpectedStatistic_sb());
+
+  if (backgd_NoSig_) {
+	double backgdNOsignal = backgd_NoSig_->Integral();
+	double ts = TLimit::GetTestStatistic(source, backgdNOsignal);
+        config->add(s+"CLs_b_DataNoSignalHyp@xsec",    conf->GetExpectedCLs_b_sigcont(ts) );
+        config->add(s+"-2lnQ_b_DataNoSignalHyp@xsec",  ts);
+	//std::cout << " b (NoSignal) = " << backgdNOsignal << std::endl;
+	//std::cout << "    CLs = " << conf->CLs() << std::endl;
+	//std::cout << "< CLs > = " << conf->GetExpectedCLs_b() << std::endl;
+	//std::cout << "< CLs\"> = " << conf->GetExpectedCLs_b_sigcont(ts) << std::endl;
+  }
+  
   delete signal;
   delete conf;
   delete source;

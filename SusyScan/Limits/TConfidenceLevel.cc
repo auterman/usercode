@@ -1,4 +1,4 @@
-// @(#)root/hist:$Id: TConfidenceLevel.cc,v 1.2 2010/05/03 16:51:17 auterman Exp $
+// @(#)root/hist:$Id: TConfidenceLevel.cc,v 1.1.1.1 2011/01/26 14:37:51 auterman Exp $
 // Author: Christophe.Delaere@cern.ch   21/08/2002
 
 ///////////////////////////////////////////////////////////////////////////
@@ -213,6 +213,19 @@ Double_t TConfidenceLevel::CLs(bool use_sMC) const
    else return clsb/clb;
 }
 
+//______________________________________________________________________________
+Double_t TConfidenceLevel::GetExpectedCLsb_b_sigcont(Double_t IntLim, Int_t sigma) const
+{
+   // Get the expected Confidence Level for the signal plus background hypothesis
+   // if there is only background.
+   // Limit integration of test-statistic to >IntLim<.
+   Double_t result = 0;
+         for (Int_t i = 0; i < fNMC; i++){
+            if (fTSB[fISB[i]] <= IntLim)
+               result += fLRB[fISB[i]] / fNMC;
+         }
+         return result;
+}
 
 //______________________________________________________________________________
 Double_t TConfidenceLevel::GetExpectedCLsb_b(Int_t sigma) const
@@ -238,9 +251,10 @@ Double_t TConfidenceLevel::GetExpectedCLsb_b(Int_t sigma) const
       }
    case 0:
       {
-         for (Int_t i = 0; i < fNMC; i++)
+         for (Int_t i = 0; i < fNMC; i++){
             if (fTSB[fISB[i]] <= fTSB[fISB[TMath::Min((Int_t) fNMC,(Int_t) TMath::Max((Int_t) 1,(Int_t) (fNMC * fgMCLMED)))]])
                result += fLRB[fISB[i]] / fNMC;
+         }
          return result;
       }
    case 1:
@@ -309,6 +323,21 @@ Double_t TConfidenceLevel::GetExpectedCLb_sb(Int_t sigma) const
    default:
       return 0;
    }
+}
+
+//______________________________________________________________________________
+Double_t TConfidenceLevel::GetExpectedCLb_b_sigcont(Double_t IntLimit, Int_t sigma) const
+{
+   // Get the expected Confidence Level for the background only
+   // if there is only background.
+   Double_t result = 0;
+   for (Int_t i = 0; i < fNMC; i++)
+      if (fTSB[fISB[i]] <= IntLimit )
+   	 result = (i + 1) / double (fNMC);
+//   std::cout << "median test statistic bkgd =  "
+//             <<fTSB[fISB[TMath::Min((Int_t) fNMC,(Int_t) TMath::Max((Int_t) 1,(Int_t) (fNMC * fgMCLMED)))]]
+//	     <<endl;
+   return result;
 }
 
 

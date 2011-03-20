@@ -1,4 +1,4 @@
-// @(#)root/hist:$Name:  $:$Id: TLimit.h,v 1.2 2010/05/03 16:51:17 auterman Exp $
+// @(#)root/hist:$Name:  $:$Id: TLimit.h,v 1.1.1.1 2011/01/26 14:37:51 auterman Exp $
 // Author: Christophe.Delaere@cern.ch   21/08/2002
 
 #ifndef ROOT_TLimit
@@ -33,6 +33,7 @@ class TLimit {
  public:
    TLimit() {}
    virtual ~TLimit() {}
+   static double GetTestStatistic(TLimitDataSource * data,Double_t pseudodata, Double_t(*statistic) (Double_t, Double_t,Double_t) =&(TLimit::LogLikelihood));
    static TConfidenceLevel *ComputeLimit(TLimitDataSource * data,
                                          Int_t nmc =50000, 
                                          bool stat = false,

@@ -18,7 +18,7 @@ class cls
 {
  public:
   cls();
-  cls(std::string n,TH1*s,TH1*b,TH1*d); //One signal histogram
+  cls(std::string n,TH1*s,TH1*b,TH1*d,TH1*b_noS=0); //One signal histogram
   cls(std::string n,std::string ScanParName,std::vector<double>ScanPar,std::vector<TH1*>s,TH1*b,TH1*d); //Many signal histogram
   virtual ~cls(){};
   
@@ -56,7 +56,7 @@ class cls
   std::string outputfilename_, ScanParName_;
   std::vector<double> ScanPar_;
   std::vector <TH1*> signals_;
-  TH1 const *signal_, *backgd_, *data_;
+  TH1 const *signal_, *backgd_, *data_, *backgd_NoSig_;
   TObjArray* names_;//systematics with same names are correlated
   TH1 const *esup_, //systematic uncertainty *s*ignal u*p*
             *esdn_, //systematic uncertainty *s*ignal dow*n*

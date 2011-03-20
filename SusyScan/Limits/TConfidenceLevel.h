@@ -1,4 +1,4 @@
-// @(#)root/hist:$Id: TConfidenceLevel.h,v 1.2 2010/05/03 16:51:17 auterman Exp $
+// @(#)root/hist:$Id: TConfidenceLevel.h,v 1.1.1.1 2011/01/26 14:37:51 auterman Exp $
 // Author: Christophe.Delaere@cern.ch   21/08/2002
 
 #ifndef ROOT_TConfidenceLevel
@@ -42,7 +42,10 @@ class TConfidenceLevel : public TObject {
    Double_t GetExpectedCLb_sb(Int_t sigma = 0) const;
    Double_t GetExpectedCLb_b(Int_t sigma = 0) const;
    Double_t GetExpectedCLsb_b(Int_t sigma = 0) const;
+   Double_t GetExpectedCLb_b_sigcont(Double_t IntLim, Int_t sigma = 0) const;
+   Double_t GetExpectedCLsb_b_sigcont(Double_t IntLim, Int_t sigma = 0) const;
    inline Double_t GetExpectedCLs_b(Int_t sigma = 0) const { return (GetExpectedCLsb_b(sigma) / GetExpectedCLb_b(sigma)); } 
+   inline Double_t GetExpectedCLs_b_sigcont(Double_t IntLim, Int_t sigma = 0) const { return (GetExpectedCLsb_b_sigcont(IntLim, sigma) / GetExpectedCLb_b_sigcont(IntLim, sigma)); } 
    Double_t GetAverageCLs() const;
    Double_t GetAverageCLsb() const;
    Double_t Get3sProbability() const;
@@ -69,10 +72,10 @@ class TConfidenceLevel : public TObject {
    Double_t   fNMC;
    Double_t   fMCL3S;
    Double_t   fMCL5S;
-   Double_t  *fTSB;              //[fNNMC]
-   Double_t  *fTSS;              //[fNNMC]
-   Double_t  *fLRS;              //[fNNMC]
-   Double_t  *fLRB;              //[fNNMC]
+   Double_t  *fTSB;              //[fNNMC] TestStatistic_B 
+   Double_t  *fTSS;              //[fNNMC] TestStatistic_SB
+   Double_t  *fLRS;              //[fNNMC] LikelihoodRatio_SB
+   Double_t  *fLRB;              //[fNNMC] LikelihoodRatio_B
    Int_t     *fISS;              //[fNNMC]
    Int_t     *fISB;              //[fNNMC]
    // cumulative probabilities for defining the bands on plots
