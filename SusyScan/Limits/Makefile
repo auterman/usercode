@@ -17,7 +17,7 @@ SRC=TLimit.cc TLimitDataSource.cc TConfidenceLevel.cc solve.cc table.cc cls.cc C
 %.o: %.cc
 		$(C) $(RCXX) -c $<
 
-all: Limit rooStat
+all: Limit rooStat Limit_RooStats
 
 clean:
 	@rm -f *.o 
@@ -53,6 +53,13 @@ Limit.o: Limit.cc ConfigFile.h
 Limit: $(SRC:.cc=.o) Limit.o
 	$(LD) $(SRC:.cc=.o) Limit.o $(RLXX) -o Limit
 	@echo '-> executable Limit created.'
+
+Limit_RooStats.o: Limit_RooStats.cc ConfigFile.h
+	$(C) $(RCXX) -c Limit_RooStats.cc
+
+Limit_RooStats: $(SRC:.cc=.o) Limit_RooStats.o
+	$(LD) $(SRC:.cc=.o) Limit_RooStats.o $(RLXX) -lRooStats -lRooFitCore -lRooFit	-lMinuit -lFoam  -o Limit_RooStats
+	@echo '-> executable Limit_RooStats created.'
 
 
 
