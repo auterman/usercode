@@ -169,3 +169,32 @@ void TheLimits::OverwriteLimits(std::string flag)
 
 }
 
+void TheLimits::ExpandGrid(int s)
+{
+  std::vector<SusyScan*> new_grid;
+  for (std::vector<SusyScan*>::iterator it=_scan.begin(); it!=_scan.end(); ++it){
+    double x=9999, y=9999;
+    std::vector<SusyScan*>::iterator next_x=_scan.end(), next_y=_scan.end();
+    for (std::vector<SusyScan*>::iterator nx=_scan.begin(); nx!=_scan.end(); ++nx)
+      if ((*it)->Mzero<(*nx)->Mzero && fabs((*it)->Mzero-(*nx)->Mzero)<x) {
+        x=fabs((*it)->Mzero-(*nx)->Mzero);
+	next_x=nx;
+      }
+    for (std::vector<SusyScan*>::iterator ny=_scan.begin(); ny!=_scan.end(); ++ny)
+      if ( (*it)->Mzero==(*ny)->Mzero && (*it)->Mhalf<(*ny)->Mhalf && fabs((*it)->Mhalf-(*ny)->Mhalf)<y) {
+        y=fabs((*it)->Mhalf-(*ny)->Mhalf);
+	next_y=ny;
+      }
+    if (next_y!=_scan.end()) {  
+	SusyScan*  n = new SusyScan((**it + **next_y) * 0.5);
+	new_grid.push_back( n );
+	//std::cout 
+	//<< "l:"<<(*it)->Mzero<<","<<(*it)->Mhalf
+	//<< " <>"<<    n->Mzero<<","<<n->Mhalf
+	//<< " <> r:"<<(*next_y)->Mzero<<","<<(*next_y)->Mhalf
+	//<<std::endl;
+    }  
+      
+  } 
+  _scan.insert(_scan.end(), new_grid.begin(), new_grid.end());
+}

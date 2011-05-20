@@ -2,10 +2,19 @@
 #define SUSYSCAN_H
 
 #include <string>
+#include <vector>
 
 class SusyScan{
  public:
+  SusyScan();
+  SusyScan(const SusyScan&);
   SusyScan(std::string file);
+  
+ private:	
+  std::vector<double*> p;
+ public:
+  const SusyScan operator*(const double f) const;
+  const SusyScan operator+(const SusyScan& f) const;
   
   double Mzero;
   double Mhalf;
@@ -24,7 +33,6 @@ class SusyScan{
   double signal_kfactor_UP;
   double signal_kfactor_DN;
   double signal_kfactor;
-
   double signal;
   double signal_uncertainty;
   double signal_contamination;
@@ -45,6 +53,7 @@ class SusyScan{
   double CLs_obs;
   double CLs_xsec;
   double CLs_b_exp;
+  double CLs_bNoSig_xsec;
   double CLs_b_obs;
   double CLs_b_xsec;
   double CLs_b_n1_exp;
@@ -93,7 +102,10 @@ class SusyScan{
   double NLO_CLb_b_xsec;
   double NLO_CLs_exp;
   double NLO_CLs_obs;
+  double NLOHybrid_CLs_xsec;
+  double NLOHybrid_CLs_xsec_error;
   double NLO_CLs_xsec;
+  double NLO_CLs_bNoSig_xsec;
   double NLO_CLs_b_exp;
   double NLO_CLs_b_obs;
   double NLO_CLs_b_xsec;
@@ -154,6 +166,8 @@ class SusyScan{
   double MZ4;
   double MHp;
 
+ private:
+  void SetPtr();
 
 };
 

@@ -18,7 +18,7 @@
 #include <iostream>
 
 
-double Luminosity = 36.3; //[pb^-1]
+double Luminosity = 36.0; //[pb^-1]
 double Mzero(const SusyScan* p){ return p->Mzero; }
 double Mhalf(const SusyScan* p){ return p->Mhalf; }
 double MGluino(const SusyScan* p){ return p->MGL; }
@@ -45,6 +45,7 @@ double SignalUncertainty(const SusyScan* p){ return p->signal_uncertainty; }
 double SignalRelUncertainty(const SusyScan* p){ return p->signal_uncertainty/p->signal; }
 double ExpExclusion(const SusyScan* p){ return (ExpXsecLimit(p)<Xsection(p)&&ExpXsecLimit(p)>0.01?1:0.01); }
 double ObsExclusion(const SusyScan* p){ return (ObsXsecLimit(p)<Xsection(p)&&ObsXsecLimit(p)>0.01?1:0.01); }
+double ExpNoSigExclCL(const SusyScan* p){ return (p->CLs_bNoSig_xsec<=0.05 ? 1:0.01); }
 double ExpExclCL(const SusyScan* p){ return (p->CLs_b_xsec<=0.05 ? 1:0.01); }
 double ExpExclCLm2sigma(const SusyScan* p){ return (p->CLs_b_n2_xsec<=0.05 ? 1:0.01); }
 double ExpExclCLm1sigma(const SusyScan* p){ return (p->CLs_b_n1_xsec<=0.05 ? 1:0.01); }
@@ -85,15 +86,18 @@ double NLOSignalUncertainty(const SusyScan* p){ return p->NLO_signal_uncertainty
 double NLOSignalRelUncertainty(const SusyScan* p){ return p->NLO_signal_uncertainty/p->NLO_signal; }
 double NLOExpExclusion(const SusyScan* p){ return (NLOExpXsecLimit(p)<NLOXsection(p)&&NLOExpXsecLimit(p)>0.01?1:0.01); }
 double NLOObsExclusion(const SusyScan* p){ return (NLOObsXsecLimit(p)<NLOXsection(p)&&NLOObsXsecLimit(p)>0.01?1:0.01); }
-
 double NLOExpCL(const SusyScan* p){ return (p->NLO_CLs_b_xsec); }
-
+double NLOExpNoSigExclCL(const SusyScan* p){ return (p->NLO_CLs_bNoSig_xsec<=0.05 ? 1:0.01); }
 double NLOExpExclCL(const SusyScan* p){ return (p->NLO_CLs_b_xsec<=0.05 ? 1:0.01); }
 double NLOExpExclCLm2sigma(const SusyScan* p){ return (p->NLO_CLs_b_n2_xsec<=0.05 ? 1:0.01); }
 double NLOExpExclCLm1sigma(const SusyScan* p){ return (p->NLO_CLs_b_n1_xsec<=0.05 ? 1:0.01); }
 double NLOExpExclCLp1sigma(const SusyScan* p){ return (p->NLO_CLs_b_p1_xsec<=0.05 ? 1:0.01); }
 double NLOExpExclCLp2sigma(const SusyScan* p){ return (p->NLO_CLs_b_p2_xsec<=0.05 ? 1:0.01); }
 double NLOObsExclCL(const SusyScan* p){ return (p->NLO_CLs_xsec<=0.05 ? 1:0.01); }
+
+double NLOHybridObsCL(const SusyScan* p){ return p->NLOHybrid_CLs_xsec; }
+double NLOHybridObsExclCL(const SusyScan* p){ return (p->NLOHybrid_CLs_xsec<=0.05 ? 1:0.01); }
+double NLOHybridObsErrorCL(const SusyScan* p){ return (p->NLOHybrid_CLs_xsec_error<=0.05 ? 1:0.01); }
 
 double NLOSoverSqrtB(const SusyScan* p){ return p->NLO_signal/(sqrt(p->background)+p->background_uncertainty+p->NLO_signal_uncertainty); }
 double NLOXsecOverObserved(const SusyScan* p){ return (NLOObsXsecLimit(p)==0 ? 9999. : NLOXsection(p)/NLOObsXsecLimit(p)); }
@@ -935,3 +939,147 @@ TGraph * Atlas_mGl_mSq_obs()
    graph->SetPoint(63,1975.625,426.7444);
    return graph;
 }
+
+
+//- Jim Lungu ----------------------------------------------
+
+TGraph* Jim_mht_tb3(int mode){
+  Int_t n = 10;
+  Double_t x[10] = {15,65,115,165,215,265,315,365,415,465};
+  Double_t yobs[10] = {330,330,340,340,330,320,310,300,280,260};
+  Double_t yexp[10] = {330,320,320,320,320,310,300,290,270,250};
+  Double_t yexpp[10] = {350,350,350,340,340,330,330,310,300,280};
+  Double_t yexpn[10] = {310,310,310,300,300,300,280,270,240,240};
+  Double_t y[10];
+  for (int i=0;i<n;i++) {
+    if (mode==0) y[i] = yobs[i];
+    if (mode==1) y[i] = yexp[i];
+    if (mode==2) y[i] = yexpp[i];
+    if (mode==3) y[i] = yexpn[i];
+  }
+  TGraph* gr = new TGraph(n,x,y);
+  gr->SetLineWidth(2);
+  if (mode==1) gr->SetLineStyle(2);
+  if (mode>2) {gr->SetFillColor(8); gr->SetLineColor(8);}
+  else 
+    gr->SetLineColor(2);
+  return gr;
+}
+
+TGraph* Jim_ht_tb3(int mode){
+  Int_t n = 10;
+  Double_t x[10] = {15,65,115,165,215,265,315,365,415,465};
+  Double_t yobs[10] = {300,300,290,290,300,290,280,270,260,250};
+  Double_t yexp[10] = {300,300,290,300,300,290,280,270,260,250};
+  Double_t yexpp[10] = {320,320,320,320,310,310,300,290,280,270};
+  Double_t yexpn[10] = {290,290,280,290,280,280,270,250,250,240};
+  Double_t y[10];
+  for (int i=0;i<n;i++) {
+    if (mode==0) y[i] = yobs[i];
+    if (mode==1) y[i] = yexp[i];
+    if (mode==2) y[i] = yexpp[i];
+    if (mode==3) y[i] = yexpn[i];
+  }
+  TGraph* gr = new TGraph(n,x,y);
+  gr->SetLineWidth(2);
+  if (mode==1) gr->SetLineStyle(2);
+  if (mode>2) {gr->SetFillColor(8); gr->SetLineColor(8);}
+  else 
+    gr->SetLineColor(2);
+  return gr;
+}
+
+TGraph* Jim_mht_tb50(int mode){
+  Int_t n = 9;
+  Double_t x[9] = {205,255,305,355,405,455,505,555,605};
+  Double_t yobs[9] = {330,330,310,300,300,270,250,240,210};
+  Double_t yexp[9] = {320,320,300,290,280,250,240,230,210};
+  Double_t yexpp[9] = {350,340,330,320,310,290,260,250,230};
+  Double_t yexpn[9] = {300,300,290,280,260,240,230,200,190};
+  Double_t y[9];
+  for (int i=0;i<n;i++) {
+    if (mode==0) y[i] = yobs[i];
+    if (mode==1) y[i] = yexp[i];
+    if (mode==2) y[i] = yexpp[i];
+    if (mode==3) y[i] = yexpn[i];
+  }
+  TGraph* gr = new TGraph(n,x,y);
+  gr->SetLineWidth(2);
+  if (mode==1) gr->SetLineStyle(2);
+  if (mode>2) {gr->SetFillColor(8); gr->SetLineColor(8);}
+  else 
+    gr->SetLineColor(2);
+  return gr;
+}
+
+TGraph* Jim_ht_tb50(int mode){
+  Int_t n = 9;
+  Double_t x[9] = {205,255,305,355,405,455,505,555,605};
+  Double_t yobs[9] = {300,290,280,280,260,250,230,220,220};
+  Double_t yexp[9] = {300,290,280,280,260,250,240,230,220};
+  Double_t yexpp[9] = {320,310,300,290,290,270,260,250,240};
+  Double_t yexpn[9] = {280,270,270,260,250,240,230,220,210};
+  Double_t y[10];
+  for (int i=0;i<n;i++) {
+    if (mode==0) y[i] = yobs[i];
+    if (mode==1) y[i] = yexp[i];
+    if (mode==2) y[i] = yexpp[i];
+    if (mode==3) y[i] = yexpn[i];
+  }
+  TGraph* gr = new TGraph(n,x,y);
+  gr->SetLineWidth(2);
+  if (mode==1) gr->SetLineStyle(2);
+  if (mode>2) {gr->SetFillColor(8); gr->SetLineColor(8);}
+  else 
+    gr->SetLineColor(2);
+  return gr;
+}
+
+TGraph* Jim_mht_tb10(int mode){
+  Int_t n = 20;
+  Double_t x[20] = {15,65,115,165,215,265,315,365,415,465,515,565,615,665,715,765,815,865,915,965};
+  Double_t yobs[20] = {330,340,330,330,330,320,310,280,280,260,240,230,220,220,210,190,190,180,180,180};
+  Double_t yexp[20] = {330,320,320,320,320,310,300,280,270,250,240,220,220,200,190,190,180,160,170,160};
+  Double_t yexpp[20] = {330,340,350,340,330,330,330,310,300,280,270,240,240,230,220,210,200,180,190,180};
+  Double_t yexpn[20] = {290,280,310,300,300,290,280,270,250,240,220,210,200,190,160,170,160,150,150,140};
+  Double_t y[20];
+  for (int i=0;i<n;i++) {
+    if (mode==0) y[i] = yobs[i];
+    if (mode==1) y[i] = yexp[i];
+    if (mode==2) y[i] = yexpp[i];
+    if (mode==3) y[i] = yexpn[i];
+  }
+  TGraph* gr = new TGraph(n,x,y);
+  gr->SetLineWidth(2);
+  if (mode==1) gr->SetLineStyle(2);
+  if (mode>2) {gr->SetFillColor(8); gr->SetLineColor(8);}
+  else 
+    gr->SetLineColor(2);
+  return gr;
+}
+
+TGraph* Jim_ht_tb10(int mode){
+  Int_t n = 20;
+  Double_t x[20] = {15,65,115,165,215,265,315,365,415,465,515,565,615,665,715,765,815,865,915,965};
+  Double_t yobs[20] = {290,280,300,290,300,290,280,270,250,250,240,230,220,220,210,190,200,180,190,180};
+  Double_t yexp[20] = {290,280,290,300,300,290,280,270,250,250,240,240,220,220,210,190,200,180,190,180};
+  Double_t yexpp[20] = {330,320,310,310,310,310,300,280,280,260,260,250,240,230,220,220,210,210,200,190};
+  Double_t yexpn[20] = {290,280,280,280,280,280,270,260,240,240,230,220,200,200,190,190,180,180,170,170};
+  Double_t y[20];
+  for (int i=0;i<n;i++) {
+    if (mode==0) y[i] = yobs[i];
+    if (mode==1) y[i] = yexp[i];
+    if (mode==2) y[i] = yexpp[i];
+    if (mode==3) y[i] = yexpn[i];
+  }
+  TGraph* gr = new TGraph(n,x,y);
+  gr->SetLineWidth(2);
+  if (mode==1) gr->SetLineStyle(2);
+  if (mode>2) {gr->SetFillColor(8); gr->SetLineColor(8);}
+  else 
+    gr->SetLineColor(2);
+  return gr;
+}
+
+
+

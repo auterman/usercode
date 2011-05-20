@@ -19,6 +19,8 @@ class TheLimits{
   void FillGeneratorMasses(std::string file);
 
   void match();
+
+  void ExpandGrid(int);
   
   std::vector<SusyScan*> * GetScan(){return &_scan;}
   std::vector<GeneratorMasses*> * GetGeneratorMasses(){return &_masses;}

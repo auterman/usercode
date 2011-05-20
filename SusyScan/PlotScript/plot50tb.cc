@@ -86,11 +86,11 @@ int plot(int argc, char** argv)
    TheLimits * genpoints = new TheLimits();
    //genpoints->Fill(argc, argv); 
    //genpoints->Fill("limits_MHT_tb50_20110303/filelist.txt"); 
-   genpoints->Fill("limits_MHT_20110310/filelist_tb50.txt"); 
+   genpoints->Fill("limits_moriond_MHT/filelist_tb50.txt"); 
 
    TheLimits * genpointsHT = new TheLimits();
    //genpointsHT->Fill("limits_HT_tb50_20110303/filelist.txt"); 
-   genpointsHT->Fill("limits_HT_20110310/filelist_tb50.txt"); 
+   genpointsHT->Fill("limits_moriond_HT/filelist_tb50.txt"); 
 
    
    //Replace read limits with specific numbers
@@ -100,6 +100,13 @@ int plot(int argc, char** argv)
    genpoints->match();
    genpointsHT->FillGeneratorMasses("GenScan_tb50.dat");
    genpointsHT->match();
+
+   //genpoints->ExpandGrid(1);
+   //genpoints->ExpandGrid(1);
+   //genpoints->ExpandGrid(1);
+   //genpointsHT->ExpandGrid(1);
+   //genpointsHT->ExpandGrid(1);
+   //genpointsHT->ExpandGrid(1);
 
    //the plotting ----------------------------------------------------------------------
    //plotting helper functions
@@ -382,7 +389,7 @@ int plot(int argc, char** argv)
    TF1* lngl[4];
    TLatex sqt; sqt.SetTextSize(0.02); sqt.SetTextAngle(-22);sqt.SetTextColor(kGray+2);
    sqt.DrawLatex(270,180,"#font[92]{#tilde{q}(500)GeV}");
-   sqt.DrawLatex(327,255,"#font[92]{#tilde{q}(650)GeV}");
+   sqt.DrawLatex(327,245,"#font[92]{#tilde{q}(650)GeV}");
    sqt.DrawLatex(390,348,"#font[92]{#tilde{q}(800)GeV}");
    TLatex glt; glt.SetTextSize(0.02); sqt.SetTextAngle(-4); glt.SetTextColor(kGray+2);
    glt.DrawLatex(528,195,"#font[92]{#tilde{g}(500)GeV}");
@@ -418,6 +425,124 @@ int plot(int argc, char** argv)
    CLsExpNLO->Draw("l");
    CLsObsLO->Draw("l");
    c1->SaveAs("results/LimitContours_tb50.C");
+
+
+
+   hexcl->Draw("colz");
+   LEP_ch->Draw("fsame");
+   LEP_sl->Draw("fsame");
+   if (gCLsExp1Sigma)    gCLsExp1Sigma->Draw("lf");
+   sFirst->Draw("same");
+   Atlas->Draw("c,same");
+   ms.DrawLatex(490,458,"tan#beta=50, #mu>0, A_{0}=0"); 
+   CLsObsNLO->Draw("l");
+   //CLsObsLO->Draw("l");
+   CLsExpNLO->Draw("l");
+   //FCExpNLO->Draw("l");
+   //Jim's limits///////////////////////////////////////////////////////////////////////////////
+   TGraph* JimObsHT  = Jim_ht_tb50(0); 
+   TGraph* JimObsMHT = Jim_mht_tb50(0);
+   TGraph* JimExpHT  = Jim_ht_tb50(1);
+   TGraph* JimExpMHT = Jim_mht_tb50(1); 
+   TGraph* JimExpHTup  = Jim_ht_tb50(2); 
+   TGraph* JimExpMHTup = Jim_mht_tb50(2); 
+   TGraph* JimExpHTdn  = Jim_ht_tb50(3); 
+   TGraph* JimExpMHTdn = Jim_mht_tb50(3); 
+   Smooth(JimObsHT, 2);
+   Smooth(JimObsMHT,2);
+   Smooth(JimExpHT, 2);
+   Smooth(JimExpMHT,2);
+   Smooth(JimExpHTup, 2);
+   Smooth(JimExpMHTup,2);
+   Smooth(JimExpHTdn, 2);
+   Smooth(JimExpMHTdn,2);
+   TGraph * JimObs = plotToolsHT->ChooseBest(JimObsHT,JimObsMHT,JimObsHT,JimObsMHT);
+   TGraph * JimExp = plotToolsHT->ChooseBest(JimExpHT,JimExpMHT,JimExpHT,JimExpMHT);
+   TGraph * JimExpup = plotToolsHT->ChooseBest(JimExpHTup,JimExpMHTup,JimExpHTup,JimExpMHTup);
+   TGraph * JimExpdn = plotToolsHT->ChooseBest(JimExpHTdn,JimExpMHTdn,JimExpHTdn,JimExpMHTdn);
+   TGraph * JimExp1Sigma = MakeBand(JimExpup, JimExpdn);JimExp1Sigma->SetFillStyle(3001);
+   TGraph * JimLeg = (TGraph*)JimExp->Clone();JimLeg->SetFillStyle(JimExp1Sigma->GetFillStyle());JimLeg->SetFillColor(JimExp1Sigma->GetFillColor());
+   JimExp1Sigma->Draw("f");
+   JimObs->Draw("c");
+   JimExp->Draw("c");
+   stau->Draw("fsame");
+   b.DrawLatex( 220,420,"#tilde{#tau} LSP"); 
+   //constant ssqquark and gluino lines
+   sqt.DrawLatex(270,180,"#font[92]{#tilde{q}(500)GeV}");
+   sqt.DrawLatex(327,245,"#font[92]{#tilde{q}(650)GeV}");
+   sqt.DrawLatex(390,348,"#font[92]{#tilde{q}(800)GeV}");
+   glt.DrawLatex(528,195,"#font[92]{#tilde{g}(500)GeV}");
+   glt.DrawLatex(528,258,"#font[92]{#tilde{g}(650)GeV}");
+   glt.DrawLatex(528,322,"#font[92]{#tilde{g}(800)GeV}");
+   for(int i = 0; i < 4; i++){
+    lngl[i]->Draw("same");   
+    lnsq[i]->Draw("same");
+   }
+   legexp->Draw();
+   TLegend * legBayes = new TLegend(0.38,0.8,0.73,0.92);
+   legBayes->SetBorderSize(0);legBayes->SetFillColor(0);legBayes->SetFillStyle(4000);legBayes->SetTextFont(42);
+   legBayes->SetHeader("L_{int} = 36/pb, #sqrt{s} = 7 TeV");
+   legBayes->AddEntry(JimObs,   "Observed, Bayes","l");
+   legBayes->AddEntry(JimLeg,   "Expected #pm 1#sigma, Bayes","lf");
+   legBayes->AddEntry(CLsObsNLO,"Observed, CLs","l");
+   legBayes->AddEntry(expLeg,   "Expected #pm 1#sigma, CLs","lf");
+   legBayes->Draw();
+   gPad->RedrawAxis();
+   c1->SaveAs("results/Exclusion_m0_m12_tb50_Bayes.pdf");
+
+
+   //The RA1-style Expected limits - no-signal hypothesis *only* for pseudo data ///////////////////////////////
+   TGraph * gCLsExpNoSExclMHT   = plotTools  ->GetContour(hs,Mzero,Mhalf,NLOExpNoSigExclCL,  3,0, 1,2); 
+   TGraph * gCLsExpNoSExclHT    = plotToolsHT->GetContour(hs,Mzero,Mhalf,NLOExpNoSigExclCL,  3,0, 1,2); 
+   TGraph * gCLsExpNoSExclHTm1  = plotToolsHT->ModifyExpSigma(gCLsExpExclHTm1, gCLsExpExclHT, gCLsExpNoSExclHT); 
+   TGraph * gCLsExpNoSExclHTp1  = plotToolsHT->ModifyExpSigma(gCLsExpExclHTp1, gCLsExpExclHT, gCLsExpNoSExclHT);
+   TGraph * gCLsExpNoSExclMHTm1 = plotTools  ->ModifyExpSigma(gCLsExpExclMHTm1,gCLsExpExclHT, gCLsExpNoSExclHT); 
+   TGraph * gCLsExpNoSExclMHTp1 = plotTools  ->ModifyExpSigma(gCLsExpExclMHTp1,gCLsExpExclHT, gCLsExpNoSExclHT); 
+   Smooth( gCLsExpNoSExclMHT, 27 ); gCLsExpNoSExclMHT->SetLineWidth( 3 );
+   Smooth( gCLsExpNoSExclHT, 27 );  gCLsExpNoSExclHT->SetLineWidth( 3 );
+   Smooth( gCLsExpNoSExclHTm1, 27 );
+   Smooth( gCLsExpNoSExclHTp1, 27 );
+   Smooth( gCLsExpNoSExclMHTm1, 27 );
+   Smooth( gCLsExpNoSExclMHTp1, 27 );
+   TGraph * CLsExpNoSNLO = plotToolsHT->ChooseBest(gCLsExpNoSExclHT,gCLsExpNoSExclMHT, gCLsExpNoSExclHT,gCLsExpNoSExclMHT);
+   TGraph * gCLsExpNoSExclp1 = plotToolsHT->ChooseBest(gCLsExpNoSExclHTp1,gCLsExpNoSExclMHTp1, gCLsExpNoSExclHTp1,gCLsExpNoSExclMHTp1);
+   TGraph * gCLsExpNoSExclm1 = plotToolsHT->ChooseBest(gCLsExpNoSExclHTm1,gCLsExpNoSExclMHTm1, gCLsExpNoSExclHTm1,gCLsExpNoSExclMHTm1);
+   TGraph * gCLsExpNoS1Sigma = MakeBand(gCLsExpNoSExclp1, gCLsExpNoSExclm1);gCLsExpNoS1Sigma->SetFillStyle(4010);
+   hexcl->Draw("colz");
+   LEP_ch->Draw("fsame");
+   LEP_sl->Draw("fsame");
+   if (gCLsExp1Sigma)    gCLsExp1Sigma->Draw("lf");
+   sFirst->Draw("same");
+   Atlas->Draw("c,same");
+   ms.DrawLatex(490,458,"tan#beta=50, #mu>0, A_{0}=0"); 
+   gCLsExpNoS1Sigma->Draw("lf,same");
+   sFirst->Draw("same");
+   Atlas->Draw("c,same");
+   CLsObsNLO->Draw("l,same");
+   CLsObsLO->Draw("l,same");
+   CLsExpNoSNLO->Draw("l,same");
+   //gCLsExpNoSExclMHT->Draw("l,same");
+   //gCLsExpNoSExclHT->Draw("l,same");
+   //gCLsObsExclHT->Draw("l,same");
+   //gobsexcl->Draw("l,same");
+   //FCExpNLO->Draw("l");
+   stau->Draw("fsame");
+   b.DrawLatex( 220,420,"#tilde{#tau} LSP"); 
+   //constant ssqquark and gluino lines
+   sqt.DrawLatex(270,180,"#font[92]{#tilde{q}(500)GeV}");
+   sqt.DrawLatex(327,245,"#font[92]{#tilde{q}(650)GeV}");
+   sqt.DrawLatex(390,348,"#font[92]{#tilde{q}(800)GeV}");
+   glt.DrawLatex(528,195,"#font[92]{#tilde{g}(500)GeV}");
+   glt.DrawLatex(528,258,"#font[92]{#tilde{g}(650)GeV}");
+   glt.DrawLatex(528,322,"#font[92]{#tilde{g}(800)GeV}");
+   for(int i = 0; i < 4; i++){
+    lngl[i]->Draw("same");   
+    lnsq[i]->Draw("same");
+   }
+   legexp->Draw();
+   leg->Draw();
+   gPad->RedrawAxis();
+   c1->SaveAs("results/Exclusion_m0_m12_tb50_NoSigHypPseudoData.pdf");
 
 
 
@@ -678,7 +803,7 @@ int plot(int argc, char** argv)
    //c1->SaveAs("plot_tb10.pdf");
 
 
-   
+/*   
    //c1->SaveAs("plot_tb50.pdf");
    c1->SetLogy(1);
    c1->SetLogx(1);
@@ -737,7 +862,7 @@ int plot(int argc, char** argv)
    leg_S->AddEntry(gMCMCExpUncert,"Expected (MCMC, RooStat)","l");
    leg_S->Draw();
    c1->SaveAs("results_tb50/UncertaintyScan.pdf");
-
+*/
    //theApp.Run();
 }
 

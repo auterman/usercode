@@ -8,10 +8,10 @@ class SusyScan;
 class TH2;
 
 TGraph * MakeBand(TGraph *g1, TGraph *g2, bool b=false);
-
 void Smooth(TGraph * g, int n=3);
 void Smooth2D(TGraph * g, int n=3);
 TGraph* Close2D(TGraph * g);
+//void MergeBins(TH1*);
 
 template<class T>
 class PlotTools {
@@ -42,10 +42,15 @@ class PlotTools {
 
   void Print(double(*x)(const T*), double(*x)(const T*), double(*y)(const T*), 
              TGraph*, double p=10.);
+  void Print(double(*x)(const T*), double(*x)(const T*), double(*y)(const T*), double(*x)(const T*), double(*y)(const T*),
+             TGraph*, double p=10.);
 
   TGraph * ChooseBest(TGraph*,TGraph*,TGraph*,TGraph*,double x=0,double y=0);
   
   TH2 * BinWiseOr(TH2*, TH2*);
+  
+  TGraph * ModifyExpSigma(TGraph*, TGraph*, TGraph*);
+  TGraph * ModifyExpSigmaY(TGraph*, TGraph*, TGraph*);
 
  private:
   std::vector<T*> * _scan; 
