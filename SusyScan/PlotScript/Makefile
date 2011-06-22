@@ -18,7 +18,7 @@ SRC=SusyScan.cc ConfigFile.cc GeneratorMasses.cc PlotTools.cc PrintTools.cc TheL
 %.o: %.cc
 		$(C) $(RCXX) -c $<
 
-all: plot plot3tb plot10tb plot50tb plotComp
+all: plot3tb plot3tb_extended plot10tb plot10tb_extended plot50tb plotComp
 
 
 ConfigFile.o: ConfigFile.cc ConfigFile.h
@@ -39,13 +39,6 @@ PrintTools.o: PrintTools.cc PrintTools.h GlobalFunctions.h
 TheLimits.o: TheLimits.cc TheLimits.h
 		$(C) $(RCXX) -c TheLimits.cc 
 
-plot.o: plot.cc plot.h GlobalFunctions.h StyleSettings.h
-		$(C) $(RCXX) -c plot.cc 
-
-plot: $(SRC:.cc=.o) plot.o 
-		$(LD) $(SRC:.cc=.o) plot.o $(RLXX) $(JCORR) -o plot
-		@echo '-> plot executable created.'
-
 plot3tb.o: plot3tb.cc GlobalFunctions.h StyleSettings.h
 		$(C) $(RCXX) -c plot3tb.cc 
 
@@ -53,12 +46,26 @@ plot3tb: $(SRC:.cc=.o) plot3tb.o
 		$(LD) $(SRC:.cc=.o) plot3tb.o $(RLXX) $(JCORR) -o plot3tb
 		@echo '-> plot3tb executable created.'
 
+plot3tb_extended.o: plot3tb_extended.cc GlobalFunctions.h StyleSettings.h
+		$(C) $(RCXX) -c plot3tb_extended.cc 
+
+plot3tb_extended: $(SRC:.cc=.o) plot3tb_extended.o 
+		$(LD) $(SRC:.cc=.o) plot3tb_extended.o $(RLXX) $(JCORR) -o plot3tb_extended
+		@echo '-> plot3tb_extended executable created.'
+
 plot10tb.o: plot10tb.cc GlobalFunctions.h StyleSettings.h
 		$(C) $(RCXX) -c plot10tb.cc 
 
 plot10tb: $(SRC:.cc=.o) plot10tb.o 
 		$(LD) $(SRC:.cc=.o) plot10tb.o $(RLXX) $(JCORR) -o plot10tb
 		@echo '-> plot10tb executable created.'
+
+plot10tb_extended.o: plot10tb_extended.cc GlobalFunctions.h StyleSettings.h
+		$(C) $(RCXX) -c plot10tb_extended.cc 
+
+plot10tb_extended: $(SRC:.cc=.o) plot10tb_extended.o 
+		$(LD) $(SRC:.cc=.o) plot10tb_extended.o $(RLXX) $(JCORR) -o plot10tb_extended
+		@echo '-> plot10tb_extended executable created.'
 
 plot50tb.o: plot50tb.cc GlobalFunctions.h StyleSettings.h
 		$(C) $(RCXX) -c plot50tb.cc 
@@ -76,4 +83,4 @@ plotComp: $(SRC:.cc=.o) plotComp.o
 
 clean:
 		@rm -f *.o 
-		@rm -f scan plot plot3tb plot50tb
+		@rm -f scan plot10tb plot10tb_extended plot3tb plot3tb_extended plot50tb plotComb
