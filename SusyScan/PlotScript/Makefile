@@ -83,4 +83,5 @@ plotComp: $(SRC:.cc=.o) plotComp.o
 
 clean:
 		@rm -f *.o 
-		@rm -f scan plot10tb plot10tb_extended plot3tb plot3tb_extended plot50tb plotComb
+		@rm -f plot10tb plot10tb_extended plot3tb plot3tb_extended plot50tb plotComp
+		

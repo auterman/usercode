@@ -86,11 +86,11 @@ int plot(int argc, char** argv)
    TheLimits * genpoints = new TheLimits();
    //genpoints->Fill(argc, argv); 
    //genpoints->Fill("limits_MHT_tb50_20110303/filelist.txt"); 
-   genpoints->Fill("limits_moriond_MHT/filelist_tb50.txt"); 
+   genpoints->Fill("limits_moriond_MHT.old/filelist_tb50.txt"); 
 
    TheLimits * genpointsHT = new TheLimits();
    //genpointsHT->Fill("limits_HT_tb50_20110303/filelist.txt"); 
-   genpointsHT->Fill("limits_moriond_HT/filelist_tb50.txt"); 
+   genpointsHT->Fill("limits_moriond_HT.old/filelist_tb50.txt"); 
 
    
    //Replace read limits with specific numbers
