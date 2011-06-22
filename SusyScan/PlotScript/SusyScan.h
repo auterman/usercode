@@ -33,6 +33,10 @@ class SusyScan{
   double signal_kfactor_UP;
   double signal_kfactor_DN;
   double signal_kfactor;
+  double signal_PDF_UP;
+  double signal_PDF_DN;
+  double signal_XSPDF_UP;
+  double signal_XSPDF_DN;
   double signal;
   double signal_uncertainty;
   double signal_contamination;

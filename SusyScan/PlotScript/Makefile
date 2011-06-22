@@ -10,15 +10,15 @@ CFLAGS = $(SPECIALFLAGS) -I. -I./include -I$(SRT_PUBLIC_CONTEXT)/include -I$(ROO
 LFLAGS = $(SPECIALFLAGS) -lz 
 
 
-RCXX=$(CFLAGS) $(ROOTCFLAGS)
+RCXX=$(CFLAGS) $(ROOTCFLAGS) 
 RLXX=$(LFLAGS) $(ROOTLIBS)
 
-SRC=SusyScan.cc ConfigFile.cc GeneratorMasses.cc PlotTools.cc TheLimits.cc 
+SRC=SusyScan.cc ConfigFile.cc GeneratorMasses.cc PlotTools.cc PrintTools.cc TheLimits.cc 
 
 %.o: %.cc
 		$(C) $(RCXX) -c $<
 
-all: plot plot3tb plot50tb plotComp
+all: plot plot3tb plot10tb plot50tb plotComp
 
 
 ConfigFile.o: ConfigFile.cc ConfigFile.h
@@ -32,6 +32,9 @@ GeneratorMasses.o: GeneratorMasses.cc GeneratorMasses.h
 
 PlotTools.o: PlotTools.cc PlotTools.h GlobalFunctions.h
 		$(C) $(RCXX) -c PlotTools.cc 
+
+PrintTools.o: PrintTools.cc PrintTools.h GlobalFunctions.h
+		$(C) $(RCXX) -c PrintTools.cc 
 
 TheLimits.o: TheLimits.cc TheLimits.h
 		$(C) $(RCXX) -c TheLimits.cc 
@@ -49,6 +52,13 @@ plot3tb.o: plot3tb.cc GlobalFunctions.h StyleSettings.h
 plot3tb: $(SRC:.cc=.o) plot3tb.o 
 		$(LD) $(SRC:.cc=.o) plot3tb.o $(RLXX) $(JCORR) -o plot3tb
 		@echo '-> plot3tb executable created.'
+
+plot10tb.o: plot10tb.cc GlobalFunctions.h StyleSettings.h
+		$(C) $(RCXX) -c plot10tb.cc 
+
+plot10tb: $(SRC:.cc=.o) plot10tb.o 
+		$(LD) $(SRC:.cc=.o) plot10tb.o $(RLXX) $(JCORR) -o plot10tb
+		@echo '-> plot10tb executable created.'
 
 plot50tb.o: plot50tb.cc GlobalFunctions.h StyleSettings.h
 		$(C) $(RCXX) -c plot50tb.cc 

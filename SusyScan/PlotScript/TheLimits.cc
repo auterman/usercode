@@ -12,6 +12,7 @@ void TheLimits::Fill(int argc, char** argv)
    {
      add( new SusyScan(argv[i]) );
    }
+   std::cout << "Read " << _scan.size() << " points from argument list." <<std::endl;
 }
 
 void TheLimits::Fill(const std::string filelist)
@@ -25,7 +26,7 @@ void TheLimits::Fill(const std::string filelist)
       if (!masses_file.good()) break;
       add( new SusyScan(file));
    }
-   //std::cout << filelist << ": "<< _scan.size() <<std::endl;
+   std::cout << "Read " << _scan.size() << " points from file " << filelist <<std::endl;
    masses_file.close();
 }
 
@@ -68,6 +69,7 @@ void TheLimits::match()
         (*it)->MZ4 = (*gt)->MZ4;
         (*it)->MHp = (*gt)->MHp;
 	match = true;
+	//std::cout <<"m0="<<(*it)->Mzero<<", m1/2="<<(*it)->Mhalf<< ", sq="<<(*it)->MUL << ", gl="<<(*it)->MGL <<std::endl; 
       }	  
     }
     //if (!match) std::cout << "No match for M0="<<(*it)->Mzero
@@ -124,13 +126,17 @@ void TheLimits::FillGeneratorMasses(std::string file)
          std::cerr << "check lines near m0=" << p->Mzero << ", m1/2=" << p->Mhalf << std::endl;
          break;
       }	
+      //std::cout <<"m0="<< p->Mzero<<", m1/2="<< p->Mhalf<< ", sq="<<p->MUL << ", gl="<<p->MGL <<std::endl; 
       _masses.push_back( p );
    }
+   std::cout << "Read " << _masses.size() << " points from file " << file <<std::endl;
+
 }
 
 
 void TheLimits::OverwriteLimits(std::string flag)
 {
+  std::cout<<"WARNING: OVERWRITING LIMITS!!!!"<<std::endl;
   for (std::vector<SusyScan*>::iterator it=_scan.begin();it!=_scan.end();++it){
     if (flag=="ABCD_MHT") {
       (*it)->ExpNsigLimit = 17.85;

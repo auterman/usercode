@@ -255,7 +255,9 @@ int plot(int argc, char** argv)
 
 
    // Exclusion in M0 - M1/2
-   TH2F*hexcl = new TH2F("hexcl",";m_{0} [GeV]; m_{1/2} [GeV]; 95% CL Expected Exclusion",
+   c1->SetRightMargin ( 0.1 );
+   c1->SetTopMargin ( 0.1 );
+   TH2F*hexcl = new TH2F("hexcl",";m_{0} (GeV); m_{1/2} (GeV); 95% CL Expected Exclusion",
                      40,200,600,26,140,450);
    TH2F*hs = new TH2F("hs","",40,200,600,26,140,400);
    TGraph * gexpexcl         = plotTools  ->GetContour(hs,Mzero,Mhalf,NLOExpExclCL,       3,0, 2,2); 
@@ -357,16 +359,18 @@ int plot(int argc, char** argv)
    sFirst->Draw("same");
    //sSecond->Draw("same");
    //sThird->Draw("same");
-   Atlas->Draw("c,same");
+   //Atlas->Draw("c,same");
    TLatex b; b.SetTextSize(0.02); b.SetTextColor(1);
    TLatex ms; ms.SetTextSize(0.025); ms.SetTextFont(42);//ms.SetTextColor(12);
-   ms.DrawLatex(490,458,"tan#beta=50, #mu>0, A_{0}=0"); 
-   TLegend* legexp = new TLegend(0.69,0.77,0.93,0.92,NULL,"brNDC");
-   legexp->SetFillColor(0);legexp->SetShadowColor(0);legexp->SetFillStyle(4000);legexp->SetTextFont(42);legexp->SetTextSize(0.025);legexp->SetBorderSize(0);
+   ms.DrawLatex(490,458,"tan #beta=50, #mu>0, A_{0}=0"); 
+
+   TLegend* legexp = new TLegend(0.7,0.764,0.93,0.88,NULL,"brNDC");
+legexp->SetFillColor(0);legexp->SetShadowColor(0);legexp->SetFillStyle(4000);legexp->SetTextFont(42);legexp->SetTextSize(0.025);legexp->SetBorderSize(0);
    //TEV_sg_cdf.SetLineColor(1);  
-   legexp->SetHeader("CMS preliminary");
-   //legexp->AddEntry(TEV_sg_cdf,"CDF  #tilde{#font[12]{g}}, #tilde{#font[12]{q}}, #scale[0.8]{tan#beta=5, #mu<0}","f"); 
-   //legexp->AddEntry(TEV_sg_d0,"D0   #tilde{#font[12]{g}}, #tilde{#font[12]{q}}, #scale[0.8]{tan#beta=3, #mu<0}","f");  
+   //legexp->SetHeader("CMS   tan #beta=50, #mu>0, A_{0}=0");
+   legexp->SetHeader("CMS");
+   //legexp->AddEntry(TEV_sg_cdf,"CDF  #tilde{#font[12]{g}}, #tilde{#font[12]{q}}, #scale[0.8]{tan #beta=5, #mu<0}","f"); 
+   //legexp->AddEntry(TEV_sg_d0,"D0   #tilde{#font[12]{g}}, #tilde{#font[12]{q}}, #scale[0.8]{tan #beta=3, #mu<0}","f");  
    //ch_gr.SetLineColor(1); 
    legexp->AddEntry(LEP_ch,"LEP2   #tilde{#chi}_{1}^{#pm}","f");   
    //sl_gr.SetLineColor(1); 
@@ -374,7 +378,7 @@ int plot(int argc, char** argv)
    //if(tanbeta == 3) 
    //legexp->AddEntry(TEV_sn_d0_1,"D0  #chi^{#pm}_{1}, #chi^{0}_{2}","f");  
    legexp->AddEntry(sFirst, "CMS #alpha_{T}");
-   legexp->AddEntry(Atlas,  "Atlas, #scale[0.8]{tan#beta=3}","l");
+   //legexp->AddEntry(Atlas,  "Atlas, #scale[0.8]{tan #beta=3}","l");
    legexp->Draw();
    
    CLsObsNLO->Draw("l");
@@ -402,10 +406,11 @@ int plot(int argc, char** argv)
     lngl[i]->Draw("same");   
     lnsq[i]->Draw("same");
    }
-   TLegend * leg = new TLegend(0.38,0.8,0.73,0.92);
-   leg->SetBorderSize(0);leg->SetFillColor(0);leg->SetFillStyle(4000);leg->SetTextFont(42);legexp->SetTextSize(0.025);
+   TLegend * leg = new TLegend(0.38,0.72,0.81,0.88);
+   //TLegend * leg = new TLegend(0.25,0.72,0.68,0.88);
+leg->SetBorderSize(0);leg->SetFillColor(0);leg->SetFillStyle(4000);leg->SetTextFont(42);leg->SetTextSize(0.025);
    TGraph * expLeg = (TGraph*)CLsExpNLO->Clone();expLeg->SetFillStyle(gCLsExp1Sigma->GetFillStyle());expLeg->SetFillColor(gCLsExp1Sigma->GetFillColor());
-   leg->SetHeader("L_{int} = 36/pb, #sqrt{s} = 7 TeV");
+   leg->SetHeader("L_{int} = 36 pb^{-1}, #sqrt{s} = 7 TeV");
    leg->AddEntry(CLsObsNLO,"Observed, NLO","l");
    leg->AddEntry(CLsObsLO, "Observed, LO","l");
    leg->AddEntry(expLeg,   "Expected #pm 1#sigma, NLO","lf");
@@ -434,7 +439,7 @@ int plot(int argc, char** argv)
    if (gCLsExp1Sigma)    gCLsExp1Sigma->Draw("lf");
    sFirst->Draw("same");
    Atlas->Draw("c,same");
-   ms.DrawLatex(490,458,"tan#beta=50, #mu>0, A_{0}=0"); 
+   ms.DrawLatex(490,458,"tan #beta=50, #mu>0, A_{0}=0"); 
    CLsObsNLO->Draw("l");
    //CLsObsLO->Draw("l");
    CLsExpNLO->Draw("l");
@@ -513,11 +518,11 @@ int plot(int argc, char** argv)
    LEP_sl->Draw("fsame");
    if (gCLsExp1Sigma)    gCLsExp1Sigma->Draw("lf");
    sFirst->Draw("same");
-   Atlas->Draw("c,same");
-   ms.DrawLatex(490,458,"tan#beta=50, #mu>0, A_{0}=0"); 
+   //Atlas->Draw("c,same");
+   ms.DrawLatex(490,380,"tan #beta=50, #mu>0, A_{0}=0"); 
    gCLsExpNoS1Sigma->Draw("lf,same");
    sFirst->Draw("same");
-   Atlas->Draw("c,same");
+   //Atlas->Draw("c,same");
    CLsObsNLO->Draw("l,same");
    CLsObsLO->Draw("l,same");
    CLsExpNoSNLO->Draw("l,same");

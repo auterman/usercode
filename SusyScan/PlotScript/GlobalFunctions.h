@@ -22,7 +22,7 @@ double Luminosity = 36.0; //[pb^-1]
 double Mzero(const SusyScan* p){ return p->Mzero; }
 double Mhalf(const SusyScan* p){ return p->Mhalf; }
 double MGluino(const SusyScan* p){ return p->MGL; }
-double MSquarkL(const SusyScan* p){ return p->MUL; }
+double MSquarkL(const SusyScan* p){ return fabs(p->MUL); }
 double MSquarkR(const SusyScan* p){ return p->MUR; }
 double MChi1(const SusyScan* p){ return p->MZ1; }
 double MChi2(const SusyScan* p){ return p->MZ2; }
@@ -34,6 +34,10 @@ double MTAU1(const SusyScan* p){ return p->MTAU1; }
 double SignalUncertKfactor(const SusyScan* p){return fabs(p->signal_kfactor_UP-p->signal_kfactor_DN)/(2.0*p->signal_kfactor); }
 double SignalUncertJEC(const SusyScan* p){ return (fabs(p->signal_JEC_UP)+fabs(p->signal_JEC_DN))/(2.0*p->signal); }
 double SignalUncertMuIso(const SusyScan* p){ return (fabs(p->signal_MuIso_UP)+fabs(p->signal_MuIso_DN))/(2.0*p->signal); }
+double SignalUncertPDF(const SusyScan* p){ 
+       double up=sqrt(p->signal_PDF_UP*p->signal_PDF_UP+p->signal_XSPDF_UP*p->signal_XSPDF_UP);
+       double dn=sqrt(p->signal_PDF_DN*p->signal_PDF_DN+p->signal_XSPDF_DN*p->signal_XSPDF_DN);
+       return (up+dn)/(2.0*p->signal); }
 double SignalKfactor(const SusyScan* p){return p->signal_kfactor; }
 double ChargedLSP(const SusyScan* p){ return (fabs(p->MTAU1) < fabs(p->MZ1) ? 0.01 : 1); }
 
@@ -128,7 +132,7 @@ double NLOSignalContamination(const SusyScan* p){return p->NLO_signal_contaminat
 double Mzero(const GeneratorMasses* p){ return p->Mzero; }
 double Mhalf(const GeneratorMasses* p){ return p->Mhalf; }
 double MGluino(const GeneratorMasses* p){ return p->MGL; }
-double MSquarkL(const GeneratorMasses* p){ return p->MUL; }
+double MSquarkL(const GeneratorMasses* p){ return fabs(p->MUL); }
 double MSquarkR(const GeneratorMasses* p){ return p->MUR; }
 double MChi1(const GeneratorMasses* p){ return p->MZ1; }
 double MChi2(const GeneratorMasses* p){ return p->MZ2; }

@@ -41,6 +41,9 @@ void PlotTools<T>::Area( TH2*h, double(*x)(const T*), double(*y)(const T*),
   for (typename std::vector<T*>::const_iterator it=_scan->begin();it!=_scan->end();++it){
     h->SetBinContent( h->GetXaxis()->FindBin(x(*it)), 
                       h->GetYaxis()->FindBin(y(*it)), f(*it) );
+		      
+//   std::cout <<"m0="<< (*it)->Mzero<<", m1/2="<< (*it)->Mhalf<< ", sq="<<(*it)->MUL << ", gl="	<<(*it)->MGL <<std::endl;	      
+		      
   } 
 }
 

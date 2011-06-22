@@ -39,6 +39,10 @@ SusyScan::SusyScan(std::string filename)
   signal_MuIso_DN 	= config.read<double>("signal.MuIso_.DN", 0);
   signal_kfactor_UP 	= config.read<double>("signal.kFactorUP", 0);
   signal_kfactor_DN 	= config.read<double>("signal.kFactorDN", 0);
+  signal_PDF_UP 	= config.read<double>("signal.PDF.UP", 0);
+  signal_PDF_DN 	= config.read<double>("signal.PDF.DN", 0);
+  signal_XSPDF_UP 	= config.read<double>("signal.PDFXsec.UP", 0);
+  signal_XSPDF_DN 	= config.read<double>("signal.PDFXsec.DN", 0);
   signal_kfactor   	= config.read<double>("signal.kFactor", 0);
 
   signal_contamination 	= config.read<double>("signal.LO.signalregion.IsoMuon", 0) + 
@@ -168,6 +172,10 @@ void SusyScan::SetPtr()
   p.push_back( &signal_MuIso_DN);
   p.push_back( &signal_kfactor_UP);
   p.push_back( &signal_kfactor_DN);
+  p.push_back( &signal_PDF_UP);
+  p.push_back( &signal_PDF_DN);
+  p.push_back( &signal_XSPDF_UP);
+  p.push_back( &signal_XSPDF_DN);
   p.push_back( &signal_kfactor);
   p.push_back( &signal);
   p.push_back( &signal_uncertainty);
