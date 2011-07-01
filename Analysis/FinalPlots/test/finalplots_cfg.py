@@ -4,7 +4,7 @@ process = cms.Process("Demo")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(2000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.TFileService = cms.Service("TFileService", 
                        fileName = cms.string("plots.root") )
@@ -26,10 +26,8 @@ process.source = cms.Source("PoolSource",
 process.load("Configuration.StandardSequences.Geometry_cff")
 
 ## configure conditions
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.globaltag = cms.string('STARTUP_V7::All')
-
-process.GlobalTag.globaltag = cms.string('START3X_V26::All')
 
 ## load magnetic field
 process.load("Configuration.StandardSequences.MagneticField_cff")
@@ -65,8 +63,8 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Analysis.FinalPlots.finalplots_cfi")
 process.finalPlot.Jet  = 'ak5CaloJets'
 process.finalPlot.MET  = 'met'
-process.finalPlot.JetPtMin = 5.0
-process.finalPlot.JetEtaMax = 2.4
+process.finalPlot.JetPtMin = 0.0
+process.finalPlot.JetEtaMax = 5.0
 process.finalPlot.Tracks = 'generalTracks'
 
 process.reco = cms.Path(	  

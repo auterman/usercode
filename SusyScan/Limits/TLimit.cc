@@ -1,4 +1,4 @@
-// @(#)root/hist:$Name:  $:$Id: TLimit.cc,v 1.1.1.1 2011/01/26 14:37:51 auterman Exp $
+// @(#)root/hist:$Name:  $:$Id: TLimit.cc,v 1.3 2010/11/26 13:30:05 auterman Exp $
 // Author: Christophe.Delaere@cern.ch   21/08/2002
 
 ///////////////////////////////////////////////////////////////////////////
@@ -234,23 +234,6 @@ TConfidenceLevel *TLimit::ComputeLimit(TLimitDataSource * data,
       delete myrandom;
    return result;
 }
-
-double TLimit::GetTestStatistic(TLimitDataSource * data,
-                                Double_t pseudodata, Double_t(*statistic) (Double_t, Double_t,Double_t))
-{
-   double buffer = 0;
-   for (Int_t channel = 0; channel <= data->GetSignal()->GetLast(); channel++)
-      for (Int_t bin = 0;
-           bin <= ((TH1D *) (data->GetSignal()->At(channel)))->GetNbinsX();
-           bin++) {
-         Double_t s = (Double_t) ((TH1D *) (data->GetSignal()->At(channel)))->GetBinContent(bin);
-         Double_t b = (Double_t) ((TH1D *) (data->GetBackground()->At(channel)))->GetBinContent(bin);
-         if ((s > 0) && (b > 0))
-            buffer += statistic(s, b, pseudodata);
-      }
-   return buffer;
-}
-
 
 TLimitDataSource *TLimit::Fluctuate(TLimitDataSource * input, bool init,
                                     TRandom * generator, bool stat)

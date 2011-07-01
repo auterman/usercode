@@ -18,7 +18,7 @@ class cls
 {
  public:
   cls();
-  cls(std::string n,TH1*s,TH1*b,TH1*d,TH1*b_noS=0); //One signal histogram
+  cls(std::string n,TH1*s,TH1*b,TH1*d); //One signal histogram
   cls(std::string n,std::string ScanParName,std::vector<double>ScanPar,std::vector<TH1*>s,TH1*b,TH1*d); //Many signal histogram
   virtual ~cls(){};
   
@@ -29,9 +29,8 @@ class cls
   void SetUncertainty(TH1 *es,TH1 *eb,TObjArray *names){esup_=esdn_=es; ebup_=ebdn_=eb;names_=names;syst_=true;};
   void SetUncertainty(TH1 *esup,TH1 *esdn,TH1 *ebup,TH1 *ebdn, TObjArray *names){esup_=esup;esdn_=esdn; ebup_=ebup;ebdn_=ebdn; names_=names;syst_=true;};
 
-  void WriteResult(const std::string out, double xsec, const std::string s="");
-  void WriteResult(ConfigFile *, double xsec, const std::string s="");
-  void WriteConfidence(ConfigFile *, const std::string s="");
+  void WriteResult(const std::string out);
+  void WriteResult(ConfigFile *);
   double GetObservedXsecLimit(double cl, double min=0, double max=1000);
   double GetExpectedXsecLimit(double cl, double min=0, double max=1000);
   void Draw(bool doeps=false);
@@ -56,7 +55,7 @@ class cls
   std::string outputfilename_, ScanParName_;
   std::vector<double> ScanPar_;
   std::vector <TH1*> signals_;
-  TH1 const *signal_, *backgd_, *data_, *backgd_NoSig_;
+  TH1 const *signal_, *backgd_, *data_;
   TObjArray* names_;//systematics with same names are correlated
   TH1 const *esup_, //systematic uncertainty *s*ignal u*p*
             *esdn_, //systematic uncertainty *s*ignal dow*n*

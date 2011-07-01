@@ -13,7 +13,7 @@
 //
 // Original Author:  Christian AUTERMANN
 //         Created:  Sat Mar 22 12:58:04 CET 2008
-// $Id: PatCrossCleaner.cc,v 1.2 2008/03/23 18:51:03 auterman Exp $
+// $Id: PatCrossCleaner.cc,v 1.3 2008/03/24 19:41:51 auterman Exp $
 //
 //
 

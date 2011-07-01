@@ -3,7 +3,8 @@ import FWCore.ParameterSet.Config as cms
 from RA2.Selection.PatTagNames_cfi import *
 
 
-## Default RA2 Selectors
+## Default RA2 Selection
+
 RA2SelectionDefault = cms.PSet(
     # Sequence of selectors
     selectionSequence = cms.vstring(
@@ -13,19 +14,20 @@ RA2SelectionDefault = cms.PSet(
     'ChargedFrac',
     'LeptonVeto',
     'JetSelection',
-    'MET',
     'METdPhiMin',
-    #'HLTJet180',
-    #'HLTJet250'
-    #'HLTHT240'
+    'MET',
+    'HLTJet180',
+    'HLTJet250'
     ),
     
     # Selector's list
     selectors = cms.PSet(
     # 1. Preselection
-    JetPreSelection  = cms.PSet( selector = cms.string('GenericJetEventSelector'),
+    JetPreSelection  = cms.PSet( selector = cms.string('JetEventSelector'),
                                jetTag = PatTagNames.jetTag,
-                               minPt = cms.vdouble(50., 50., 50.),
+			       correction = cms.string('ABS'),
+			       flavour = cms.string('GLU'),
+                               minPt = cms.vdouble(150., 90., 40.),
                                maxEta = cms.vdouble(2.5, 2.5, 2.5),
                                minEMFraction = cms.vdouble(0.05, 0.05, 0.05),             
                                maxEMFraction = cms.vdouble(0.95, 0.95, 0.95)
@@ -52,22 +54,24 @@ RA2SelectionDefault = cms.PSet(
                               ),
     
     LeptonVeto = cms.PSet( selector = cms.string('LeptonVetoSelector'),
-                              electronTag = PatTagNames.electronTag,
-                              muonTag = PatTagNames.muonTag,
-                              beamSpot = PatTagNames.beamSpot,
-                              minMuonPt = cms.double(10.),
-                              maxMuonEta = cms.double(2.4),
-                              muonIsolation = cms.double(0.1),
-                              muonMinHits = cms.uint32(11),
-                              maxMuonDxy = cms.double(0.2),
-                              minElectronPt = cms.double(15.0),
-                              maxElectronEta   = cms.double(2.5),   
-                              electronIsolation = cms.double(0.5),
-                              maxElectronDxy = cms.double(0.2)
-                              ),
+                                 electronTag = PatTagNames.electronTag,
+                                 muonTag = PatTagNames.muonTag,
+                                 beamSpot = PatTagNames.beamSpot,
+                                 minMuonPt = cms.double(10.),
+                                 maxMuonEta = cms.double(2.4),
+                                 muonIsolation = cms.double(0.1),
+                                 muonMinHits = cms.uint32(11),
+                                 maxMuonDxy = cms.double(0.2),
+                                 minElectronPt = cms.double(15.0),
+                                 maxElectronEta   = cms.double(2.5),   
+                                 electronIsolation = cms.double(0.5),
+                                 maxElectronDxy = cms.double(0.2)
+                                 ),
     
-    JetSelection  = cms.PSet( selector = cms.string('GenericJetEventSelector'),
+    JetSelection  = cms.PSet( selector = cms.string('JetEventSelector'),
                               jetTag = PatTagNames.jetTag,
+			      correction = cms.string('ABS'),
+			      flavour = cms.string('GLU'),
                               minPt = cms.vdouble(180., 150., 50.),
                               maxEta = cms.vdouble(2.5, 2.5, 2.5),
                               minEMFraction = cms.vdouble(0.05, 0.05, 0.05),       
@@ -100,10 +104,7 @@ RA2SelectionDefault = cms.PSet(
                               triggerResults = cms.InputTag("TriggerResults","","HLT"),
                               pathNames = cms.vstring('HLT_Jet180','HLT_DiJetAve130'),
                               ),
-    HLTHT240      = cms.PSet( selector = cms.string('HLTEventSelector'),
-                              triggerResults = cms.InputTag("TriggerResults","","HLT"),
-                              pathNames = cms.vstring('HLT_HT200','HLT_HT240')
-                              ),
+    
     
     ) # End selector's list
     )

@@ -5,7 +5,7 @@
     \class pat::ElectronJetCrossCleaner ElectronJetCrossCleaner.h "PhysicsTools/PatUtils/ElectronJetCrossCleaner.h"
     \brief cross cleans objets
 
-    \version $Id: ElectronJetCrossCleaner.h,v 1.2 2008/03/23 18:51:03 auterman Exp $
+    \version $Id: ElectronJetCrossCleaner.h,v 1.3 2008/03/24 19:41:50 auterman Exp $
 **/
 
 #include "PhysicsTools/PatCrossCleaner/interface/CrossCleanerResult.h"

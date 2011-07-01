@@ -13,7 +13,7 @@
 //
 // Original Author:  Christian Autermann,68/112,2115,
 //         Created:  Sun Oct 18 20:00:45 CEST 2009
-// $Id: FinalPlots.cc,v 1.6 2009/11/11 13:05:22 auterman Exp $
+// $Id$
 //
 //
 
@@ -54,23 +54,20 @@ class FinalPlots : public edm::EDAnalyzer {
       virtual void endJob() ;
 
       // ----------member data ---------------------------
-      edm::InputTag weightName_;
+      
       edm::InputTag Jet_;
       edm::InputTag Met_;
       std::string name_;
-      double weight_;
 
       TH1F * HT_;
       TH1F * MHT_;
-      TH1F * MET_;   
-   
+      TH1F * MET_;      
 };
 
 FinalPlots::FinalPlots(const edm::ParameterSet& iConfig):
-  weightName_(  iConfig.getParameter<edm::InputTag>("weightName") ),
   Jet_(  iConfig.getParameter<edm::InputTag>("Jet") ),
   Met_(  iConfig.getParameter<edm::InputTag>("MET") ),
-  name_( iConfig.getParameter<std::string>("uncertainty_name") )
+  name_( iConfig.getParameter<std::string>("uncertainty_name") )  
 {
 }
 
@@ -84,13 +81,13 @@ FinalPlots::beginJob(const edm::EventSetup&)
                           "TFile Service is not registered in cfg file" );
   }
 
-  std::string histname = "HT"+name_;
+  std::string histname = "HT_"+name_;
   HT_    = fs->make<TH1F>(histname.c_str(),";HT [GeV];events",   100, 0.0, 500.0);
 
-  histname = "MHT"+name_;
+  histname = "MHT_"+name_;
   MHT_   = fs->make<TH1F>(histname.c_str(),";MHT [GeV];events",  100, 0.0, 500.0);
 
-  histname = "MET"+name_;
+  histname = "MET_"+name_;
   MET_   = fs->make<TH1F>(histname.c_str(),";MET [GeV];events",  100, 0.0, 500.0);
 }
 
@@ -115,25 +112,13 @@ FinalPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace edm;
    using namespace std;
 
-   edm::Handle< double > event_weight;
-   iEvent.getByLabel(weightName_, event_weight);
-   weight_ = (event_weight.isValid() ? (*event_weight) : 1.0);
-//**************************************************
-// This is for debugging purposes only !!!!!
-if      (name_=="_JEC_UP")    weight_ *= 1.08;
-else if (name_=="_JEC_DN")    weight_ *= 0.92;
-else if (name_=="_method_UP") weight_ *= 1.04;
-else if (name_=="_method_DN") weight_ *= 0.96;
-// This is for debugging purposes only !!!!!
-//**************************************************
-
    edm::Handle<edm::View<reco::Candidate> > jet_hnd;
    iEvent.getByLabel(Jet_, jet_hnd);
 
    edm::Handle<edm::View<reco::MET> > met_hnd;
    iEvent.getByLabel(Met_, met_hnd);
 
-   MET_->Fill( met_hnd->begin()->pt(), weight_ );
+   MET_->Fill( met_hnd->begin()->pt() );
    
    double ht=0.0;
    math::PtEtaPhiMLorentzVector htvec(0.0, 0.0, 0.0, 0.0);
@@ -144,8 +129,8 @@ else if (name_=="_method_DN") weight_ *= 0.96;
       htvec += jet->p4();
       ht+=jet->pt();
    }	
-   HT_ ->Fill( ht, weight_ );
-   MHT_->Fill( htvec.pt(), weight_ );
+   HT_ ->Fill( ht );
+   MHT_->Fill( htvec.pt() );
 
    //other variables
    //MPT...   
