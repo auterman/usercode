@@ -1,0 +1,16 @@
+gluino = 2000
+squark = 1120
+chi1 = 50
+Xsection = 0.0097
+Luminosity = 715
+Luminosity.uncertainty = 35.75
+kfactor = 1.11905
+signal.scale.uncertainty.relativ = 0.2
+signal.acceptance = 0
+signal.Stat.uncertainty = 0
+signal.acceptance.uncertainty = 0
+signal.PDF.uncertainty.realativ = 0.1198
+background = 29.6
+background.uncertainty = 7.3
+data = 32
+signal.ngen = 9987

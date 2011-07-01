@@ -1,0 +1,7 @@
+
+ This is an example code for calculating upper limits in RA3 2010 analysis.
+
+ [] root -l
+ root [0] .L ggmUL_v2.c+
+ root [1] Start()
+
