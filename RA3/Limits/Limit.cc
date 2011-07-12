@@ -57,9 +57,10 @@ void Limit(int argc, char *argv[])
     double ilum    = config.read<double>("Luminosity");
     double slum    = config.read<double>("Luminosity.uncertainty");
     int ntoys = 10000;
-
-    double limit = roostats_cl95(ilum, slum, eff, seff, bck, sbck, n );
-    LimitResult expected_limit = roostats_clm(ilum, slum, eff, seff, bck, sbck, ntoys);
+    
+    int nuisanceModel = 1;
+    double limit = roostats_cl95(ilum, slum, eff, seff, bck, sbck, n, false, nuisanceModel );
+    LimitResult expected_limit = roostats_clm(ilum, slum, eff, seff, bck, sbck, ntoys, nuisanceModel);
 
     config.add("limit.observed", limit);
     config.add("limit.expected", expected_limit.GetExpectedLimit() );
