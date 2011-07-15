@@ -22,7 +22,9 @@ double Luminosity = 1092.0; //[pb^-1]
 double Mgluino(const SusyScan* p){ return p->Mgluino; }
 double Msquark(const SusyScan* p){ return p->Msquark; }
 double SignalAcceptance(const SusyScan* p){ return p->signal_acceptance; }
+double SignalContamination(const SusyScan* p){ return p->signal_contamination; }
 double Xsection(const SusyScan* p){ return p->Xsection; }
+
 double ExpXsecLimit(const SusyScan* p){ return p->ExpXsecLimit; }
 double ObsXsecLimit(const SusyScan* p){ return p->ObsXsecLimit; }
 
@@ -31,6 +33,15 @@ double ObsExclusion(const SusyScan* p){ return (ObsXsecLimit(p)<Xsection(p)&&Obs
 
 double ExpExclusionM1(const SusyScan* p){ return (p->ExpXsecLimitM1<Xsection(p)&&p->ExpXsecLimitM1>0.01?1:0.01); }
 double ExpExclusionP1(const SusyScan* p){ return (p->ExpXsecLimitP1<Xsection(p)&&p->ExpXsecLimitP1>0.01?1:0.01); }
+
+double ExpXsecLimitSigCont(const SusyScan* p){ return p->ExpXsecLimitSigCont; }
+double ObsXsecLimitSigCont(const SusyScan* p){ return p->ObsXsecLimitSigCont; }
+
+double ExpExclusionSigCont(const SusyScan* p){ return (ExpXsecLimitSigCont(p)<Xsection(p)&&ExpXsecLimitSigCont(p)>0.01?1:0.01); }
+double ObsExclusionSigCont(const SusyScan* p){ return (ObsXsecLimitSigCont(p)<Xsection(p)&&ObsXsecLimitSigCont(p)>0.01?1:0.01); }
+
+double ExpExclusionM1SigCont(const SusyScan* p){ return (p->ExpXsecLimitM1SigCont<Xsection(p)&&p->ExpXsecLimitM1SigCont>0.01?1:0.01); }
+double ExpExclusionP1SigCont(const SusyScan* p){ return (p->ExpXsecLimitP1SigCont<Xsection(p)&&p->ExpXsecLimitP1SigCont>0.01?1:0.01); }
 
 
 

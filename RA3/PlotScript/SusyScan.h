@@ -19,10 +19,17 @@ public:
 	double Mgluino;
 	double Msquark;
 	double signal_acceptance;
+	double signal_contamination;
 	double ExpXsecLimit;
 	double ObsXsecLimit;
 	double ExpXsecLimitM1;
 	double ExpXsecLimitP1;
+
+	double ExpXsecLimitSigCont;
+		double ObsXsecLimitSigCont;
+		double ExpXsecLimitM1SigCont;
+		double ExpXsecLimitP1SigCont;
+
 	double Xsection;
 
 private:

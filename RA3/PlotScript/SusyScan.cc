@@ -30,14 +30,22 @@ SusyScan::SusyScan(std::string filename)
  // std::cout <<"MASS:"<< Mgluino << ": "<< Msquark <<std::endl;
 
   signal_acceptance = config.read<double>("signal.acceptance", 0);
- // std::cout <<"ACC:"<< signal_acceptance << ": "<< signal_acceptance <<std::endl;
+  signal_contamination = config.read<double>("signal.contamination", 0);
+ //std::cout <<"CONT:"<< signal_contamination << ": "<< signal_contamination <<std::endl;
 
   Xsection 	= config.read<double>("Xsection", 0);
+
   ExpXsecLimit 	= config.read<double>("limit.expected", 0);
   ObsXsecLimit 	= config.read<double>("limit.observed", 0);
 
   ExpXsecLimitM1 	= config.read<double>("limit.expected.m1sigma", 0);
   ExpXsecLimitP1 	= config.read<double>("limit.expected.p1sigma", 0);
+
+  ExpXsecLimitSigCont 	= config.read<double>("limitSigCont.expected", 0);
+    ObsXsecLimitSigCont 	= config.read<double>("limitSigCont.observed", 0);
+
+    ExpXsecLimitM1SigCont 	= config.read<double>("limitSigCont.expected.m1sigma", 0);
+    ExpXsecLimitP1SigCont 	= config.read<double>("limitSigCont.expected.p1sigma", 0);
 
 
 }
@@ -49,12 +57,20 @@ void SusyScan::SetPtr()
   p.push_back( &Mgluino);
   p.push_back( &Msquark);
   p.push_back( &signal_acceptance);
+  p.push_back( &signal_contamination);
   p.push_back( &Xsection);
+
   p.push_back( &ObsXsecLimit);
   p.push_back( &ExpXsecLimit);
 
   p.push_back( &ExpXsecLimitM1);
   p.push_back( &ExpXsecLimitP1);
+
+  p.push_back( &ObsXsecLimitSigCont);
+   p.push_back( &ExpXsecLimitSigCont);
+
+   p.push_back( &ExpXsecLimitM1SigCont);
+   p.push_back( &ExpXsecLimitP1SigCont);
 
 
 }
