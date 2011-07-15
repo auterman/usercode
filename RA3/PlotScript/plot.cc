@@ -56,8 +56,7 @@ int plot(int argc, char** argv) {
 
 	//the plotting ----------------------------------------------------------------------
 	//plotting helper functions
-	PlotTools < SusyScan > *plotTools = new PlotTools<SusyScan> (
-			genpoints->GetScan());
+	PlotTools < SusyScan > *plotTools = new PlotTools<SusyScan> ( genpoints->GetScan() );
 
 
 	//the histograms ---------------------------------------------------------------------
@@ -65,8 +64,9 @@ int plot(int argc, char** argv) {
 
 	// cross-section in M0 - M1/2
 	c1->SetRightMargin(0.2);
-			";m_{squark} [GeV]; m_{gluino} [GeV]; cross section [pb]", 20, 400,
-			2000, 20, 400, 2000);
+	TH2F*hxsec = new TH2F("xsec",
+			";m_{squark} [GeV]; m_{gluino} [GeV]; cross section [pb]", 
+			20, 400, 2000, 20, 400, 2000);
 	plotTools->Area(hxsec, Msquark, Mgluino, Xsection);
 	hxsec->SetMinimum(0.0001);
 	//sq500->Draw();   // m(squark) = 500 GeV line
@@ -80,8 +80,8 @@ int plot(int argc, char** argv) {
 	c1->SetTopMargin(0.11);
 	c1->SetLogz(0);
 	TH2F*hsigacc = new TH2F("sigacc",
-			";m_{squark} [GeV]; m_{gluino} [GeV]; Signal Acceptance", 20, 400,
-			2000, 20, 400, 2000);
+			";m_{squark} [GeV]; m_{gluino} [GeV]; Signal Acceptance", 
+			20, 400, 2000, 20, 400, 2000);
 	plotTools->Area(hsigacc, Msquark, Mgluino, SignalAcceptance);
 	hsigacc->SetMinimum(0.0);
 	hsigacc->SetMaximum(0.55);
@@ -102,8 +102,8 @@ int plot(int argc, char** argv) {
 	c1->SetTopMargin(0.11);
 	c1->SetLogz(0);
 	TH2F*hsigcont = new TH2F("sigacc",
-			";m_{squark} [GeV]; m_{gluino} [GeV]; Signal Contamination", 20,
-			400, 2000, 20, 400, 2000);
+			";m_{squark} [GeV]; m_{gluino} [GeV]; Signal Contamination", 
+			20, 400, 2000, 20, 400, 2000);
 	plotTools->Area(hsigcont, Msquark, Mgluino, SignalContamination);
 	hsigcont->SetMinimum(0.0);
 	hsigcont->SetMaximum(1);
@@ -114,20 +114,6 @@ int plot(int argc, char** argv) {
 	c1->SaveAs("results/SigCont3jet.pdf");
 	c1->SaveAs("results/SigCont3jet.eps");
 
-	// Signal Contamination in M0 - M1/2
-		c1->SetRightMargin(0.2);
-		c1->SetTopMargin(0.11);
-		c1->SetLogz(0);
-		TH2F*hsigcont = new TH2F("sigacc",
-				";m_{squark} [GeV]; m_{gluino} [GeV]; Signal Contamination", 80, 400, 2000, 80, 400, 2000);
-		plotToolsMHT->Area(hsigcont, Msquark, Mgluino, SignalContamination);
-		hsigcont->SetMinimum(0.0);
-		hsigcont->SetMaximum(1);
-		hsigcont->SetContour(14);
-		hsigcont->GetZaxis()->SetTitleOffset(1.5);
-		hsigcont->Draw("colz");
-
-		c1->SaveAs("results/SigCont3jet.pdf");
 
 	// Observed Limit in M0 - M1/2
 	TH2F*hobslimit = new TH2F("obslimit",
@@ -210,15 +196,13 @@ int plot(int argc, char** argv) {
 	TH2F*hs = new TH2F("hs", "", 80, 400, 2000, 80, 400, 2000);
 	// usage: GetContour( <range-hist>, <x-var>, <y-var>, <limit-function>, <contour-levels>, <contour index>, <color>, <style> )
 
-	TGraph * gCLsExpExclMHT_LO = plotToolsMHT->GetContour(hs, Msquark, Mgluino,
+	TGraph * gCLsExpExclMHT_LO = plotTools->GetContour(hs, Msquark, Mgluino,
 			ExpExclusion, 3, 2, 2, 4);
-
-	TGraph * gCLsObsExclMHT_LO = plotToolsMHT->GetContour(hs, Msquark, Mgluino,
+	TGraph * gCLsObsExclMHT_LO = plotTools->GetContour(hs, Msquark, Mgluino,
 			ObsExclusion, 3, 2, 2, 1);
-
-	TGraph * gCLsExpExclMHTm1 = plotToolsMHT->GetContour(hs, Msquark, Mgluino,
+	TGraph * gCLsExpExclMHTm1 = plotTools->GetContour(hs, Msquark, Mgluino,
 			ExpExclusionM1, 3, 2, 5, 2);
-	TGraph * gCLsExpExclMHTp1 = plotToolsMHT->GetContour(hs, Msquark, Mgluino,
+	TGraph * gCLsExpExclMHTp1 = plotTools->GetContour(hs, Msquark, Mgluino,
 			ExpExclusionP1, 3, 0, 5, 2);
 
 	TGraph * gCLsObsExclMHT_LO_Smooth=(TGraph *)gCLsObsExclMHT_LO->Clone("1");
@@ -228,9 +212,8 @@ int plot(int argc, char** argv) {
 	//smooth contours (2D Gaussian smoothing)
 	Smooth(gCLsObsExclMHT_LO_Smooth, 8);
 	Smooth(gCLsExpExclMHT_LO_Smooth, 8);
-
-	Smooth(gCLsObsExcl_LO_SmoothSigCont, 5);
-	Smooth(gCLsExpExcl_LO_SmoothSigCont, 5);
+	//Smooth(gCLsObsExcl_LO_SmoothSigCont, 5);
+	//Smooth(gCLsExpExcl_LO_SmoothSigCont, 5);
 
 	TGraph * gCLsExp1Sigma = MakeBand(gCLsExpExclMHTm1_Smooth,gCLsExpExclMHTp1_Smooth);
 	//gCLsExp1Sigma->SetFillStyle(3001);
@@ -258,7 +241,7 @@ int plot(int argc, char** argv) {
 	leg->SetFillColor(0);
 	leg->SetFillStyle(4000);
 	leg->SetTextFont(42);
-	TGraph * expLeg = (TGraph*) gCLsExpExcl_LO->Clone();
+	TGraph * expLeg = (TGraph*) gCLsObsExclMHT_LO_Smooth->Clone();
 	expLeg->SetFillStyle(gCLsExp1Sigma->GetFillStyle());
 	expLeg->SetFillColor(gCLsExp1Sigma->GetFillColor());
 	leg->SetHeader("L_{int} = 1.09 fb^{-1}, #sqrt{s} = 7 TeV");
