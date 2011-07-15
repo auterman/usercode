@@ -104,7 +104,6 @@ void TheLimits::OverwriteLimits(std::string flag)
 
 }
 
-void TheLimits::ExpandGrid(int s)
-{
 
-}
+//void TheLimits::ExpandGrid<SusyScan>(double(*x)(const SusyScan*), double(*y)(const SusyScan*) );
+

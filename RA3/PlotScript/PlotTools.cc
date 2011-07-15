@@ -287,7 +287,7 @@ bool PlotTools<T>::sort_TGraph::operator()(const TGraph*g1, const TGraph*g2)
 }
 
 TGraph * MakeBand(TGraph *g1, TGraph *g2, bool b){
-  std::cout<<"MAKE BAND!"<<b<<std::endl;
+  //std::cout<<"MAKE BAND!"<<b<<std::endl;
   TGraph * res = new TGraph(g1->GetN()+g2->GetN()+1);
   int p=0;
   double firstx,firsty;

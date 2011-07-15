@@ -42,10 +42,10 @@ SusyScan::SusyScan(std::string filename)
   ExpXsecLimitP1 	= config.read<double>("limit.expected.p1sigma", 0);
 
   ExpXsecLimitSigCont 	= config.read<double>("limitSigCont.expected", 0);
-    ObsXsecLimitSigCont 	= config.read<double>("limitSigCont.observed", 0);
+  ObsXsecLimitSigCont 	= config.read<double>("limitSigCont.observed", 0);
 
-    ExpXsecLimitM1SigCont 	= config.read<double>("limitSigCont.expected.m1sigma", 0);
-    ExpXsecLimitP1SigCont 	= config.read<double>("limitSigCont.expected.p1sigma", 0);
+  ExpXsecLimitM1SigCont 	= config.read<double>("limitSigCont.expected.m1sigma", 0);
+  ExpXsecLimitP1SigCont 	= config.read<double>("limitSigCont.expected.p1sigma", 0);
 
 
 }
@@ -62,15 +62,14 @@ void SusyScan::SetPtr()
 
   p.push_back( &ObsXsecLimit);
   p.push_back( &ExpXsecLimit);
-
   p.push_back( &ExpXsecLimitM1);
   p.push_back( &ExpXsecLimitP1);
 
   p.push_back( &ObsXsecLimitSigCont);
-   p.push_back( &ExpXsecLimitSigCont);
+  p.push_back( &ExpXsecLimitSigCont);
 
-   p.push_back( &ExpXsecLimitM1SigCont);
-   p.push_back( &ExpXsecLimitP1SigCont);
+  p.push_back( &ExpXsecLimitM1SigCont);
+  p.push_back( &ExpXsecLimitP1SigCont);
 
 
 }
