@@ -16,6 +16,7 @@
 #include "TCanvas.h"
 #include "TRint.h"
 #include "TROOT.h"
+#include "TLatex.h"
 
 template<class T>
 TGraph * PlotTools<T>::Line( double(*x)(const T*), double(*y)(const T*), 
@@ -312,7 +313,21 @@ TGraph * MakeBand(TGraph *g1, TGraph *g2, bool b){
   res->SetFillStyle(4050);
   return res;
 }
+void drawCmsPrel() {
+	double intLumi=1.09;
+	TLatex as;
+	as.SetTextSize(0.025);
+	as.SetTextFont(42);//ms.SetTextColor(12);
 
+	as.DrawLatex(
+			900,
+			2060,
+			Form(
+					"#int #font[12]{L}dt = %.2ffb^{  -1}            1#gamma, >=3 jets, MET>100 GeV ",
+					intLumi));
+	as.SetTextSize(0.04);
+	as.DrawLatex(50, 2060, "CMS preliminary");
+}
 void Smooth(TGraph * g, int N)
 {
   TGraph * old = (TGraph*)g->Clone();

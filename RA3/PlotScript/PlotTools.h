@@ -11,6 +11,7 @@ TGraph * MakeBand(TGraph *g1, TGraph *g2, bool b=false);
 void Smooth(TGraph * g, int n=3);
 void Smooth2D(TGraph * g, int n=3);
 TGraph* Close2D(TGraph * g);
+void drawCmsPrel();
 //void MergeBins(TH1*);
 
 template<class T>
