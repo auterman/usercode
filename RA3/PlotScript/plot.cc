@@ -220,7 +220,7 @@ void DrawPlots(TCanvas * c1,PlotTools < SusyScan > *plotTools,PlotTools < SusySc
 		TGraph * gCLsObsExcl_LO = plotToolsInterpol->GetContour(hs, Msquark,
 				Mgluino, ObsExclusion, 3, 1, 2, 1);
 		TGraph * gCLsExpExclm1 = plotToolsInterpol->GetContour(hs, Msquark,
-				Mgluino, ExpExclusionM1, 3, 1, 5, 2);
+				Mgluino, ExpExclusionM1, 3, 0, 5, 2);
 		TGraph * gCLsExpExclp1 = plotToolsInterpol->GetContour(hs, Msquark,
 				Mgluino, ExpExclusionP1, 3, 1, 5, 2);
 
@@ -229,7 +229,7 @@ void DrawPlots(TCanvas * c1,PlotTools < SusyScan > *plotTools,PlotTools < SusySc
 		TGraph * gCLsObsExcl_LOSigCont = plotToolsInterpol->GetContour(hs, Msquark,
 				Mgluino, ObsExclusionSigCont, 3, 1, kRed - 2, 1);
 		TGraph * gCLsExpExclm1SigCont = plotToolsInterpol->GetContour(hs, Msquark,
-				Mgluino, ExpExclusionM1SigCont, 3, 1, kOrange, 2);
+				Mgluino, ExpExclusionM1SigCont, 3, 0, kOrange, 2);
 		TGraph * gCLsExpExclp1SigCont = plotToolsInterpol->GetContour(hs, Msquark,
 				Mgluino, ExpExclusionP1SigCont, 3, 1, kOrange, 2);
 
@@ -366,9 +366,9 @@ int plot(int argc, char** argv) {
 	///////////////BINO LIMITS///////////////////////////////////////////////////
 	//Get limits from signal scan ---------------------------------------------------
 	TheLimits * genpointsInterpolBino = new TheLimits();
-	genpointsInterpolBino->Fill("limits_GMSB/resultfilesBino.txt");
+	genpointsInterpolBino->Fill("limits_GMSB/resultfilesbino200.txt");
 	TheLimits * genpointsBino = new TheLimits();
-	genpointsBino->Fill("limits_GMSB/resultfilesBino.txt");
+	genpointsBino->Fill("limits_GMSB/resultfilesbino200.txt");
 
 	//Make grid in Msquark, Mgluino finer by factor of 4 by linear interpolation
 	genpointsInterpolBino->ExpandGrid<SusyScan> (Msquark, Mgluino);
@@ -388,9 +388,9 @@ int plot(int argc, char** argv) {
 	///////////////WINO LIMITS///////////////////////////////////////////////////
 		//Get limits from signal scan ---------------------------------------------------
 		TheLimits * genpointsInterpolWino = new TheLimits();
-		genpointsInterpolWino->Fill("limits_GMSB/resultfilesWino.txt");
+		genpointsInterpolWino->Fill("limits_GMSB/resultfileswino200.txt");
 		TheLimits * genpointsWino = new TheLimits();
-		genpointsWino->Fill("limits_GMSB/resultfilesWino.txt");
+		genpointsWino->Fill("limits_GMSB/resultfileswino200.txt");
 
 		//Make grid in Msquark, Mgluino finer by factor of 4 by linear interpolation
 		genpointsInterpolWino->ExpandGrid<SusyScan> (Msquark, Mgluino);
