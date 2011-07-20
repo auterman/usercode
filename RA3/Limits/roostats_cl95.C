@@ -127,7 +127,7 @@ Double_t roostats_cl95(Double_t ilum, Double_t slum,
 		       Double_t bck, Double_t sbck,
 		       Int_t n,
 		       Bool_t gauss = kFALSE,
-		       Int_t nuisanceModel = 0,
+		       Int_t nuisanceModel = 0, Double_t bckWoSigCont=0,
 		       std::string method = "bayesian",
 		       std::string plotFileName = "plot_cl95.pdf",
 		       UInt_t seed = 12345);
@@ -135,7 +135,7 @@ Double_t roostats_cl95(Double_t ilum, Double_t slum,
 LimitResult roostats_clm(Double_t ilum, Double_t slum,
 			 Double_t eff, Double_t seff,
 			 Double_t bck, Double_t sbck,
-			 Int_t nit = 200, Int_t nuisanceModel = 0,
+			 Int_t nit = 200, Int_t nuisanceModel = 0, Double_t bckWoSigCont=0,
 			 std::string method = "bayesian",
 			 UInt_t seed = 12345);
 
@@ -199,7 +199,7 @@ public:
 			       Double_t eff, Double_t seff,
 			       Double_t bck, Double_t sbck,
 			       Bool_t gauss,
-			       Int_t nuisanceModel);
+			       Int_t nuisanceModel,Double_t bckWoSigCont);
   RooWorkspace * getWorkspace(){ return ws;}
 
   RooAbsData * makeData(Int_t n);
@@ -215,7 +215,7 @@ public:
   LimitResult clm(Double_t ilum, Double_t slum,
 		  Double_t eff, Double_t seff,
 		  Double_t bck, Double_t sbck,
-		  Int_t nit = 200, Int_t nuisanceModel = 0,
+		  Int_t nit = 200, Int_t nuisanceModel = 0,Double_t bckWoSigCont=0,
 		  std::string method = "bayesian");
   
   int makePlot( std::string method,
@@ -329,7 +329,7 @@ RooWorkspace * CL95Calc::makeWorkspace(Double_t ilum, Double_t slum,
 				       Double_t eff, Double_t seff,
 				       Double_t bck, Double_t sbck,
 				       Bool_t gauss,
-				       Int_t nuisanceModel){
+				       Int_t nuisanceModel,Double_t bckWoSigCont=-1){
 
   if ( bck>0.0 && (sbck/bck)<5.0 ){
     // check that bck is not too close to zero,
@@ -370,12 +370,15 @@ RooWorkspace * CL95Calc::makeWorkspace(Double_t ilum, Double_t slum,
 
   // estimated background yield
   ws->factory( "bkg_est[0]" );
+  ws->factory( "bkg_estWoSigCont[0]" );
 
   // nuisance parameter: factor 1 with background relative uncertainty
   //ws->factory( "nbkg_nuis[1.0]" ); // will adjust range below
 
   // background yield
   ws->factory( "nbkg[1.0]" ); // will adjust value and range below
+
+  ws->factory( "nbkgWoSigCont[1.0]" ); // will adjust value and range below
 
   // core model:
   ws->factory("sum::yield(nsig,nbkg)");
@@ -400,8 +403,14 @@ RooWorkspace * CL95Calc::makeWorkspace(Double_t ilum, Double_t slum,
     ws->factory( "nsig_sigma[0.1]" );
     ws->factory( "Gaussian::syst_nsig(nsig_nuis, 1.0, nsig_sigma)" );
     // background uncertainty
-    ws->factory( "nbkg_sigma[0.1]" );
-    ws->factory( "Gaussian::syst_nbkg(nbkg, bkg_est, nbkg_sigma)" );
+    ws->factory("nbkg_sigma[0.1]");
+
+		ws->factory("Gaussian::syst_nbkgWoSigCont(nbkgWoSigCont, bkg_estWoSigCont, nbkg_sigma)");
+
+		ws->factory("Gaussian::syst_nbkg(nbkg, bkg_est, nbkg_sigma)");
+
+
+
 
     ws->var("nsig_sigma")->setVal(nsig_rel_err);
     ws->var("nbkg_sigma")->setVal(sbck);
@@ -462,25 +471,42 @@ RooWorkspace * CL95Calc::makeWorkspace(Double_t ilum, Double_t slum,
   ws->var("lumi")      ->setVal(ilum);
   ws->var("efficiency")->setVal(eff);
   ws->var("bkg_est")   ->setVal(bck);
+  ws->var("bkg_estWoSigCont")   ->setVal(bckWoSigCont);
   ws->var("xsec")      ->setVal(0.0);
   ws->var("nsig_nuis") ->setVal(1.0);
-  ws->var("nbkg")      ->setVal(bck);
+
+
+
+
+
+	  ws->var("nbkg")      ->setVal(bck);
+	  ws->var("nbkgWoSigCont")      ->setVal(bckWoSigCont);
+
+
 
   // set some parameters as constants
   ws->var("lumi")      ->setConstant(kTRUE);
   ws->var("efficiency")->setConstant(kTRUE);
   ws->var("bkg_est")   ->setConstant(kTRUE);
+  ws->var("bkg_estWoSigCont")   ->setConstant(kTRUE);
   ws->var("n")         ->setConstant(kFALSE); // observable
   ws->var("xsec")      ->setConstant(kFALSE); // parameter of interest
   ws->var("nsig_nuis") ->setConstant(kFALSE); // nuisance
   ws->var("nbkg")      ->setConstant(kFALSE); // nuisance
+  ws->var("nbkgWoSigCont")      ->setConstant(kFALSE); // nuisance
 
   // floating parameters ranges
   // crude estimates! Need to know data to do better
   ws->var("n")        ->setRange( 0.0, bck+(5.0*sbck)+10.0); // ad-hoc range for obs
   ws->var("xsec")     ->setRange( 0.0, 15.0*(1.0+nsig_rel_err)/ilum/eff ); // ad-hoc range for POI
   ws->var("nsig_nuis")->setRange( std::max(0.0, 1.0 - 5.0*nsig_rel_err), 1.0 + 5.0*nsig_rel_err);
-  ws->var("nbkg")     ->setRange( std::max(0.0, bck - 5.0*sbck), bck + 5.0*sbck);
+
+
+
+	  ws->var("nbkgWoSigCont")   ->setRange( std::max(0.0, bckWoSigCont - 5.0*sbck), bckWoSigCont + 5.0*sbck);
+
+	   ws->var("nbkg")     ->setRange( std::max(0.0, bck - 5.0*sbck), bck + 5.0*sbck);
+
   
   // Definition of observables and parameters of interest
   ws->defineSet("obsSet","n");
@@ -755,15 +781,15 @@ Double_t CL95Calc::cla( Double_t ilum, Double_t slum,
 LimitResult CL95Calc::clm( Double_t ilum, Double_t slum,
 			   Double_t eff, Double_t seff,
 			   Double_t bck, Double_t sbck,
-			   Int_t nit, Int_t nuisanceModel,
+			   Int_t nit, Int_t nuisanceModel,Double_t bckWoSigCont,
 			   std::string method ){
   
   makeWorkspace( ilum, slum,
 		 eff, seff,
 		 bck, sbck,
 		 kFALSE,
-		 nuisanceModel );
-  
+		 nuisanceModel,  bckWoSigCont);
+  //TODO
   Double_t CLM = 0.0;
   LimitResult _result;
 
@@ -788,7 +814,16 @@ LimitResult CL95Calc::clm( Double_t ilum, Double_t slum,
   for (Int_t i = 0; i < nit; i++)
     {
       // throw random nuisance parameter (bkg yield)
-      Double_t bmean = GetRandom("syst_nbkg", "nbkg");
+
+      Double_t bmean = 0;
+
+      if(bckWoSigCont!=-1){
+    	  bmean = GetRandom("syst_nbkgWoSigCont", "nbkgWoSigCont");
+    	 // bmean = 49.95;
+      }
+      else{
+    	  bmean = GetRandom("syst_nbkg", "nbkg");
+      }
 
       std::cout << "[roostats_clm]: generatin pseudo-data with bmean = " << bmean << std::endl;
       Int_t n = r.Poisson(bmean);
@@ -991,7 +1026,7 @@ Double_t roostats_cl95(Double_t ilum, Double_t slum,
 		       Double_t bck, Double_t sbck,
 		       Int_t n,
 		       Bool_t gauss,
-		       Int_t nuisanceModel,
+		       Int_t nuisanceModel,Double_t bckWoSigCont,
 		       std::string method,
 		       std::string plotFileName,
 		       UInt_t seed){
@@ -1037,7 +1072,7 @@ Double_t roostats_cl95(Double_t ilum, Double_t slum,
 					     eff, seff,
 					     bck, sbck,
 					     gauss,
-					     nuisanceModel );
+					     nuisanceModel,bckWoSigCont );
   RooDataSet * data = (RooDataSet *)( theCalc.makeData( n )->Clone() );
   data->SetName("observed_data");
   ws->import(*data);
@@ -1106,7 +1141,7 @@ Double_t roostats_cla(Double_t ilum, Double_t slum,
 LimitResult roostats_clm(Double_t ilum, Double_t slum,
 			 Double_t eff, Double_t seff,
 			 Double_t bck, Double_t sbck,
-			 Int_t nit, Int_t nuisanceModel,
+			 Int_t nit, Int_t nuisanceModel,Double_t bckWoSigCont,
 			 std::string method,
 			 UInt_t seed){
   //
@@ -1131,7 +1166,7 @@ LimitResult roostats_clm(Double_t ilum, Double_t slum,
   limit = theCalc.clm( ilum, slum,
 		       eff, seff,
 		       bck, sbck,
-		       nit, nuisanceModel,
+		       nit, nuisanceModel, bckWoSigCont,
 		       method );
 
   return limit;
