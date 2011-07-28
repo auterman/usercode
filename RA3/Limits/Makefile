@@ -32,6 +32,6 @@ Limit.o: Limit.cc ConfigFile.h
 	$(C) $(RCXX) -c Limit.cc
 
 Limit: $(SRC:.cc=.o) Limit.o
-	$(LD) $(SRC:.cc=.o) Limit.o $(RLXX) -lRooStats -lRooFitCore -lRooFit	-lMinuit -lFoam  -o Limit
+	$(LD) $(SRC:.cc=.o) Limit.o $(RLXX) -lMathMore -lRooStats -lRooFitCore -lRooFit	-lMinuit -lFoam  -o Limit
 	@echo '-> executable Limit created.'
 

@@ -12,29 +12,6 @@
 #include <stdlib.h>
 
 
-//ROOT
-#include "TH1.h"
-#include "TCanvas.h"
-#include "TRint.h"
-#include "RooRealVar.h"
-#include "RooUniform.h"
-#include "RooDataSet.h"
-#include "RooConstVar.h"
-#include "RooAddition.h"
-#include "RooProduct.h"
-#include "RooPoisson.h"
-#include "RooGaussian.h"
-#include "RooProdPdf.h"
-#include "RooPlot.h"
-#include "RooStats/BayesianCalculator.h"
-#include "RooStats/HybridCalculatorOriginal.h"
-#include "RooStats/HypoTestInverterResult.h"
-#include "RooStats/HypoTestInverter.h"
-
-using namespace std;
-using namespace RooStats;
-
-
 void Limit(int argc, char *argv[])
 {
   if (argc<2){
@@ -55,45 +32,54 @@ void Limit(int argc, char *argv[])
     double sig_cont= config.read<double>("signal.contamination");
     double ilum    = config.read<double>("Luminosity");
     double slum    = config.read<double>("Luminosity.uncertainty");
-    int ntoys = 10000;
-    
-    int nuisanceModel = 0;
+    double Xsection = config.read<double>("Xsection",1.0);
+    double kfactor  = config.read<double>("kfactor",1.0);
 
-    double bckSignalContNotSubtracted=bck;
-    double bckSignalContSubtracted=bck-(sig_cont*bck);
-    if(bckSignalContSubtracted<0)bckSignalContSubtracted=0;
+    int ntoys = 2000;
+    int nuisanceModel = 0; //0 = Gauss
+    std::string SM = "cls"; // StatisticalModel = "bayesian", "cls", ...
 
-    std::cout<<"Background:"<<bck<<std::endl;
-    std::cout<<"Background no Signal Cont Subtraction:"<<bckSignalContNotSubtracted<<std::endl;
-    std::cout<<"Background  Signal Cont Subtraction:"<<bckSignalContSubtracted<<std::endl;
+    double effSC = eff - (sig_cont*bck) / (ilum * Xsection * kfactor);
+    if(effSC<0)effSC=0;
+    double seffSC = seff * effSC / eff;
 
+    std::cout<<"Signal acceptance:"<<eff<<" +- "<< seff<<std::endl;
+    std::cout<<"Signal acc - cont:"<<effSC<<" +- "<<seffSC<<std::endl;
     std::cout<<"======================================================================Limit with subtraction of Signal Contamination"<<bck<<std::endl;
-        double limitSigCont = roostats_cl95(ilum, slum, eff, seff, bckSignalContSubtracted, sbck, n, false, nuisanceModel,bckSignalContNotSubtracted );
-        LimitResult expected_limitSigCont = roostats_clm(ilum, slum, eff, seff, bckSignalContSubtracted, sbck, ntoys, nuisanceModel,bckSignalContNotSubtracted);
 
+    //limits with signal contamination removed
+    LimitResult limitSigCont;
+    roostats_cl95(ilum, slum, effSC, seffSC, bck, sbck, n, false, 
+                  nuisanceModel, SM,"plot_cl95_sigcont.pdf",12345,&limitSigCont);
+    //LimitResult expected_limitSigCont = roostats_clm(ilum, slum, effSC, seffSC, bck, sbck, ntoys, nuisanceModel, SM);
 
+    //limits (doing nothing about signal contamination)
     std::cout<<"======================================================================Limit w/o subtraction of Signal Contamination"<<bck<<std::endl;
-    double limit = roostats_cl95(ilum, slum, eff, seff, bck, sbck, n, false, nuisanceModel,-1 );
-    LimitResult expected_limit = roostats_clm(ilum, slum, eff, seff, bck, sbck, ntoys, nuisanceModel,-1);
+    LimitResult limit;
+    roostats_cl95(ilum, slum, eff, seff, bck, sbck, n, false,
+                  nuisanceModel,SM,"plot_cl95.pdf",12345,&limit);
+    //LimitResult expected_limit = roostats_clm(ilum, slum, eff, seff, bck, sbck, ntoys, nuisanceModel,SM);
 
 
-    config.add("limit.observed", limit);
-    config.add("limit.expected", expected_limit.GetExpectedLimit() );
-    config.add("limit.expected.m1sigma", expected_limit.GetOneSigmaLowRange() );
-    config.add("limit.expected.p1sigma", expected_limit.GetOneSigmaHighRange() );
-    config.add("limit.expected.1sigmaCoverage", expected_limit.GetOneSigmaCoverage() );
-    config.add("limit.expected.m2sigma", expected_limit.GetTwoSigmaLowRange() );
-    config.add("limit.expected.p2sigma", expected_limit.GetTwoSigmaHighRange() );
-    config.add("limit.expected.2sigmaCoverage", expected_limit.GetTwoSigmaCoverage() );
+    config.add("limit."+SM+".observed", limit.GetObservedLimit());
+    config.add("limit."+SM+".observed.error", limit.GetObservedLimitError());
+    config.add("limit."+SM+".expected", limit.GetExpectedLimit() );
+    config.add("limit."+SM+".expected.m1sigma", limit.GetOneSigmaLowRange() );
+    config.add("limit."+SM+".expected.p1sigma", limit.GetOneSigmaHighRange() );
+    config.add("limit."+SM+".expected.1sigmaCoverage", limit.GetOneSigmaCoverage() );
+    config.add("limit."+SM+".expected.m2sigma", limit.GetTwoSigmaLowRange() );
+    config.add("limit."+SM+".expected.p2sigma", limit.GetTwoSigmaHighRange() );
+    config.add("limit."+SM+".expected.2sigmaCoverage", limit.GetTwoSigmaCoverage() );
 
-    	config.add("limitSigCont.observed", limitSigCont);
-        config.add("limitSigCont.expected", expected_limitSigCont.GetExpectedLimit() );
-        config.add("limitSigCont.expected.m1sigma", expected_limitSigCont.GetOneSigmaLowRange() );
-        config.add("limitSigCont.expected.p1sigma", expected_limitSigCont.GetOneSigmaHighRange() );
-        config.add("limitSigCont.expected.1sigmaCoverage", expected_limitSigCont.GetOneSigmaCoverage() );
-        config.add("limitSigCont.expected.m2sigma", expected_limitSigCont.GetTwoSigmaLowRange() );
-        config.add("limitSigCont.expected.p2sigma", expected_limitSigCont.GetTwoSigmaHighRange() );
-        config.add("limitSigCont.expected.2sigmaCoverage", expected_limitSigCont.GetTwoSigmaCoverage() );
+    config.add("limitSC."+SM+".observed", limitSigCont.GetObservedLimit());
+    config.add("limitSC."+SM+".observed.error", limitSigCont.GetObservedLimitError());
+    config.add("limitSC."+SM+".expected", limitSigCont.GetExpectedLimit() );
+    config.add("limitSC."+SM+".expected.m1sigma", limitSigCont.GetOneSigmaLowRange() );
+    config.add("limitSC."+SM+".expected.p1sigma", limitSigCont.GetOneSigmaHighRange() );
+    config.add("limitSC."+SM+".expected.1sigmaCoverage", limitSigCont.GetOneSigmaCoverage() );
+    config.add("limitSC."+SM+".expected.m2sigma", limitSigCont.GetTwoSigmaLowRange() );
+    config.add("limitSC."+SM+".expected.p2sigma", limitSigCont.GetTwoSigmaHighRange() );
+    config.add("limitSC."+SM+".expected.2sigmaCoverage", limitSigCont.GetTwoSigmaCoverage() );
 
     //write stuff:  
     time_t rawtime;
