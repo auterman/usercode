@@ -15,14 +15,14 @@ const double background = 43.8;
 const double backgroundUncertainty = sqrt(pow(4.2, 2) + pow(7.6, 2));
 //cut on MET > 200
 const double data200 = 7;
-const double background200 = 6.5;
-const double backgroundUncertainty200 = sqrt(pow(2.0, 2) + pow(2.4, 2));
+const double background200 = 6.03256;
+const double backgroundUncertainty200 = sqrt(1.66396*1.66396 + 2.43536*2.43536);
 //cut on MET > 350
 const double data350 = 1;
-const double background350 = 0.15;
-const double backgroundUncertainty350 = sqrt(pow(0.03, 2) + pow(0.05, 2));
+const double background350 = 0.146571;
+const double backgroundUncertainty350 = sqrt(0.0241711 *0.0241711+ 0.0444952*0.0444952);
 //LUMI
-const double luminosity = 1092.0;
+const double luminosity = 909.0;
 const double luminosityUncertainty = 0.06 * luminosity; //6%
 const double scaleUncertainty = 0.2; //suggested by Yuri, see mail June 30th.
 
@@ -76,12 +76,13 @@ public:
 			ofile << "Luminosity = " << it-> lumi << "\n";
 			ofile << "Luminosity.uncertainty = " << it-> u_lumi << "\n";
 			ofile << "kfactor = " << it-> kfactor << "\n";
-			ofile << "signal.scale.uncertainty.relativ = " << it-> u_NLO
+			ofile << "signal.scale.uncertainty = " << it-> u_NLO
 					<< "\n";
 			ofile << "signal.acceptance = " << it-> acc << "\n";
 			ofile << "signal.Stat.uncertainty = " << it->u_stat << "\n";
 			ofile << "signal.acceptance.uncertainty = " << it-> u_acc << "\n";
-			ofile << "signal.PDF.uncertainty.realativ = " << it-> u_pdf << "\n";
+			ofile << "signal.PDF.uncertainty = " << it-> u_pdf << "\n";
+			ofile << "signal.PDFacc.uncertainty = " << it-> u_pdfacc << "\n";
 			ofile << "background = " << it-> back << "\n";
 			ofile << "background.uncertainty = " << it-> u_back << "\n";
 			ofile << "data = " << it-> data << "\n";
@@ -195,17 +196,21 @@ void ReadSignalAcceptance(const std::string filelist,
 			double perc_uncert_photon = 0.005;
 			double perc_uncert_phDatMC = 0.01;
 
-			a->u_acc = a->acc * sqrt(pow(a->u_stat, 2) + pow(a->u_pdfacc, 2)
-					+ pow(perc_uncert_JES, 2) + pow(perc_uncert_PU, 2) + pow(
-					perc_uncert_photon, 2) + pow(perc_uncert_phDatMC, 2));
-			std::cout << "lumi======" << a->lumi << "==" << a->xsec << "=="
-					<< p.signal_contamination << "==" << p.ngen << std::endl;
-			double signalContributionToBackground = a->xsec * a->lumi
-					* p.signal_contamination / p.ngen;
-			a->signal_contamination = signalContributionToBackground / a->back;
-			std::cout << "signal_contamination:" << a->signal_contamination
-					<< std::endl;
-
+			a->u_acc = a->acc * sqrt(pow(a->u_stat, 2) + 
+			                         pow(a->u_pdfacc, 2)+ 
+						 pow(a->u_pdf,2 ) +
+						 pow(perc_uncert_JES, 2) + 
+						 pow(perc_uncert_PU, 2) + 
+						 pow(perc_uncert_photon, 2) + 
+						 pow(perc_uncert_phDatMC, 2)); 
+			a->signal_contamination = p.signal_contamination / p.ngen;
+			std::cout << "lumi=" << a->lumi 
+			          << ", xsec=" << a->xsec 
+				  << ", eff=" << a->acc 
+				  << " +- " << a->u_acc
+				  << ", SC=" << a->signal_contamination 
+				  << ", Ngen=" << a->ngen 
+				  << std::endl;
 		}
 
 	}
@@ -272,7 +277,7 @@ int main(void) {
 	ReadPDF("xsectionPDFErrors.dat");
 	ReadPDFAcceptance("acceptancePDFErrors.dat");
 	ReadkFactor("ProspinoKfactorsDiphotonsAll.txt");
-	ReadSignalAcceptance("binosignalAcceptance.dat");
+	ReadSignalAcceptance("signalAcceptanceBinoV4_Jul30.dat");
 	Points.Write("limits/GMSBBino100");
 	//MET>200
 	Points.Reset();
@@ -280,8 +285,16 @@ int main(void) {
 	ReadPDF("xsectionPDFErrors.dat");
 	ReadPDFAcceptance("acceptancePDFErrors.dat");
 	ReadkFactor("ProspinoKfactorsDiphotonsAll.txt");
-	ReadSignalAcceptance("binosignalAcceptance.dat", 0, true, false);
+	ReadSignalAcceptance("signalAcceptanceBinoV4_Jul30.dat", 0, true, false);
 	Points.Write("limits/GMSBBino200");
+	//MET>350
+	Points.Reset();
+	ReadXsec("MC_Map_Jul13_Bino.dat", false, true);
+	ReadPDF("xsectionPDFErrors.dat");
+	ReadPDFAcceptance("acceptancePDFErrors.dat");
+	ReadkFactor("ProspinoKfactorsDiphotonsAll.txt");
+	ReadSignalAcceptance("signalAcceptanceBinoV4_Jul30.dat", 0, false, true);
+	Points.Write("limits/GMSBBino350");
 	////////////////Wino Limits
 	//MET >100
 	Points.Reset();
@@ -289,7 +302,7 @@ int main(void) {
 	ReadPDF("xsectionPDFErrors.dat");
 	ReadPDFAcceptance("acceptancePDFErrors.dat");
 	ReadkFactor("ProspinoKfactorsDiphotonsAll.txt");
-	ReadSignalAcceptance("winosignalAcceptanceHighStat.dat", 60000);
+	ReadSignalAcceptance("signalAcceptanceWino_V4_Jul30.dat", 60000);
 	Points.Write("limits/GMSBWino100");
 	//MET >200
 	Points.Reset();
@@ -297,6 +310,14 @@ int main(void) {
 	ReadPDF("xsectionPDFErrors.dat");
 	ReadPDFAcceptance("acceptancePDFErrors.dat");
 	ReadkFactor("ProspinoKfactorsDiphotonsAll.txt");
-	ReadSignalAcceptance("winosignalAcceptanceHighStat.dat", 60000, true, false);
+	ReadSignalAcceptance("signalAcceptanceWino_V4_Jul30.dat", 60000, true, false);
 	Points.Write("limits/GMSBWino200");
+	//MET >350
+	Points.Reset();
+	ReadXsec("MC_Map_Jul13_Wino.dat", false, true);
+	ReadPDF("xsectionPDFErrors.dat");
+	ReadPDFAcceptance("acceptancePDFErrors.dat");
+	ReadkFactor("ProspinoKfactorsDiphotonsAll.txt");
+	ReadSignalAcceptance("signalAcceptanceWino_V4_Jul30.dat", 60000, false, true);
+	Points.Write("limits/GMSBWino350");
 }
