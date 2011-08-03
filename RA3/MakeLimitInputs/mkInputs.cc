@@ -31,10 +31,13 @@ struct point {
 	double squark;
 	double chi;
 	double xsec;
+	double xsecNLO;
 	double lumi;
 	double u_lumi;
 	double kfactor;
 	double u_NLO;
+	double u_NLO_up;
+	double u_NLO_dn;
 	double acc;
 	double u_acc;
 	double u_pdf;
@@ -73,11 +76,13 @@ public:
 			ofile << "squark = " << it-> squark << "\n";
 			ofile << "chi1 = " << it-> chi << "\n";
 			ofile << "Xsection = " << it-> xsec << "\n";
+			ofile << "NLOXsection = " << it-> xsecNLO << "\n";
 			ofile << "Luminosity = " << it-> lumi << "\n";
 			ofile << "Luminosity.uncertainty = " << it-> u_lumi << "\n";
 			ofile << "kfactor = " << it-> kfactor << "\n";
-			ofile << "signal.scale.uncertainty = " << it-> u_NLO
-					<< "\n";
+			ofile << "signal.scale.uncertainty = " << it-> u_NLO << "\n";
+			ofile << "signal.scale.uncertainty.up = " << it-> u_NLO_up << "\n";
+			ofile << "signal.scale.uncertainty.dn = " << it-> u_NLO_dn << "\n";
 			ofile << "signal.acceptance = " << it-> acc << "\n";
 			ofile << "signal.Stat.uncertainty = " << it->u_stat << "\n";
 			ofile << "signal.acceptance.uncertainty = " << it-> u_acc << "\n";
@@ -131,11 +136,13 @@ void ReadXsec(const std::string filelist, bool useCut2 = false, bool useCut3 =
 	p.u_lumi = luminosityUncertainty;
 	p.u_NLO = scaleUncertainty;
 	double nAcc;
+	double LO_dn, LO_up;
 	while (1) {
 
-		masses_file >> p.gluino >> p.squark >> p.chi >> p.xsec;
+		masses_file >> p.gluino >> p.squark >> p.chi 
+		            >> p.xsec >> LO_up >> LO_dn >> p.xsecNLO >> p.u_NLO_up >> p.u_NLO_dn;
 		//xsec in file is given in mb--->transform to pb
-		p.xsec = pow(10, 9) * p.xsec;
+                p.kfactor = p.xsecNLO/p.xsec;
 		std::cout << "xsec" << p.xsec << std::endl;
 		if (p.chi == 375) {
 			if (!masses_file.good())
@@ -273,51 +280,51 @@ int main(void) {
 	////////////////Bino Limits
 	//MET>100
 	Points.Reset();
-	ReadXsec("MC_Map_Jul13_Bino.dat");
+	ReadXsec("NLOProspinoXsecs.txt");
 	ReadPDF("xsectionPDFErrors.dat");
 	ReadPDFAcceptance("acceptancePDFErrors.dat");
-	ReadkFactor("ProspinoKfactorsDiphotonsAll.txt");
+	//ReadkFactor("ProspinoKfactorsDiphotonsAll.txt");
 	ReadSignalAcceptance("signalAcceptanceBinoV4_Jul30.dat");
 	Points.Write("limits/GMSBBino100");
 	//MET>200
 	Points.Reset();
-	ReadXsec("MC_Map_Jul13_Bino.dat", true, false);
+	ReadXsec("NLOProspinoXsecs.txt", true, false);
 	ReadPDF("xsectionPDFErrors.dat");
 	ReadPDFAcceptance("acceptancePDFErrors.dat");
-	ReadkFactor("ProspinoKfactorsDiphotonsAll.txt");
+	//ReadkFactor("ProspinoKfactorsDiphotonsAll.txt");
 	ReadSignalAcceptance("signalAcceptanceBinoV4_Jul30.dat", 0, true, false);
 	Points.Write("limits/GMSBBino200");
 	//MET>350
 	Points.Reset();
-	ReadXsec("MC_Map_Jul13_Bino.dat", false, true);
+	ReadXsec("NLOProspinoXsecs.txt", false, true);
 	ReadPDF("xsectionPDFErrors.dat");
 	ReadPDFAcceptance("acceptancePDFErrors.dat");
-	ReadkFactor("ProspinoKfactorsDiphotonsAll.txt");
+	//ReadkFactor("ProspinoKfactorsDiphotonsAll.txt");
 	ReadSignalAcceptance("signalAcceptanceBinoV4_Jul30.dat", 0, false, true);
 	Points.Write("limits/GMSBBino350");
 	////////////////Wino Limits
 	//MET >100
 	Points.Reset();
-	ReadXsec("MC_Map_Jul13_Wino.dat");
+	ReadXsec("NLOProspinoXsecs.txt");
 	ReadPDF("xsectionPDFErrors.dat");
 	ReadPDFAcceptance("acceptancePDFErrors.dat");
-	ReadkFactor("ProspinoKfactorsDiphotonsAll.txt");
+	//ReadkFactor("ProspinoKfactorsDiphotonsAll.txt");
 	ReadSignalAcceptance("signalAcceptanceWino_V4_Jul30.dat", 60000);
 	Points.Write("limits/GMSBWino100");
 	//MET >200
 	Points.Reset();
-	ReadXsec("MC_Map_Jul13_Wino.dat", true, false);
+	ReadXsec("NLOProspinoXsecs.txt", true, false);
 	ReadPDF("xsectionPDFErrors.dat");
 	ReadPDFAcceptance("acceptancePDFErrors.dat");
-	ReadkFactor("ProspinoKfactorsDiphotonsAll.txt");
+	//ReadkFactor("ProspinoKfactorsDiphotonsAll.txt");
 	ReadSignalAcceptance("signalAcceptanceWino_V4_Jul30.dat", 60000, true, false);
 	Points.Write("limits/GMSBWino200");
 	//MET >350
 	Points.Reset();
-	ReadXsec("MC_Map_Jul13_Wino.dat", false, true);
+	ReadXsec("NLOProspinoXsecs.txt", false, true);
 	ReadPDF("xsectionPDFErrors.dat");
 	ReadPDFAcceptance("acceptancePDFErrors.dat");
-	ReadkFactor("ProspinoKfactorsDiphotonsAll.txt");
+	//ReadkFactor("ProspinoKfactorsDiphotonsAll.txt");
 	ReadSignalAcceptance("signalAcceptanceWino_V4_Jul30.dat", 60000, false, true);
 	Points.Write("limits/GMSBWino350");
 }
