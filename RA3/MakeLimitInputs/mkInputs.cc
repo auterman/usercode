@@ -281,24 +281,23 @@ int main(void) {
 	//MET>100
 	Points.Reset();
 	ReadXsec("NLOProspinoXsecs.txt");
-	ReadPDF("xsectionPDFErrors.dat");
-	ReadPDFAcceptance("acceptancePDFErrors.dat");
-	//ReadkFactor("ProspinoKfactorsDiphotonsAll.txt");
+	ReadPDF("PDFcross.txt");
+	ReadPDFAcceptance("PDFacceptance.txt");
 	ReadSignalAcceptance("signalAcceptanceBinoV4_Jul30.dat");
 	Points.Write("limits/GMSBBino100");
 	//MET>200
 	Points.Reset();
 	ReadXsec("NLOProspinoXsecs.txt", true, false);
-	ReadPDF("xsectionPDFErrors.dat");
-	ReadPDFAcceptance("acceptancePDFErrors.dat");
+	ReadPDF("PDFcross.txt");
+	ReadPDFAcceptance("PDFacceptance.txt");
 	//ReadkFactor("ProspinoKfactorsDiphotonsAll.txt");
 	ReadSignalAcceptance("signalAcceptanceBinoV4_Jul30.dat", 0, true, false);
 	Points.Write("limits/GMSBBino200");
 	//MET>350
 	Points.Reset();
 	ReadXsec("NLOProspinoXsecs.txt", false, true);
-	ReadPDF("xsectionPDFErrors.dat");
-	ReadPDFAcceptance("acceptancePDFErrors.dat");
+	ReadPDF("PDFcross.txt");
+	ReadPDFAcceptance("PDFacceptance.txt");
 	//ReadkFactor("ProspinoKfactorsDiphotonsAll.txt");
 	ReadSignalAcceptance("signalAcceptanceBinoV4_Jul30.dat", 0, false, true);
 	Points.Write("limits/GMSBBino350");
@@ -306,24 +305,24 @@ int main(void) {
 	//MET >100
 	Points.Reset();
 	ReadXsec("NLOProspinoXsecs.txt");
-	ReadPDF("xsectionPDFErrors.dat");
-	ReadPDFAcceptance("acceptancePDFErrors.dat");
+	ReadPDF("PDFcross.txt");
+	ReadPDFAcceptance("PDFacceptance.txt");
 	//ReadkFactor("ProspinoKfactorsDiphotonsAll.txt");
 	ReadSignalAcceptance("signalAcceptanceWino_V4_Jul30.dat", 60000);
 	Points.Write("limits/GMSBWino100");
 	//MET >200
 	Points.Reset();
 	ReadXsec("NLOProspinoXsecs.txt", true, false);
-	ReadPDF("xsectionPDFErrors.dat");
-	ReadPDFAcceptance("acceptancePDFErrors.dat");
+	ReadPDF("PDFcross.txt");
+	ReadPDFAcceptance("PDFacceptance.txt");
 	//ReadkFactor("ProspinoKfactorsDiphotonsAll.txt");
 	ReadSignalAcceptance("signalAcceptanceWino_V4_Jul30.dat", 60000, true, false);
 	Points.Write("limits/GMSBWino200");
 	//MET >350
 	Points.Reset();
 	ReadXsec("NLOProspinoXsecs.txt", false, true);
-	ReadPDF("xsectionPDFErrors.dat");
-	ReadPDFAcceptance("acceptancePDFErrors.dat");
+	ReadPDF("PDFcross.txt");
+	ReadPDFAcceptance("PDFacceptance.txt");
 	//ReadkFactor("ProspinoKfactorsDiphotonsAll.txt");
 	ReadSignalAcceptance("signalAcceptanceWino_V4_Jul30.dat", 60000, false, true);
 	Points.Write("limits/GMSBWino350");
