@@ -32,6 +32,9 @@ struct point {
 	double chi;
 	double xsec;
 	double xsecNLO;
+        double Oldxsec;
+	double OldxsecNLO;
+	double Oldkfactor;
 	double lumi;
 	double u_lumi;
 	double kfactor;
@@ -77,8 +80,11 @@ public:
 			ofile << "chi1 = " << it-> chi << "\n";
 			ofile << "Xsection = " << it-> xsec << "\n";
 			ofile << "NLOXsection = " << it-> xsecNLO << "\n";
+			ofile << "OldXsection = " << it-> Oldxsec << "\n";
+			ofile << "OldNLOXsection = " << it-> OldxsecNLO << "\n";
 			ofile << "Luminosity = " << it-> lumi << "\n";
 			ofile << "Luminosity.uncertainty = " << it-> u_lumi << "\n";
+			ofile << "Oldkfactor = " << it-> Oldkfactor << "\n";
 			ofile << "kfactor = " << it-> kfactor << "\n";
 			ofile << "signal.scale.uncertainty = " << it-> u_NLO << "\n";
 			ofile << "signal.scale.uncertainty.up = " << it-> u_NLO_up << "\n";
@@ -139,7 +145,7 @@ void ReadXsec(const std::string filelist, bool useCut2 = false, bool useCut3 =
 	double LO_dn, LO_up;
 	while (1) {
 
-		masses_file >> p.gluino >> p.squark >> p.chi 
+		masses_file >> p.squark >> p.gluino >> p.chi 
 		            >> p.xsec >> LO_up >> LO_dn >> p.xsecNLO >> p.u_NLO_up >> p.u_NLO_dn;
 		//xsec in file is given in mb--->transform to pb
                 p.kfactor = p.xsecNLO/p.xsec;
@@ -258,23 +264,25 @@ void ReadPDFAcceptance(const std::string filelist) {
 	masses_file.close();
 }
 
-void ReadkFactor(const std::string filelist) {
+
+void ReadOldkFactor(const std::string filelist) {
 	std::ifstream masses_file;
 	masses_file.open(filelist.c_str());
 	std::string file;
 	point p;
 	while (1) {
-		masses_file >> p.gluino >> p.squark >> p.kfactor;
+		masses_file >> p.gluino >> p.squark >> p.Oldkfactor;
 		if (!masses_file.good())
 			break;
 		point * a = 0;
 		a = Points.Get(p.gluino, p.squark, 375);
 		if (a)
-			a->kfactor = p.kfactor;
+			a->Oldkfactor = p.Oldkfactor;
 
 	}
 	masses_file.close();
 }
+
 
 int main(void) {
 	////////////////Bino Limits
