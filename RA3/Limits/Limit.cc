@@ -32,14 +32,16 @@ void Limit(int argc, char *argv[])
     double sig_cont= config.read<double>("signal.contamination");
     double ilum    = config.read<double>("Luminosity");
     double slum    = config.read<double>("Luminosity.uncertainty");
-    double Xsection = config.read<double>("Xsection",1.0);
+    double NLOXsection = config.read<double>("NLOXsection",1.0);
     double kfactor  = config.read<double>("kfactor",1.0);
 
     int ntoys = 2000;
-    int nuisanceModel = 0; //0 = Gauss
+    int nuisanceModel = 1; //0 = Gauss, 1=lognormal
     std::string SM = "cls"; // StatisticalModel = "bayesian", "cls", ...
 
-    double effSC = eff - (sig_cont*bck) / (ilum * Xsection * kfactor);
+    double effSC = eff - (sig_cont);
+    		//Christian Autermann 5. August- ???:
+    		//*bck) / (ilum * NLOXsection);
     if(effSC<0)effSC=0;
     double seffSC = seff * effSC / eff;
 
@@ -48,16 +50,18 @@ void Limit(int argc, char *argv[])
     std::cout<<"======================================================================Limit with subtraction of Signal Contamination"<<bck<<std::endl;
 
     //limits with signal contamination removed
-    LimitResult limitSigCont;
-    roostats_cl95(ilum, slum, effSC, seffSC, bck, sbck, n, false, 
-                  nuisanceModel, SM,"plot_cl95_sigcont.pdf",12345,&limitSigCont);
+    LimitResult limitSigCont=roostats_limit(ilum, slum, effSC, seffSC, bck, sbck, n, false,
+    		                 nuisanceModel, SM,"plot_cl95_sigcont.pdf",12345);
+
     //LimitResult expected_limitSigCont = roostats_clm(ilum, slum, effSC, seffSC, bck, sbck, ntoys, nuisanceModel, SM);
 
     //limits (doing nothing about signal contamination)
     std::cout<<"======================================================================Limit w/o subtraction of Signal Contamination"<<bck<<std::endl;
-    LimitResult limit;
-    roostats_cl95(ilum, slum, eff, seff, bck, sbck, n, false,
-                  nuisanceModel,SM,"plot_cl95.pdf",12345,&limit);
+    LimitResult limit= roostats_limit(ilum, slum, eff, seff, bck, sbck, n, false,
+           nuisanceModel,SM,"plot_cl95.pdf",12345);
+
+
+
     //LimitResult expected_limit = roostats_clm(ilum, slum, eff, seff, bck, sbck, ntoys, nuisanceModel,SM);
 
 
