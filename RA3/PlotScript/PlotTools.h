@@ -8,10 +8,11 @@ class SusyScan;
 class TH2;
 
 TGraph * MakeBand(TGraph *g1, TGraph *g2, bool b=false);
+TGraph * GetExcludedRegion(TGraph * lowerLimit, double min1,double min2);
 void Smooth(TGraph * g, int n=3);
 void Smooth2D(TGraph * g, int n=3);
 TGraph* Close2D(TGraph * g);
-void drawCmsPrel();
+void drawCmsPrel(double METCut, bool onlyChannelInfo=false);
 //void MergeBins(TH1*);
 
 template<class T>

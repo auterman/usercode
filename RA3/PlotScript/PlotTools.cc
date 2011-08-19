@@ -39,14 +39,27 @@ template<class T>
 void PlotTools<T>::Area( TH2*h, double(*x)(const T*), double(*y)(const T*), 
                          double(*f)(const T*) )
 {
-  //std::cout<< _scan->size() <<",  &scan="<<_scan<<std::endl;
+  std::cout<< _scan->size() <<",  &scan="<<_scan<<std::endl;
   for (typename std::vector<T*>::const_iterator it=_scan->begin();it!=_scan->end();++it){
-	  //std::cout<<"x value: "<<x(*it)<< "set bin x"<<h->GetXaxis()->FindBin(x(*it))<<std::endl;
-	  //std::cout<<"y value: "<<y(*it)<<h->GetYaxis()->FindBin(y(*it))<<std::endl;
-	 // std::cout<< "value "<<f(*it)<<std::endl;
+//	  std::cout<<"x value: "<<x(*it)<< "set bin x"<<h->GetXaxis()->FindBin(x(*it))<<std::endl;
+//	  std::cout<<"y value: "<<y(*it)<<"set bin y"<<h->GetYaxis()->FindBin(y(*it))<<std::endl;
+//	  std::cout<< "value "<<f(*it)<<std::endl;
+//	  if(f(*it)<0.0001){
+//		  	  std::cout<<"x value: "<<x(*it)<< "set bin x"<<h->GetXaxis()->FindBin(x(*it))<<std::endl;
+//		  	  std::cout<<"y value: "<<y(*it)<<"set bin y"<<h->GetYaxis()->FindBin(y(*it))<<std::endl;
+//	  }
+	  double oldbincontent=h->GetBinContent( h->GetXaxis()->FindBin(x(*it)),
+              h->GetYaxis()->FindBin(y(*it)));
+	  if(oldbincontent!=0){
+//		  std::cout<< "ERROR===================================old bin content is "<<oldbincontent<<std::endl;
+//		  std::cout<<"x value: "<<x(*it)<< "set bin x"<<h->GetXaxis()->FindBin(x(*it))<<std::endl;
+//		  	  std::cout<<"y value: "<<y(*it)<<"set bin y"<<h->GetYaxis()->FindBin(y(*it))<<std::endl;
+	  }
     h->SetBinContent( h->GetXaxis()->FindBin(x(*it)), 
                       h->GetYaxis()->FindBin(y(*it)), f(*it) );
+
   } 
+
 }
 
 template<class T>
@@ -286,7 +299,24 @@ bool PlotTools<T>::sort_TGraph::operator()(const TGraph*g1, const TGraph*g2)
 { 
    return g1->GetN() > g2->GetN();
 }
+TGraph * GetExcludedRegion(TGraph * lowerLimit, double min1,double min2){
+	TGraph* excludedRegion = new TGraph(lowerLimit->GetN()+2);
+	  int nbins = lowerLimit->GetN();
 
+	  for(int i=0; i<nbins+1; i++){
+	    double x,y;
+	    lowerLimit->GetPoint(i,x,y);
+	    excludedRegion->SetPoint(i,x,y);
+	  }
+	  excludedRegion->SetPoint(nbins,min1,min2);
+	  excludedRegion->SetPoint(nbins+1,2000,min2);
+	  //excludedRegion->SetPoint(nbins+2,min1,2000);
+
+
+	  excludedRegion->SetFillStyle(3004);
+	  return excludedRegion;
+
+}
 TGraph * MakeBand(TGraph *g1, TGraph *g2, bool b){
   //std::cout<<"MAKE BAND!"<<b<<std::endl;
   TGraph * res = new TGraph(g1->GetN()+g2->GetN()+1);
@@ -313,20 +343,48 @@ TGraph * MakeBand(TGraph *g1, TGraph *g2, bool b){
   res->SetFillStyle(4050);
   return res;
 }
-void drawCmsPrel() {
-	double intLumi=1.09;
+std::string getStringFromInt(int i) {
+	char result[100];
+	sprintf(result, "%d", i);
+	std::string ret = result;
+	return " " + ret;
+	//---------
+}
+
+void drawCmsPrel(double METCut, bool onlyChannelInfo) {
+	double intLumi=1.14;
 	TLatex as;
-	as.SetTextSize(0.025);
+	as.SetNDC(true);
+	as.SetTextSize(0.035);
 	as.SetTextFont(42);//ms.SetTextColor(12);
+	std::string out="";
+	if(!onlyChannelInfo){
+	out="#int #font[12]{L}dt = %.2ffb^{  -1}";
+	as.DrawLatex(
+				0.32,
+				0.93,
+				Form(out.c_str(),
+						intLumi));
+	}
+
+		//1#gamma, >=3 jets, MET>"+getStringFromInt(METCut)+" GeV ";
+		if(METCut==0){
+			out="1#gamma, >=3 jets";
+		}
+
+	else{
+		out="1#gamma, >=3 jets, MET>"+getStringFromInt(METCut)+" GeV ";
+
+	}
 
 	as.DrawLatex(
-			900,
-			2060,
-			Form(
-					"#int #font[12]{L}dt = %.2ffb^{  -1}            1#gamma, >=3 jets, MET>100 GeV ",
-					intLumi));
+			0.57,
+			0.93,
+			Form(out.c_str()));
+	if(!onlyChannelInfo){
 	as.SetTextSize(0.04);
-	as.DrawLatex(50, 2060, "CMS preliminary");
+	as.DrawLatex(0.02, 0.93, "CMS preliminary");
+	}
 }
 void Smooth(TGraph * g, int N)
 {

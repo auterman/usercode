@@ -18,19 +18,30 @@ public:
 
 	double Mgluino;
 	double Msquark;
+	double MNeutr;
 	double signal_acceptance;
 	double signal_contamination;
+	double triggerEffN90Hits, triggerEff;
 	double ExpXsecLimit;
 	double ObsXsecLimit;
 	double ExpXsecLimitM1;
 	double ExpXsecLimitP1;
+	double ExpXsecLimitM2;
+	double ExpXsecLimitP2;
 
 	double ExpXsecLimitSigCont;
-		double ObsXsecLimitSigCont;
-		double ExpXsecLimitM1SigCont;
-		double ExpXsecLimitP1SigCont;
+	double ObsXsecLimitSigCont;
+	double ExpXsecLimitM1SigCont;
+	double ExpXsecLimitP1SigCont;
+	double ExpXsecLimitM2SigCont;
+	double ExpXsecLimitP2SigCont;
 
-	double Xsection;
+	double NLOXsection;
+	double NLOXSecUp, NLOXSecDown;
+	double PDFXsectionErr;
+
+	double Luminosity;
+	double background;
 
 private:
 	void SetPtr();

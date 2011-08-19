@@ -25,7 +25,7 @@ class TheLimits{
 
   template<class T>
   void ExpandGrid(double(*x)(const T*), double(*y)(const T*));
-  
+  int GetScanSize(){return _scan.size();};
   std::vector<SusyScan*> * GetScan(){return &_scan;}
   std::vector<GeneratorMasses*> * GetGeneratorMasses(){return &_masses;}
   
@@ -59,11 +59,11 @@ void TheLimits::ExpandGrid(double(*x)(const T*), double(*y)(const T*) )
 	T*  ny = new T((**it + **next_y) * 0.5);
 	new_grid.push_back( ny );
 
-	//std::cout 
-	//<< "l<>x:"<<x(*it)<< ",y:"<<y(*it)<<", sigma"<<(*it)->Xsection
-	//<< " <>x:"<<x(ny) << ",y:"<<y(ny)<<", sigma="<<ny->Xsection
-	//<< " r<>x:"<<x(*next_y)<< ",y:"<<y(*next_y)<<", sigma="<<(*next_y)->Xsection
-	//<<std::endl;
+//	std::cout
+//	<< "l<>x:"<<x(*it)<< ",y:"<<y(*it)<<", sigma"<<(*it)->NLOXsection
+//	<< " <>x:"<<x(ny) << ",y:"<<y(ny)<<", sigma="<<ny->NLOXsection
+//	<< " r<>x:"<<x(*next_y)<< ",y:"<<y(*next_y)<<", sigma="<<(*next_y)->NLOXsection
+//	<<std::endl;
 	
     }
     if (next_x!=_scan.end()) {  

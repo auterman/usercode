@@ -26,6 +26,7 @@ void TheLimits::Fill(const std::string filelist)
       add( new SusyScan(file));
    }
    std::cout << filelist << ": "<< _scan.size() <<std::endl;
+   //check
    masses_file.close();
 }
 
