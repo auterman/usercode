@@ -18,7 +18,7 @@ public:
 
 	double Mgluino;
 	double Msquark;
-	double MNeutr;
+	double Mchi1;
 	double signal_acceptance;
 	double signal_contamination;
 	double triggerEffN90Hits, triggerEff;

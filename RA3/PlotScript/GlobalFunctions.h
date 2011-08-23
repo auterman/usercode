@@ -24,8 +24,8 @@ double Mgluino(const SusyScan* p) {
 double Msquark(const SusyScan* p) {
 	return p->Msquark;
 }
-double MNeutr(const SusyScan* p) {
-	return p->MNeutr;
+double Mchi1(const SusyScan* p) {
+	return p->Mchi1;
 }
 //std::cout<<Mgluino(p)<<"-"<<Msquark(p)<<"===="<<p->signal_acceptance<<std::endl;
 double SignalAcceptance(const SusyScan* p) {
@@ -79,36 +79,36 @@ double ObsXsecLimit(const SusyScan* p) {
 }
 
 double ExpExclusion(const SusyScan* p) {
-	return (ExpXsecLimit(p) > NLOXsection(p)&&ExpXsecLimit(p)>0.01?1:0.01);
+	return (ExpXsecLimit(p) > NLOXsection(p)?1:0.01);
 }
 double ObsExclusion(const SusyScan* p) {
-	return (ObsXsecLimit(p) > NLOXsection(p)&&ObsXsecLimit(p)>0.01?1:0.01);
+	return (ObsXsecLimit(p) > NLOXsection(p)?1:0.01);
 }
 
 double ObsExclusionM1(const SusyScan* p) {
-	return (ObsXsecLimit(p) > NLOXsectionM1(p)&&ObsXsecLimit(p)>0.01?1:0.01);
+	return (ObsXsecLimit(p) > NLOXsectionM1(p)?1:0.01);
 }
 double ObsExclusionP1(const SusyScan* p) {
-	return (ObsXsecLimit(p) > NLOXsectionP1(p)&&ObsXsecLimit(p)>0.01?1:0.01);
+	return (ObsXsecLimit(p) > NLOXsectionP1(p)?1:0.01);
 }
 double ObsExclusionM2(const SusyScan* p) {
-	return (ObsXsecLimit(p) > NLOXsectionM2(p)&&ObsXsecLimit(p)>0.01?1:0.01);
+	return (ObsXsecLimit(p) > NLOXsectionM2(p)?1:0.01);
 }
 double ObsExclusionP2(const SusyScan* p) {
-	return (ObsXsecLimit(p) > NLOXsectionP2(p)&&ObsXsecLimit(p)>0.01?1:0.01);
+	return (ObsXsecLimit(p) > NLOXsectionP2(p)?1:0.01);
 }
 
 double ExpExclusionM1(const SusyScan* p) {
-	return (p->ExpXsecLimitM1>NLOXsection(p)&&p->ExpXsecLimitM1>0.01?1:0.01);
+	return (p->ExpXsecLimitM1>NLOXsection(p)?1:0.01);
 }
 double ExpExclusionP1(const SusyScan* p) {
-	return (p->ExpXsecLimitP1>NLOXsection(p)&&p->ExpXsecLimitP1>0.01?1:0.01);
+	return (p->ExpXsecLimitP1>NLOXsection(p)?1:0.01);
 }
 double ExpExclusionM2(const SusyScan* p) {
-	return (p->ExpXsecLimitM2>NLOXsection(p)&&p->ExpXsecLimitM2>0.01?1:0.01);
+	return (p->ExpXsecLimitM2>NLOXsection(p)?1:0.01);
 }
 double ExpExclusionP2(const SusyScan* p) {
-	return (p->ExpXsecLimitP2>NLOXsection(p)&&p->ExpXsecLimitP2>0.01?1:0.01);
+	return (p->ExpXsecLimitP2>NLOXsection(p)?1:0.01);
 }
 
 double ExpXsecLimitSigCont(const SusyScan* p) {
@@ -119,40 +119,40 @@ double ObsXsecLimitSigCont(const SusyScan* p) {
 }
 
 double ExpExclusionSigCont(const SusyScan* p) {
-	return (ExpXsecLimitSigCont(p) > NLOXsection(p)&&ExpXsecLimitSigCont(p)>0.01?1:0.01);
+	return (ExpXsecLimitSigCont(p) > NLOXsection(p)?1:0.01);
 }
 double ObsExclusionSigCont(const SusyScan* p) {
-	return (ObsXsecLimitSigCont(p) > NLOXsection(p)&&ObsXsecLimitSigCont(p)>0.01?1:0.01);
+	return (ObsXsecLimitSigCont(p) > NLOXsection(p)?1:0.01);
 }
 
 double ObsExclusionM1SigCont(const SusyScan* p) {
 
-	return (ObsXsecLimitSigCont(p) > NLOXsectionM1(p)&&ObsXsecLimitSigCont(p)>0.01?1:0.01);
+	return (ObsXsecLimitSigCont(p) > NLOXsectionM1(p)?1:0.01);
 }
 double ObsExclusionP1SigCont(const SusyScan* p) {
 
-	return (ObsXsecLimitSigCont(p) > NLOXsectionP1(p)&&ObsXsecLimitSigCont(p)>0.01?1:0.01);
+	return (ObsXsecLimitSigCont(p) > NLOXsectionP1(p)?1:0.01);
 }
 double ObsExclusionM2SigCont(const SusyScan* p) {
 
-	return (ObsXsecLimitSigCont(p) > NLOXsectionM2(p)&&ObsXsecLimitSigCont(p)>0.01?1:0.01);
+	return (ObsXsecLimitSigCont(p) > NLOXsectionM2(p)?1:0.01);
 }
 double ObsExclusionP2SigCont(const SusyScan* p) {
 
-	return (ObsXsecLimitSigCont(p) > NLOXsectionP2(p)&&ObsXsecLimitSigCont(p)>0.01?1:0.01);
+	return (ObsXsecLimitSigCont(p) > NLOXsectionP2(p)?1:0.01);
 }
 
 double ExpExclusionM1SigCont(const SusyScan* p) {
-	return (p->ExpXsecLimitM1SigCont>NLOXsection(p)&&p->ExpXsecLimitM1SigCont>0.01?1:0.01);
+	return (p->ExpXsecLimitM1SigCont>NLOXsection(p)?1:0.01);
 }
 double ExpExclusionP1SigCont(const SusyScan* p) {
-	return (p->ExpXsecLimitP1SigCont>NLOXsection(p)&&p->ExpXsecLimitP1SigCont>0.01?1:0.01);
+	return (p->ExpXsecLimitP1SigCont>NLOXsection(p)?1:0.01);
 }
 double ExpExclusionM2SigCont(const SusyScan* p) {
-	return (p->ExpXsecLimitM2SigCont>NLOXsection(p)&&p->ExpXsecLimitM2SigCont>0.01?1:0.01);
+	return (p->ExpXsecLimitM2SigCont>NLOXsection(p)?1:0.01);
 }
 double ExpExclusionP2SigCont(const SusyScan* p) {
-	return (p->ExpXsecLimitP2SigCont>NLOXsection(p)&&p->ExpXsecLimitP2SigCont>0.01?1:0.01);
+	return (p->ExpXsecLimitP2SigCont>NLOXsection(p)?1:0.01);
 }
 
 void setPlottingStyle(TH1F& hsig) {

@@ -23,6 +23,7 @@ class TheLimits{
 
   void match();
 
+  void FillEmptyPointsByInterpolationInMsqMgl();  
   template<class T>
   void ExpandGrid(double(*x)(const T*), double(*y)(const T*));
   int GetScanSize(){return _scan.size();};

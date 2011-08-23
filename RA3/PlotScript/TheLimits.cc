@@ -105,6 +105,58 @@ void TheLimits::OverwriteLimits(std::string flag)
 
 }
 
+void TheLimits::FillEmptyPointsByInterpolationInMsqMgl()
+{
+  //first find out where to expect points
+  std::cout<< "start: TheLimits::FillEmptyPointsByInterpolationInMsqMgl()" <<std::endl;
+  double gridy=9999, miny=9999, maxy=0, gridx=9999, minx=9999, maxx=0;
+  for (std::vector<SusyScan*>::const_iterator it=_scan.begin(); it!=_scan.end(); ++it){
+    if ((*it)->Msquark<minx) minx=(*it)->Msquark;
+    if ((*it)->Msquark>maxx) maxx=(*it)->Msquark;
+    if ((*it)->Mgluino<miny) miny=(*it)->Mgluino;
+    if ((*it)->Mgluino>maxy) maxy=(*it)->Mgluino;
+    for (std::vector<SusyScan*>::const_iterator zt=it+1; zt!=_scan.end(); ++zt){
+      if ( fabs((*it)->Msquark - (*zt)->Msquark) < gridx && 
+           (*it)->Mgluino==(*zt)->Mgluino) gridx = fabs((*it)->Msquark - (*zt)->Msquark);
+      if ( fabs((*it)->Mgluino - (*zt)->Mgluino && 
+           (*it)->Msquark==(*zt)->Msquark) < gridy ) gridy = fabs((*it)->Mgluino - (*zt)->Mgluino);
+    }
+  } 
+  //Now, interpolate
+  gridx=80;
+  for (std::vector<SusyScan*>::const_iterator it=_scan.begin(); it!=_scan.end(); ++it){
+     //find next neighbor in x and y for it:
+    std::vector<SusyScan*>::const_iterator nextx=_scan.end(), nexty=_scan.end();
+    double dx=9999, dy=9999; 
+    for (std::vector<SusyScan*>::const_iterator zt=_scan.begin(); zt!=_scan.end(); ++zt){
+      if (it==zt) continue;
+      if ( fabs((*it)->Msquark - (*zt)->Msquark) < dx && 
+           (*it)->Msquark < (*zt)->Msquark && (*it)->Mgluino==(*zt)->Mgluino) {
+        dx = fabs((*it)->Msquark - (*zt)->Msquark);
+	nextx = zt;
+      }	
+      if ( fabs((*it)->Mgluino - (*zt)->Mgluino) < dy && 
+           (*it)->Mgluino < (*zt)->Mgluino && (*it)->Msquark==(*zt)->Msquark) {
+        dy = fabs((*it)->Mgluino - (*zt)->Mgluino);
+	nexty = zt;
+      }
+      //if (dx==gridx && dy==gridy) break;	
+      if (dx==gridx) break;	
+    }
+    //interpolate in x:
+    if (dx!=gridx && nextx!=_scan.end()){
+        //std::cout << "m0 = " <<(*it)->Msquark  << ", m12="<< (*it)->Mgluino << std::endl;
+       double dist = (*nextx)->Msquark - (*it)->Msquark;
+       for (double x=gridx; x<dist; x+=gridx ){
+         //std::cout << "adding m0 = " <<x << ", m12="<< (*it)->Mgluino << std::endl;
+	 _scan.push_back( new SusyScan( ( (**it * (x/dist)) + (**nextx * (1.-x/dist)) )));
+       }	 
+    }	
+
+  }
+  std::cout<< "done: TheLimits::FillEmptyPointsByInterpolationInMsqMgl()" <<std::endl;
+}
+
 
 //void TheLimits::ExpandGrid<SusyScan>(double(*x)(const SusyScan*), double(*y)(const SusyScan*) );
 

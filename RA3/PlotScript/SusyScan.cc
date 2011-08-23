@@ -21,7 +21,7 @@ SusyScan::SusyScan(std::string filename) {
 
 	Mgluino = config.read<double> ("gluino", 0);
 	Msquark = config.read<double> ("squark", 0);
-	MNeutr = config.read<double> ("chi1", 0);
+	Mchi1 = config.read<double> ("chi1", 0);
 	// std::cout <<"MASS:"<< Mgluino << ": "<< Msquark <<std::endl;
 
 	signal_acceptance = config.read<double> ("signal.acceptance", 0);
@@ -36,30 +36,30 @@ SusyScan::SusyScan(std::string filename) {
 	NLOXSecDown = config.read<double> ("signal.scale.uncertainty.dn", 0);
 	PDFXsectionErr = config.read<double> ("signal.PDF.uncertainty", 0);
 
-	ExpXsecLimit = config.read<double> ("limit.cls.expected", 0);
-	ObsXsecLimit = config.read<double> ("limit.cls.observed", 0);
+	ExpXsecLimit = config.read<double> ("limit.cls.expected", 9999);
+	ObsXsecLimit = config.read<double> ("limit.cls.observed", 9999);
 
-	ExpXsecLimitM1 = config.read<double> ("limit.cls.expected.m1sigma", 0);
-	ExpXsecLimitP1 = config.read<double> ("limit.cls.expected.p1sigma", 0);
-	ExpXsecLimitM2 = config.read<double> ("limit.cls.expected.m2sigma", 0);
-	ExpXsecLimitP2 = config.read<double> ("limit.cls.expected.p2sigma", 0);
+	ExpXsecLimitM1 = config.read<double> ("limit.cls.expected.m1sigma", 9999);
+	ExpXsecLimitP1 = config.read<double> ("limit.cls.expected.p1sigma", 9999);
+	ExpXsecLimitM2 = config.read<double> ("limit.cls.expected.m2sigma", 9999);
+	ExpXsecLimitP2 = config.read<double> ("limit.cls.expected.p2sigma", 9999);
 
-	ExpXsecLimitSigCont = config.read<double> ("limitSC.cls.expected", 0);
-	ObsXsecLimitSigCont = config.read<double> ("limitSC.cls.observed", 0);
+	ExpXsecLimitSigCont = config.read<double> ("limitSC.cls.expected", 9999);
+	ObsXsecLimitSigCont = config.read<double> ("limitSC.cls.observed", 9999);
 
 	ExpXsecLimitM1SigCont = config.read<double> (
-			"limitSC.cls.expected.m1sigma", 0);
+			"limitSC.cls.expected.m1sigma", 9999);
 	ExpXsecLimitP1SigCont = config.read<double> (
-			"limitSC.cls.expected.p1sigma", 0);
+			"limitSC.cls.expected.p1sigma", 9999);
 
 	ExpXsecLimitM2SigCont = config.read<double> (
-			"limitSC.cls.expected.m2sigma", 0);
+			"limitSC.cls.expected.m2sigma", 9999);
 	ExpXsecLimitP2SigCont = config.read<double> (
-			"limitSC.cls.expected.p2sigma", 0);
+			"limitSC.cls.expected.p2sigma", 9999);
 
-	Luminosity = config.read<double> ("Luminosity", 0);
+	Luminosity = config.read<double> ("Luminosity", 9999);
 
-	background = config.read<double> ("background", 0);
+	background = config.read<double> ("background", 9999);
 
 }
 
@@ -69,6 +69,7 @@ void SusyScan::SetPtr() {
 
 	p.push_back(&Mgluino);
 	p.push_back(&Msquark);
+	p.push_back(&Mchi1);
 	p.push_back(&signal_acceptance);
 	p.push_back(&signal_contamination);
 	p.push_back(&triggerEffN90Hits);
