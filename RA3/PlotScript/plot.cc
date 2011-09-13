@@ -26,6 +26,9 @@
 #include "TMarker.h"
 #include "TPaveText.h"
 
+#include <iostream>
+#include <stdlib.h>
+using namespace std;
 #include <string>
 #include <cmath>
 #include <stdio.h>
@@ -34,28 +37,36 @@ struct ExclusionCurves {
 	TGraph * obs;
 	TGraph * exp;
 	TGraph * onesigband;
+
 };
-
-
+struct ExclCurvesContainer {
+	double lumi;
+	ExclusionCurves jet2;
+	ExclusionCurves jet3;
+	ExclusionCurves best;
+};
 ExclusionCurves DrawPlotsChi1(TCanvas * c1, PlotTools<SusyScan> *plotTools,
-		PlotTools<SusyScan> *plotToolsInterpol,
-		string nameappendix,
-		bool inclEdges = false, double METCut = 200, bool bandAroundExpLimit = false) {
-		
+		PlotTools<SusyScan> *plotToolsInterpol, string nameappendix,
+		bool inclEdges = false, double METCut = 200, bool bandAroundExpLimit =
+				false) {
+	std::system(("mkdir results/" + nameappendix).c_str());
 	c1->SetLogz(1);
 
 	// cross-section in M0 - M1/2
 	c1->SetTopMargin(0.11);
 	c1->SetRightMargin(0.2);
-	TH2F*hxsec = new TH2F("xsec",
-			";m_{#chi^{0}_{1}} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); cross section [pb]", 
-			10, 150, 1050.1, 24, 160, 2000.1);
+	TH2F
+			*hxsec =
+					new TH2F(
+							"xsec",
+							";m_{#chi^{0}_{1}} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); cross section [pb]",
+							10, 150, 1050.1, 24, 160, 2000.1);
 	plotTools->Area(hxsec, Mchi1, Mgluino, NLOXsection);
 	hxsec->SetMinimum(0.00001);
 	hxsec->GetZaxis()->SetTitleOffset(1.5);
 	hxsec->Draw("colz");
-	drawCmsPrel(METCut);
-	string nameXsPlot = "results/" + nameappendix + "Xsection_3jet";
+	drawCmsPrel(plotTools->SingleValue(Luminosity), METCut);
+	string nameXsPlot = "results/" + nameappendix + "/Xsection_3jet";
 	c1->SaveAs((nameXsPlot + ".pdf").c_str());
 	c1->SaveAs((nameXsPlot + ".eps").c_str());
 
@@ -63,9 +74,12 @@ ExclusionCurves DrawPlotsChi1(TCanvas * c1, PlotTools<SusyScan> *plotTools,
 	c1->SetRightMargin(0.2);
 	c1->SetTopMargin(0.11);
 	c1->SetLogz(0);
-	TH2F*hsigacc = new TH2F("sigacc",
-			";m_{#chi^{0}_{1}} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); Signal Acceptance [%]", 
-			10, 150, 1050.1, 24, 160, 2000.1);
+	TH2F
+			*hsigacc =
+					new TH2F(
+							"sigacc",
+							";m_{#chi^{0}_{1}} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); Signal Acceptance [%]",
+							10, 150, 1050.1, 24, 160, 2000.1);
 	plotTools->Area(hsigacc, Mchi1, Mgluino, SignalAcceptance);
 	hsigacc->SetMinimum(0.0);
 	hsigacc->SetMaximum(55);
@@ -73,29 +87,30 @@ ExclusionCurves DrawPlotsChi1(TCanvas * c1, PlotTools<SusyScan> *plotTools,
 	hsigacc->SetContour(14);
 	hsigacc->GetZaxis()->SetTitleOffset(1.5);
 	hsigacc->Draw("colz");
-	drawCmsPrel(METCut);
-	string nameSigAcc = "results/" + nameappendix + "SigAcc3jet";
+	drawCmsPrel(plotTools->SingleValue(Luminosity), METCut);
+	string nameSigAcc = "results/" + nameappendix + "/SigAcc3jet";
 	c1->SaveAs((nameSigAcc + ".pdf").c_str());
 	c1->SaveAs((nameSigAcc + ".eps").c_str());
 
-		
 	// Observed Limit in M0 - M1/2
 	c1->SetRightMargin(0.2);
 	c1->SetTopMargin(0.11);
 	c1->SetLogz(0);
 	TH2F*hobslimit = 0;
-	if (nameappendix=="Chi1_SQ2500") {
-	  hobslimit = new TH2F( "obslimit",
-	 		";m_{#chi^{0}_{1}} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); (Observed) 95% CL Upper Limit, pb",
-			10, 150, 1050.1, 24, 160, 2000.1);
-	  plotTools->Area(hobslimit, Mchi1, Mgluino, ObsXsecLimit);
+	if (nameappendix == "Chi1_SQ2500") {
+		hobslimit
+				= new TH2F(
+						"obslimit",
+						";m_{#chi^{0}_{1}} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); (Observed) 95% CL Upper Limit, pb",
+						10, 150, 1050.1, 24, 160, 2000.1);
+		plotTools->Area(hobslimit, Mchi1, Mgluino, ObsXsecLimit);
 	}
 	hobslimit->SetMinimum(0.005);
 	//hobslimit->SetMaximum(0.2);
 	hobslimit->Draw("colz");
 	hobslimit->GetZaxis()->SetTitleOffset(1.5);
-	drawCmsPrel(METCut);
-	string nameObs = "results/" + nameappendix + "ObsLimit_3jet";
+	drawCmsPrel(plotTools->SingleValue(Luminosity), METCut);
+	string nameObs = "results/" + nameappendix + "/ObsLimit_3jet";
 	c1->SaveAs((nameObs + ".pdf").c_str());
 	c1->SaveAs((nameObs + ".eps").c_str());
 
@@ -104,18 +119,20 @@ ExclusionCurves DrawPlotsChi1(TCanvas * c1, PlotTools<SusyScan> *plotTools,
 	c1->SetTopMargin(0.11);
 	c1->SetLogz(0);
 	TH2F*hexplimit = 0;
-	if (nameappendix=="Chi1_SQ2500") {
-	  hexplimit = new TH2F("explimit",
-	   		";m_{#chi^{0}_{1}} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); (Expected) 95% CL Upper Limit, pb",
-			10, 150, 1050.1, 24, 160, 2000.1);
- 	  plotTools->Area(hexplimit, Mchi1, Mgluino, ExpXsecLimit);
+	if (nameappendix == "Chi1_SQ2500") {
+		hexplimit
+				= new TH2F(
+						"explimit",
+						";m_{#chi^{0}_{1}} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); (Expected) 95% CL Upper Limit, pb",
+						10, 150, 1050.1, 24, 160, 2000.1);
+		plotTools->Area(hexplimit, Mchi1, Mgluino, ExpXsecLimit);
 	}
 	hexplimit->SetMinimum(0.005);
 	hexplimit->SetMaximum(0.3);
 	hexplimit->Draw("colz");
 	hexplimit->GetZaxis()->SetTitleOffset(1.5);
-	drawCmsPrel(METCut);
-	string nameExp = "results/" + nameappendix + "ExpLimit_3jet";
+	drawCmsPrel(plotTools->SingleValue(Luminosity), METCut);
+	string nameExp = "results/" + nameappendix + "/ExpLimit_3jet";
 	c1->SaveAs((nameExp + ".pdf").c_str());
 	c1->SaveAs((nameExp + ".eps").c_str());
 
@@ -123,9 +140,12 @@ ExclusionCurves DrawPlotsChi1(TCanvas * c1, PlotTools<SusyScan> *plotTools,
 	c1->SetRightMargin(0.2);
 	c1->SetTopMargin(0.11);
 	c1->SetLogz(0);
-	TH2F*TestCont = new TH2F("texcl",
-			";m_{#chi^{0}_{1}} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); 95% CL Expected Exclusion",
-			10, 150, 1050.1, 24, 160, 2000.1);
+	TH2F
+			*TestCont =
+					new TH2F(
+							"texcl",
+							";m_{#chi^{0}_{1}} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); 95% CL Expected Exclusion",
+							10, 150, 1050.1, 24, 160, 2000.1);
 	/// Find the correct contour for any of the exclusion plots--->get right contour number!::::::::::::::::::::::
 	plotToolsInterpol->Area(TestCont, Mchi1, Mgluino, ObsExclusionSigCont);
 	/// try "3" contour levels:
@@ -154,9 +174,6 @@ ExclusionCurves DrawPlotsChi1(TCanvas * c1, PlotTools<SusyScan> *plotTools,
 	c1->SaveAs(nameTestCont.c_str());
 	TFile * output = new TFile("output.root", "Update");
 
-
-
-
 	//  //////////////////////////////////////////////////////////////////////////////////////////////
 	//
 	// Exclusion in M0 - M1/2 =================================================================================
@@ -164,35 +181,58 @@ ExclusionCurves DrawPlotsChi1(TCanvas * c1, PlotTools<SusyScan> *plotTools,
 	c1->SetRightMargin(0.08);
 	c1->SetTopMargin(0.11);
 	c1->SetLogz(0);
-	TH2F*hexcl = new TH2F("hexcl",
-			";m_{#chi^{0}_{1}} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); 95% CL Exclusion", 
-			8, 150, 800, 24, 160, 2000.1);
+	TH2F
+			*hexcl =
+					new TH2F(
+							"hexcl",
+							";m_{#chi^{0}_{1}} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); 95% CL Exclusion",
+							8, 150, 800, 24, 160, 2000.1);
 
 	// hs defined range in which the contrours are calculated, the binning matters! binning should be equal to signal-scan
 	TH2F * hs = new TH2F("hs", "", 11, 50, 1050.1, 24, 160, 2000.1);
 	// usage: GetContour( <range-hist>, <x-var>, <y-var>, <limit-function>, <contour-levels>, <contour index>, <color>, <style> )
 
-	TGraph * gCLsExpExcl_LO = plotToolsInterpol->GetContour(hs, Mchi1,Mgluino, ExpExclusion, 3, 0, 2, 4);
-	TGraph * gCLsObsExcl_LO = plotToolsInterpol->GetContour(hs, Mchi1,Mgluino, ObsExclusion, 3, 0, 2, 1);
-	TGraph * gCLsExpExclm1 = plotToolsInterpol->GetContour(hs, Mchi1,Mgluino, ExpExclusionM1, 3, 0, 5, 2);
-	TGraph * gCLsExpExclp1 = plotToolsInterpol->GetContour(hs, Mchi1,Mgluino, ExpExclusionP1, 3, 0, 5, 2);
-	TGraph * gCLsExpExclm2 = plotToolsInterpol->GetContour(hs, Mchi1,Mgluino, ExpExclusionM2, 3, 0, 5, 2);
-	TGraph * gCLsExpExclp2 = plotToolsInterpol->GetContour(hs, Mchi1,Mgluino, ExpExclusionP2, 3, 0, 5, 2);
-	TGraph * gCLsObsExclm1 = plotToolsInterpol->GetContour(hs, Mchi1,Mgluino, ObsExclusionM1, 3, 0, 5, 2);
-	TGraph * gCLsObsExclp1 = plotToolsInterpol->GetContour(hs, Mchi1,Mgluino, ObsExclusionP1, 3, 0, 5, 2);
-	TGraph * gCLsObsExclm2 = plotToolsInterpol->GetContour(hs, Mchi1,Mgluino, ObsExclusionM2, 3, 0, 5, 2);
-	TGraph * gCLsObsExclp2 = plotToolsInterpol->GetContour(hs, Mchi1,Mgluino, ObsExclusionP2, 3, 0, 5, 2);
+	TGraph * gCLsExpExcl_LO = plotToolsInterpol->GetContour(hs, Mchi1, Mgluino,
+			ExpExclusion, 3, 0, 2, 4);
+	TGraph * gCLsObsExcl_LO = plotToolsInterpol->GetContour(hs, Mchi1, Mgluino,
+			ObsExclusion, 3, 0, 2, 1);
+	TGraph * gCLsExpExclm1 = plotToolsInterpol->GetContour(hs, Mchi1, Mgluino,
+			ExpExclusionM1, 3, 0, 5, 2);
+	TGraph * gCLsExpExclp1 = plotToolsInterpol->GetContour(hs, Mchi1, Mgluino,
+			ExpExclusionP1, 3, 0, 5, 2);
+	TGraph * gCLsExpExclm2 = plotToolsInterpol->GetContour(hs, Mchi1, Mgluino,
+			ExpExclusionM2, 3, 0, 5, 2);
+	TGraph * gCLsExpExclp2 = plotToolsInterpol->GetContour(hs, Mchi1, Mgluino,
+			ExpExclusionP2, 3, 0, 5, 2);
+	TGraph * gCLsObsExclm1 = plotToolsInterpol->GetContour(hs, Mchi1, Mgluino,
+			ObsExclusionM1, 3, 0, 5, 2);
+	TGraph * gCLsObsExclp1 = plotToolsInterpol->GetContour(hs, Mchi1, Mgluino,
+			ObsExclusionP1, 3, 0, 5, 2);
+	TGraph * gCLsObsExclm2 = plotToolsInterpol->GetContour(hs, Mchi1, Mgluino,
+			ObsExclusionM2, 3, 0, 5, 2);
+	TGraph * gCLsObsExclp2 = plotToolsInterpol->GetContour(hs, Mchi1, Mgluino,
+			ObsExclusionP2, 3, 0, 5, 2);
 
-	TGraph * gCLsExpExcl_LOSigCont= plotToolsInterpol->GetContour(hs, Mchi1,Mgluino, ExpExclusionSigCont,3,0,kRed-2, 4);
-	TGraph * gCLsObsExcl_LOSigCont= plotToolsInterpol->GetContour(hs, Mchi1,Mgluino, ObsExclusionSigCont,3,0,kRed-2, 1);
-	TGraph * gCLsExpExclm1SigCont = plotToolsInterpol->GetContour(hs, Mchi1,Mgluino, ExpExclusionM1SigCont,3,0,kOrange,2);
-	TGraph * gCLsExpExclp1SigCont = plotToolsInterpol->GetContour(hs, Mchi1,Mgluino, ExpExclusionP1SigCont, 3, 0,kOrange,2);
-	TGraph * gCLsExpExclm2SigCont = plotToolsInterpol->GetContour(hs, Mchi1,Mgluino, ExpExclusionM2SigCont, 3, 0,kOrange,2);
-	TGraph * gCLsExpExclp2SigCont = plotToolsInterpol->GetContour(hs, Mchi1,Mgluino, ExpExclusionP2SigCont, 3, 0,kOrange,2);
-	TGraph * gCLsObsExclm1SigCont = plotToolsInterpol->GetContour(hs, Mchi1,Mgluino, ObsExclusionM1SigCont, 3, 0,kOrange,2);
-	TGraph * gCLsObsExclp1SigCont = plotToolsInterpol->GetContour(hs, Mchi1,Mgluino, ObsExclusionP1SigCont, 3, 0,kOrange,2);
-	TGraph * gCLsObsExclm2SigCont = plotToolsInterpol->GetContour(hs, Mchi1,Mgluino, ObsExclusionM2SigCont, 3, 0,kOrange,2);
-	TGraph * gCLsObsExclp2SigCont = plotToolsInterpol->GetContour(hs, Mchi1,Mgluino, ObsExclusionP2SigCont, 3, 0,kOrange,2);
+	TGraph * gCLsExpExcl_LOSigCont = plotToolsInterpol->GetContour(hs, Mchi1,
+			Mgluino, ExpExclusionSigCont, 3, 0, kRed - 2, 4);
+	TGraph * gCLsObsExcl_LOSigCont = plotToolsInterpol->GetContour(hs, Mchi1,
+			Mgluino, ObsExclusionSigCont, 3, 0, kRed - 2, 1);
+	TGraph * gCLsExpExclm1SigCont = plotToolsInterpol->GetContour(hs, Mchi1,
+			Mgluino, ExpExclusionM1SigCont, 3, 0, kOrange, 2);
+	TGraph * gCLsExpExclp1SigCont = plotToolsInterpol->GetContour(hs, Mchi1,
+			Mgluino, ExpExclusionP1SigCont, 3, 0, kOrange, 2);
+	TGraph * gCLsExpExclm2SigCont = plotToolsInterpol->GetContour(hs, Mchi1,
+			Mgluino, ExpExclusionM2SigCont, 3, 0, kOrange, 2);
+	TGraph * gCLsExpExclp2SigCont = plotToolsInterpol->GetContour(hs, Mchi1,
+			Mgluino, ExpExclusionP2SigCont, 3, 0, kOrange, 2);
+	TGraph * gCLsObsExclm1SigCont = plotToolsInterpol->GetContour(hs, Mchi1,
+			Mgluino, ObsExclusionM1SigCont, 3, 0, kOrange, 2);
+	TGraph * gCLsObsExclp1SigCont = plotToolsInterpol->GetContour(hs, Mchi1,
+			Mgluino, ObsExclusionP1SigCont, 3, 0, kOrange, 2);
+	TGraph * gCLsObsExclm2SigCont = plotToolsInterpol->GetContour(hs, Mchi1,
+			Mgluino, ObsExclusionM2SigCont, 3, 0, kOrange, 2);
+	TGraph * gCLsObsExclp2SigCont = plotToolsInterpol->GetContour(hs, Mchi1,
+			Mgluino, ObsExclusionP2SigCont, 3, 0, kOrange, 2);
 
 	TGraph * gCLsObsExcl_LO_Smooth = (TGraph *) gCLsObsExcl_LO->Clone("1");
 	TGraph * gCLsExpExcl_LO_Smooth = (TGraph *) gCLsExpExcl_LO->Clone("2");
@@ -205,39 +245,49 @@ ExclusionCurves DrawPlotsChi1(TCanvas * c1, PlotTools<SusyScan> *plotTools,
 	TGraph * gCLsObsExclm2_Smooth = (TGraph *) gCLsObsExclm1->Clone("9");
 	TGraph * gCLsObsExclp2_Smooth = (TGraph *) gCLsObsExclp1->Clone("10");
 
-	TGraph * gCLsObsExcl_LO_SmoothSigCont =(TGraph *) gCLsObsExcl_LOSigCont->Clone("1");
-	TGraph * gCLsExpExcl_LO_SmoothSigCont =	(TGraph *) gCLsExpExcl_LOSigCont->Clone("2");
-	TGraph * gCLsExpExclm1_SmoothSigCont =	(TGraph *) gCLsExpExclm1SigCont->Clone("3");
-	TGraph * gCLsExpExclp1_SmoothSigCont =	(TGraph *) gCLsExpExclp1SigCont->Clone("4");
-	TGraph * gCLsExpExclm2_SmoothSigCont =	(TGraph *) gCLsExpExclm2SigCont->Clone("5");
-	TGraph * gCLsExpExclp2_SmoothSigCont =	(TGraph *) gCLsExpExclp2SigCont->Clone("6");
-	TGraph * gCLsObsExclm1_SmoothSigCont =	(TGraph *) gCLsObsExclm1SigCont->Clone("7");
-	TGraph * gCLsObsExclp1_SmoothSigCont =	(TGraph *) gCLsObsExclp1SigCont->Clone("8");
-	TGraph * gCLsObsExclm2_SmoothSigCont =	(TGraph *) gCLsObsExclm2SigCont->Clone("9");
-	TGraph * gCLsObsExclp2_SmoothSigCont =	(TGraph *) gCLsObsExclp2SigCont->Clone("10");
-/*
-	//smooth contours (2D Gaussian smoothing)
-	Smooth(gCLsObsExcl_LO_Smooth, 12);
-	Smooth(gCLsExpExcl_LO_Smooth, 12);
-	Smooth(gCLsExpExclm1_Smooth, 12);
-	Smooth(gCLsExpExclp1_Smooth, 12);
-	Smooth(gCLsExpExclm2_Smooth, 12);
-	Smooth(gCLsExpExclp2_Smooth, 12);
-	Smooth(gCLsObsExclm1_Smooth, 12);
-	Smooth(gCLsObsExclp1_Smooth, 12);
-	Smooth(gCLsObsExclm2_Smooth, 12);
-	Smooth(gCLsObsExclp2_Smooth, 12);
-	Smooth(gCLsObsExcl_LO_SmoothSigCont, 12);
-	Smooth(gCLsExpExcl_LO_SmoothSigCont, 12);
-	Smooth(gCLsExpExclm1_SmoothSigCont, 12);
-	Smooth(gCLsExpExclp1_SmoothSigCont, 12);
-	Smooth(gCLsExpExclm2_SmoothSigCont, 12);
-	Smooth(gCLsExpExclp2_SmoothSigCont, 12);
-	Smooth(gCLsObsExclm1_SmoothSigCont, 12);
-	Smooth(gCLsObsExclp1_SmoothSigCont, 12);
-	Smooth(gCLsObsExclm2_SmoothSigCont, 12);
-	Smooth(gCLsObsExclp2_SmoothSigCont, 12);
-*/
+	TGraph * gCLsObsExcl_LO_SmoothSigCont =
+			(TGraph *) gCLsObsExcl_LOSigCont->Clone("1");
+	TGraph * gCLsExpExcl_LO_SmoothSigCont =
+			(TGraph *) gCLsExpExcl_LOSigCont->Clone("2");
+	TGraph * gCLsExpExclm1_SmoothSigCont =
+			(TGraph *) gCLsExpExclm1SigCont->Clone("3");
+	TGraph * gCLsExpExclp1_SmoothSigCont =
+			(TGraph *) gCLsExpExclp1SigCont->Clone("4");
+	TGraph * gCLsExpExclm2_SmoothSigCont =
+			(TGraph *) gCLsExpExclm2SigCont->Clone("5");
+	TGraph * gCLsExpExclp2_SmoothSigCont =
+			(TGraph *) gCLsExpExclp2SigCont->Clone("6");
+	TGraph * gCLsObsExclm1_SmoothSigCont =
+			(TGraph *) gCLsObsExclm1SigCont->Clone("7");
+	TGraph * gCLsObsExclp1_SmoothSigCont =
+			(TGraph *) gCLsObsExclp1SigCont->Clone("8");
+	TGraph * gCLsObsExclm2_SmoothSigCont =
+			(TGraph *) gCLsObsExclm2SigCont->Clone("9");
+	TGraph * gCLsObsExclp2_SmoothSigCont =
+			(TGraph *) gCLsObsExclp2SigCont->Clone("10");
+	/*
+	 //smooth contours (2D Gaussian smoothing)
+	 Smooth(gCLsObsExcl_LO_Smooth, 12);
+	 Smooth(gCLsExpExcl_LO_Smooth, 12);
+	 Smooth(gCLsExpExclm1_Smooth, 12);
+	 Smooth(gCLsExpExclp1_Smooth, 12);
+	 Smooth(gCLsExpExclm2_Smooth, 12);
+	 Smooth(gCLsExpExclp2_Smooth, 12);
+	 Smooth(gCLsObsExclm1_Smooth, 12);
+	 Smooth(gCLsObsExclp1_Smooth, 12);
+	 Smooth(gCLsObsExclm2_Smooth, 12);
+	 Smooth(gCLsObsExclp2_Smooth, 12);
+	 Smooth(gCLsObsExcl_LO_SmoothSigCont, 12);
+	 Smooth(gCLsExpExcl_LO_SmoothSigCont, 12);
+	 Smooth(gCLsExpExclm1_SmoothSigCont, 12);
+	 Smooth(gCLsExpExclp1_SmoothSigCont, 12);
+	 Smooth(gCLsExpExclm2_SmoothSigCont, 12);
+	 Smooth(gCLsExpExclp2_SmoothSigCont, 12);
+	 Smooth(gCLsObsExclm1_SmoothSigCont, 12);
+	 Smooth(gCLsObsExclp1_SmoothSigCont, 12);
+	 Smooth(gCLsObsExclm2_SmoothSigCont, 12);
+	 Smooth(gCLsObsExclp2_SmoothSigCont, 12);
+	 */
 	TGraph * gCLs1SigmaSigCont = MakeBand(gCLsObsExclm1_SmoothSigCont,
 			gCLsObsExclp1_SmoothSigCont);
 	if (bandAroundExpLimit) {
@@ -318,22 +368,25 @@ ExclusionCurves DrawPlotsChi1(TCanvas * c1, PlotTools<SusyScan> *plotTools,
 	//leg->AddEntry(CLsExpNoSNLO,   "Expected, no-signal hyp., NLO","l");
 	leg->Draw();
 	gPad->RedrawAxis();
-	drawCmsPrel(METCut);
-	string nameExcl = "results/" + nameappendix + "Exclusion_3jet";
+	drawCmsPrel(plotTools->SingleValue(Luminosity), METCut);
+	string nameExcl = "results/" + nameappendix + "/Exclusion_3jet";
 	c1->SaveAs((nameExcl + ".pdf").c_str());
 	c1->SaveAs((nameExcl + ".eps").c_str());
 	output->WriteTObject(c1, 0, "overwrite");
 	//create clone of result plot but only signal contamination corrected limit drawn
 	hexcl->Draw("colz");
-	double min1=hs->GetXaxis()->GetBinLowEdge(0);
-	double min2=hs->GetYaxis()->GetBinLowEdge(0);
-	TGraph * excludedRegion=GetExcludedRegion(gCLsObsExclm1_SmoothSigCont,min1,min2);
+	double min1 = hs->GetXaxis()->GetBinLowEdge(0);
+	double min2 = hs->GetYaxis()->GetBinLowEdge(0);
+	double max1 = hs->GetXaxis()->GetBinLowEdge(hs->GetNbinsX() + 1);
+	double max2 = hs->GetYaxis()->GetBinLowEdge(hs->GetNbinsX() + 1);
+	TGraph * excludedRegion = GetExcludedRegion(gCLsObsExclm1_SmoothSigCont,
+			min1, min2, max1, max2);
 	excludedRegion->Draw("f");
 	float yv = 0.25;
-	  TLatex* lat2 = new TLatex(0.25,yv,"Excluded");
-	  lat2->SetNDC(true);
-	  lat2->SetTextSize(0.04);
-	  lat2->Draw("same");
+	TLatex* lat2 = new TLatex(0.25, yv, "Excluded");
+	lat2->SetNDC(true);
+	lat2->SetTextSize(0.04);
+	lat2->Draw("same");
 	gCLs1SigmaSigCont->Draw("f");
 	gCLsObsExcl_LO_SmoothSigCont->SetLineWidth(3);
 	gCLsObsExcl_LO_SmoothSigCont->SetLineStyle(1);
@@ -343,13 +396,13 @@ ExclusionCurves DrawPlotsChi1(TCanvas * c1, PlotTools<SusyScan> *plotTools,
 	gCLsExpExcl_LO_SmoothSigCont->SetLineColor(1);
 	gCLsObsExcl_LO_SmoothSigCont->Draw("l");
 	gCLsExpExcl_LO_SmoothSigCont->Draw("l");
-	TLatex* lat = new TLatex(0.37,0.82,"CMS Preliminary 2011, 1.14 fb^{-1}");
-	  lat->SetNDC(true);
-	  lat->SetTextSize(0.04);
-	  lat->Draw("same");
+	TLatex* lat = new TLatex(0.37, 0.82, "CMS Preliminary 2011, 1.14 fb^{-1}");
+	lat->SetNDC(true);
+	lat->SetTextSize(0.04);
+	lat->Draw("same");
 
-
-	 TLegend* leg2 = new TLegend(0.55,0.55,0.8,0.8,"m_{#tilde{#Chi}^{0}} = 375 (GeV/c^{2})");
+	TLegend* leg2 = new TLegend(0.55, 0.55, 0.8, 0.8,
+			"m_{#tilde{#Chi}^{0}} = 375 (GeV/c^{2})");
 	//TLegend * leg2 = new TLegend(0.51, 0.51, 0.93, 0.88);
 	leg2->SetBorderSize(0);
 	leg2->SetFillColor(0);
@@ -380,9 +433,9 @@ ExclusionCurves DrawPlotsChi1(TCanvas * c1, PlotTools<SusyScan> *plotTools,
 	//leg->AddEntry(CLsExpNoSNLO,   "Expected, no-signal hyp., NLO","l");
 	leg2->Draw();
 	gPad->RedrawAxis();
-	drawCmsPrel(METCut,true);
+	drawCmsPrel(plotTools->SingleValue(Luminosity), METCut, true);
 	string nameExclSigCont = "results/" + nameappendix
-			+ "ExclusionOnlySigCont_3jet";
+			+ "/ExclusionOnlySigCont_3jet";
 	c1->SaveAs((nameExclSigCont + ".pdf").c_str());
 	c1->SaveAs((nameExclSigCont + ".eps").c_str());
 	output->WriteTObject(c1, 0, "overwrite");
@@ -392,82 +445,172 @@ ExclusionCurves DrawPlotsChi1(TCanvas * c1, PlotTools<SusyScan> *plotTools,
 	exclCurv.obs = gCLsObsExcl_LO_SmoothSigCont;
 	exclCurv.onesigband = gCLs1SigmaSigCont;
 	return exclCurv;
-		
+
 }
 
+void DrawPlot_XS1D(TCanvas * c1, PlotTools<SusyScan> *plotTools, PlotTools<
+		SusyScan> *plotToolsInterpol, string nameappendix, bool inclEdges,
+		double METCut, bool bandAroundExpLimit) {
+	TH1F *hobslimitaxes = new TH1F("xsec",
+			";m_{squark} (GeV/c^{2}); cross section [pb]", 5, 400, 700);
+	TGraph *hObsLimit1D = new TGraph(21);
 
-ExclusionCurves DrawPlots(TCanvas * c1, PlotTools<SusyScan> *plotTools,
-		PlotTools<SusyScan> *plotToolsInterpol, string nameappendix,
-		bool inclEdges = false, double METCut = 200, bool bandAroundExpLimit = false) {
-	std::cout << "Draw band around expected limit? " << bandAroundExpLimit
-			<< std::endl;
-	c1->SetLogz(1);
-
-	// cross-section in M0 - M1/2
+	plotTools->Graph(hObsLimit1D, MSquarkGluino1600, ObsXsecLimitSigCont, 0);
+	TGraph *hNLOXS = new TGraph(21);
+	plotTools->Graph(hNLOXS, MSquarkGluino1600, NLOXsection, 0);
+	TGraph *hNLOXSM1 = new TGraph(21);
+	plotTools->Graph(hNLOXSM1, MSquarkGluino1600, NLOXsectionM1, 0);
+	TGraph *hNLOXSP1 = new TGraph(21);
+	plotTools->Graph(hNLOXSP1, MSquarkGluino1600, NLOXsectionP1, 0);
+	hobslimitaxes->SetMaximum(0.5);
+	hobslimitaxes->Draw("");
+	hObsLimit1D->Draw("*");
+	hNLOXS->SetLineColor(42);
+	hNLOXS->Draw("C");
+	hNLOXSM1->SetLineColor(42);
+	hNLOXSM1->Draw("C");
+	hNLOXSP1->SetLineColor(42);
+	hNLOXSP1->Draw("C");
+	TLegend * leg1DGl1600 = new TLegend(0.51, 0.51, 0.93, 0.88);
+	leg1DGl1600->SetBorderSize(0);
+	leg1DGl1600->SetFillColor(0);
+	leg1DGl1600->SetFillStyle(4000);
+	leg1DGl1600->SetTextSize(0.025);
+	leg1DGl1600->SetHeader("guino mass=1600 GeV");
+	leg1DGl1600->AddEntry(hObsLimit1D, "Observed", "p");
+	leg1DGl1600->AddEntry(hNLOXS, "XS#pm1#sigma", "l");
+	leg1DGl1600->Draw("same");
+	drawCmsPrel(plotTools->SingleValue(Luminosity), METCut);
+	string nameLimit1DPlot = "results/" + nameappendix
+			+ "/ObsLimit1DGluino1600_3jet";
+	c1->SaveAs((nameLimit1DPlot + ".pdf").c_str());
+	c1->SaveAs((nameLimit1DPlot + ".png").c_str());
+	//observed limit 1D
 	c1->SetTopMargin(0.11);
 	c1->SetRightMargin(0.2);
-	TH2F*hxsec = new TH2F("xsec",
-			";m_{squark} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); cross section [pb]", 21, 400,
-			2000.1, 21, 400, 2000.1);
+	TH1F *hobslimitaxes2 = new TH1F("xsec",
+			";m_{squark} (GeV/c^{2}); cross section [pb]", 5, 400, 700);
+	TGraph *hObsLimit1D2 = new TGraph(21);
+	plotTools->Graph(hObsLimit1D2, MSquarkGluino1360, ObsXsecLimitSigCont, 0);
+	TGraph *hNLOXS2 = new TGraph(21);
+	plotTools->Graph(hNLOXS2, MSquarkGluino1360, NLOXsection, 0);
+	TGraph *hNLOXSM12 = new TGraph(21);
+	plotTools->Graph(hNLOXSM12, MSquarkGluino1360, NLOXsectionM1, 0);
+	TGraph *hNLOXSP12 = new TGraph(21);
+	plotTools->Graph(hNLOXSP12, MSquarkGluino1360, NLOXsectionP1, 0);
+	hobslimitaxes2->SetMaximum(0.5);
+	hobslimitaxes2->Draw("");
+	hObsLimit1D2->Draw("*");
+	hNLOXS2->SetLineColor(42);
+	hNLOXS2->Draw("C");
+	hNLOXSM12->SetLineColor(42);
+	hNLOXSM12->Draw("C");
+	hNLOXSP1->SetLineColor(42);
+	hNLOXSP1->Draw("C");
+	TLegend * leg1DGl1360 = new TLegend(0.51, 0.51, 0.93, 0.88);
+	leg1DGl1360->SetBorderSize(0);
+	leg1DGl1360->SetFillColor(0);
+	leg1DGl1360->SetFillStyle(4000);
+	leg1DGl1360->SetTextSize(0.025);
+	leg1DGl1360->SetHeader("guino mass=1360 GeV");
+	leg1DGl1360->AddEntry(hObsLimit1D, "Observed", "p");
+	leg1DGl1360->AddEntry(hNLOXS, "XS#pm1#sigma", "l");
+	leg1DGl1360->Draw("same");
+	drawCmsPrel(plotTools->SingleValue(Luminosity), METCut);
+	string nameLimit1DPlot2 = "results/" + nameappendix
+			+ "/ObsLimit1DGluino1360_3jet";
+	c1->SaveAs((nameLimit1DPlot2 + ".pdf").c_str());
+	c1->SaveAs((nameLimit1DPlot2 + ".png").c_str());
+}
+void DrawPlot_XS(TCanvas * c1, PlotTools<SusyScan> *plotTools, PlotTools<
+		SusyScan> *plotToolsInterpol, string nameappendix, bool inclEdges =
+		false, double METCut = 200, bool bandAroundExpLimit = false) {
+	TH2F
+			*hxsec =
+					new TH2F(
+							"xsec",
+							";m_{squark} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); cross section [pb]",
+							21, 400, 2000.1, 21, 400, 2000.1);
 	if (nameappendix == "Wino150" || nameappendix == "Wino100150"
 			|| nameappendix == "Bino150") {
-		hxsec = new TH2F("xsec",
-				";m_{squark} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); cross section [pb]", 24,
-				160, 2000.1, 24, 160, 2000.1);
+		hxsec
+				= new TH2F(
+						"xsec",
+						";m_{squark} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); cross section [pb]",
+						24, 160, 2000.1, 24, 160, 2000.1);
 	}
 	plotTools->Area(hxsec, Msquark, Mgluino, NLOXsection);
-	hxsec->SetMinimum(0.00001);
+	//hxsec->SetMinimum(0.00001);
 	hxsec->GetZaxis()->SetTitleOffset(1.5);
 	//sq500->Draw();   // m(squark) = 500 GeV line
 	//gl500->Draw();   // m(gluino) = 500 GeV line
 	hxsec->Draw("colz");
-	drawCmsPrel(METCut);
-	string nameXsPlot = "results/" + nameappendix + "Xsection_3jet";
+	drawCmsPrel(plotTools->SingleValue(Luminosity), METCut);
+	string nameXsPlot = "results/" + nameappendix + "/Xsection_3jet";
 	c1->SaveAs((nameXsPlot + ".pdf").c_str());
-	c1->SaveAs((nameXsPlot + ".eps").c_str());
-
-	// Signal Acceptance in M0 - M1/2
-	c1->SetRightMargin(0.2);
-	c1->SetTopMargin(0.11);
+	c1->SaveAs((nameXsPlot + ".png").c_str());
+}
+void DrawPlot_SigAccAndCont(TCanvas * c1, PlotTools<SusyScan> *plotTools,
+		PlotTools<SusyScan> *plotToolsInterpol, string nameappendix,
+		bool inclEdges, double METCut, bool bandAroundExpLimit, bool dijet =
+				false) {
+	string jetapp = "3jet";
+	int noJet = 3;
+	if (dijet) {
+		jetapp = "2jet";
+		noJet = 2;
+	}
 	c1->SetLogz(0);
-	TH2F*hsigacc = new TH2F("sigacc",
-			";m_{squark} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); Signal Acceptance [%]", 21,
-			400, 2000.1, 21, 400, 2000.1);
+	TH2F
+			*hsigacc =
+					new TH2F(
+							"sigacc",
+							";m_{squark} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); Signal Acceptance [%]",
+							21, 400, 2000.1, 12, 400, 2000.1);//1360);
 
 	if (nameappendix == "Wino150" || nameappendix == "Wino100150"
 			|| nameappendix == "Bino150") {
-		hsigacc = new TH2F("sigacc",
-				";m_{squark} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); Signal Acceptance [%]",
-				24, 160, 2000.1, 24, 160, 2000.1);
+		hsigacc
+				= new TH2F(
+						"sigacc",
+						";m_{squark} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); Signal Acceptance [%]",
+						24, 160, 2000.1, 24, 160, 2000.1);
 	}
-	plotTools->Area(hsigacc, Msquark, Mgluino, SignalAcceptance);
+	if (dijet)
+		plotTools->Area(hsigacc, Msquark, Mgluino, SignalAcceptance2j);
+	else
+		plotTools->Area(hsigacc, Msquark, Mgluino, SignalAcceptance);
 	if (nameappendix == "Wino" || nameappendix == "WinoLow" || nameappendix
 			== "WinoHigh") {
 		hsigacc->SetMinimum(0.0);
-		hsigacc->SetMaximum(8);
+		//hsigacc->SetMaximum(8);
 	} else if (nameappendix == "Wino150" || nameappendix == "Wino100150") {
 		hsigacc->SetMinimum(0.0);
-		hsigacc->SetMaximum(5);
+		//hsigacc->SetMaximum(5);
 	} else {
 		hsigacc->SetMinimum(0.0);
-		hsigacc->SetMaximum(55);
+		//hsigacc->SetMaximum(55);
 	}
 
 	hsigacc->SetContour(14);
 	hsigacc->GetZaxis()->SetTitleOffset(1.5);
 	hsigacc->Draw("colz");
-	drawCmsPrel(METCut);
-	string nameSigAcc = "results/" + nameappendix + "SigAcc3jet";
+	drawCmsPrel(plotTools->SingleValue(Luminosity), METCut, false, noJet);
+
+	string nameSigAcc = "results/" + nameappendix + "/SigAcc" + jetapp;
 	c1->SaveAs((nameSigAcc + ".pdf").c_str());
-	c1->SaveAs((nameSigAcc + ".eps").c_str());
+	c1->SaveAs((nameSigAcc + ".png").c_str());
 
 	// Signal Contamination in M0 - M1/2
 	c1->SetRightMargin(0.2);
 	c1->SetTopMargin(0.11);
 	c1->SetLogz(0);
-	TH2F*hsigcont = new TH2F("sigcont",
-			";m_{squark} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); Signal Contamination [%]",
-			21, 400, 2000.1, 21, 400, 2000.1);
+	TH2F
+			*hsigcont =
+					new TH2F(
+							"sigcont",
+							";m_{squark} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); Signal Contamination [%]",
+							21, 400, 2000.1, 21, 400, 2000.1);
 	if (nameappendix == "Wino150" || nameappendix == "Wino100150"
 			|| nameappendix == "Bino150") {
 		hsigcont
@@ -478,27 +621,32 @@ ExclusionCurves DrawPlots(TCanvas * c1, PlotTools<SusyScan> *plotTools,
 	}
 	plotTools->Area(hsigcont, Msquark, Mgluino, SignalContamination);
 	hsigcont->SetMinimum(0.0);
-	hsigcont->SetMaximum(40);
+	hsigcont->SetMaximum(100);
 	hsigcont->SetContour(14);
 	hsigcont->GetZaxis()->SetTitleOffset(1.5);
 	hsigcont->Draw("colz");
-	drawCmsPrel(METCut);
-	string nameSigCont = "results/" + nameappendix + "SigCont3jet";
+	drawCmsPrel(plotTools->SingleValue(Luminosity), METCut, false, noJet);
+	string nameSigCont = "results/" + nameappendix + "/SigCont" + jetapp;
 	c1->SaveAs((nameSigCont + ".pdf").c_str());
-	c1->SaveAs((nameSigCont + ".eps").c_str());
-
-	// Trigger efficiency
-	c1->SetRightMargin(0.2);
-	c1->SetTopMargin(0.11);
+	c1->SaveAs((nameSigCont + ".png").c_str());
+}
+void DrawPlot_TrigEff(TCanvas * c1, PlotTools<SusyScan> *plotTools, PlotTools<
+		SusyScan> *plotToolsInterpol, string nameappendix, bool inclEdges =
+		false, double METCut = 200, bool bandAroundExpLimit = false) {
 	c1->SetLogz(0);
-	TH2F*htrigeff = new TH2F("trigeff",
-			";m_{squark} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); Trigger efficiency [%]", 21,
-			400, 2000.1, 21, 400, 2000.1);
+	TH2F
+			*htrigeff =
+					new TH2F(
+							"trigeff",
+							";m_{squark} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); Trigger efficiency [%]",
+							21, 400, 2000.1, 21, 400, 2000.1);
 	if (nameappendix == "Wino150" || nameappendix == "Wino100150"
 			|| nameappendix == "Bino150") {
-		htrigeff = new TH2F("trigeff",
-				";m_{squark} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); Trigger efficiency [%]",
-				24, 160, 2000.1, 24, 160, 2000.1);
+		htrigeff
+				= new TH2F(
+						"trigeff",
+						";m_{squark} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); Trigger efficiency [%]",
+						24, 160, 2000.1, 24, 160, 2000.1);
 	}
 	plotTools->Area(htrigeff, Msquark, Mgluino, TriggerEfficiency);
 	htrigeff->SetMinimum(0.0);
@@ -507,14 +655,14 @@ ExclusionCurves DrawPlots(TCanvas * c1, PlotTools<SusyScan> *plotTools,
 			== "Wino100150") {
 		htrigeff->SetMaximum(30);
 	} else
-		htrigeff->SetMaximum(100);
+		htrigeff->SetMaximum(30);
 	htrigeff->SetContour(14);
 	htrigeff->GetZaxis()->SetTitleOffset(1.5);
 	htrigeff->Draw("colz");
-	drawCmsPrel(METCut);
-	string nameTrigAcc = "results/" + nameappendix + "TrigEff3jet";
+	drawCmsPrel(plotTools->SingleValue(Luminosity), METCut);
+	string nameTrigAcc = "results/" + nameappendix + "/TrigEff3jet";
 	c1->SaveAs((nameTrigAcc + ".pdf").c_str());
-	c1->SaveAs((nameTrigAcc + ".eps").c_str());
+	c1->SaveAs((nameTrigAcc + ".png").c_str());
 
 	// Trigger efficiencyN90Hits
 	c1->SetRightMargin(0.2);
@@ -540,14 +688,14 @@ ExclusionCurves DrawPlots(TCanvas * c1, PlotTools<SusyScan> *plotTools,
 	htrigeffN90Hits->SetContour(14);
 	htrigeffN90Hits->GetZaxis()->SetTitleOffset(1.5);
 	htrigeffN90Hits->Draw("colz");
-	drawCmsPrel(METCut);
-	string nameTrigAcc2 = "results/" + nameappendix + "TrigEffN90Hits3jet";
+	drawCmsPrel(plotTools->SingleValue(Luminosity), METCut);
+	string nameTrigAcc2 = "results/" + nameappendix + "/TrigEffN90Hits3jet";
 	c1->SaveAs((nameTrigAcc2 + ".pdf").c_str());
-	c1->SaveAs((nameTrigAcc2 + ".eps").c_str());
-
-	// Observed Limit in M0 - M1/2
-	c1->SetRightMargin(0.2);
-	c1->SetTopMargin(0.11);
+	c1->SaveAs((nameTrigAcc2 + ".png").c_str());
+}
+void DrawPlot_XSLimit(TCanvas * c1, PlotTools<SusyScan> *plotTools, PlotTools<
+		SusyScan> *plotToolsInterpol, string nameappendix, bool inclEdges =
+		false, double METCut = 200, bool bandAroundExpLimit = false) {
 	c1->SetLogz(0);
 	TH2F
 			*hobslimit =
@@ -572,10 +720,10 @@ ExclusionCurves DrawPlots(TCanvas * c1, PlotTools<SusyScan> *plotTools,
 	}
 	hobslimit->Draw("colz");
 	hobslimit->GetZaxis()->SetTitleOffset(1.5);
-	drawCmsPrel(METCut);
-	string nameObs = "results/" + nameappendix + "ObsLimit_3jet";
+	drawCmsPrel(plotTools->SingleValue(Luminosity), METCut);
+	string nameObs = "results/" + nameappendix + "/ObsLimit_3jet";
 	c1->SaveAs((nameObs + ".pdf").c_str());
-	c1->SaveAs((nameObs + ".eps").c_str());
+	c1->SaveAs((nameObs + ".png").c_str());
 
 	// Expected Limit in M0 - M1/2
 	c1->SetRightMargin(0.2);
@@ -609,21 +757,30 @@ ExclusionCurves DrawPlots(TCanvas * c1, PlotTools<SusyScan> *plotTools,
 	}
 	hexplimit->Draw("colz");
 	hexplimit->GetZaxis()->SetTitleOffset(1.5);
-	drawCmsPrel(METCut);
-	string nameExp = "results/" + nameappendix + "ExpLimit_3jet";
+	drawCmsPrel(plotTools->SingleValue(Luminosity), METCut);
+	string nameExp = "results/" + nameappendix + "/ExpLimit_3jet";
 	c1->SaveAs((nameExp + ".pdf").c_str());
-	c1->SaveAs((nameExp + ".eps").c_str());
-
-	// Observed Limit in M0 - M1/2
-	c1->SetRightMargin(0.2);
-	c1->SetTopMargin(0.11);
+	c1->SaveAs((nameExp + ".png").c_str());
+}
+void DrawPlot_XSLimitSigCont(TCanvas * c1, PlotTools<SusyScan> *plotTools,
+		PlotTools<SusyScan> *plotToolsInterpol, string nameappendix,
+		bool inclEdges = false, double METCut = 200, bool bandAroundExpLimit =
+				false, bool dijet = false, bool bestLimit = false) {
+	string jetapp = "3jet";
+	int noJet = 3;
+	if (dijet) {
+		jetapp = "2jet";
+		noJet = 2;
+	}
+	if (bestLimit)
+		jetapp = "2OR3jet";
 	c1->SetLogz(0);
 	TH2F
 			*hobslimitSigCont =
 					new TH2F(
 							"obslimitSigCont",
 							";m_{squark} (GeV/c^{2}); m_{gluino} (GeV/c^{2});(Observed) 95% CL Upper Limit, pb",
-							21, 400, 2000.001, 21, 400, 2000.001);
+							21, 400, 2000.1, 12, 400, 2000.1);//1360);
 	if (nameappendix == "Wino150" || nameappendix == "Wino100150"
 			|| nameappendix == "Bino150") {
 		hobslimitSigCont
@@ -632,21 +789,31 @@ ExclusionCurves DrawPlots(TCanvas * c1, PlotTools<SusyScan> *plotTools,
 						";m_{squark} (GeV/c^{2}); m_{gluino} (GeV/c^{2});(Observed) 95% CL Upper Limit, pb",
 						24, 160, 2000.1, 24, 160, 2000.1);
 	}
-	plotTools->Area(hobslimitSigCont, Msquark, Mgluino, ObsXsecLimitSigCont);
+	if (dijet)
+		plotTools->Area(hobslimitSigCont, Msquark, Mgluino,
+				ObsXsecLimitSigCont2j);
+	else if (!bestLimit)
+		plotTools->Area(hobslimitSigCont, Msquark, Mgluino, ObsXsecLimitSigCont);
+	if (bestLimit)
+		plotTools->Area(hobslimitSigCont, Msquark, Mgluino,
+				ObsXsecLimitSigContBest);
 	if (nameappendix == "Wino") {
 		hobslimitSigCont->SetMinimum(0.05);
 	} else {
 		hobslimitSigCont->SetMinimum(0.005);
-		hobslimitSigCont->SetMaximum(0.45);
+		//hobslimitSigCont->SetMaximum(0.45);
 	}
 	hobslimitSigCont->GetZaxis()->SetTitleOffset(1.5);
 	hobslimitSigCont->GetXaxis()->SetNdivisions(505);
 	hobslimitSigCont->Draw("colz");
-	drawCmsPrel(METCut);
-	string nameObsSigCont = "results/" + nameappendix + "ObsLimitSigCont_3jet";
+	drawCmsPrel(plotTools->SingleValue(Luminosity), METCut, false, noJet,
+			bestLimit);
+	string nameObsSigCont = "results/" + nameappendix + "/ObsLimitSigCont_"
+			+ jetapp;
 	c1->SaveAs((nameObsSigCont + ".pdf").c_str());
-	c1->SaveAs((nameObsSigCont + ".eps").c_str());
-
+	c1->SaveAs((nameObsSigCont + ".png").c_str());
+	c1->SaveAs((nameObsSigCont + ".png").c_str());
+	//c1->SaveAs((nameObsSigCont + ".C").c_str());
 	// Expected Limit in M0 - M1/2
 	c1->SetRightMargin(0.2);
 	c1->SetTopMargin(0.11);
@@ -665,7 +832,15 @@ ExclusionCurves DrawPlots(TCanvas * c1, PlotTools<SusyScan> *plotTools,
 						";m_{squark} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); (Expected) 95% CL Upper Limit, pb",
 						24, 160, 2000.1, 24, 160, 2000.1);
 	}
-	plotTools->Area(hexplimitSigCont, Msquark, Mgluino, ExpXsecLimitSigCont);
+	if (dijet)
+		plotTools->Area(hexplimitSigCont, Msquark, Mgluino,
+				ExpXsecLimitSigCont2j);
+	else
+		plotTools->Area(hexplimitSigCont, Msquark, Mgluino, ExpXsecLimitSigCont);
+	if (bestLimit)
+		plotTools->Area(hexplimitSigCont, Msquark, Mgluino,
+				ExpXsecLimitSigContBest);
+
 	if (nameappendix == "Wino" || nameappendix == "WinoLow" || nameappendix
 			== "WinoHigh") {
 		hexplimitSigCont->SetMinimum(0.05);
@@ -679,18 +854,50 @@ ExclusionCurves DrawPlots(TCanvas * c1, PlotTools<SusyScan> *plotTools,
 	}
 	hexplimitSigCont->GetZaxis()->SetTitleOffset(1.5);
 	hexplimitSigCont->Draw("colz");
-	drawCmsPrel(METCut);
-	string nameExpSigCont = "results/" + nameappendix + "ExpLimitSigCont_3jet";
+	drawCmsPrel(plotTools->SingleValue(Luminosity), METCut, false, noJet,
+			bestLimit);
+	string nameExpSigCont = "results/" + nameappendix + "/ExpLimitSigCont_"
+			+ jetapp;
 	c1->SaveAs((nameExpSigCont + ".pdf").c_str());
-	c1->SaveAs((nameExpSigCont + ".eps").c_str());
-
-	// TestContours in M0 - M1/2 /////////////////////////////////////////////////////////////////////
-	c1->SetRightMargin(0.2);
-	c1->SetTopMargin(0.11);
+	c1->SaveAs((nameExpSigCont + ".png").c_str());
+}
+void DrawPlot_BestLimit20r3jet(TCanvas * c1, PlotTools<SusyScan> *plotTools,
+		PlotTools<SusyScan> *plotToolsInterpol, string nameappendix,
+		bool inclEdges, double METCut, bool bandAroundExpLimit) {
 	c1->SetLogz(0);
-	TH2F*TestCont = new TH2F("texcl",
-			";m_{squark} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); 95% CL Expected Exclusion",
-			82, 380, 2000.1, 82, 380, 2000.1);
+	TH2F
+			*bestLim =
+					new TH2F(
+							"texcl",
+							";m_{squark} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); #Jets with best observed XS Limit",
+							21, 400, 2000.1, 12, 400, 2000.1);
+	if (nameappendix == "Wino150" || nameappendix == "Wino100150"
+			|| nameappendix == "Bino150") {
+		bestLim
+				= new TH2F(
+						"texcl",
+						";m_{squark} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); #Jets with best observed XS Limit",
+						24, 160, 2000.1, 24, 160, 2000.1);
+	}
+
+	plotTools->Area(bestLim, Msquark, Mgluino, BestXSec);
+	bestLim->Draw("colz");
+	string nameTestCont = "results/" + nameappendix
+			+ "ExclusionBestLimitFrom2or3jet.pdf";
+	c1->SaveAs(nameTestCont.c_str());
+
+}
+void DrawPlot_TestContour(TCanvas * c1, PlotTools<SusyScan> *plotTools,
+		PlotTools<SusyScan> *plotToolsInterpol, string nameappendix,
+		bool inclEdges = false, double METCut = 200, bool bandAroundExpLimit =
+				false) {
+	c1->SetLogz(0);
+	TH2F
+			*TestCont =
+					new TH2F(
+							"texcl",
+							";m_{squark} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); 95% CL Expected Exclusion",
+							82, 380, 2020, 82, 380, 2020);
 	//21, 400, 2000.1, 21, 400, 2000.1);
 	if (nameappendix == "Wino150" || nameappendix == "Wino100150"
 			|| nameappendix == "Bino150") {
@@ -703,7 +910,7 @@ ExclusionCurves DrawPlots(TCanvas * c1, PlotTools<SusyScan> *plotTools,
 	}
 
 	/// Find the correct contour for any of the exclusion plots--->get right contour number!::::::::::::::::::::::
-	plotToolsInterpol->Area(TestCont, Msquark, Mgluino, ObsExclusionM1SigCont);
+	plotToolsInterpol->Area(TestCont, Msquark, Mgluino, ObsExclusionSigContBest);
 	/// try "3" contour levels:
 	std::vector<TGraph*> contours = plotToolsInterpol->GetContours(TestCont, 3);
 	/// :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -729,21 +936,44 @@ ExclusionCurves DrawPlots(TCanvas * c1, PlotTools<SusyScan> *plotTools,
 			+ "ExclusionTestContoursExp_3jet.pdf";
 	c1->SaveAs(nameTestCont.c_str());
 	TFile * output = new TFile("output.root", "Update");
-	//  //////////////////////////////////////////////////////////////////////////////////////////////
-	//
-	// Exclusion in M0 - M1/2 =================================================================================
-	// hexcl is drawn to define axis range and labels:
+}
+
+ExclusionCurves DrawPlot_ExclusionCurves(TCanvas * c1,
+		PlotTools<SusyScan> *plotTools, PlotTools<SusyScan> *plotToolsInterpol,
+		string nameappendix, bool inclEdges, double METCut,
+		bool bandAroundExpLimit, bool dijet = false, bool bestLimit = false) {
+	string jetapp = "3jet";
+	int noJet = 3;
+	if (dijet) {
+		jetapp = "2jet";
+		noJet = 2;
+	}
+	if (bestLimit)
+		jetapp = "2OR3jet";
+	c1->SetLogz(0);
 	c1->SetRightMargin(0.08);
 	c1->SetTopMargin(0.11);
-	c1->SetLogz(0);
-	TH2F*hexcl = new TH2F("hexcl",
-			";m_{squark} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); 95% CL Exclusion", 81, 400,
-			2000.1, 81, 400, 2000.1);
+	TH2F
+			*hexcl =
+					new TH2F(
+							"hexcl",
+							";m_{squark} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); 95% CL Exclusion",
+							81, 400, 2000.1, 81, 400, 2000.1);
 	if (nameappendix == "Wino150" || nameappendix == "Wino100150"
 			|| nameappendix == "Bino150") {
-		hexcl = new TH2F("hexcl",
-				";m_{squark} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); 95% CL Exclusion", 93,
-				160, 2000.1, 93, 160, 2000.1);
+		hexcl
+				= new TH2F(
+						"hexcl",
+						";m_{squark} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); 95% CL Exclusion",
+						93, 160, 2000.1, 93, 160, 2000.1);
+		//24,160, 2000, 24, 160, 2000);
+	}
+	if (nameappendix == "Wino" || nameappendix == "Bino") {
+		hexcl
+				= new TH2F(
+						"hexcl",
+						";m_{squark} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); 95% CL Exclusion",
+						81, 400, 2000.1, 65, 400, 2000.1);//1360.1);
 		//24,160, 2000, 24, 160, 2000);
 	}
 
@@ -774,10 +1004,10 @@ ExclusionCurves DrawPlots(TCanvas * c1, PlotTools<SusyScan> *plotTools,
 			Mgluino, ExpExclusionP2, 3, 0, 5, 2);
 	TGraph * gCLsObsExclm1 = plotToolsInterpol->GetContour(hs, Msquark,
 			Mgluino, ObsExclusionM1, 3, 0, 5, 2);
-	if (nameappendix == "Bino150" ) {
-		gCLsObsExclm1 = plotToolsInterpol->GetContour(hs, Msquark, Mgluino,
-				ObsExclusionM1, 3, 3, 5, 2);
-	}
+	//	if (nameappendix == "Bino150") {
+	//		gCLsObsExclm1 = plotToolsInterpol->GetContour(hs, Msquark, Mgluino,
+	//				ObsExclusionM1, 3, 3, 5, 2);
+	//	}
 	TGraph * gCLsObsExclp1 = plotToolsInterpol->GetContour(hs, Msquark,
 			Mgluino, ObsExclusionP1, 3, 0, 5, 2);
 	TGraph * gCLsObsExclm2 = plotToolsInterpol->GetContour(hs, Msquark,
@@ -799,16 +1029,56 @@ ExclusionCurves DrawPlots(TCanvas * c1, PlotTools<SusyScan> *plotTools,
 			Mgluino, ExpExclusionP2SigCont, 3, 0, kOrange, 2);
 	TGraph * gCLsObsExclm1SigCont = plotToolsInterpol->GetContour(hs, Msquark,
 			Mgluino, ObsExclusionM1SigCont, 3, 0, kOrange, 2);
-	if (nameappendix == "Bino150" ) {
-		gCLsObsExclm1SigCont = plotToolsInterpol->GetContour(hs, Msquark,
-				Mgluino, ObsExclusionM1SigCont, 3, 3, kOrange, 2);
-	}
 	TGraph * gCLsObsExclp1SigCont = plotToolsInterpol->GetContour(hs, Msquark,
 			Mgluino, ObsExclusionP1SigCont, 3, 0, kOrange, 2);
 	TGraph * gCLsObsExclm2SigCont = plotToolsInterpol->GetContour(hs, Msquark,
 			Mgluino, ObsExclusionM2SigCont, 3, 0, kOrange, 2);
 	TGraph * gCLsObsExclp2SigCont = plotToolsInterpol->GetContour(hs, Msquark,
 			Mgluino, ObsExclusionP2SigCont, 3, 0, kOrange, 2);
+	if (dijet) {
+		gCLsExpExcl_LOSigCont = plotToolsInterpol->GetContour(hs, Msquark,
+				Mgluino, ExpExclusionSigCont2j, 3, 0, kRed - 2, 4);
+		gCLsObsExcl_LOSigCont = plotToolsInterpol->GetContour(hs, Msquark,
+				Mgluino, ObsExclusionSigCont2j, 3, 0, kRed - 2, 1);
+		gCLsExpExclm1SigCont = plotToolsInterpol->GetContour(hs, Msquark,
+				Mgluino, ExpExclusionM1SigCont2j, 3, 0, kOrange, 2);
+		gCLsExpExclp1SigCont = plotToolsInterpol->GetContour(hs, Msquark,
+				Mgluino, ExpExclusionP1SigCont2j, 3, 0, kOrange, 2);
+		gCLsExpExclm2SigCont = plotToolsInterpol->GetContour(hs, Msquark,
+				Mgluino, ExpExclusionM2SigCont2j, 3, 0, kOrange, 2);
+		gCLsExpExclp2SigCont = plotToolsInterpol->GetContour(hs, Msquark,
+				Mgluino, ExpExclusionP2SigCont2j, 3, 0, kOrange, 2);
+		gCLsObsExclm1SigCont = plotToolsInterpol->GetContour(hs, Msquark,
+				Mgluino, ObsExclusionM1SigCont2j, 3, 0, kOrange, 2);
+		gCLsObsExclp1SigCont = plotToolsInterpol->GetContour(hs, Msquark,
+				Mgluino, ObsExclusionP1SigCont2j, 3, 0, kOrange, 2);
+		gCLsObsExclm2SigCont = plotToolsInterpol->GetContour(hs, Msquark,
+				Mgluino, ObsExclusionM2SigCont2j, 3, 0, kOrange, 2);
+		gCLsObsExclp2SigCont = plotToolsInterpol->GetContour(hs, Msquark,
+				Mgluino, ObsExclusionP2SigCont2j, 3, 0, kOrange, 2);
+	}
+	if (bestLimit) {
+		gCLsExpExcl_LOSigCont = plotToolsInterpol->GetContour(hs, Msquark,
+				Mgluino, ExpExclusionSigContBest, 3, 0, kRed - 2, 4);
+		gCLsObsExcl_LOSigCont = plotToolsInterpol->GetContour(hs, Msquark,
+				Mgluino, ObsExclusionSigContBest, 3, 0, kRed - 2, 1);
+		gCLsExpExclm1SigCont = plotToolsInterpol->GetContour(hs, Msquark,
+				Mgluino, ExpExclusionM1SigContBest, 3, 0, kOrange, 2);
+		gCLsExpExclp1SigCont = plotToolsInterpol->GetContour(hs, Msquark,
+				Mgluino, ExpExclusionP1SigContBest, 3, 0, kOrange, 2);
+		gCLsExpExclm2SigCont = plotToolsInterpol->GetContour(hs, Msquark,
+				Mgluino, ExpExclusionM2SigContBest, 3, 0, kOrange, 2);
+		gCLsExpExclp2SigCont = plotToolsInterpol->GetContour(hs, Msquark,
+				Mgluino, ExpExclusionP2SigContBest, 3, 0, kOrange, 2);
+		gCLsObsExclm1SigCont = plotToolsInterpol->GetContour(hs, Msquark,
+				Mgluino, ObsExclusionM1SigContBest, 3, 0, kOrange, 2);
+		gCLsObsExclp1SigCont = plotToolsInterpol->GetContour(hs, Msquark,
+				Mgluino, ObsExclusionP1SigContBest, 3, 0, kOrange, 2);
+		gCLsObsExclm2SigCont = plotToolsInterpol->GetContour(hs, Msquark,
+				Mgluino, ObsExclusionM2SigContBest, 3, 0, kOrange, 2);
+		gCLsObsExclp2SigCont = plotToolsInterpol->GetContour(hs, Msquark,
+				Mgluino, ObsExclusionP2SigContBest, 3, 0, kOrange, 2);
+	}
 
 	TGraph * gCLsObsExcl_LO_Smooth = (TGraph *) gCLsObsExcl_LO->Clone("1");
 	TGraph * gCLsExpExcl_LO_Smooth = (TGraph *) gCLsExpExcl_LO->Clone("2");
@@ -916,7 +1186,7 @@ ExclusionCurves DrawPlots(TCanvas * c1, PlotTools<SusyScan> *plotTools,
 	gCLsExpExcl_LO_SmoothSigCont->Draw("l");
 	gCLsObsExcl_LO_SmoothSigCont->Draw("l");
 
-	TLegend * leg = new TLegend(0.51, 0.51, 0.93, 0.88);
+	TLegend * leg = new TLegend(0.49, 0.49, 0.93, 0.9);
 	leg->SetBorderSize(0);
 	leg->SetFillColor(0);
 	leg->SetFillStyle(4000);
@@ -951,25 +1221,33 @@ ExclusionCurves DrawPlots(TCanvas * c1, PlotTools<SusyScan> *plotTools,
 	//leg->AddEntry(CLsExpNoSNLO,   "Expected, no-signal hyp., NLO","l");
 	leg->Draw();
 	gPad->RedrawAxis();
-	drawCmsPrel(METCut);
-	string nameExcl = "results/" + nameappendix + "Exclusion_3jet";
-	c1->SaveAs((nameExcl + ".pdf").c_str());
-	c1->SaveAs((nameExcl + ".eps").c_str());
-	output->WriteTObject(c1, 0, "overwrite");
+
+	drawCmsPrel(plotTools->SingleValue(Luminosity), METCut, false, noJet,
+			bestLimit);
+
+	string nameExcl = "results/" + nameappendix + "/Exclusion_" + jetapp;
+	if (!dijet && !bestLimit) {
+		//currently only SigCont subtracted limit is available for dijet!
+		c1->SaveAs((nameExcl + ".pdf").c_str());
+		c1->SaveAs((nameExcl + ".png").c_str());
+	}
 	//create clone of result plot but only signal contamination corrected limit drawn
 	hexcl->Draw("colz");
-	double min1=hs->GetXaxis()->GetBinLowEdge(0);
-	double min2=hs->GetYaxis()->GetBinLowEdge(0);
-	TGraph * excludedRegion=GetExcludedRegion(gCLsObsExclm1_SmoothSigCont,min1,min2);
+	double min1 = hs->GetXaxis()->GetBinLowEdge(0);
+	double min2 = hs->GetYaxis()->GetBinLowEdge(0);
+	double max2 = hs->GetYaxis()->GetBinLowEdge(hs->GetNbinsX() + 1);
+	double max1 = hs->GetXaxis()->GetBinLowEdge(hs->GetNbinsX() + 1);
+	TGraph * excludedRegion = GetExcludedRegion(gCLsObsExclm1_SmoothSigCont,
+			min1, min2, max1, max2);
 	excludedRegion->Draw("f");
 	float yv = 0.25;
 	if (nameappendix == "Wino150" || nameappendix == "Wino100150"
-				|| nameappendix == "Wino")yv = 0.22;
-	  TLatex* lat2 = new TLatex(0.25,yv,"Excluded");
-	  lat2->SetNDC(true);
-	  lat2->SetTextSize(0.04);
-	  lat2->Draw("same");
-
+			|| nameappendix == "Wino")
+		yv = 0.22;
+	TLatex* lat3 = new TLatex(0.25, yv, "Excluded");
+	lat3->SetNDC(true);
+	lat3->SetTextSize(0.04);
+	lat3->Draw("same");
 
 	gCLs1SigmaSigCont->Draw("f");
 	gCLsObsExcl_LO_SmoothSigCont->SetLineWidth(3);
@@ -984,13 +1262,15 @@ ExclusionCurves DrawPlots(TCanvas * c1, PlotTools<SusyScan> *plotTools,
 	//gCLsObsExclp1_SmoothSigCont->Draw("l");
 	//gCLsObsExclm1_SmoothSigCont->Draw("l");
 
-	TLatex* lat = new TLatex(0.37,0.82,"CMS Preliminary 2011, 1.14 fb^{-1}");
-	  lat->SetNDC(true);
-	  lat->SetTextSize(0.04);
-	  lat->Draw("same");
 
-
-	 TLegend* leg2 = new TLegend(0.55,0.55,0.8,0.8,"m_{#tilde{#Chi}^{0}} = 375 (GeV/c^{2})");
+	drawCmsPrelInCanvas(plotTools->SingleValue(Luminosity));
+	string bino = "bino";
+	if (nameappendix == "Wino" || nameappendix == "Wino150") {
+		bino = "wino";
+	}
+	TLegend* leg2 = new TLegend(0.46, 0.73, 0.95, 0.55, (bino
+			+ "-like,  m_{#tilde{#Chi}^{0}} = 375 (GeV/c^{2})").c_str());
+	//TLegend* leg2 = new TLegend(0.55,0.55,0.8,0.8,"m_{#tilde{#Chi}^{0}} = 375 (GeV/c^{2})");
 	//TLegend * leg2 = new TLegend(0.51, 0.51, 0.93, 0.88);
 	leg2->SetBorderSize(0);
 	leg2->SetFillColor(0);
@@ -999,7 +1279,9 @@ ExclusionCurves DrawPlots(TCanvas * c1, PlotTools<SusyScan> *plotTools,
 	//leg2->SetHeader("m_{#tilde{#Chi}^{0}} = 375 GeV");
 	if (nameappendix == "Wino150" || nameappendix == "Wino100150"
 			|| nameappendix == "Bino150") {
-		leg2->SetHeader("m_{#tilde{#Chi}^{0}} = 150 GeV");
+		leg2->SetHeader((bino
+				+ "-like,  m_{#tilde{#Chi}^{0}} = 150 (GeV/c^{2})").c_str());
+
 	}
 	//leg->AddEntry(CLsObsNLO,"Observed, NLO","l");
 	//leg2->SetHeader("Signal Contamination subtracted");
@@ -1021,453 +1303,118 @@ ExclusionCurves DrawPlots(TCanvas * c1, PlotTools<SusyScan> *plotTools,
 	//leg->AddEntry(CLsExpNoSNLO,   "Expected, no-signal hyp., NLO","l");
 	leg2->Draw();
 	gPad->RedrawAxis();
-	drawCmsPrel(METCut,true);
+	drawCmsPrel(plotTools->SingleValue(Luminosity), METCut, true, noJet,
+			bestLimit);
 	string nameExclSigCont = "results/" + nameappendix
-			+ "ExclusionOnlySigCont_3jet";
+			+ "/ExclusionOnlySigCont_" + jetapp;
 	c1->SaveAs((nameExclSigCont + ".pdf").c_str());
-	c1->SaveAs((nameExclSigCont + ".eps").c_str());
-	output->WriteTObject(c1, 0, "overwrite");
+	c1->SaveAs((nameExclSigCont + ".png").c_str());
+	c1->SaveAs((nameExclSigCont + ".png").c_str());
+	c1->SaveAs((nameExclSigCont + ".C").c_str());
 
 	ExclusionCurves exclCurv;
 	exclCurv.exp = gCLsExpExcl_LO_SmoothSigCont;
 	exclCurv.obs = gCLsObsExcl_LO_SmoothSigCont;
 	exclCurv.onesigband = gCLs1SigmaSigCont;
 	return exclCurv;
-	//	return 0;
+}
+ExclCurvesContainer DrawPlots(TCanvas * c1, PlotTools<SusyScan> *plotTools,
+		PlotTools<SusyScan> *plotToolsInterpol, string nameappendix,
+		bool inclEdges = false, double METCut = 200, bool bandAroundExpLimit =
+				false) {
+	std::system(("mkdir results/" + nameappendix).c_str());
+	std::cout << "Draw band around expected limit? " << bandAroundExpLimit
+			<< std::endl;
+	c1->SetLogz(1);
+	c1->SetTopMargin(0.11);
+	c1->SetRightMargin(0.2);
+
+	DrawPlot_XS1D(c1, plotTools, plotToolsInterpol, nameappendix, inclEdges,
+			METCut, bandAroundExpLimit);
+
+	DrawPlot_XS(c1, plotTools, plotToolsInterpol, nameappendix, inclEdges,
+			METCut, bandAroundExpLimit);
+
+	DrawPlot_SigAccAndCont(c1, plotTools, plotToolsInterpol, nameappendix,
+			inclEdges, METCut, bandAroundExpLimit);
+	//Dijet!
+	DrawPlot_SigAccAndCont(c1, plotTools, plotToolsInterpol, nameappendix,
+			inclEdges, METCut, bandAroundExpLimit, true);
+
+	DrawPlot_TrigEff(c1, plotTools, plotToolsInterpol, nameappendix, inclEdges,
+			METCut, bandAroundExpLimit);
+
+	DrawPlot_XSLimit(c1, plotTools, plotToolsInterpol, nameappendix, inclEdges,
+			METCut, bandAroundExpLimit);
+
+	DrawPlot_XSLimitSigCont(c1, plotTools, plotToolsInterpol, nameappendix,
+			inclEdges, METCut, bandAroundExpLimit);
+	//Dijet!
+	DrawPlot_XSLimitSigCont(c1, plotTools, plotToolsInterpol, nameappendix,
+			inclEdges, METCut, bandAroundExpLimit, true);
+	//Dijet OR Trijet - best!
+	DrawPlot_XSLimitSigCont(c1, plotTools, plotToolsInterpol, nameappendix,
+			inclEdges, METCut, bandAroundExpLimit, false, true);
+	DrawPlot_TestContour(c1, plotTools, plotToolsInterpol, nameappendix,
+			inclEdges, METCut, bandAroundExpLimit);
+	DrawPlot_BestLimit20r3jet(c1, plotTools, plotToolsInterpol, nameappendix,
+			inclEdges, METCut, bandAroundExpLimit);
+	//Dijet!
+	ExclusionCurves dijetExcl = DrawPlot_ExclusionCurves(c1, plotTools,
+			plotToolsInterpol, nameappendix, inclEdges, METCut,
+			bandAroundExpLimit, true);
+	//Dijet OR Trijet - best!
+	ExclusionCurves bestExcl = DrawPlot_ExclusionCurves(c1, plotTools,
+			plotToolsInterpol, nameappendix, inclEdges, METCut,
+			bandAroundExpLimit, true, true);
+	ExclusionCurves trijetExcl = DrawPlot_ExclusionCurves(c1, plotTools,
+			plotToolsInterpol, nameappendix, inclEdges, METCut,
+			bandAroundExpLimit);
+	ExclCurvesContainer exclCurvesCont;
+	exclCurvesCont.best = bestExcl;
+	exclCurvesCont.jet3 = trijetExcl;
+	exclCurvesCont.jet2 = dijetExcl;
+	exclCurvesCont.lumi = plotTools->SingleValue(Luminosity);
+	return exclCurvesCont;
 
 }
-
-int plot(int argc, char** argv) {
-	//interactive root session
-	//TApplication theApp("App", 0, 0);
-//	if (gROOT->IsBatch()) {
-//		fprintf(stderr, "%s: cannot run in batch mode\n", argv[0]);
-//		return 1;
-//	}
-
-	util::StyleSettings::paperNoTitle();
-	gStyle->SetPadBottomMargin(0.18);
-
-	TCanvas * c1 = new TCanvas("c1", "c1", 600, 600);
-	c1->cd();
-
-	bool pdfuncertinclInAcc = false;
-
-	//	///////////////BINO LIMITS///////////////////////////////////////////////////
-	//Get limits from signal scan ---------------------------------------------------
-	TheLimits * genpointsInterpolBino = new TheLimits();
-	if (pdfuncertinclInAcc) {
-		genpointsInterpolBino->Fill("limits_GMSB/resultfilesbinoPDFACC.txt");
-	} else {
-		genpointsInterpolBino->Fill("limits_GMSB/resultfilesbino200Aug18.txt");
-	}
-	TheLimits * genpointsBino = new TheLimits();
-	if (pdfuncertinclInAcc) {
-		genpointsBino->Fill("limits_GMSB/resultfilesbinoPDFACC.txt");
-	} else {
-		genpointsBino->Fill("limits_GMSB/resultfilesbino200Aug18.txt");
-	}
-
-	//Make grid in Msquark, Mgluino finer by factor of 4 by linear interpolation
-	genpointsInterpolBino->ExpandGrid<SusyScan> (Msquark, Mgluino);
-	genpointsInterpolBino->ExpandGrid<SusyScan> (Msquark, Mgluino);
-	// New 'pseudo' points are added, therefore the binning of all plots has to be made finer by a factor
-	// of 2 in x and y for each "ExpandGrid
-	//the plotting ----------------------------------------------------------------------
-	//plotting helper functions
-	PlotTools < SusyScan > *plotToolsBino = new PlotTools<SusyScan> (
-			genpointsBino->GetScan());
-
-	PlotTools < SusyScan > *plotToolsInterpolBino = new PlotTools<SusyScan> (
-			genpointsInterpolBino->GetScan());
-
-	//the histograms ---------------------------------------------------------------------
-	ExclusionCurves binoExcl;
-	if (pdfuncertinclInAcc) {
-		binoExcl = DrawPlots(c1, plotToolsBino, plotToolsInterpolBino, "Bino",
-				true, 200, true);
-	} else {
-		binoExcl = DrawPlots(c1, plotToolsBino, plotToolsInterpolBino, "Bino",
-				true, 200);
-	}
-
-	TGraph * bino = binoExcl.exp;
-	///////////////BINO LIMITS, NEUTR 150///////////////////////////////////////////////////
-	//Get limits from signal scan ---------------------------------------------------
-	TheLimits * genpointsInterpolBino150 = new TheLimits();
-	genpointsInterpolBino150->Fill("limits_GMSB/resultfilesBino200Neutr150.txt");
-	TheLimits * genpointsBino150 = new TheLimits();
-	genpointsBino150->Fill("limits_GMSB/resultfilesBino200Neutr150.txt");
-
-	//Make grid in Msquark, Mgluino finer by factor of 4 by linear interpolation
-	genpointsInterpolBino150->ExpandGrid<SusyScan> (Msquark, Mgluino);
-	genpointsInterpolBino150->ExpandGrid<SusyScan> (Msquark, Mgluino);
-	// New 'pseudo' points are added, therefore the binning of all plots has to be made finer by a factor
-	// of 2 in x and y for each "ExpandGrid
-	//the plotting ----------------------------------------------------------------------
-	//plotting helper functions
-	PlotTools < SusyScan > *plotToolsBino150 = new PlotTools<SusyScan> (
-			genpointsBino150->GetScan());
-
-	PlotTools < SusyScan > *plotToolsInterpolBino150
-			= new PlotTools<SusyScan> (genpointsInterpolBino150->GetScan());
-
-	//the histograms ---------------------------------------------------------------------
-	ExclusionCurves bino150Excl = DrawPlots(c1, plotToolsBino150,
-			plotToolsInterpolBino150, "Bino150", false, 200);
-
-	//	///////////////BINO LIMITS LOW///////////////////////////////////////////////////
-	//	//Get limits from signal scan ---------------------------------------------------
-	//	TheLimits * genpointsInterpolBinoLow = new TheLimits();
-	//	genpointsInterpolBinoLow->Fill("limits_GMSB/resultfilesbino100.txt");
-	//	TheLimits * genpointsBinoLow = new TheLimits();
-	//	genpointsBinoLow->Fill("limits_GMSB/resultfilesbino100.txt");
-	//
-	//	//Make grid in Msquark, Mgluino finer by factor of 4 by linear interpolation
-	//	genpointsInterpolBinoLow->ExpandGrid<SusyScan> (Msquark, Mgluino);
-	//	genpointsInterpolBinoLow->ExpandGrid<SusyScan> (Msquark, Mgluino);
-	//	// New 'pseudo' points are added, therefore the binning of all plots has to be made finer by a factor
-	//	// of 2 in x and y for each "ExpandGrid
-	//	//the plotting ----------------------------------------------------------------------
-	//	//plotting helper functions
-	//	PlotTools < SusyScan > *plotToolsBinoLow = new PlotTools<SusyScan> (
-	//			genpointsBinoLow->GetScan());
-	//
-	//	PlotTools < SusyScan > *plotToolsInterpolBinoLow
-	//			= new PlotTools<SusyScan> (genpointsInterpolBinoLow->GetScan());
-	//
-	//	//the histograms ---------------------------------------------------------------------
-	//	ExclusionCurves binoLowExcl = DrawPlots(c1, plotToolsBinoLow,
-	//			plotToolsInterpolBinoLow, "BinoLow", true,100);
-	//	TGraph * binoLow = binoLowExcl.exp;
-	//
-	//	///////////////BINO LIMITS HIGK///////////////////////////////////////////////////
-	//	//Get limits from signal scan ---------------------------------------------------
-	//	TheLimits * genpointsInterpolBinoHigh = new TheLimits();
-	//	genpointsInterpolBinoHigh->Fill("limits_GMSB/resultfilesbino350.txt");
-	//	TheLimits * genpointsBinoHigh = new TheLimits();
-	//	genpointsBinoHigh->Fill("limits_GMSB/resultfilesbino350.txt");
-	//
-	//	//Make grid in Msquark, Mgluino finer by factor of 4 by linear interpolation
-	//	genpointsInterpolBinoHigh->ExpandGrid<SusyScan> (Msquark, Mgluino);
-	//	genpointsInterpolBinoHigh->ExpandGrid<SusyScan> (Msquark, Mgluino);
-	//	// New 'pseudo' points are added, therefore the binning of all plots has to be made finer by a factor
-	//	// of 2 in x and y for each "ExpandGrid
-	//	//the plotting ----------------------------------------------------------------------
-	//	//plotting helper functions
-	//	PlotTools < SusyScan > *plotToolsBinoHigh = new PlotTools<SusyScan> (
-	//			genpointsBinoHigh->GetScan());
-	//
-	//	PlotTools < SusyScan > *plotToolsInterpolBinoHigh
-	//			= new PlotTools<SusyScan> (genpointsInterpolBinoHigh->GetScan());
-	//
-	//	//the histograms ---------------------------------------------------------------------
-	//	ExclusionCurves binoHighExcl = DrawPlots(c1, plotToolsBinoHigh,
-	//			plotToolsInterpolBinoHigh, "BinoHigh", true,350);
-	//	TGraph * binoHigh = binoHighExcl.exp;
-	//
-	//	//compare MET cuts
-	//	c1->SetLogz(1);
-	//	c1->SetRightMargin(0.08);
-	//	TH2F*hexclBinoComp = new TH2F("hexcl",
-	//			";m_{squark} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); 95% CL Exclusion", 80, 400,
-	//			2000, 80, 400, 2000);
-	//	hexclBinoComp->Draw("COLZ");
-	//	bino->SetLineColor(2);
-	//	binoHigh->SetLineColor(2);
-	//	binoLow->SetLineColor(2);
-	//	bino->SetLineStyle(1);
-	//	binoHigh->SetLineStyle(2);
-	//	binoLow->SetLineStyle(3);
-	//	bino->Draw("");
-	//	binoHigh->Draw("");
-	//	binoLow->Draw("");
-	//	TLegend * legB = new TLegend(0.41, 0.41, 0.93, 0.9);
-	//	legB->SetBorderSize(0);
-	//	legB->SetFillColor(0);
-	//	legB->SetFillStyle(4000);
-	//	legB->SetTextSize(0.025);
-	//
-	//	//leg->AddEntry(CLsObsNLO,"Observed, NLO","l");
-	//
-	//	legB->AddEntry(binoLow, "Expected MET>100", "l");
-	//	legB->AddEntry(bino, "Expected, MET>200", "l");
-	//	legB->AddEntry(binoHigh, "Expected, MET>350", "l");
-	//
-	//	legB->Draw();
-	//	drawCmsPrel(0);
-	//	string nameXsPlotB = "results/BinoCOMPMetSelection_3jet";
-	//	c1->SaveAs((nameXsPlotB + ".pdf").c_str());
-	//	c1->SaveAs((nameXsPlotB + ".eps").c_str());
-	//
+void DrawNeutrMassComp(double lumi, TCanvas * c1, ExclusionCurves m1Excl,
+		ExclusionCurves m2Excl, string prefix) {
 	//compare Neutralino masses
-	TGraph * binoExp = binoExcl.exp;
-	TGraph * binoObs = binoExcl.obs;
-	TGraph * binoOneSigBand = binoExcl.onesigband;
+	TGraph * m1Exp = m1Excl.exp;
+	TGraph * m1Obs = m1Excl.obs;
+	TGraph * m1OneSigBand = m1Excl.onesigband;
 
-	TGraph * bino150Exp = bino150Excl.exp;
-	TGraph * bino150Obs = bino150Excl.obs;
-	TGraph * bino150OneSigBand = bino150Excl.onesigband;
+	TGraph * m2Exp = m2Excl.exp;
+	TGraph * m2Obs = m2Excl.obs;
+	TGraph * m2OneSigBand = m2Excl.onesigband;
 
 	c1->SetLogz(1);
 	c1->SetRightMargin(0.08);
-	TH2F*hexclbinoCompNeutr = new TH2F("hexclNeutrComp",
-			";m_{squark} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); 95% CL Exclusion", 80, 400,
-			2000, 80, 400, 2000);
-	hexclbinoCompNeutr->Draw("COLZ");
+	TH2F
+			*hexclCompNeutr =
+					new TH2F(
+							"hexclNeutrComp",
+							";m_{squark} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); 95% CL Exclusion",
+							92, 160, 2000, 92, 160, 2000);
 
-	binoOneSigBand->SetFillStyle(3001);
-	binoOneSigBand->SetFillColor(kOrange);
-	binoOneSigBand->Draw("f");
-	binoObs->SetLineWidth(2);
-	binoExp->SetLineWidth(2);
-	binoObs->Draw("l");
-	binoExp->Draw("l");
+	hexclCompNeutr->Draw("COLZ");
 
-	bino150OneSigBand->SetFillStyle(3001);
-	bino150OneSigBand->SetFillColor(kYellow);
-	bino150OneSigBand->Draw("f");
-	bino150Obs->SetLineWidth(2);
-	bino150Exp->SetLineWidth(2);
-	bino150Obs->Draw("l");
-	bino150Exp->Draw("l");
+	m1OneSigBand->SetFillStyle(3001);
+	m1OneSigBand->SetFillColor(kOrange);
+	m1OneSigBand->Draw("f");
+	m1Obs->SetLineWidth(2);
+	m1Exp->SetLineWidth(2);
+	m1Obs->Draw("l");
+	m1Exp->Draw("l");
 
-	TH1F * dummybino = new TH1F("dummy", "dummy", 5, 0, 5);
-	dummybino->SetLineColor(0);
-
-	TLegend * leg2bino = new TLegend(0.41, 0.41, 0.93, 0.88);
-	leg2bino->SetBorderSize(0);
-	leg2bino->SetFillColor(0);
-	leg2bino->SetFillStyle(4000);
-	leg2bino->SetTextSize(0.025);
-	//leg2bino->AddEntry(dummybino, "m_{#tilde{#Chi}^{0}} = 375 GeV", "l");
-	leg2bino->AddEntry(binoObs, "Observed m_{#tilde{#Chi}^{0}} = 375 GeV", "l");
-	leg2bino->AddEntry(binoExp, "Expected m_{#tilde{#Chi}^{0}} = 375 GeV", "l");
-	leg2bino->AddEntry(binoOneSigBand,
-			"#pm 1#sigma  m_{#tilde{#Chi}^{0}} = 375 GeV", "f");
-
-	//leg2bino->AddEntry(dummybino, "m_{#tilde{#Chi}^{0}} = 150 GeV ", "l");
-	leg2bino->AddEntry(bino150Obs, "Observed, m_{#tilde{#Chi}^{0}} = 150 GeV ",
-			"l");
-	leg2bino->AddEntry(bino150Exp, "Expected, m_{#tilde{#Chi}^{0}} = 150 GeV ",
-				"l");
-	leg2bino->AddEntry(bino150OneSigBand,
-			"#pm 1#sigma, m_{#tilde{#Chi}^{0}} = 150 GeV ", "f");
-
-
-	//leg->AddEntry(CLsExpNoSNLO,   "Expected, no-signal hyp., NLO","l");
-	leg2bino->Draw();
-	gPad->RedrawAxis();
-
-	drawCmsPrel(200);
-	string nameNeutrCompbinoPlot = "results/BinoCOMPNeutr_3jet";
-	c1->SaveAs((nameNeutrCompbinoPlot + ".pdf").c_str());
-	c1->SaveAs((nameNeutrCompbinoPlot + ".eps").c_str());
-	//	///////////////////////////////////////////////////////////////////////////
-	//
-	///////////////WINO LIMITS///////////////////////////////////////////////////
-	//Get limits from signal scan ---------------------------------------------------
-	TheLimits * genpointsInterpolWino = new TheLimits();
-
-	if (pdfuncertinclInAcc) {
-		genpointsInterpolWino->Fill("limits_GMSB/resultfileswinoPDFACC.txt");
-	} else
-		genpointsInterpolWino->Fill("limits_GMSB/resultfileswino200Aug18.txt");
-	TheLimits * genpointsWino = new TheLimits();
-	if (pdfuncertinclInAcc) {
-		genpointsWino->Fill("limits_GMSB/resultfileswinoPDFACC.txt");
-	} else
-		genpointsWino->Fill("limits_GMSB/resultfileswino200Aug18.txt");
-
-	//Make grid in Msquark, Mgluino finer by factor of 4 by linear interpolation
-	genpointsInterpolWino->ExpandGrid<SusyScan> (Msquark, Mgluino);
-	genpointsInterpolWino->ExpandGrid<SusyScan> (Msquark, Mgluino);
-	// New 'pseudo' points are added, therefore the binning of all plots has to be made finer by a factor
-	// of 2 in x and y for each "ExpandGrid
-	//the plotting ----------------------------------------------------------------------
-	//plotting helper functions
-	PlotTools < SusyScan > *plotToolsWino = new PlotTools<SusyScan> (
-			genpointsWino->GetScan());
-
-	PlotTools < SusyScan > *plotToolsInterpolWino = new PlotTools<SusyScan> (
-			genpointsInterpolWino->GetScan());
-
-	//the histograms ---------------------------------------------------------------------
-	ExclusionCurves winoExcl;
-	if (pdfuncertinclInAcc) {
-		std::cout << "INCL!!:" << std::endl;
-		winoExcl = DrawPlots(c1, plotToolsWino, plotToolsInterpolWino, "Wino",
-				false, 200, true);
-
-	} else {
-		winoExcl = DrawPlots(c1, plotToolsWino, plotToolsInterpolWino, "Wino",
-				false, 200);
-	}
-	TGraph * wino = winoExcl.exp;
-	///////////////WINO LIMITS, NEUTR 150///////////////////////////////////////////////////
-	//Get limits from signal scan ---------------------------------------------------
-	TheLimits * genpointsInterpolWino150 = new TheLimits();
-	genpointsInterpolWino150->Fill("limits_GMSB/resultfilesWino200Neutr150.txt");
-	TheLimits * genpointsWino150 = new TheLimits();
-	genpointsWino150->Fill("limits_GMSB/resultfilesWino200Neutr150.txt");
-
-	//Make grid in Msquark, Mgluino finer by factor of 4 by linear interpolation
-	genpointsInterpolWino150->ExpandGrid<SusyScan> (Msquark, Mgluino);
-	genpointsInterpolWino150->ExpandGrid<SusyScan> (Msquark, Mgluino);
-	// New 'pseudo' points are added, therefore the binning of all plots has to be made finer by a factor
-	// of 2 in x and y for each "ExpandGrid
-	//the plotting ----------------------------------------------------------------------
-	//plotting helper functions
-	PlotTools < SusyScan > *plotToolsWino150 = new PlotTools<SusyScan> (
-			genpointsWino150->GetScan());
-
-	PlotTools < SusyScan > *plotToolsInterpolWino150
-			= new PlotTools<SusyScan> (genpointsInterpolWino150->GetScan());
-
-	//the histograms ---------------------------------------------------------------------
-	ExclusionCurves wino150Excl = DrawPlots(c1, plotToolsWino150,
-			plotToolsInterpolWino150, "Wino150", false, 200);
-
-	///////////////WINO LIMITS 100, NEUTR 150///////////////////////////////////////////////////
-	//Get limits from signal scan ---------------------------------------------------
-	TheLimits * genpointsInterpolWino100150 = new TheLimits();
-	genpointsInterpolWino100150->Fill("limits_GMSB/resultfilesWino100Neutr150.txt");
-	TheLimits * genpointsWino100150 = new TheLimits();
-	genpointsWino100150->Fill("limits_GMSB/resultfilesWino100Neutr150.txt");
-
-	//Make grid in Msquark, Mgluino finer by factor of 4 by linear interpolation
-	genpointsInterpolWino100150->ExpandGrid<SusyScan> (Msquark, Mgluino);
-	genpointsInterpolWino100150->ExpandGrid<SusyScan> (Msquark, Mgluino);
-	// New 'pseudo' points are added, therefore the binning of all plots has to be made finer by a factor
-	// of 2 in x and y for each "ExpandGrid
-	//the plotting ----------------------------------------------------------------------
-	//plotting helper functions
-	PlotTools < SusyScan > *plotToolsWino100150 = new PlotTools<SusyScan> (
-			genpointsWino100150->GetScan());
-
-	PlotTools < SusyScan > *plotToolsInterpolWino100150
-			= new PlotTools<SusyScan> (genpointsInterpolWino100150->GetScan());
-
-	//the histograms ---------------------------------------------------------------------
-	ExclusionCurves wino100150Excl = DrawPlots(c1, plotToolsWino100150,
-			plotToolsInterpolWino100150, "Wino100150", false, 100);
-
-	///////////////WINO LIMITS LOW///////////////////////////////////////////////////
-	//		//Get limits from signal scan ---------------------------------------------------
-	//		TheLimits * genpointsInterpolWinoLow = new TheLimits();
-	//		genpointsInterpolWinoLow->Fill("limits_GMSB/resultfileswino100.txt");
-	//		TheLimits * genpointsWinoLow = new TheLimits();
-	//		genpointsWinoLow->Fill("limits_GMSB/resultfileswino100.txt");
-	//
-	//		//Make grid in Msquark, Mgluino finer by factor of 4 by linear interpolation
-	//		genpointsInterpolWinoLow->ExpandGrid<SusyScan> (Msquark, Mgluino);
-	//		genpointsInterpolWinoLow->ExpandGrid<SusyScan> (Msquark, Mgluino);
-	//		// New 'pseudo' points are added, therefore the binning of all plots has to be made finer by a factor
-	//		// of 2 in x and y for each "ExpandGrid
-	//		//the plotting ----------------------------------------------------------------------
-	//		//plotting helper functions
-	//		PlotTools < SusyScan > *plotToolsWinoLow = new PlotTools<SusyScan> (
-	//				genpointsWinoLow->GetScan());
-	//
-	//		PlotTools < SusyScan > *plotToolsInterpolWinoLow
-	//				= new PlotTools<SusyScan> (genpointsInterpolWinoLow->GetScan());
-	//
-	//		//the histograms ---------------------------------------------------------------------
-	//		ExclusionCurves winoLowExcl = DrawPlots(c1, plotToolsWinoLow,
-	//				plotToolsInterpolWinoLow, "WinoLow",100);
-	//		TGraph * winoLow = winoLowExcl.exp;
-	//
-	//	///////////////WINO LIMITS HIGH///////////////////////////////////////////////////
-	//	//Get limits from signal scan ---------------------------------------------------
-	//	TheLimits * genpointsInterpolWinoHigh = new TheLimits();
-	//	genpointsInterpolWinoHigh->Fill("limits_GMSB/resultfileswino350.txt");
-	//	TheLimits * genpointsWinoHigh = new TheLimits();
-	//	genpointsWinoHigh->Fill("limits_GMSB/resultfileswino350.txt");
-	//
-	//	//Make grid in Msquark, Mgluino finer by factor of 4 by linear interpolation
-	//	genpointsInterpolWinoHigh->ExpandGrid<SusyScan> (Msquark, Mgluino);
-	//	genpointsInterpolWinoHigh->ExpandGrid<SusyScan> (Msquark, Mgluino);
-	//	// New 'pseudo' points are added, therefore the binning of all plots has to be made finer by a factor
-	//	// of 2 in x and y for each "ExpandGrid
-	//	//the plotting ----------------------------------------------------------------------
-	//	//plotting helper functions
-	//	PlotTools < SusyScan > *plotToolsWinoHigh = new PlotTools<SusyScan> (
-	//			genpointsWinoHigh->GetScan());
-	//
-	//	PlotTools < SusyScan > *plotToolsInterpolWinoHigh
-	//			= new PlotTools<SusyScan> (genpointsInterpolWinoHigh->GetScan());
-	//
-	//	//the histograms ---------------------------------------------------------------------
-	//	ExclusionCurves winoHighExcl = DrawPlots(c1, plotToolsWinoHigh,
-	//			plotToolsInterpolWinoHigh, "WinoHigh",350);
-	//	TGraph * winoHigh = winoHighExcl.exp;
-	//
-	//	//compare MET cuts
-	//	c1->SetLogz(1);
-	//	c1->SetRightMargin(0.08);
-	//	TH2F*hexclWinoComp = new TH2F("hexcl",
-	//			";m_{squark} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); 95% CL Exclusion", 80, 400,
-	//			2000, 80, 400, 2000);
-	//	hexclWinoComp->Draw("COLZ");
-	//	wino->SetLineColor(2);
-	//	winoHigh->SetLineColor(2);
-	//	winoLow->SetLineColor(2);
-	//	wino->SetLineStyle(1);
-	//	winoHigh->SetLineStyle(2);
-	//	winoLow->SetLineStyle(3);
-	//	wino->Draw("");
-	//	winoHigh->Draw("");
-	//	winoLow->Draw("");
-	//	TLegend * leg = new TLegend(0.41, 0.41, 0.93, 0.9);
-	//	leg->SetBorderSize(0);
-	//	leg->SetFillColor(0);
-	//	leg->SetFillStyle(4000);
-	//	leg->SetTextSize(0.025);
-	//
-	//	//leg->AddEntry(CLsObsNLO,"Observed, NLO","l");
-	//
-	//	leg->AddEntry(winoLow, "Expected MET>100", "l");
-	//	leg->AddEntry(wino, "Expected, MET>200", "l");
-	//	leg->AddEntry(winoHigh, "Expected, MET>350", "l");
-	//
-	//	leg->Draw();
-	//	drawCmsPrel(0);
-	//	string nameXsPlot = "results/WinoCOMPMetSelection_3jet";
-	//	c1->SaveAs((nameXsPlot + ".pdf").c_str());
-	//	c1->SaveAs((nameXsPlot + ".eps").c_str());
-	//
-	//compare Neutralino masses
-	TGraph * winoExp = winoExcl.exp;
-	TGraph * winoObs = winoExcl.obs;
-	TGraph * winoOneSigBand = winoExcl.onesigband;
-
-	TGraph * wino150Exp = wino150Excl.exp;
-	TGraph * wino150Obs = wino150Excl.obs;
-	TGraph * wino150OneSigBand = wino150Excl.onesigband;
-
-	c1->SetLogz(1);
-	c1->SetRightMargin(0.08);
-	TH2F*hexclWinoCompNeutr = new TH2F("hexclNeutrComp",
-			";m_{squark} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); 95% CL Exclusion", 92, 160,
-			2000, 92, 160, 2000);
-
-	hexclWinoCompNeutr->Draw("COLZ");
-
-	winoOneSigBand->SetFillStyle(3001);
-	winoOneSigBand->SetFillColor(kOrange);
-	winoOneSigBand->Draw("f");
-	winoObs->SetLineWidth(2);
-	winoExp->SetLineWidth(2);
-	winoObs->Draw("l");
-	winoExp->Draw("l");
-
-	wino150OneSigBand->SetFillStyle(3001);
-	wino150OneSigBand->SetFillColor(kYellow);
-	wino150OneSigBand->Draw("f");
-	wino150Obs->SetLineWidth(2);
-		wino150Exp->SetLineWidth(2);
-	wino150Obs->Draw("l");
-	wino150Exp->Draw("l");
+	m2OneSigBand->SetFillStyle(3001);
+	m2OneSigBand->SetFillColor(kYellow);
+	m2OneSigBand->Draw("f");
+	m2Obs->SetLineWidth(2);
+	m2Exp->SetLineWidth(2);
+	m2Obs->Draw("l");
+	m2Exp->Draw("l");
 
 	TH1F * dummy = new TH1F("dummy", "dummy", 5, 0, 5);
 	dummy->SetLineColor(0);
@@ -1478,34 +1425,81 @@ int plot(int argc, char** argv) {
 	leg2->SetFillStyle(4000);
 	leg2->SetTextSize(0.025);
 	//leg2->AddEntry(dummy, "m_{#tilde{#Chi}^{0}} = 375 GeV", "l");
-	leg2->AddEntry(winoObs, "Observed, m_{#tilde{#Chi}^{0}} = 375 GeV", "l");
-	leg2->AddEntry(winoExp, "Expected, m_{#tilde{#Chi}^{0}} = 375 GeV", "l");
-	leg2->AddEntry(winoOneSigBand, "#pm 1#sigma, m_{#tilde{#Chi}^{0}} = 375 GeV", "f");
+	leg2->AddEntry(m1Obs, "Observed, m_{#tilde{#Chi}^{0}} = 375 GeV", "l");
+	leg2->AddEntry(m1Exp, "Expected, m_{#tilde{#Chi}^{0}} = 375 GeV", "l");
+	leg2->AddEntry(m1OneSigBand, "#pm 1#sigma, m_{#tilde{#Chi}^{0}} = 375 GeV",
+			"f");
 
 	//leg2->AddEntry(dummy, "m_{#tilde{#Chi}^{0}} = 150 GeV ", "l");
-	leg2->AddEntry(wino150Obs, "Observed, m_{#tilde{#Chi}^{0}} = 150 GeV", "l");
-	leg2->AddEntry(wino150Exp, "Expected, m_{#tilde{#Chi}^{0}} = 150 GeV", "l");
-	leg2->AddEntry(wino150OneSigBand, "#pm 1#sigma, m_{#tilde{#Chi}^{0}} = 150 GeV", "f");
-
+	leg2->AddEntry(m2Obs, "Observed, m_{#tilde{#Chi}^{0}} = 150 GeV", "l");
+	leg2->AddEntry(m2Exp, "Expected, m_{#tilde{#Chi}^{0}} = 150 GeV", "l");
+	leg2->AddEntry(m2OneSigBand, "#pm 1#sigma, m_{#tilde{#Chi}^{0}} = 150 GeV",
+			"f");
 
 	//leg->AddEntry(CLsExpNoSNLO,   "Expected, no-signal hyp., NLO","l");
 	leg2->Draw();
 	gPad->RedrawAxis();
 
-	drawCmsPrel(200);
-	string nameNeutrCompWinoPlot = "results/WinoCOMPNeutr_3jet";
-	c1->SaveAs((nameNeutrCompWinoPlot + ".pdf").c_str());
-	c1->SaveAs((nameNeutrCompWinoPlot + ".eps").c_str());
-	
-	
-	
-        ///////////////NEUTRALINO LIMITS///////////////////////////////////////////////////
+	drawCmsPrel(lumi, 200);
+	string nameNeutrCompPlot = "results/" + prefix + "COMPNeutr_3jet";
+	c1->SaveAs((nameNeutrCompPlot + ".pdf").c_str());
+	c1->SaveAs((nameNeutrCompPlot + ".png").c_str());
+}
+void DrawMetCutComp(double lumi, TCanvas * c1, TGraph * low, TGraph * high,
+		TGraph * med, string prefix, bool dijet = false, bool bestLimit = false) {
+	//compare MET cuts
+	c1->SetLogz(1);
+	c1->SetRightMargin(0.08);
+	string jetapp = "3jet";
+	int noJet = 3;
+	if (dijet) {
+		jetapp = "2jet";
+		noJet = 2;
+	}
+	if (bestLimit)
+		jetapp = "2OR3jet";
+	TH2F
+			*hexclComp =
+					new TH2F(
+							"hexcl",
+							";m_{squark} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); 95% CL Exclusion",
+							80, 400, 2000, 80, 400, 2000);
+	hexclComp->Draw("COLZ");
+	med->SetLineColor(2);
+	high->SetLineColor(2);
+	low->SetLineColor(2);
+	med->SetLineStyle(1);
+	high->SetLineStyle(2);
+	low->SetLineStyle(3);
+	med->Draw("");
+	high->Draw("");
+	low->Draw("");
+	TLegend * leg = new TLegend(0.41, 0.41, 0.93, 0.9);
+	leg->SetBorderSize(0);
+	leg->SetFillColor(0);
+	leg->SetFillStyle(4000);
+	leg->SetTextSize(0.025);
+
+	leg->AddEntry(low, "Expected MET>100", "l");
+	leg->AddEntry(med, "Expected, MET>200", "l");
+	leg->AddEntry(high, "Expected, MET>350", "l");
+
+	leg->Draw();
+
+	drawCmsPrel(lumi, 0, false, noJet);
+	string nameXsPlot = "results/" + prefix + "COMPMetSelection_" + jetapp;
+	c1->SaveAs((nameXsPlot + ".pdf").c_str());
+	c1->SaveAs((nameXsPlot + ".png").c_str());
+}
+ExclusionCurves makePlotsChi1(double met, string filename,
+		bool pdfuncertinclInAcc, string prefix, TCanvas * c1) {
+	///////////////NEUTRALINO LIMITS///////////////////////////////////////////////////
 	//Get limits from signal scan ---------------------------------------------------
 	TheLimits * genpointsChi1_sq2500 = new TheLimits();
-	genpointsChi1_sq2500->Fill("limitsBinoNeutrScan_v1/filelist_sq2500.txt");
+	genpointsChi1_sq2500->Fill("limits_GMSB/" + filename);
 
-        //genpointsChi1->FillEmptyPointsByInterpolationInMchi1Mgl();
-        //genpointsChi1->FillEmptyPointsByInterpolationInMchi1Mgl();
+	//genpointsChi1->FillEmptyPointsByInterpolationInMchi1Mgl();
+	//genpointsChi1->FillEmptyPointsByInterpolationInMchi1Mgl();
 	//Make grid in Msquark, Mgluino finer by factor of 4 by linear interpolation
 	//genpointschi1->ExpandGrid<SusyScan> (Mchi1, Mgluino);
 	//genpointschi1->ExpandGrid<SusyScan> (Mchi1, Mgluino);
@@ -1514,12 +1508,135 @@ int plot(int argc, char** argv) {
 	// of 2 in x and y for each "ExpandGrid
 	//the plotting ----------------------------------------------------------------------
 	//plotting helper functions
-	PlotTools < SusyScan > *plotToolsChi1_sq2500 = new PlotTools<SusyScan> (genpointsChi1_sq2500->GetScan());
+	PlotTools<SusyScan> *plotToolsChi1_sq2500 = new PlotTools<SusyScan> (
+			genpointsChi1_sq2500->GetScan());
 
 	//the histograms ---------------------------------------------------------------------
-	DrawPlotsChi1(c1, plotToolsChi1_sq2500, plotToolsChi1_sq2500, "Chi1_SQ2500");
+	DrawPlotsChi1(c1, plotToolsChi1_sq2500, plotToolsChi1_sq2500, prefix);
+}
+ExclCurvesContainer makePlotsSqGl(double met, string filename,
+		bool pdfuncertinclInAcc, string prefix, TCanvas * c1) {
+	//Get limits from signal scan ---------------------------------------------------
+	TheLimits * genpointsInterpol = new TheLimits();
 
+	genpointsInterpol->Fill("limits_GMSB/" + filename);
+	TheLimits * genpoints = new TheLimits();
 
+	genpoints->Fill("limits_GMSB/" + filename);
+
+	//Make grid in Msquark, Mgluino finer by factor of 4 by linear interpolation
+	genpointsInterpol->ExpandGrid<SusyScan> (Msquark, Mgluino);
+	genpointsInterpol->ExpandGrid<SusyScan> (Msquark, Mgluino);
+
+	// New 'pseudo' points are added, therefore the binning of all plots has to be made finer by a factor
+	// of 2 in x and y for each "ExpandGrid
+	//the plotting ----------------------------------------------------------------------
+	//plotting helper functions
+	PlotTools<SusyScan> *plotTools = new PlotTools<SusyScan> (
+			genpoints->GetScan());
+
+	PlotTools<SusyScan> *plotToolsInterpol = new PlotTools<SusyScan> (
+			genpointsInterpol->GetScan());
+
+	//the histograms ---------------------------------------------------------------------
+	ExclCurvesContainer excl;
+	if (pdfuncertinclInAcc) {
+		std::cout << "INCL!!:" << std::endl;
+		excl = DrawPlots(c1, plotTools, plotToolsInterpol, prefix, true, met,
+				true);
+
+	} else {
+		excl = DrawPlots(c1, plotTools, plotToolsInterpol, prefix, true, met);
+	}
+	return excl;
+}
+int plot(int argc, char** argv) {
+
+	util::StyleSettings::paperNoTitle();
+	gStyle->SetPadBottomMargin(0.18);
+
+	TCanvas * c1 = new TCanvas("c1", "c1", 600, 600);
+	c1->cd();
+
+	bool pdfuncertinclInAcc = false;
+	bool doBinoLimits = true;
+	bool doWinoLimits = true;
+	bool doNeutralinoLimits = true;
+
+	if (doBinoLimits) {
+		//Bino, Met200, Neutr375
+		ExclCurvesContainer binoExcl;
+		if (pdfuncertinclInAcc) {
+			binoExcl = makePlotsSqGl(200, "resultfilesbinoPDFACC.txt",
+					pdfuncertinclInAcc, "Bino", c1);
+		} else
+			binoExcl = makePlotsSqGl(200, "resultfilesbino200_Sep6.txt",
+					pdfuncertinclInAcc, "Bino", c1);
+		TGraph * bino = binoExcl.jet3.exp;
+		//Bino, Met100, Neutr375
+		ExclCurvesContainer binoLowExcl = makePlotsSqGl(100,
+				"resultfilesbino100_Sep6.txt", pdfuncertinclInAcc, "BinoLow",
+				c1);
+		TGraph * binoLow = binoLowExcl.jet3.exp;
+		//Bino, Met350, Neutr375
+		ExclCurvesContainer binoHighExcl = makePlotsSqGl(350,
+				"resultfilesbino350_Sep6.txt", pdfuncertinclInAcc, "BinoHigh",
+				c1);
+		TGraph * binoHigh = binoHighExcl.jet3.exp;
+		//Bino, Met Comparison, Neutr375
+		DrawMetCutComp(1714, c1, binoLow, binoHigh, bino, "Bino");
+
+		//Bino, Met200, Neutr150
+		ExclCurvesContainer bino150Excl;
+		bino150Excl = makePlotsSqGl(200, "resultfilesbino200Neutr150_Sep6.txt",
+				pdfuncertinclInAcc, "Bino150", c1);
+		//Bino, Neutr mass comparison
+		DrawNeutrMassComp(binoExcl.lumi, c1, binoExcl.jet3, bino150Excl.jet3,
+				"Bino");
+
+	}
+	if (doWinoLimits) {
+		//Wino, Met200, Neutr375
+		ExclCurvesContainer winoExcl;
+		if (pdfuncertinclInAcc) {
+			winoExcl = makePlotsSqGl(200, "resultfileswinoPDFACC.txt",
+					pdfuncertinclInAcc, "Wino", c1);
+		} else
+			winoExcl = makePlotsSqGl(200, "resultfileswino200_Sep6.txt",
+					pdfuncertinclInAcc, "Wino", c1);
+		TGraph * wino = winoExcl.jet3.exp;
+		//Wino, Met100, Neutr375
+		ExclCurvesContainer winoLowExcl = makePlotsSqGl(100,
+				"resultfileswino100_Sep6.txt", pdfuncertinclInAcc, "WinoLow",
+				c1);
+		TGraph * winoLow = winoLowExcl.jet3.exp;
+		//Wino, Met350, Neutr375
+		ExclCurvesContainer winoHighExcl = makePlotsSqGl(350,
+				"resultfileswino350_Sep6.txt", pdfuncertinclInAcc, "WinoHigh",
+				c1);
+		TGraph * winoHigh = winoHighExcl.jet3.exp;
+		//Wino, Met Comparison, Neutr375
+		DrawMetCutComp(winoExcl.lumi, c1, winoLow, winoHigh, wino, "Wino");
+		DrawMetCutComp(winoExcl.lumi, c1, winoLowExcl.jet2.exp,
+				winoHighExcl.jet2.exp, winoExcl.jet2.exp, "Wino", true);
+
+		//Wino, Met200, Neutr150
+		ExclCurvesContainer wino150Excl;
+		wino150Excl = makePlotsSqGl(200, "resultfileswino200Neutr150_Sep6.txt",
+				pdfuncertinclInAcc, "Wino150", c1);
+		//Wino, Met100, Neutr150
+		ExclCurvesContainer wino150LowExcl = makePlotsSqGl(100,
+				"resultfilesbino100Neutr150_Sep6.txt", pdfuncertinclInAcc,
+				"Wino150Low", c1);
+		//Wino, Neutr mass comparison
+		DrawNeutrMassComp(1714, c1, winoExcl.jet3, wino150Excl.jet3, "Wino");
+
+	}
+	if (doNeutralinoLimits) {
+
+		makePlotsChi1(200, "resultfilesBino200NeutrScanSquark2500_Sep9.txt", pdfuncertinclInAcc,
+				"Chi1_SQ2500", c1);
+	}
 }
 
 int main(int argc, char** argv) {

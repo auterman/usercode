@@ -8,11 +8,12 @@ class SusyScan;
 class TH2;
 
 TGraph * MakeBand(TGraph *g1, TGraph *g2, bool b=false);
-TGraph * GetExcludedRegion(TGraph * lowerLimit, double min1,double min2);
+TGraph * GetExcludedRegion(TGraph * lowerLimit, double min1,double min2, double max1,double max2);
 void Smooth(TGraph * g, int n=3);
 void Smooth2D(TGraph * g, int n=3);
 TGraph* Close2D(TGraph * g);
-void drawCmsPrel(double METCut, bool onlyChannelInfo=false);
+void drawCmsPrel(double lumi,double METCut, bool onlyChannelInfo=false, int noJets=3,bool isBestjet=false);
+void drawCmsPrelInCanvas(double intLumi);
 //void MergeBins(TH1*);
 
 template<class T>
@@ -25,6 +26,7 @@ class PlotTools {
   
   void Area(  TH2*h, double(*x)(const T*), double(*y)(const T*), 
               double(*func)(const T*));
+  double SingleValue( double(*func)(const T*) );
   
   void Graph(  TGraph*g, double(*x)(const T*), double(*y)(const T*), double ymin=-999. );
   

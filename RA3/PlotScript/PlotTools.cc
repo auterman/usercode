@@ -34,6 +34,18 @@ TGraph * PlotTools<T>::Line( double(*x)(const T*), double(*y)(const T*),
   return result;
 }
 
+template<class T>
+double PlotTools<T>::SingleValue( double(*func)(const T*) )
+{
+  double result=0;
+  for (typename std::vector<T*>::const_iterator it=_scan->begin();it!=_scan->end();++it){
+	  result=fabs(func( *it));
+     if(result!=0)break;
+  }
+
+  return result;
+}
+
 
 template<class T>
 void PlotTools<T>::Area( TH2*h, double(*x)(const T*), double(*y)(const T*), 
@@ -69,7 +81,7 @@ void PlotTools<T>::Graph( TGraph*g, double(*x)(const T*), double(*y)(const T*),d
   std::sort(_scan->begin(),_scan->end(),sort_by(x));
   for (typename std::vector<T*>::const_iterator it=_scan->begin();it!=_scan->end();++it){
     if (y(*it)>=ymin) g->SetPoint(i++, x(*it), y(*it));
-    //std::cout << i << ": x="<<x(*it)<< ", y="<<y(*it)<< std::endl;
+    std::cout << i << ": x="<<x(*it)<< ", y="<<y(*it)<< std::endl;
   } 
 }
 
@@ -299,18 +311,26 @@ bool PlotTools<T>::sort_TGraph::operator()(const TGraph*g1, const TGraph*g2)
 { 
    return g1->GetN() > g2->GetN();
 }
-TGraph * GetExcludedRegion(TGraph * lowerLimit, double min1,double min2){
-	TGraph* excludedRegion = new TGraph(lowerLimit->GetN()+2);
+TGraph * GetExcludedRegion(TGraph * lowerLimit, double min1,double min2, double max1,double max2){
+	TGraph* excludedRegion = new TGraph(lowerLimit->GetN()+3);
 	  int nbins = lowerLimit->GetN();
 
 	  for(int i=0; i<nbins+1; i++){
 	    double x,y;
 	    lowerLimit->GetPoint(i,x,y);
 	    excludedRegion->SetPoint(i,x,y);
+	    if(i==nbins){
+	    	excludedRegion->SetPoint(nbins,min1,y);
+	    }
 	  }
-	  excludedRegion->SetPoint(nbins,min1,min2);
-	  excludedRegion->SetPoint(nbins+1,2000,min2);
-	  //excludedRegion->SetPoint(nbins+2,min1,2000);
+
+	  //excludedRegion->SetPoint(nbins,2000.1,400);
+	 // excludedRegion->SetPoint(nbins+2,min1,max2);
+	   excludedRegion->SetPoint(nbins+2,min1,min2);
+	   excludedRegion->SetPoint(nbins+3,max1,min2);
+	   //excludedRegion->SetPoint(nbins+3,400,2000.1);
+
+
 
 
 	  excludedRegion->SetFillStyle(3004);
@@ -350,12 +370,23 @@ std::string getStringFromInt(int i) {
 	return " " + ret;
 	//---------
 }
+void drawCmsPrelInCanvas(double intLumi){
+	TLatex* lat = new TLatex(0.46, 0.84, "CMS Preliminary");
+		lat->SetNDC(true);
+		lat->SetTextSize(0.04);
+		lat->Draw("same");
 
-void drawCmsPrel(double METCut, bool onlyChannelInfo) {
-	double intLumi=1.14;
+		TLatex* lat2 = new TLatex(0.46, 0.77,
+				Form("#sqrt{s} = 7 TeV,  #int#it{L}dt = %.2ffb^{-1}",intLumi));
+		lat2->SetNDC(true);
+		lat2->SetTextSize(0.04);
+		lat2->Draw("same");
+}
+void drawCmsPrel(double intLumi,double METCut, bool onlyChannelInfo, int noJets,bool isBestjet) {
+
 	TLatex as;
 	as.SetNDC(true);
-	as.SetTextSize(0.035);
+	as.SetTextSize(0.03);
 	as.SetTextFont(42);//ms.SetTextColor(12);
 	std::string out="";
 	if(!onlyChannelInfo){
@@ -369,14 +400,17 @@ void drawCmsPrel(double METCut, bool onlyChannelInfo) {
 
 		//1#gamma, >=3 jets, MET>"+getStringFromInt(METCut)+" GeV ";
 		if(METCut==0){
-			out="1#gamma, >=3 jets";
+			out="1#gamma, >="+getStringFromInt(noJets)+" jets";
+			if(isBestjet)
+				out="1#gamma, >=2/3 jets";
 		}
 
 	else{
-		out="1#gamma, >=3 jets, MET>"+getStringFromInt(METCut)+" GeV ";
-
+		out="1#gamma, >="+getStringFromInt(noJets)+" jets, MET>"+getStringFromInt(METCut)+" GeV ";
+		if(isBestjet)
+			out="1#gamma, >=2/3 jets, MET>"+getStringFromInt(METCut)+" GeV ";
 	}
-
+        as.SetTextSize(0.035);
 	as.DrawLatex(
 			0.57,
 			0.93,

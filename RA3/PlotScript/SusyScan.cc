@@ -26,6 +26,8 @@ SusyScan::SusyScan(std::string filename) {
 
 	signal_acceptance = config.read<double> ("signal.acceptance", 0);
 	signal_contamination = config.read<double> ("signal.contamination", 0);
+	signal_acceptance2j = config.read<double> ("signal.acceptance2j", 0);
+		signal_contamination2j = config.read<double> ("signal.contamination2j", 0);
 	triggerEffN90Hits = config.read<double> ("signal.triggAcc2", 0);
 	triggerEff = config.read<double> ("signal.triggAcc", 0);
 	//std::cout <<"CONT:"<< signal_contamination << ": "<< signal_contamination <<std::endl;
@@ -57,9 +59,23 @@ SusyScan::SusyScan(std::string filename) {
 	ExpXsecLimitP2SigCont = config.read<double> (
 			"limitSC.cls.expected.p2sigma", 9999);
 
+	ExpXsecLimitSigCont2j = config.read<double> ("limitSC2j.cls.expected", 9999);
+		ObsXsecLimitSigCont2j = config.read<double> ("limitSC2j.cls.observed", 9999);
+
+		ExpXsecLimitM1SigCont2j = config.read<double> (
+				"limitSC2j.cls.expected.m1sigma", 9999);
+		ExpXsecLimitP1SigCont2j = config.read<double> (
+				"limitSC2j.cls.expected.p1sigma", 9999);
+
+		ExpXsecLimitM2SigCont2j = config.read<double> (
+				"limitSC2j.cls.expected.m2sigma", 9999);
+		ExpXsecLimitP2SigCont2j = config.read<double> (
+				"limitSC2j.cls.expected.p2sigma", 9999);
+
 	Luminosity = config.read<double> ("Luminosity", 9999);
 
 	background = config.read<double> ("background", 9999);
+	background2j = config.read<double> ("background2j", 9999);
 
 }
 
@@ -93,8 +109,18 @@ void SusyScan::SetPtr() {
 	p.push_back(&ExpXsecLimitP1SigCont);
 	p.push_back(&ExpXsecLimitM2SigCont);
 	p.push_back(&ExpXsecLimitP2SigCont);
+
+	p.push_back(&ObsXsecLimitSigCont2j);
+		p.push_back(&ExpXsecLimitSigCont2j);
+
+		p.push_back(&ExpXsecLimitM1SigCont2j);
+		p.push_back(&ExpXsecLimitP1SigCont2j);
+		p.push_back(&ExpXsecLimitM2SigCont2j);
+		p.push_back(&ExpXsecLimitP2SigCont2j);
+
 	p.push_back(&Luminosity);
 	p.push_back(&background);
+	p.push_back(&background2j);
 }
 
 const SusyScan SusyScan::operator*(const double f) const {
