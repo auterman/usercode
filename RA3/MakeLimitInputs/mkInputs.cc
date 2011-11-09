@@ -214,8 +214,8 @@ void ReadXsec(const std::string filelist, bool useCut2, bool useCut3,
 	double nAcc;
 	double LO_dn, LO_up;
 	while (1) {
-		masses_file >> p.squark >> p.gluino >> p.chi >> p.xsec >> LO_up
-				>> LO_dn >> p.xsecNLO >> p.u_NLO_up >> p.u_NLO_dn;
+		masses_file >> p.squark >> p.gluino >> p.chi >> p.xsec >> LO_up >> LO_dn >> p.xsecNLO
+			>> p.u_NLO_up >> p.u_NLO_dn;
 
 		if (!masses_file.good())
 			break;
@@ -226,12 +226,15 @@ void ReadXsec(const std::string filelist, bool useCut2, bool useCut3,
 		std::cout << "gl" << p.gluino << std::endl;
 		std::cout << "neutr" << p.chi << std::endl;
 		if (p.chi == neutr || neutr == 0) {
-			point * a = 0;
-			a = Points.Get(p.gluino, p.squark, p.chi);
-			if (!a) {
-				Points.Add(p);
-			}
+			//reject points were neutralino is heavier than squark/gluino
+			if (p.chi < p.squark && p.chi < p.gluino) {
 
+				point * a = 0;
+				a = Points.Get(p.gluino, p.squark, p.chi);
+				if (!a) {
+					Points.Add(p);
+				}
+			}
 		}
 
 	}
@@ -324,8 +327,8 @@ void ReadSignalAcceptance(const std::string filelist,
 			a->triggAcc = p.triggAcc / p.ngen;
 			a->triggAcc2 = p.triggAcc2 / p.ngen;
 
-			a->acc = p.acc / p.ngen;
-			a->acc2j = p.acc2j / p.ngen;
+			a->acc = p.acc==0?0:p.acc / p.ngen;
+			a->acc2j = p.acc==0?0:p.acc2j / p.ngen;
 			double perc_uncert_JES = 0.02;
 			double scale_Photon_dataMC = 0.953;
 			double scale_Photon_dataMC_uncert = 0.068;

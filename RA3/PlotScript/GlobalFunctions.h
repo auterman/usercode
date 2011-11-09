@@ -57,7 +57,8 @@ double SignalContamination(const SusyScan* p) {
 			/ p->background);
 }
 double SignalAcceptance2j(const SusyScan* p) {
-
+	//std::cout<<Mgluino(p)<<"-"<<Msquark(p)<<"-"<<Mchi1(p)<<"-"<<p->ngen<<"==2j=="<<p->signal_acceptance2j<<std::endl;
+	//std::cout<<Mgluino(p)<<"-"<<Msquark(p)<<"-"<<Mchi1(p)<<"-"<<p->ngen<<"===="<<p->signal_acceptance<<std::endl;
 	return 100 * p->signal_acceptance2j;
 }
 double SignalContamination2j(const SusyScan* p) {
@@ -164,7 +165,7 @@ double ObsExclusionSigCont(const SusyScan* p) {
 }
 
 double ObsExclusionM1SigCont(const SusyScan* p) {
-	if (Msquark(p) <= 480 && Mgluino(p) > 1500) {
+	if (Msquark(p) <= 480 && Mgluino(p) > 1500 && false) {
 		std::cout << Mgluino(p) << "-" << Msquark(p) << "!!!===obs="
 				<< ObsXsecLimitSigCont(p) << std::endl;
 		std::cout << "===XS=" << NLOXsection(p) << std::endl;
@@ -275,13 +276,13 @@ double BestXSec(const SusyScan* p) {
 	return 2;
 }
 double ExpXsecLimitSigContBest(const SusyScan* p) {
-	if(p->ExpXsecLimitSigCont2j > p->ExpXsecLimitSigCont)
+	if(BestXSec(p)==3)
 		return p->ExpXsecLimitSigCont;
 	else
 	return p->ExpXsecLimitSigCont2j;
 }
 double ObsXsecLimitSigContBest(const SusyScan* p) {
-	if(p->ObsXsecLimitSigCont2j > p->ObsXsecLimitSigCont)
+	if(BestXSec(p)==3)
 			return p->ObsXsecLimitSigCont;
 		else
 	return p->ObsXsecLimitSigCont2j;

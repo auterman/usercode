@@ -22,7 +22,7 @@ public:
 	double signal_acceptance;
 	double signal_contamination;
 	double signal_acceptance2j;
-		double signal_contamination2j;
+	double signal_contamination2j;
 	double triggerEffN90Hits, triggerEff;
 	double ExpXsecLimit;
 	double ObsXsecLimit;
@@ -39,17 +39,18 @@ public:
 	double ExpXsecLimitP2SigCont;
 
 	double ExpXsecLimitSigCont2j;
-		double ObsXsecLimitSigCont2j;
-		double ExpXsecLimitM1SigCont2j;
-		double ExpXsecLimitP1SigCont2j;
-		double ExpXsecLimitM2SigCont2j;
-		double ExpXsecLimitP2SigCont2j;
+	double ObsXsecLimitSigCont2j;
+	double ExpXsecLimitM1SigCont2j;
+	double ExpXsecLimitP1SigCont2j;
+	double ExpXsecLimitM2SigCont2j;
+	double ExpXsecLimitP2SigCont2j;
 
 	double NLOXsection;
 	double NLOXSecUp, NLOXSecDown;
 	double PDFXsectionErr;
 
 	double Luminosity;
+	double ngen;
 	double background;
 	double background2j;
 

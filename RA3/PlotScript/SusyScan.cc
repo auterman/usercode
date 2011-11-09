@@ -22,14 +22,18 @@ SusyScan::SusyScan(std::string filename) {
 	Mgluino = config.read<double> ("gluino", 0);
 	Msquark = config.read<double> ("squark", 0);
 	Mchi1 = config.read<double> ("chi1", 0);
-	// std::cout <<"MASS:"<< Mgluino << ": "<< Msquark <<std::endl;
 
-	signal_acceptance = config.read<double> ("signal.acceptance", 0);
-	signal_contamination = config.read<double> ("signal.contamination", 0);
-	signal_acceptance2j = config.read<double> ("signal.acceptance2j", 0);
-		signal_contamination2j = config.read<double> ("signal.contamination2j", 0);
-	triggerEffN90Hits = config.read<double> ("signal.triggAcc2", 0);
-	triggerEff = config.read<double> ("signal.triggAcc", 0);
+	ngen =config.read<double> ("signal.ngen", 0);
+	if(ngen<1)ngen=0;
+	signal_acceptance = ngen==0?0:config.read<double> ("signal.acceptance", 0);
+	signal_contamination = signal_acceptance == 0 ? 0
+		: config.read<double> ("signal.contamination", 0);
+	signal_acceptance2j = ngen==0?0:config.read<double> ("signal.acceptance2j", 0);
+	//std::cout <<"SigAcc 2jet:"<< signal_acceptance2j <<std::endl;
+	signal_contamination2j = signal_acceptance2j == 0 ? 0
+		: config.read<double> ("signal.contamination2j", 0);
+	triggerEffN90Hits = signal_acceptance == 0 ? 0 : config.read<double> ("signal.triggAcc2", 0);
+	triggerEff = signal_acceptance == 0 ? 0 : config.read<double> ("signal.triggAcc", 0);
 	//std::cout <<"CONT:"<< signal_contamination << ": "<< signal_contamination <<std::endl;
 
 	//Xsection 	= config.read<double>("Xsection", 0);
@@ -38,45 +42,53 @@ SusyScan::SusyScan(std::string filename) {
 	NLOXSecDown = config.read<double> ("signal.scale.uncertainty.dn", 0);
 	PDFXsectionErr = config.read<double> ("signal.PDF.uncertainty", 0);
 
-	ExpXsecLimit = config.read<double> ("limit.cls.expected", 9999);
-	ObsXsecLimit = config.read<double> ("limit.cls.observed", 9999);
+	ExpXsecLimit = signal_acceptance == 0 ? 9999 : config.read<double> ("limit.cls.expected", 9999);
+	ObsXsecLimit = signal_acceptance == 0 ? 9999 : config.read<double> ("limit.cls.observed", 9999);
 
-	ExpXsecLimitM1 = config.read<double> ("limit.cls.expected.m1sigma", 9999);
-	ExpXsecLimitP1 = config.read<double> ("limit.cls.expected.p1sigma", 9999);
-	ExpXsecLimitM2 = config.read<double> ("limit.cls.expected.m2sigma", 9999);
-	ExpXsecLimitP2 = config.read<double> ("limit.cls.expected.p2sigma", 9999);
+	ExpXsecLimitM1 = signal_acceptance == 0 ? 9999
+		: config.read<double> ("limit.cls.expected.m1sigma", 9999);
+	ExpXsecLimitP1 = signal_acceptance == 0 ? 9999
+		: config.read<double> ("limit.cls.expected.p1sigma", 9999);
+	ExpXsecLimitM2 = signal_acceptance == 0 ? 9999
+		: config.read<double> ("limit.cls.expected.m2sigma", 9999);
+	ExpXsecLimitP2 = signal_acceptance == 0 ? 9999
+		: config.read<double> ("limit.cls.expected.p2sigma", 9999);
 
-	ExpXsecLimitSigCont = config.read<double> ("limitSC.cls.expected", 9999);
-	ObsXsecLimitSigCont = config.read<double> ("limitSC.cls.observed", 9999);
+	ExpXsecLimitSigCont = signal_acceptance == 0 ? 9999
+		: config.read<double> ("limitSC.cls.expected", 9999);
+	ObsXsecLimitSigCont = signal_acceptance == 0 ? 9999
+		: config.read<double> ("limitSC.cls.observed", 9999);
 
-	ExpXsecLimitM1SigCont = config.read<double> (
-			"limitSC.cls.expected.m1sigma", 9999);
-	ExpXsecLimitP1SigCont = config.read<double> (
-			"limitSC.cls.expected.p1sigma", 9999);
+	ExpXsecLimitM1SigCont = signal_acceptance == 0 ? 9999
+		: config.read<double> ("limitSC.cls.expected.m1sigma", 9999);
+	ExpXsecLimitP1SigCont = signal_acceptance == 0 ? 9999
+		: config.read<double> ("limitSC.cls.expected.p1sigma", 9999);
 
-	ExpXsecLimitM2SigCont = config.read<double> (
-			"limitSC.cls.expected.m2sigma", 9999);
-	ExpXsecLimitP2SigCont = config.read<double> (
-			"limitSC.cls.expected.p2sigma", 9999);
+	ExpXsecLimitM2SigCont = signal_acceptance == 0 ? 9999
+		: config.read<double> ("limitSC.cls.expected.m2sigma", 9999);
+	ExpXsecLimitP2SigCont = signal_acceptance == 0 ? 9999
+		: config.read<double> ("limitSC.cls.expected.p2sigma", 9999);
 
-	ExpXsecLimitSigCont2j = config.read<double> ("limitSC2j.cls.expected", 9999);
-		ObsXsecLimitSigCont2j = config.read<double> ("limitSC2j.cls.observed", 9999);
+	ExpXsecLimitSigCont2j = signal_acceptance2j == 0 ? 9999
+		: config.read<double> ("limitSC2j.cls.expected", 9999);
+	ObsXsecLimitSigCont2j = signal_acceptance2j == 0 ? 9999
+		: config.read<double> ("limitSC2j.cls.observed", 9999);
 
-		ExpXsecLimitM1SigCont2j = config.read<double> (
-				"limitSC2j.cls.expected.m1sigma", 9999);
-		ExpXsecLimitP1SigCont2j = config.read<double> (
-				"limitSC2j.cls.expected.p1sigma", 9999);
+	ExpXsecLimitM1SigCont2j = signal_acceptance2j == 0 ? 9999
+		: config.read<double> ("limitSC2j.cls.expected.m1sigma", 9999);
+	ExpXsecLimitP1SigCont2j = signal_acceptance2j == 0 ? 9999
+		: config.read<double> ("limitSC2j.cls.expected.p1sigma", 9999);
 
-		ExpXsecLimitM2SigCont2j = config.read<double> (
-				"limitSC2j.cls.expected.m2sigma", 9999);
-		ExpXsecLimitP2SigCont2j = config.read<double> (
-				"limitSC2j.cls.expected.p2sigma", 9999);
+	ExpXsecLimitM2SigCont2j = signal_acceptance2j == 0 ? 9999
+		: config.read<double> ("limitSC2j.cls.expected.m2sigma", 9999);
+	ExpXsecLimitP2SigCont2j = signal_acceptance2j == 0 ? 9999
+		: config.read<double> ("limitSC2j.cls.expected.p2sigma", 9999);
 
 	Luminosity = config.read<double> ("Luminosity", 9999);
 
 	background = config.read<double> ("background", 9999);
 	background2j = config.read<double> ("background2j", 9999);
-
+	//std::cout <<"SigAcc 2jet -B:"<< signal_acceptance2j <<std::endl;
 }
 
 void SusyScan::SetPtr() {
@@ -86,6 +98,7 @@ void SusyScan::SetPtr() {
 	p.push_back(&Mgluino);
 	p.push_back(&Msquark);
 	p.push_back(&Mchi1);
+	p.push_back(&ngen);
 	p.push_back(&signal_acceptance);
 	p.push_back(&signal_contamination);
 	p.push_back(&triggerEffN90Hits);
@@ -110,13 +123,16 @@ void SusyScan::SetPtr() {
 	p.push_back(&ExpXsecLimitM2SigCont);
 	p.push_back(&ExpXsecLimitP2SigCont);
 
-	p.push_back(&ObsXsecLimitSigCont2j);
-		p.push_back(&ExpXsecLimitSigCont2j);
+	p.push_back(&signal_acceptance2j);
+	p.push_back(&signal_contamination2j);
 
-		p.push_back(&ExpXsecLimitM1SigCont2j);
-		p.push_back(&ExpXsecLimitP1SigCont2j);
-		p.push_back(&ExpXsecLimitM2SigCont2j);
-		p.push_back(&ExpXsecLimitP2SigCont2j);
+	p.push_back(&ObsXsecLimitSigCont2j);
+	p.push_back(&ExpXsecLimitSigCont2j);
+
+	p.push_back(&ExpXsecLimitM1SigCont2j);
+	p.push_back(&ExpXsecLimitP1SigCont2j);
+	p.push_back(&ExpXsecLimitM2SigCont2j);
+	p.push_back(&ExpXsecLimitP2SigCont2j);
 
 	p.push_back(&Luminosity);
 	p.push_back(&background);
