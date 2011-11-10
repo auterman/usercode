@@ -1,0 +1,7 @@
+#!/bin/bash
+cp $1/job*/*.result.txt $1/.
+DIR=`basename $1`
+ls $1/*.result.txt > $1/filelist.txt
+tar -cf $DIR.tar $1/*.txt
+rm -f $1/*.txt
+echo "scp $DIR.tar uhh-cms03.desy.de:temp/."
