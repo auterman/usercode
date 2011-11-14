@@ -337,21 +337,23 @@ void AddPDFAcceptance(const std::string filelist, double neutralinomass=0) {
 
 int main(void) {
    ////////////////Bino Limits
+/*
    Points.Reset();
    ReadSignalAcceptance("inputWinter11/signalAcceptance375.dat", "inputWinter11/data.txt");
    AddXsec("inputWinter11/NLOProspinoXsecs_Bino_Neutr375.txt");
    AddPDFxsec("inputWinter11/PDFcross.txt");
    AddPDFAcceptance("inputWinter11/PDFacceptance.txt");
    Points.Write("limits/GMSBBino100");
-/*
+*/
    ////////////////Wino Limits
    Points.Reset();
-   ReadSignalAcceptance("inputWinter11/signalAcceptanceWinoNeutr375_V10.dat");
+   ReadSignalAcceptance("inputWinter11/signalAcceptance.dat");
    AddXsec("inputWinter11/NLOProspinoXsecs_Wino_Neutr375.txt");
    AddPDFxsec("inputWinter11/PDFcross.txt");
    AddPDFAcceptance("inputWinter11/PDFacceptance.txt");
    Points.Write("limits/GMSBWino100");
 
+/*
    //Limits with Neutralino Mass 150
    //Wino
    Points.Reset();
