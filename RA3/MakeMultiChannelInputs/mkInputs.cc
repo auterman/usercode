@@ -16,7 +16,8 @@
 //LUMI
 const double luminosity = 4320.0;
 const double luminosityUncertainty = 1.045; //4.5% as recommended for LP
-const double scaleUncertainty = 0.2; //suggested by Yuri, see mail June 30th. !Note:obsolete, is not used for limit calculation
+const double scaleUncertainty = 0.2;        //suggested by Yuri, see mail June 30th. !Note:obsolete, is not used for limit calculation
+const string NeutralinoScanString = "NeutralinoScan"; //sub-string in signalAcceptance input file, specifying if the number of generated events has to be set manually (because of generator cuts).
 
 std::string ToString(double d, std::string s=""){
   if (d==0&&s!="") return s;
@@ -207,6 +208,11 @@ void ReadSignalAcceptance(std::string sig_file, std::string dat_file="", std::st
     if (p.gluino== -1.||p.squark== -1.||p.chi== -1.) break;
 
     p.totalGenerated = cfg->read<int>(ss.str()+"_totalGenEvents",-1);
+    //override the totalGenEvents number in case of the neutralino scan (because of generator cuts):
+    if (sig_file.find( NeutralinoScanString )!=string::npos) {
+      p.totalGenerated = 50000;
+    }
+    
     p.lumi = luminosity;
     std::vector<double> data  = bag_of<double>(dat_cfg->read<std::string>("selEvents"));
     std::vector<double> qcd   = bag_of<double>(dat_cfg->read<std::string>("bkgQCDBinned"));
@@ -232,18 +238,20 @@ void ReadSignalAcceptance(std::string sig_file, std::string dat_file="", std::st
     }
     for (int c=0;c<n_channels;++c){
       point::bin channel;
-      channel.signal             = (sig.size()?sig[c]:0);
+      channel.signal             = (sig.size()?sig[c]:0);//This is in <number of generated events>, needs to be
+                                                         //weighted according to Lumi*xsec/n_generated, do that 
+							 //when the x-sections are read in!
       channel.bgd_qcd            = (qcd.size()?qcd[c]:0);
       channel.bgd_ewk            = (ewk.size()?ewk[c]:0);
       channel.bgd_fsr            = (fsr.size()?fsr[c]:0);
       channel.qcd_contamination  = (sig_qcd.size()?sig_qcd[c]:0);
       channel.ewk_contamination  = (sig_ewk.size()?sig_ewk[c]:0);
       channel.data               = (data.size()?data[c]:0);
-      channel.u_stat             = (u_sig.size()&&channel.signal?1.0+ u_sig[c]/channel.signal:0);
+      channel.u_stat             = (u_sig.size()&&sig.size()?u_sig[c]/sig[c]:0);
       channel.u_lumi             = luminosityUncertainty;
-      channel.u_qcd              = (u_qcd.size()&&channel.bgd_qcd?1.0+u_qcd[c]/channel.bgd_qcd:0);
-      channel.u_ewk              = (u_ewk.size()&&channel.bgd_ewk?1.0+u_ewk[c]/channel.bgd_ewk:0);
-      channel.u_fsr              = (u_fsr.size()&&channel.bgd_fsr?1.0+u_fsr[c]/channel.bgd_fsr:0);
+      channel.u_qcd              = (u_qcd.size()&&channel.bgd_qcd?u_qcd[c]/channel.bgd_qcd:0);
+      channel.u_ewk              = (u_ewk.size()&&channel.bgd_ewk?u_ewk[c]/channel.bgd_ewk:0);
+      channel.u_fsr              = (u_fsr.size()&&channel.bgd_fsr?u_fsr[c]/channel.bgd_fsr:0);
       p.bins.push_back( channel );
     }
     //std::cout << "acc "<<n-1<<"  gluino = "<<p.gluino<<"  squark = "<<p.squark<<"  chi = "<<p.chi <<std::endl;
@@ -276,8 +284,10 @@ void AddXsec(std::string filelist) {
 	   if (a){
 	     a->xsec    = p.xsec;
 	     a->xsecNLO = p.xsecNLO;
-	     for (std::vector<point::bin>::iterator bin=a->bins.begin(); bin!=a->bins.end(); ++bin)
+	     for (std::vector<point::bin>::iterator bin=a->bins.begin(); bin!=a->bins.end(); ++bin) {
+	       bin->signal *= luminosity*p.xsecNLO/a->totalGenerated;
 	       bin->u_NLO = 1.0 + NLO_up / p.xsecNLO; //assume that 'u_NLO_up' is the absolute uncertainty in the same units as 'xsecNLO'
+	     }  
 	   }
 	   //else Points.Add(p); //We don't actually want x-sections for points for which we don't have event yields
 
@@ -347,7 +357,7 @@ int main(void) {
 */
    ////////////////Wino Limits
    Points.Reset();
-   ReadSignalAcceptance("inputWinter11/signalAcceptance.dat");
+   ReadSignalAcceptance("inputWinter11/signalAcceptance375.dat", "inputWinter11/data.txt", "inputWinter11/fsr.txt");
    AddXsec("inputWinter11/NLOProspinoXsecs_Wino_Neutr375.txt");
    AddPDFxsec("inputWinter11/PDFcross.txt");
    AddPDFAcceptance("inputWinter11/PDFacceptance.txt");
