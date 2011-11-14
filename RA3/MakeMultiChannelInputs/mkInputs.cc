@@ -157,7 +157,7 @@ public:
 			  for (int bin=1; bin<=n_channels; ++bin) 
 			    for (int sample=1; sample<=n_backgrounds+1; ++sample) 
         		      sys.AddColumn<string>("");
-			sys << "U_Sig";
+			sys << "U_Sig lnN";
  		        for (int b=0; b<n_channels; ++b) {
 			  double u_sig = sqrt( pow(it->bins[b].u_NLO-1.,2) +
       			                       pow(it->bins[b].u_pdfxsec-1.,2) +
@@ -166,19 +166,19 @@ public:
         		  sys << ToString(u_sig,"-") // signal
 			      << "-" << "-" << "-"; //qcd, ewk, fsr
 			}      
-			sys << "U_Lumi";
+			sys << "U_Lumi lnN";
  		        for (int b=0; b<n_channels; ++b) 
         		  sys << ToString(it->bins[b].u_lumi,"-") // signal
 			      << ToString(it->bins[b].u_lumi,"-") << ToString(it->bins[b].u_lumi,"-") << ToString(it->bins[b].u_lumi,"-"); //qcd, ewk, fsr
-			sys << "U_qcd";
+			sys << "U_qcd lnN";
  		        for (int b=0; b<n_channels; ++b) 
         		  sys << "-" // signal
 			      << ToString(it->bins[b].u_qcd,"-") << "-" << "-"; //qcd, ewk, fsr
-			sys << "U_ewk";
+			sys << "U_ewk lnN";
  		        for (int b=0; b<n_channels; ++b) 
         		  sys << "-" // signal
 			      << "-" << ToString(it->bins[b].u_ewk,"-") << "-"; //qcd, ewk, fsr
-			sys << "U_fsr";
+			sys << "U_fsr lnN";
  		        for (int b=0; b<n_channels; ++b) 
         		  sys << "-" // signal
 			      << "-" << "-" << ToString(it->bins[b].u_fsr,"-"); //qcd, ewk, fsr
@@ -252,7 +252,8 @@ void ReadSignalAcceptance(std::string sig_file, std::string dat_file="", std::st
       channel.u_qcd              = (u_qcd.size()&&channel.bgd_qcd?u_qcd[c]/channel.bgd_qcd:0);
       channel.u_ewk              = (u_ewk.size()&&channel.bgd_ewk?u_ewk[c]/channel.bgd_ewk:0);
       channel.u_fsr              = (u_fsr.size()&&channel.bgd_fsr?u_fsr[c]/channel.bgd_fsr:0);
-      p.bins.push_back( channel );
+      if (channel.signal>0. && channel.bgd_qcd+channel.bgd_ewk+channel.bgd_fsr>0.1) 
+        p.bins.push_back( channel );
     }
     //std::cout << "acc "<<n-1<<"  gluino = "<<p.gluino<<"  squark = "<<p.squark<<"  chi = "<<p.chi <<std::endl;
     Points.Add(p);
