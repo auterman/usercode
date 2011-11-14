@@ -57,11 +57,10 @@ EXPp2as=`grep "Expected 97.5%: r <" $LOG_ASYMPTOTIC | cut -b 21-`
 
 echo "# $MODEL" >> $RESULT
 echo "" >> $RESULT
-echo "Mzero = `cat $1 | grep 'Mzero' | cut -d '=' -f 2`" >> $RESULT
-echo "Mhalf = `cat $1 | grep 'Mhalf' | cut -d '=' -f 2`" >> $RESULT
-echo "TanBeta = `cat $1 | grep 'TanBeta' | cut -d '=' -f 2`" >> $RESULT
-echo "Azero = `cat $1 | grep 'Azero' | cut -d '=' -f 2`" >> $RESULT
-echo "Mu = `cat $1 | grep 'Mu' | cut -d '=' -f 2`" >> $RESULT
+echo "gluino = `cat $1 | grep 'gluino' | cut -d '=' -f 2`" >> $RESULT
+echo "squark = `cat $1 | grep 'squark' | cut -d '=' -f 2`" >> $RESULT
+echo "chi1 = `cat $1 | grep 'chi1' | cut -d '=' -f 2`" >> $RESULT
+echo "Luminosity = `cat $1 | grep 'Luminosity' | cut -d '=' -f 2`" >> $RESULT
 echo "Xsection.LO = `cat $1 | grep 'Xsection.LO' | cut -d '=' -f 2`" >> $RESULT
 echo "Xsection.NLO = `cat $1 | grep 'Xsection.NLO' | cut -d '=' -f 2`" >> $RESULT
 echo "" >> $RESULT
