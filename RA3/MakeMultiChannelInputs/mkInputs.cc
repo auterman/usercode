@@ -91,17 +91,29 @@ public:
 			ofile << "# Xsection.LO = " << it-> xsec << "\n";
 			ofile << "# Xsection.NLO = " << it-> xsecNLO << "\n";
 			ofile << "# Luminosity = " << it-> lumi << "\n";
-
                         int n_channels    = it->bins.size();
 			int n_backgrounds = 3;
 			int n_nuisance    = 8;
+			double d=0,b=0,s=0,cont=0;
+			for (int bin=1; bin<=n_channels; ++bin){
+			  d+=it->bins[bin-1].data;
+			  b+=it->bins[bin-1].bgd_qcd + it->bins[bin-1].bgd_ewk + it->bins[bin-1].bgd_fsr;
+			  s+=it->bins[bin-1].signal;
+			  cont+=it->bins[bin-1].qcd_contamination + it->bins[bin-1].ewk_contamination;
+			}
+			ofile << "# data = " << d << "\n";
+			ofile << "# background = " << b << "\n";
+			ofile << "# signal = " << s << "\n";
+			ofile << "# signal.contamination = " << cont << "\n";
+			ofile << "# acceptance = " << s/(it->lumi * it->xsecNLO ) << "\n";
+
 			ofile << "imax " << setw(2) << n_channels    << "  number of channels" << endl;
 			ofile << "jmax " << setw(2) << n_backgrounds << "  number of backgrounds" << endl;
 			ofile << "kmax " << setw(2) << n_nuisance    << "  number of nuisance parameters (sources of systematic uncertainties)" << endl;
 			ofile << "------------" << endl;  
 
                         //observed events in all channels
-			TTable observed("# observed events");\
+			TTable observed("## observed events");\
 			observed.SetStyle(Empty);
 			observed.SetDelimiter("  ");
 			observed.AddColumn<string>(""); for (int bin=1; bin<=n_channels; ++bin) observed.AddColumn<int>("");
@@ -115,7 +127,7 @@ public:
 			ofile << observed << "------------\n" << endl;  
 
 			//expected events in all channels for signal and all backgrounds
-			TTable exp("# expected events");
+			TTable exp("## expected events");
 			exp.SetStyle(Empty);
 			exp.SetDelimiter("  ");
 			exp.AddColumn<string>(""); 
