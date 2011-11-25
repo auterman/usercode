@@ -553,22 +553,14 @@ int main(int argc, char* argv[]) {
    AddPDFAcceptance("inputWinter11/PDFacceptance.txt", 375);
    Points.Write("GMSBBino375Neutr2j/GMSB");
 
-/*
-   //Limits with Neutralino Mass 150
-   //Wino
+   // Squark vs Neutralino (and Gluino vs Neutralino)
    Points.Reset();
-   ReadSignalAcceptance("inputWinter11/signalAcceptanceWinoNeutr150_V10.dat");
-   AddXsec("inputWinter11/NLOProspinoXsecs_Wino_Neutr150.txt");
-   AddPDFxsec("inputWinter11/PDFcross.txt");
-   AddPDFAcceptance("inputWinter11/PDFacceptance.txt");
-   Points.Write("limits/GMSBWino200");
-
-   //Bino
-   Points.Reset();
-   ReadSignalAcceptance("inputWinter11/signalAcceptanceBinoNeutr150_V10.dat");
-   AddXsec("inputWinter11/NLOProspinoXsecs_Bino_Neutr150.txt");
-   AddPDFxsec("inputWinter11/PDFcross.txt");
-   AddPDFAcceptance("inputWinter11/PDFacceptance.txt");
-   Points.Write("limits/GMSBBino200");
-*/
+   ReadSignalAcceptance("","inputWinter11/signalAcceptance_SquarkNeutr.dat", "inputWinter11/data.txt");
+   AddXsec("inputWinter11/");
+   AddPDFxsec("inputWinter11/");
+   AddPDFAcceptance("inputWinter11/");
+   Points.Write("GMSB_SquarkGluino_vs_Neutralino/GMSB");
+   
+   
+   
 }
