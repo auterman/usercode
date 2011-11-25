@@ -1,5 +1,5 @@
 #!/bin/bash
-  exec > "$TMPDIR"/stdout.txt 2>"$TMPDIR"/stderr.txt
+  exec > /dev/null 2>/dev/null
   WORKDIR=AUniquePlaceholderName
   #CONFIGDIR=ConfigDirPlaceholderName
   RELEASEDIR=ReleaseDirPlaceholderName

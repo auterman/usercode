@@ -146,7 +146,7 @@ public:
 			ofile << "# signal.contamination = " << it->qcd_contamination + it->ewk_contamination << "\n";
                         int n_channels    = it->bins.size();
 			int n_backgrounds = 3;
-			int n_nuisance    = 8;
+			int n_nuisance    = 5 + n_channels*4; //systs & stats
 			double d=0,b=0,s=0,cont=0;
 			for (int bin=1; bin<=n_channels; ++bin){
 			  d+=it->bins[bin-1].data;
@@ -518,24 +518,40 @@ void AddPDFAcceptance(const std::string filelist, double neutralinomass=0) {
 
 int main(int argc, char* argv[]) {
    ////////////////Bino Limits
-   std::string label = ""; //lablel="" if running on 3jets
-   if (argc>1) label = argv[1];
-   std::cout << "label = "<<label<<std::endl;
-/*
-   Points.Reset();
-   ReadSignalAcceptance("inputWinter11/signalAcceptance375.dat", "inputWinter11/data.txt");
-   AddXsec("inputWinter11/NLOProspinoXsecs_Bino_Neutr375.txt");
-   AddPDFxsec("inputWinter11/PDFcross.txt");
-   AddPDFAcceptance("inputWinter11/PDFacceptance.txt");
-   Points.Write("limits/GMSBBino100");
-*/
+//   std::string label = ""; //lablel="" if running on 3jets
+//   if (argc>1) label = argv[1];
+//   std::cout << "label = "<<label<<std::endl;
    ////////////////Wino Limits
+   //3-jets
    Points.Reset();
-   ReadSignalAcceptance(label,"inputWinter11/signalAcceptanceWino_Nov21_V17ft.dat", "inputWinter11/data.txt");
+   ReadSignalAcceptance("","inputWinter11/signalAcceptanceWino_Nov21_V17ft.dat", "inputWinter11/data.txt");
    AddXsec("inputWinter11/NLOProspinoXsecs_Wino_Neutr375.txt");
    AddPDFxsec("inputWinter11/PDFcross.txt", 375);
    AddPDFAcceptance("inputWinter11/PDFacceptance.txt", 375);
-   Points.Write("limits/GMSBWino100");
+   Points.Write("GMSBWino375Neutr/GMSB");
+   //2-jets
+   Points.Reset();
+   ReadSignalAcceptance("2j","inputWinter11/signalAcceptanceWino_Nov21_V17ft.dat", "inputWinter11/data.txt");
+   AddXsec("inputWinter11/NLOProspinoXsecs_Wino_Neutr375.txt");
+   AddPDFxsec("inputWinter11/PDFcross.txt", 375);
+   AddPDFAcceptance("inputWinter11/PDFacceptance.txt", 375);
+   Points.Write("GMSBWino375Neutr2j/GMSB");
+
+   ///////////////Bino
+   //3-jets
+   Points.Reset();
+   ReadSignalAcceptance("","inputWinter11/signalAcceptanceBino_Nov21_V17ft.dat", "inputWinter11/data.txt");
+   AddXsec("inputWinter11/NLOProspinoXsecs_Bino_Neutr375.txt");
+   AddPDFxsec("inputWinter11/PDFcross.txt", 375);
+   AddPDFAcceptance("inputWinter11/PDFacceptance.txt", 375);
+   Points.Write("GMSBBino375Neutr/GMSB");
+   //2-jets
+   Points.Reset();
+   ReadSignalAcceptance("2j","inputWinter11/signalAcceptanceBino_Nov21_V17ft.dat", "inputWinter11/data.txt");
+   AddXsec("inputWinter11/NLOProspinoXsecs_Bino_Neutr375.txt");
+   AddPDFxsec("inputWinter11/PDFcross.txt", 375);
+   AddPDFAcceptance("inputWinter11/PDFacceptance.txt", 375);
+   Points.Write("GMSBBino375Neutr2j/GMSB");
 
 /*
    //Limits with Neutralino Mass 150
