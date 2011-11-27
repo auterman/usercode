@@ -308,7 +308,7 @@ public:
 			ofile.close();
 		}
 	}
-	std::vector<point> * Bla(){return &p_;}
+	std::vector<point> * Get(){return &p_;}
 private:
 	std::vector<point> p_;
 } Points;
@@ -441,7 +441,7 @@ void AddXsec(std::string filelist) {
 	   //std::cout << "neutr" << p.chi << std::endl;
 	   point * a = 0;
 	   a = Points.Get(p.gluino, p.squark, p.chi);
-	   if (a){
+	   if (a && !a->u_NLO){
 	     a->xsec        = p.xsec;
 	     a->xsecNLO     = p.xsecNLO;
 	     a->signal     *= luminosity*p.xsecNLO/a->totalGenerated;
@@ -515,12 +515,57 @@ void AddPDFAcceptance(const std::string filelist, double neutralinomass=0) {
 	masses_file.close();
 }
 
+point * MergeBins(const point& p, unsigned bmin=0, unsigned bmax=-1){
+  if (bmax<bmin||bmax>p.bins.size()) bmax=p.bins.size()-1;
+  point * res = new point(p);
+  if (p.bins.size()<=0||bmax-bmin<=0) return res;
+  
+  res->bins[bmin].u_sig_stat = pow((res->bins[bmin].u_sig_stat-1.0) * res->bins[bmin].signal ,2);
+  res->bins[bmin].u_qcd_stat = pow((res->bins[bmin].u_qcd_stat-1.0) * res->bins[bmin].bgd_qcd ,2);
+  res->bins[bmin].u_ewk_stat = pow((res->bins[bmin].u_ewk_stat-1.0) * res->bins[bmin].bgd_ewk ,2);
+  res->bins[bmin].u_fsr_stat = pow((res->bins[bmin].u_fsr_stat-1.0) * res->bins[bmin].bgd_fsr ,2);
+  res->bins[bmin].u_NLO      = (res->bins[bmin].u_NLO-1.0)	      * res->bins[bmin].signal;
+  res->bins[bmin].u_pdfxsec  = (res->bins[bmin].u_pdfxsec-1.0)      * res->bins[bmin].signal;
+  res->bins[bmin].u_pdfacc   = (res->bins[bmin].u_pdfacc-1.0)       * res->bins[bmin].signal;
+  res->bins[bmin].u_qcd      = (res->bins[bmin].u_qcd-1.0)	      * res->bins[bmin].bgd_qcd;      
+  res->bins[bmin].u_ewk      = (res->bins[bmin].u_ewk-1.0)	      * res->bins[bmin].bgd_ewk;      
+  res->bins[bmin].u_fsr      = (res->bins[bmin].u_fsr-1.0)          * res->bins[bmin].bgd_fsr;      
+  for (unsigned i=bmin+1; i<=bmax; ++i){
+    res->bins[bmin].signal +=         res->bins[i].signal;
+    res->bins[bmin].bgd_qcd +=        res->bins[i].bgd_qcd;
+    res->bins[bmin].bgd_ewk +=	      res->bins[i].bgd_ewk;
+    res->bins[bmin].bgd_fsr +=	      res->bins[i].bgd_fsr;
+    res->bins[bmin].qcd_contamination += res->bins[i].qcd_contamination;
+    res->bins[bmin].ewk_contamination += res->bins[i].ewk_contamination;
+    res->bins[bmin].data +=	      res->bins[i].data;
+
+    res->bins[bmin].u_NLO +=          (res->bins[i].u_NLO-1.0)      * res->bins[i].signal;
+    res->bins[bmin].u_pdfxsec +=      (res->bins[i].u_pdfxsec-1.0)  * res->bins[i].signal; 
+    res->bins[bmin].u_pdfacc +=       (res->bins[i].u_pdfacc-1.0)   * res->bins[i].signal;
+    res->bins[bmin].u_qcd +=	      (res->bins[i].u_qcd-1.0)      * res->bins[i].bgd_qcd;  
+    res->bins[bmin].u_ewk +=	      (res->bins[i].u_ewk-1.0)      * res->bins[i].bgd_ewk;  
+    res->bins[bmin].u_fsr +=	      (res->bins[i].u_fsr-1.0)      * res->bins[i].bgd_fsr;  
+    res->bins[bmin].u_sig_stat +=     pow((res->bins[i].u_sig_stat-1.0) * res->bins[i].signal ,2);
+    res->bins[bmin].u_qcd_stat +=     pow((res->bins[i].u_qcd_stat-1.0) * res->bins[i].bgd_qcd ,2);
+    res->bins[bmin].u_ewk_stat +=     pow((res->bins[i].u_ewk_stat-1.0) * res->bins[i].bgd_ewk ,2);
+    res->bins[bmin].u_fsr_stat +=     pow((res->bins[i].u_fsr_stat-1.0) * res->bins[i].bgd_fsr ,2);
+  }
+  res->bins[bmin].u_sig_stat = 1.0 + sqrt(res->bins[bmin].u_sig_stat) / res->bins[bmin].signal;
+  res->bins[bmin].u_qcd_stat = 1.0 + sqrt(res->bins[bmin].u_qcd_stat) / res->bins[bmin].bgd_qcd;
+  res->bins[bmin].u_ewk_stat = 1.0 + sqrt(res->bins[bmin].u_ewk_stat) / res->bins[bmin].bgd_ewk;
+  res->bins[bmin].u_fsr_stat = 1.0 + sqrt(res->bins[bmin].u_fsr_stat) / res->bins[bmin].bgd_fsr;
+  res->bins[bmin].u_NLO	     = 1.0 + res->bins[bmin].u_NLO	    / res->bins[bmin].signal;
+  res->bins[bmin].u_pdfxsec  = 1.0 + res->bins[bmin].u_pdfxsec    / res->bins[bmin].signal;
+  res->bins[bmin].u_pdfacc   = 1.0 + res->bins[bmin].u_pdfacc	    / res->bins[bmin].signal;
+  res->bins[bmin].u_qcd	     = 1.0 + res->bins[bmin].u_qcd	    / res->bins[bmin].bgd_qcd;   
+  res->bins[bmin].u_ewk	     = 1.0 + res->bins[bmin].u_ewk	    / res->bins[bmin].bgd_ewk;   
+  res->bins[bmin].u_fsr	     = 1.0 + res->bins[bmin].u_fsr	    / res->bins[bmin].bgd_fsr;   
+  res->bins.erase(res->bins.begin()+bmin+1, res->bins.begin()+bmax+1);
+  return res;
+}
 
 int main(int argc, char* argv[]) {
-   ////////////////Bino Limits
-//   std::string label = ""; //lablel="" if running on 3jets
-//   if (argc>1) label = argv[1];
-//   std::cout << "label = "<<label<<std::endl;
+
    ////////////////Wino Limits
    //3-jets
    Points.Reset();
@@ -529,6 +574,14 @@ int main(int argc, char* argv[]) {
    AddPDFxsec("inputWinter11/PDFcross.txt", 375);
    AddPDFAcceptance("inputWinter11/PDFacceptance.txt", 375);
    Points.Write("GMSBWino375Neutr/GMSB");
+
+   points MergedPoints;
+   for (std::vector<point>::const_iterator it=Points.Get()->begin(); it!=Points.Get()->end(); ++it){
+     MergedPoints.Add( *MergeBins(*it) );
+   }
+   MergedPoints.Write("GMSBWino375NeutrMerged/GMSB");
+
+/*   
    //2-jets
    Points.Reset();
    ReadSignalAcceptance("2j","inputWinter11/signalAcceptanceWino_Nov21_V17ft.dat", "inputWinter11/data.txt");
@@ -560,7 +613,6 @@ int main(int argc, char* argv[]) {
    AddPDFxsec("inputWinter11/PDFcrossBino_NeutrScan.txt");
    AddPDFAcceptance("inputWinter11/PDFacceptanceBino_NeutrScan.txt");
    Points.Write("GMSB_SquarkGluino_vs_Neutralino/GMSB");
-   
-   
+*/   
    
 }
