@@ -515,6 +515,12 @@ void AddPDFAcceptance(const std::string filelist, double neutralinomass=0) {
 	masses_file.close();
 }
 
+void DeleteBins(point& p, unsigned bmin=0, unsigned bmax=-1){
+  if (bmax<bmin||bmax>p.bins.size()) bmax=p.bins.size();
+  if (bmax==bmin) p.bins.erase(p.bins.begin()+bmin);
+  p.bins.erase(p.bins.begin()+bmin, p.bins.begin()+bmax);
+}
+
 point * MergeBins(const point& p, unsigned bmin=0, unsigned bmax=-1){
   if (bmax<bmin||bmax>p.bins.size()) bmax=p.bins.size()-1;
   point * res = new point(p);
@@ -576,7 +582,8 @@ int main(int argc, char* argv[]) {
    Points.Write("GMSBWino375Neutr/GMSB");
 
    points MergedPoints;
-   for (std::vector<point>::const_iterator it=Points.Get()->begin(); it!=Points.Get()->end(); ++it){
+   for (std::vector<point>::iterator it=Points.Get()->begin(); it!=Points.Get()->end(); ++it){
+     DeleteBins(*it,0,2);
      MergedPoints.Add( *MergeBins(*it) );
    }
    MergedPoints.Write("GMSBWino375NeutrMerged/GMSB");
