@@ -577,7 +577,6 @@ point * MergeBins(const point& p, unsigned bmin=0, unsigned bmax=-1){
 }
 
 int main(int argc, char* argv[]) {
-
    ////////////////Wino Limits 375
    //3-jets
    Points.Reset();
@@ -619,11 +618,20 @@ int main(int argc, char* argv[]) {
    Points.Write("GMSBBino375Neutr2j/GMSB");
 
    // Squark vs Neutralino (and Gluino vs Neutralino) ////////////////////////////
+   //3-jets
    Points.Reset();
    ReadSignalAcceptance("","inputWinter11/signalAcceptanceBinoNeutr_Dec1_V17hg.dat", "inputWinter11/data_Dec1_V17hg.txt");
    AddXsec("inputWinter11/binochixsec2_Dec1.dat");
    AddPDFxsec("inputWinter11/PDFcrossBino_NeutrScan.txt");
    AddPDFAcceptance("inputWinter11/PDFacceptanceBino_NeutrScan.txt");
    Points.Write("GMSB_SquarkGluino_vs_Neutralino/GMSB");
+   
+   //2-jets
+   Points.Reset();
+   ReadSignalAcceptance("2j","inputWinter11/signalAcceptanceBinoNeutr_Dec1_V17hg.dat", "inputWinter11/data_Dec1_V17hg.txt");
+   AddXsec("inputWinter11/binochixsec2_Dec1.dat");
+   AddPDFxsec("inputWinter11/PDFcrossBino_NeutrScan.txt");
+   AddPDFAcceptance("inputWinter11/PDFacceptanceBino_NeutrScan.txt");
+   Points.Write("GMSB_SquarkGluino_vs_Neutralino2j/GMSB");
    
 }
