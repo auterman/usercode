@@ -74,6 +74,8 @@ struct point {
 	double ewk_contamination;
 	double data;
 	double u_NLO;      //signal scale
+	double u_NLO_Up;      //signal scale
+	double u_NLO_Dn;      //signal scale
 	double u_pdfxsec;  //signal PDF xsec
 	double u_pdfacc;   //signal PDF acceptance
 	double u_sig_stat; //signal stat
@@ -128,6 +130,8 @@ public:
 			ofile << "# Xsection.NLO = " << it-> xsecNLO << "\n";
 			ofile << "# Luminosity = " << it-> lumi << "\n";
 			ofile << "# signal.scale.uncertainty = " << it->u_NLO << "\n";
+			ofile << "# signal.scale.uncertainty.UP = " << it->u_NLO_Up << "\n";
+			ofile << "# signal.scale.uncertainty.DN = " << it->u_NLO_Dn << "\n";
 			ofile << "# signal.PDF.uncertainty = " << it->u_pdfxsec << "\n";
 			ofile << "# signal.PDFacc.uncertainty = " << it-> u_pdfacc << "\n";
 			ofile << "# signal.ngen = " << it->totalGenerated << "\n";
@@ -449,6 +453,8 @@ void AddXsec(std::string filelist) {
 	     a->qcd_contamination  *= luminosity*p.xsecNLO/a->totalGenerated;
 	     a->ewk_contamination  *= luminosity*p.xsecNLO/a->totalGenerated;
 	     a->u_NLO       = NLO_up / p.xsecNLO;
+	     a->u_NLO_Up    = NLO_up / p.xsecNLO;
+	     a->u_NLO_Dn    = NLO_dn / p.xsecNLO;
 	     for (std::vector<point::bin>::iterator bin=a->bins.begin(); bin!=a->bins.end(); ++bin) {
 	       bin->signal     *= luminosity*p.xsecNLO/a->totalGenerated;
 	       //bin->u_sig_stat *= luminosity*p.xsecNLO/a->totalGenerated;
