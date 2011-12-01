@@ -578,11 +578,11 @@ point * MergeBins(const point& p, unsigned bmin=0, unsigned bmax=-1){
 
 int main(int argc, char* argv[]) {
 
-   ////////////////Wino Limits
+   ////////////////Wino Limits 375
    //3-jets
    Points.Reset();
-   ReadSignalAcceptance("","inputWinter11/signalAcceptanceWino_Dec_V17hg.dat", "inputWinter11/data_Dec1_V17hg.txt");
-   AddXsec("inputWinter11/NLOProspinoXsecs_Wino_Neutr375.txt");
+   ReadSignalAcceptance("","inputWinter11/signalAcceptanceWino_Dec1_V17hg.dat", "inputWinter11/data_Dec1_V17hg.txt");
+   AddXsec("inputWinter11/wino375NLOxsec2_Dec1.dat");
    AddPDFxsec("inputWinter11/PDFcross.txt", 375);
    AddPDFAcceptance("inputWinter11/PDFacceptance.txt", 375);
    Points.Write("GMSBWino375Neutr/GMSB");
@@ -597,23 +597,23 @@ int main(int argc, char* argv[]) {
    //2-jets
    Points.Reset();
    ReadSignalAcceptance("2j","inputWinter11/signalAcceptanceWino_Dec1_V17hg.dat", "inputWinter11/data_Dec1_V17hg.txt");
-   AddXsec("inputWinter11/NLOProspinoXsecs_Wino_Neutr375.txt");
+   AddXsec("inputWinter11/wino375NLOxsec2_Dec1.dat");
    AddPDFxsec("inputWinter11/PDFcross.txt", 375);
    AddPDFAcceptance("inputWinter11/PDFacceptance.txt", 375);
    Points.Write("GMSBWino375Neutr2j/GMSB");
 
-   ///////////////Bino
+   ///////////////Bino 375
    //3-jets
    Points.Reset();
    ReadSignalAcceptance("","inputWinter11/signalAcceptanceBino_Bec1_V17hg.dat", "inputWinter11/data_Dec1_V17hg.txt");
-   AddXsec("inputWinter11/NLOProspinoXsecs_Bino_Neutr375.txt");
+   AddXsec("inputWinter11/bino375NLOxsec2_Dec1.dat");
    AddPDFxsec("inputWinter11/PDFcross.txt", 375);
    AddPDFAcceptance("inputWinter11/PDFacceptance.txt", 375);
    Points.Write("GMSBBino375Neutr/GMSB");
    //2-jets
    Points.Reset();
    ReadSignalAcceptance("2j","inputWinter11/signalAcceptanceBino_Bec1_V17hg.dat", "inputWinter11/data_Dec1_V17hg.txt");
-   AddXsec("inputWinter11/NLOProspinoXsecs_Bino_Neutr375.txt");
+   AddXsec("inputWinter11/bino375NLOxsec2_Dec1.dat");
    AddPDFxsec("inputWinter11/PDFcross.txt", 375);
    AddPDFAcceptance("inputWinter11/PDFacceptance.txt", 375);
    Points.Write("GMSBBino375Neutr2j/GMSB");
@@ -621,7 +621,7 @@ int main(int argc, char* argv[]) {
    // Squark vs Neutralino (and Gluino vs Neutralino) ////////////////////////////
    Points.Reset();
    ReadSignalAcceptance("","inputWinter11/signalAcceptanceBinoNeutr_Dec1_V17hg.dat", "inputWinter11/data_Dec1_V17hg.txt");
-   AddXsec("inputWinter11/NLOProspinoXsecs_Bino_NeutrScan.txt");
+   AddXsec("inputWinter11/binochixsec2_Dec1.dat");
    AddPDFxsec("inputWinter11/PDFcrossBino_NeutrScan.txt");
    AddPDFAcceptance("inputWinter11/PDFacceptanceBino_NeutrScan.txt");
    Points.Write("GMSB_SquarkGluino_vs_Neutralino/GMSB");
