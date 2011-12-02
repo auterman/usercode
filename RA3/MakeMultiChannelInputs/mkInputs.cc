@@ -439,10 +439,12 @@ void AddXsec(std::string filelist) {
 	   masses_file >> p.squark >> p.gluino >> p.chi >> p.xsec >> LO_up >> LO_dn >> p.xsecNLO
 	   	       >> NLO_up >> NLO_dn;
 	   if (!masses_file.good()) break;
+	   
 	   //std::cout << "READ XSEC:" << p.xsecNLO << std::endl;
 	   //std::cout << "sq" << p.squark << std::endl;
 	   //std::cout << "gl" << p.gluino << std::endl;
 	   //std::cout << "neutr" << p.chi << std::endl;
+	   
 	   point * a = 0;
 	   a = Points.Get(p.gluino, p.squark, p.chi);
 	   if (a && !a->u_NLO){
