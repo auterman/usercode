@@ -14,11 +14,7 @@ SusyScan::SusyScan(const SusyScan& c) {
 	for (; ct != c.p.end(); ++it, ++ct)
 		**it = **ct;
 }
-SusyScan::SusyScan(double MCh1,double MGluino) {
-	SetPtr();
-	for (std::vector<double*>::iterator it = p.begin(); it != p.end(); ++it)
-		**it = 0.;
-}
+
 //use file with best expected limit from both files for setting SusyScan
 //needed eg for combination of 2j/3j limit
 SusyScan::SusyScan(std::string filename,std::string filename2) {

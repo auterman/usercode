@@ -162,7 +162,7 @@ using namespace styles;
 //ls 2011-11-25-15-00-GMSBBino375Neutr/* > 2011-11-25-15-00-GMSBBino375Neutr/filelist.txt
 void redoFileList(vector<string> filenames){
 	for(int i=0;i<(int)filenames.size();++i){
-	std::system(("ls "+filenames.at(i)+"/* > "+filenames.at(i)+"/filelist.txt").c_str());
+	std::system(("ls "+filenames.at(i)+"/*.txt > "+filenames.at(i)+"/filelist.txt").c_str());
 	}
 }
 
@@ -543,11 +543,11 @@ void GetPlotTools(PlotTools<SusyScan>*& plotTools, PlotTools<SusyScan>*& plotToo
 	filename=filename+"/filelist.txt";
   TheLimits * genpointsInterpol = new TheLimits();
   TheLimits * genpoints = new TheLimits();
-  cout << "Fill interpol" << endl;
+  //cout << "Fill interpol:"<<filename << endl;
   genpointsInterpol->Fill(filename);
-  cout << "Fill " << endl;
+  //cout << "Fill " << endl;
   genpoints->Fill(filename);
-  cout << "interpol..." << endl;
+  //cout << "interpol..." << endl;
 	if (isNeutrGluinoScan) {
 		genpointsInterpol->ExpandGrid<SusyScan> (Mchi1, Mgluino);
 		genpointsInterpol->ExpandGrid<SusyScan> (Mchi1, Mgluino);
@@ -559,7 +559,7 @@ void GetPlotTools(PlotTools<SusyScan>*& plotTools, PlotTools<SusyScan>*& plotToo
 		genpointsInterpol->ExpandGrid<SusyScan> (Msquark, Mgluino);
 		genpointsInterpol->ExpandGrid<SusyScan> (Msquark, Mgluino);
 	}
-	cout << "done" << endl;
+	//cout << "done" << endl;
 
   // New 'pseudo' points are added, therefore the binning of all plots has to be made finer by a factor
   // of 2 in x and y for each "ExpandGrid
@@ -606,15 +606,15 @@ int plot(int argc, char** argv) {
 //	DrawExclusion(&exclBinoNeutr_sq_3j, &retBinoNeutr_Squark, &hNeutrSquarki);
 
 	///==================Bino Limits 3j================================
-	cout << "Get Bino 3j!!" << endl;
+	//cout << "Get Bino 3j!!" << endl;
 	GetPlotTools(Scan, ScanInterpol, filenames::file_bino3j);
-	cout << "Get PlotTools done!!" << endl;
+	//cout << "Get PlotTools done!!" << endl;
 	setStyles(Scan);
-	cout << "Draw plots" << endl;
+	//cout << "Draw plots" << endl;
 	DrawStandardPlots(Scan, retBino3j, Msquark, Mgluino, &h);
-	cout << "GetExclusion" << endl;
+	//cout << "GetExclusion" << endl;
 	ExclusionCurves exclBino3j = GetExclusionContours(ScanInterpol, retBino3j, Msquark, Mgluino, &hi);
-	cout << "Draw Exclusion" << endl;
+	//cout << "Draw Exclusion" << endl;
 	DrawExclusion(&exclBino3j, &retBino3j, &hi);
 
 	///==================Bino Limits 2j================================
@@ -625,9 +625,9 @@ int plot(int argc, char** argv) {
 	DrawExclusion(&exclBino2j, &retBino2j, &hi);
 
 	///==================Bino Limits 2/3j - Best Expected ================================
-	cout << "Get Best Expected!!" << endl;
+	//cout << "Get Best Expected!!" << endl;
 	GetBestExpectedPlotTools(Scan, ScanInterpol, filenames::file_bino3j, filenames::file_bino2j);
-	cout << "Get Best Expected 2!!" << endl;
+	//cout << "Get Best Expected 2!!" << endl;
 	setStyles(Scan);
 	DrawStandardPlots(Scan, retBinoBestJet, Msquark, Mgluino, &h);
 	ExclusionCurves exclBinoBestJet = GetExclusionContours(ScanInterpol, retBinoBestJet, Msquark, Mgluino, &hi);
