@@ -62,8 +62,11 @@ bool isExcludedAbove(TH2*h, int x, int minyexcl) {
 void FillEmptyPointsForNeutralinoScan(TH2*h) {
 	for (int x = 0; x <= h->GetXaxis()->GetNbins(); ++x){
 		for (int y = 0; y <= h->GetYaxis()->GetNbins(); ++y){
-			if(h->GetBinContent(x, y) == 1 && isExcludedAbove(h,x,y)){
+			if(isExcludedAbove(h,x,y)){
 				h->SetBinContent(x, y, 0.01);
+			}
+			else{
+				h->SetBinContent(x, y, 1);
 			}
 		}
 	}
@@ -76,6 +79,7 @@ void PlotTools<T>::Area(TH2*h, double(*x)(const T*), double(*y)(const T*), doubl
 	//std::cout << _scan->size() << ",  &scan=" << _scan << std::endl;
 	for (typename std::vector<T*>::const_iterator it = _scan->begin(); it != _scan->end(); ++it) {
 		h->SetBinContent(h->GetXaxis()->FindBin(x(*it)), h->GetYaxis()->FindBin(y(*it)), f(*it));
+		//std::cout  << ": x=" << x(*it) << ", y=" << y(*it) << std::endl;
 	}
 
 }
@@ -127,11 +131,13 @@ TGraph * PlotTools<T>::GetContour005(TH2*h, int ncont, int flag) {
 }
 
 template<class T>
-std::vector<TGraph*> PlotTools<T>::GetContours(TH2*h, int ncont) {
+std::vector<TGraph*> PlotTools<T>::GetContours(TH2*h, int ncont,bool excludeBelowExcludedRegion) {
 	if (!h)
 		return std::vector<TGraph*>();
 	TH2 * plot = (TH2*) h->Clone();
-	//FillEmptyPointsForNeutralinoScan(plot);
+	if(excludeBelowExcludedRegion){
+	 FillEmptyPointsForNeutralinoScan(plot);
+	}
 	plot->SetContour(ncont);
 	plot->SetFillColor(1);
 	plot->Draw("CONT Z List");
@@ -160,8 +166,8 @@ std::vector<TGraph*> PlotTools<T>::GetContours(TH2*h, int ncont) {
 }
 
 template<class T>
-TGraph * PlotTools<T>::GetContour(TH2*h, int ncont, int flag) {
-	std::vector<TGraph*> gs = GetContours(h, ncont);
+TGraph * PlotTools<T>::GetContour(TH2*h, int ncont, int flag,bool excludeBelowExcludedRegion) {
+	std::vector<TGraph*> gs = GetContours(h, ncont,excludeBelowExcludedRegion);
 	//assert(gs.size()>flag && "ERROR: Requested a non-existing contour index! Check with ExclusionTestContours first!");
 	return (gs.size() > flag ? (TGraph*) gs[flag]->Clone() : new TGraph(0));
 }
@@ -169,11 +175,11 @@ TGraph * PlotTools<T>::GetContour(TH2*h, int ncont, int flag) {
 
 template<class T>
 TGraph * PlotTools<T>::GetContour(TH2*h, double(*x)(const T*), double(*y)(const T*), double(*func)(
-	const T*), int ncont, int flag, int color, int style) {
+	const T*), int ncont, int flag, int color, int style,bool excludeBelowExcludedRegion) {
 	TH2*hist = (TH2*) h->Clone();
 	Area(hist, x, y, func);
 
-	TGraph * graph = GetContour(hist, ncont, flag);
+	TGraph * graph = GetContour(hist, ncont, flag, excludeBelowExcludedRegion);
 	graph->SetLineColor(color);
 	graph->SetLineStyle(style);
 	return graph;
@@ -313,8 +319,8 @@ bool PlotTools<T>::sort_TGraph::operator()(const TGraph*g1, const TGraph*g2) {
 void DrawNeutrNNLSP() {
 	TGraph*gluinoNLSP = new TGraph(0);
 	gluinoNLSP->SetPoint(0, 50, 50);
-	gluinoNLSP->SetPoint(1, 1050, 1050);
-	gluinoNLSP->SetPoint(2, 1050, 50);
+	gluinoNLSP->SetPoint(1, 1100, 1100);
+	gluinoNLSP->SetPoint(2, 1100, 50);
 	gluinoNLSP->SetPoint(3, 50, 50);
 	gluinoNLSP->SetFillColor(kGray);
 	gluinoNLSP->Draw("f");
@@ -396,6 +402,7 @@ void drawCmsPrelInCanvas(double intLumi) {
 }
 void drawCmsPrel(double intLumi, std::string METCut, int noJets, bool isBestjet, std::string jetLabel, bool onlyChannelInfo) {
 	intLumi=intLumi/1000;
+	intLumi=3.7;
 	TLatex as;
 	as.SetNDC(true);
 	as.SetTextFont(42);

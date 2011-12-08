@@ -37,15 +37,15 @@ using namespace std;
 namespace filenames{
 //ATTENTION: do not forget to add new filenames in main function!!
 
-string file_wino3j="2011-11-25-15-03-GMSBWino375Neutr";
-string file_wino2j="2011-11-25-15-05-GMSBWino375Neutr2j";
+string file_wino3j="2011-12-02-11-03-GMSBWino375Neutr";
+string file_wino2j="2011-12-02-11-04-GMSBWino375Neutr2j";
 string file_wino3j_MergedBins="2011-11-27-16-33-GMSBWino375NeutrMerged";
 
-string file_bino3j="2011-11-25-15-00-GMSBBino375Neutr";
-string file_bino2j="2011-11-25-15-03-GMSBBino375Neutr2j";
+string file_bino3j="2011-12-02-11-01-GMSBBino375Neutr";
+string file_bino2j="2011-12-02-11-04-GMSBBino375Neutr2j";
 
-string file_binoNeutr3j="2011-11-25-16-29-GMSB_SquarkGluino_vs_Neutralino";
-string file_binoNeutr2j="2011-11-25-16-36-GMSB_SquarkGluino_vs_Neutralino2j";
+string file_binoNeutr3j="2011-12-02-11-04-GMSB_SquarkGluino_vs_Neutralino";
+string file_binoNeutr2j="2011-12-02-11-05-GMSB_SquarkGluino_vs_Neutralino2j";
 
 
 //Remove files with crashed expected/observed limits?
@@ -86,7 +86,8 @@ PlotStyles retBino2j;
 PlotStyles retBino3j;
 PlotStyles retBinoBestJet;
 
-PlotStyles retBinoNeutr_Gluino;
+PlotStyles retBinoNeutr_Gluino3j;
+PlotStyles retBinoNeutr_Gluino2j;
 PlotStyles retBinoNeutr_Squark;
 
 void setStyles(PlotTools<SusyScan>*& PlotTool){
@@ -101,7 +102,7 @@ void setStyles(PlotTools<SusyScan>*& PlotTool){
 	ret.neutralinotype="";
 	ret.neutralinomass="375";
 	ret.flagForComp="";
-	ret.drawObsNLOXSErrorBand=false;
+	ret.drawObsNLOXSErrorBand=true;
   ret.drawGluinoNLSPExclusionRegion=false;
 
 	retWino2j = ret;
@@ -145,13 +146,17 @@ void setStyles(PlotTools<SusyScan>*& PlotTool){
 	retBinoBestJet.neutralinotype="bino";
 	retBinoBestJet.flagForComp="Bino_2_vs_3_jet";
 
-	retBinoNeutr_Gluino=ret;
-	retBinoNeutr_Gluino.flag = "BinoNeutr_gl_3j";
-	retBinoNeutr_Gluino.noJet = 3;
-	retBinoNeutr_Gluino.neutralinotype="bino";
-	retBinoNeutr_Gluino.drawGluinoNLSPExclusionRegion=true;
+	retBinoNeutr_Gluino3j=ret;
+	retBinoNeutr_Gluino3j.flag = "BinoNeutr_gl_3j";
+	retBinoNeutr_Gluino3j.noJet = 3;
+	retBinoNeutr_Gluino3j.neutralinotype="bino";
+	retBinoNeutr_Gluino3j.drawGluinoNLSPExclusionRegion=true;
 
-	retBinoNeutr_Squark=retBinoNeutr_Gluino;
+	retBinoNeutr_Gluino2j=retBinoNeutr_Gluino3j;
+	retBinoNeutr_Gluino2j.flag = "BinoNeutr_gl_2j";
+	retBinoNeutr_Gluino2j.noJet = 2;
+
+	retBinoNeutr_Squark=retBinoNeutr_Gluino3j;
 	retBinoNeutr_Squark.flag = "BinoNeutr_sq_3j";
 }
 
@@ -172,22 +177,30 @@ struct ExclusionCurves {
 	TGraph * exp;
 	TGraph * onesigband;
 	TGraph * onesigbandNLOXS;
+	TGraph * p1sigma;
+	TGraph * p1sigmaNLOCX;
 
 };
 void setExclusionStyles(ExclusionCurves * excl, bool isSecondCurve) {
 	excl->exp->SetLineWidth(2);
 	excl->exp->SetLineStyle(2);
 	excl->obs->SetLineWidth(2);
-	excl->onesigband->SetLineWidth(2);
+	excl->onesigband->SetLineWidth(0);
+	excl->onesigbandNLOXS->SetLineWidth(0);
 	if (!isSecondCurve) {
-		excl->onesigband->SetFillColor(42);
 		excl->onesigband->SetLineColor(42);
+		excl->onesigbandNLOXS->SetLineColor(42);
+		excl->onesigband->SetFillColor(42);
+		excl->onesigbandNLOXS->SetFillColor(42);
 	} else {
-		excl->onesigband->SetFillColor(5);
+		excl->onesigband->SetFillColor(kRed-5);
 		excl->onesigband->SetFillStyle(3004);
-		excl->onesigband->SetLineColor(5);
-		excl->exp->SetLineColor(2);
-		excl->obs->SetLineColor(2);
+		excl->onesigband->SetLineColor(kRed-5);
+		excl->onesigbandNLOXS->SetFillColor(kRed-5);
+		excl->onesigbandNLOXS->SetFillStyle(3004);
+		excl->onesigbandNLOXS->SetLineColor(kRed-5);
+		excl->exp->SetLineColor(kRed);
+		excl->obs->SetLineColor(kRed);
 	}
 }
 template<class T>
@@ -358,6 +371,7 @@ void DrawExclusion(ExclusionCurves * exclA,PlotStyles * style, TH1*h,ExclusionCu
 	c1->UseCurrentStyle();
 	h->UseCurrentStyle();
 
+
 	//set styles of Graphs
 	setExclusionStyles(exclA, false);
 	if (drawComp) {
@@ -389,20 +403,22 @@ void DrawExclusion(ExclusionCurves * exclA,PlotStyles * style, TH1*h,ExclusionCu
 			exclB->exp->Draw("l");
 		}
 
-   if (style->drawGluinoNLSPExclusionRegion) {
-  	 DrawNeutrNNLSP();
-		}
+
    //Draw Legend
    string neutralinotype=style->neutralinotype;
    string neutralinomass=style->neutralinomass;
    string legtitle="#splitline{GGM "+neutralinotype
 		+ "-like #tilde{#Chi}^{0}}{m_{#tilde{#Chi}^{0}} = "+neutralinomass+" (GeV/c^{2})}";
-   TLegend * leg = new TLegend(0.57, 0.6, 0.89, 0.87,(legtitle).c_str());
+   TLegend * leg = new TLegend(0.67, 0.6, 0.99, 0.87,(legtitle).c_str());
+   if (drawComp) {
+  	 leg = new TLegend(0.67, 0.55, 0.92, 0.87,(legtitle).c_str());
+   }
    TH1F * legdummy=0;
    //leg->AddEntry(legdummy,  ("m_{#tilde{#Chi}^{0}} = "+neutralinomass+" (GeV/c^{2})").c_str(), "l");
    leg->SetBorderSize(0);
-   leg->SetFillColor(0);
-   leg->SetFillStyle(4000);
+   leg->SetLineColor(0);
+   leg->SetFillColor(kWhite);
+   leg->SetFillStyle(kSolid);
    leg->SetTextSize(0.035);
 
    if (!drawComp) {
@@ -411,15 +427,15 @@ void DrawExclusion(ExclusionCurves * exclA,PlotStyles * style, TH1*h,ExclusionCu
     leg->AddEntry(gCLs1Sigma, "#pm 1#sigma, NLO", "lf");
    }
    else{
-	   leg->AddEntry(exclA->obs, (style->isBestJetFile1+", Observed, NLO").c_str(), "l");
-	   leg->AddEntry(exclA->exp, (style->isBestJetFile1+", Expected, NLO").c_str(), "l");
-	   leg->AddEntry(exclA->onesigband, (style->isBestJetFile1+", #pm 1#sigma, NLO").c_str(), "f");
-	   leg->AddEntry(exclB->obs, (style->isBestJetFile2+", Observed, NLO").c_str(), "l");
-	   leg->AddEntry(exclB->exp, (style->isBestJetFile2+", Expected, NLO").c_str(), "l");
-	   leg->AddEntry(exclB->onesigband, (style->isBestJetFile2+", #pm 1#sigma, NLO").c_str(), "f");
+	   leg->AddEntry(exclA->obs, (style->isBestJetFile1+", Observed").c_str(), "l");
+	   leg->AddEntry(exclA->exp, (style->isBestJetFile1+", Expected").c_str(), "l");
+	   leg->AddEntry(exclA->onesigband, (style->isBestJetFile1+", #pm 1#sigma").c_str(), "f");
+	   leg->AddEntry(exclB->obs, (style->isBestJetFile2+", Observed").c_str(), "l");
+	   leg->AddEntry(exclB->exp, (style->isBestJetFile2+", Expected").c_str(), "l");
+	   leg->AddEntry(exclB->onesigband, (style->isBestJetFile2+", #pm 1#sigma").c_str(), "f");
    }
-   leg->Draw();
-   gPad->RedrawAxis();
+
+   //gPad->RedrawAxis();
 
    if(!drawComp){
     //Draw Excluded region
@@ -427,13 +443,19 @@ void DrawExclusion(ExclusionCurves * exclA,PlotStyles * style, TH1*h,ExclusionCu
     double min2 = hs->GetYaxis()->GetBinLowEdge(0);
     double max2 = hs->GetYaxis()->GetBinLowEdge(hs->GetNbinsX() + 1);
     double max1 = hs->GetXaxis()->GetBinLowEdge(hs->GetNbinsX() + 1);
-    TGraph * excludedRegion = GetExcludedRegion(exclA->obs, min1, min2, max1, max2);
+    TGraph * edgeOfExclRegion=exclA->p1sigma;
+    if(style->drawObsNLOXSErrorBand)
+    	edgeOfExclRegion = exclA->p1sigmaNLOCX;
+    TGraph * excludedRegion = GetExcludedRegion(edgeOfExclRegion, min1, min2, max1, max2);
     excludedRegion->Draw("f");
     TLatex* lat3 = new TLatex(0.2, 0.25, "Excluded");
     lat3->SetNDC(true);
     lat3->Draw();
    }
-
+   if (style->drawGluinoNLSPExclusionRegion) {
+    	 DrawNeutrNNLSP();
+  		}
+   leg->Draw();
    //draw heading
    drawCmsPrel(style->lumi,style->METCut,style->noJet,style->isBestJet);
 
@@ -448,15 +470,15 @@ void DrawExclusion(ExclusionCurves * exclA,PlotStyles * style, TH1*h,ExclusionCu
 }
 
 template<class T>
-ExclusionCurves GetExclusionContours(PlotTools<SusyScan> *PlotTool,PlotStyles  style, double(*x)(const T*), double(*y)(const T*), TH1*h)
+ExclusionCurves GetExclusionContours(PlotTools<SusyScan> *PlotTool,PlotStyles  style, double(*x)(const T*), double(*y)(const T*), TH1*h,bool excludeBelowExcludedRegion=false)
 {
    //Xsection
 	std::system(("mkdir results/" + style.flag).c_str());
    {TH2F *hxsec = (TH2F*)h->Clone();
    hxsec->GetZaxis()->SetTitle("Observed in/out");
-   PlotTool->Area(hxsec, x, y, ExpExclusion);
+   PlotTool->Area(hxsec, x, y, ObsExclusion);
    hxsec->GetZaxis()->SetTitleOffset(1.5);
-   std::vector<TGraph*> contours = PlotTool->GetContours(hxsec, 3);
+   std::vector<TGraph*> contours = PlotTool->GetContours(hxsec, 3,excludeBelowExcludedRegion);
    /// :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
    hxsec->Draw("colz");
    int col = kBlue - 10;
@@ -483,18 +505,18 @@ ExclusionCurves GetExclusionContours(PlotTools<SusyScan> *PlotTool,PlotStyles  s
    {//Exclusion Contours
    TH2F *hs = (TH2F*)h->Clone();
    hs->GetZaxis()->SetTitle("");
-   TGraph * gCLsObsExcl   = PlotTool->GetContour(hs, x, y, ObsExclusion, 3, 0, 1, 1);
-   TGraph * gCLsExpExcl   = PlotTool->GetContour(hs, x, y, ExpExclusion, 3, 0, 1, 2);
-   TGraph * gCLsExpExclm1 = PlotTool->GetContour(hs, x, y, ExpExclusionM1, 3, 0, 5, 2);
-   TGraph * gCLsExpExclp1 = PlotTool->GetContour(hs, x, y, ExpExclusionP1, 3, 0, 5, 2);
-   TGraph * gCLsObsExclm1 = PlotTool->GetContour(hs, x, y, ObsExclusionM1, 3, 0, 5, 2);
-   TGraph * gCLsObsExclp1 = PlotTool->GetContour(hs, x, y, ObsExclusionP1, 3, 0, 5, 2);
-   Smooth(gCLsObsExcl,   12);
-   Smooth(gCLsExpExcl,   12);
-   Smooth(gCLsExpExclm1, 12);
-   Smooth(gCLsExpExclp1, 12);
-   Smooth(gCLsObsExclm1, 12);
-   Smooth(gCLsObsExclp1, 12);
+   TGraph * gCLsObsExcl   = PlotTool->GetContour(hs, x, y, ObsExclusion, 3, 0, 1, 1,excludeBelowExcludedRegion);
+   TGraph * gCLsExpExcl   = PlotTool->GetContour(hs, x, y, ExpExclusion, 3, 0, 1, 2,excludeBelowExcludedRegion);
+   TGraph * gCLsExpExclm1 = PlotTool->GetContour(hs, x, y, ExpExclusionM1, 3, 1, 5, 2,excludeBelowExcludedRegion);
+   TGraph * gCLsExpExclp1 = PlotTool->GetContour(hs, x, y, ExpExclusionP1, 3, 0, 5, 2,excludeBelowExcludedRegion);
+   TGraph * gCLsObsExclm1 = PlotTool->GetContour(hs, x, y, ObsExclusionM1, 3, 1, 5, 2,excludeBelowExcludedRegion);
+   TGraph * gCLsObsExclp1 = PlotTool->GetContour(hs, x, y, ObsExclusionP1, 3, 0, 5, 2,excludeBelowExcludedRegion);
+   Smooth(gCLsObsExcl,   20);
+   Smooth(gCLsExpExcl,   20);
+   Smooth(gCLsExpExclm1, 20);
+   Smooth(gCLsExpExclp1, 20);
+   Smooth(gCLsObsExclm1, 20);
+   Smooth(gCLsObsExclp1, 20);
    TGraph * gCLs1Sigma = MakeBand(gCLsExpExclm1, gCLsExpExclp1);
    TGraph * gCLs1SigmaObsNLO = MakeBand(gCLsObsExclm1, gCLsObsExclp1);
    ExclusionCurves ret;
@@ -502,9 +524,33 @@ ExclusionCurves GetExclusionContours(PlotTools<SusyScan> *PlotTool,PlotStyles  s
 
    ret.obs=gCLsObsExcl;
    ret.onesigband=gCLs1Sigma;
+   ret.p1sigma=gCLsExpExclp1;
    ret.onesigbandNLOXS=gCLs1SigmaObsNLO;
+   ret.p1sigmaNLOCX=gCLsObsExclp1;
    return ret;
    }
+
+}
+void interpolateAndFillPoints(TheLimits * genpointsInterpol,TheLimits * genpoints, bool isNeutrGluinoScan=false){
+	if (isNeutrGluinoScan) {
+			genpoints->FillEmptyPointsByInterpolation(Mchi1, Mgluino);
+
+			genpointsInterpol->ExpandGrid<SusyScan> (Mchi1, Mgluino);
+			genpointsInterpol->ExpandGrid<SusyScan> (Mchi1, Mgluino);
+
+			genpointsInterpol->FillEmptyPointsNeutralinoScan(Mchi1, Mgluino);
+			genpointsInterpol->FillEmptyPointsByInterpolation(Mchi1, Mgluino);
+
+
+		}else {
+			//Make grid in Msquark, Mgluino finer by factor of 4 by linear interpolation
+			genpoints->FillEmptyPointsByInterpolation(Msquark, Mgluino);
+			genpointsInterpol->FillEmptyPointsByInterpolation(Msquark, Mgluino);
+			genpoints->FillEmptyPointsByInterpolation(Mgluino, Msquark);
+					genpointsInterpol->FillEmptyPointsByInterpolation(Mgluino, Msquark);
+			genpointsInterpol->ExpandGrid<SusyScan> (Msquark, Mgluino);
+			genpointsInterpol->ExpandGrid<SusyScan> (Msquark, Mgluino);
+		}
 
 }
 void GetBestExpectedPlotTools(PlotTools<SusyScan>*& plotTools, PlotTools<SusyScan>*& plotToolsInterpol, std::string filename, std::string filename2, bool isNeutrGluinoScan=false)
@@ -513,25 +559,11 @@ void GetBestExpectedPlotTools(PlotTools<SusyScan>*& plotTools, PlotTools<SusySca
 	filename2=filename2+"/filelist.txt";
   TheLimits * genpointsInterpol = new TheLimits();
   TheLimits * genpoints = new TheLimits();
-  //std::cout<<"fill interpol"<<std::endl;
   genpointsInterpol->FillBestExpectedLimit(filename,filename2);
- // std::cout<<"fill non interpol"<<std::endl;
   genpoints->FillBestExpectedLimit(filename,filename2);
-  //std::cout<<"interpol..."<<std::endl;
-  if (isNeutrGluinoScan) {
-		genpointsInterpol->ExpandGrid<SusyScan> (Mchi1, Mgluino);
-		genpointsInterpol->ExpandGrid<SusyScan> (Mchi1, Mgluino);
-	} else {
-		//Make grid in Msquark, Mgluino finer by factor of 4 by linear interpolation
-		genpointsInterpol->ExpandGrid<SusyScan> (Msquark, Mgluino);
-		genpointsInterpol->ExpandGrid<SusyScan> (Msquark, Mgluino);
-	}
-  //std::cout<<"done"<<std::endl;
-  // New 'pseudo' points are added, therefore the binning of all plots has to be made finer by a factor
-  // of 2 in x and y for each "ExpandGrid
-  //the plotting ----------------------------------------------------------------------
-  //plotting helper functions
-  //std::cout<<"try to get scan"<<std::endl;
+
+  interpolateAndFillPoints(genpointsInterpol,genpoints,isNeutrGluinoScan);
+
   plotTools = new PlotTools<SusyScan> (genpoints->GetScan());
   //std::cout<<"done -try to get next scan"<<std::endl;
   plotToolsInterpol = new PlotTools<SusyScan> (genpointsInterpol->GetScan());
@@ -544,27 +576,16 @@ void GetPlotTools(PlotTools<SusyScan>*& plotTools, PlotTools<SusyScan>*& plotToo
   TheLimits * genpointsInterpol = new TheLimits();
   TheLimits * genpoints = new TheLimits();
   //cout << "Fill interpol:"<<filename << endl;
+ //
   genpointsInterpol->Fill(filename);
+
   //cout << "Fill " << endl;
   genpoints->Fill(filename);
-  //cout << "interpol..." << endl;
-	if (isNeutrGluinoScan) {
-		genpointsInterpol->ExpandGrid<SusyScan> (Mchi1, Mgluino);
-		genpointsInterpol->ExpandGrid<SusyScan> (Mchi1, Mgluino);
-	}else if (isNeutrSquarkScan) {
-		genpointsInterpol->ExpandGrid<SusyScan> (Mchi1, Msquark);
-		genpointsInterpol->ExpandGrid<SusyScan> (Mchi1, Msquark);
-	} else {
-		//Make grid in Msquark, Mgluino finer by factor of 4 by linear interpolation
-		genpointsInterpol->ExpandGrid<SusyScan> (Msquark, Mgluino);
-		genpointsInterpol->ExpandGrid<SusyScan> (Msquark, Mgluino);
-	}
-	//cout << "done" << endl;
 
-  // New 'pseudo' points are added, therefore the binning of all plots has to be made finer by a factor
-  // of 2 in x and y for each "ExpandGrid
-  //the plotting ----------------------------------------------------------------------
-  //plotting helper functions
+
+  //cout << "interpol..." << endl;
+  interpolateAndFillPoints(genpointsInterpol,genpoints,isNeutrGluinoScan);
+
   plotTools = new PlotTools<SusyScan> (genpoints->GetScan());
   plotToolsInterpol = new PlotTools<SusyScan> (genpointsInterpol->GetScan());
 } 
@@ -577,15 +598,15 @@ int plot(int argc, char** argv) {
   c1 = new TCanvas("c1", "c1", 600, 600);
   c1->cd();
   TH2F h("h", ";m_{squark} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); cross section [pb]", 21, 360, 2040, 21, 360, 2040);
-	TH2F hi("hi", ";m_{squark} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); cross section [pb]", 81, 380, 2020, 81, 380, 2020);
-	//TODO binning korrigieren!!!
-	TH2F hNeutrGluino("hNeutrGluino", ";m_{#chi^{0}_{1}} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); cross section [pb]", 9, 150, 1050.1, 24, 160, 2000.1);
+	TH2F hi("hi", ";m_{squark} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); cross section [pb]", 81, 390, 2010, 81, 390, 2010);
 
-	TH2F hNeutrGluinoi("hNeutrGluinoi", ";m_{#chi^{0}_{1}} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); cross section [pb]", 33, 150, 1050.1, 93, 160, 2000.1);
+	TH2F hNeutrGluino("hNeutrGluino", ";m_{#chi^{0}_{1}} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); cross section [pb]", 10, 100, 1100, 21, 360, 2040);
 
-	TH2F hNeutrSquark("hNeutrSquark", ";m_{#chi^{0}_{1}} (GeV/c^{2}); m_{squark} (GeV/c^{2}); cross section [pb]", 9, 150, 1050.1, 24, 160, 2000.1);
+	TH2F hNeutrGluinoi("hNeutrGluinoi", ";m_{#chi^{0}_{1}} (GeV/c^{2}); m_{gluino} (GeV/c^{2}); cross section [pb]", 37, 125, 1075, 93, 150, 2010);
 
-	TH2F hNeutrSquarki("hNeutrSquarki", ";m_{#chi^{0}_{1}} (GeV/c^{2}); m_{squark} (GeV/c^{2}); cross section [pb]", 33, 150, 1050.1, 93, 160, 2000.1);
+	TH2F hNeutrSquark("hNeutrSquark", ";m_{#chi^{0}_{1}} (GeV/c^{2}); m_{squark} (GeV/c^{2}); cross section [pb]", 10, 100, 1100, 21, 360, 2040);
+
+	TH2F hNeutrSquarki("hNeutrSquarki", ";m_{#chi^{0}_{1}} (GeV/c^{2}); m_{squark} (GeV/c^{2}); cross section [pb]", 37, 125, 1075, 93, 150, 2010);
 
 
   PlotTools<SusyScan> *Scan, *ScanInterpol;
@@ -594,16 +615,18 @@ int plot(int argc, char** argv) {
   ///==================Bino-Neutr vs Gluino Limits 3j================================
 	GetPlotTools(Scan, ScanInterpol, filenames::file_binoNeutr3j, true);
 	setStyles(Scan);
-	DrawStandardPlots(Scan, retBinoNeutr_Gluino, Mchi1, Mgluino, &hNeutrGluino);
-	ExclusionCurves exclBinoNeutr_gl_3j = GetExclusionContours(ScanInterpol, retBinoNeutr_Gluino, Mchi1, Mgluino, &hNeutrGluinoi);
-	DrawExclusion(&exclBinoNeutr_gl_3j, &retBinoNeutr_Gluino, &hNeutrGluinoi);
+	DrawStandardPlots(Scan, retBinoNeutr_Gluino3j, Mchi1, Mgluino, &hNeutrGluino);
+	ExclusionCurves exclBinoNeutr_gl_3j = GetExclusionContours(ScanInterpol, retBinoNeutr_Gluino3j, Mchi1, Mgluino, &hNeutrGluinoi,true);
+	DrawExclusion(&exclBinoNeutr_gl_3j, &retBinoNeutr_Gluino3j, &hNeutrGluinoi);
 
-//	///==================Bino-Neutr vs Squark Limits 3j================================
-//	GetPlotTools(Scan, ScanInterpol, filenames::file_binoNeutr3j, false, true);
-//	setStyles(Scan);
-//	DrawStandardPlots(Scan, retBinoNeutr_Squark, Mchi1, Msquark, &hNeutrSquark);
-//	ExclusionCurves exclBinoNeutr_sq_3j = GetExclusionContours(ScanInterpol, retBinoNeutr_Squark, Mchi1, Msquark, &hNeutrSquark);
-//	DrawExclusion(&exclBinoNeutr_sq_3j, &retBinoNeutr_Squark, &hNeutrSquarki);
+	///==================Bino-Neutr vs Gluino Limits 3j================================
+		GetPlotTools(Scan, ScanInterpol, filenames::file_binoNeutr2j, true);
+		setStyles(Scan);
+		DrawStandardPlots(Scan, retBinoNeutr_Gluino2j, Mchi1, Mgluino, &hNeutrGluino);
+		ExclusionCurves exclBinoNeutr_gl_2j = GetExclusionContours(ScanInterpol, retBinoNeutr_Gluino2j, Mchi1, Mgluino, &hNeutrGluinoi,true);
+		DrawExclusion(&exclBinoNeutr_gl_2j, &retBinoNeutr_Gluino2j, &hNeutrGluinoi);
+
+
 
 	///==================Bino Limits 3j================================
 	//cout << "Get Bino 3j!!" << endl;
@@ -633,7 +656,7 @@ int plot(int argc, char** argv) {
 	ExclusionCurves exclBinoBestJet = GetExclusionContours(ScanInterpol, retBinoBestJet, Msquark, Mgluino, &hi);
 	DrawExclusion(&exclBinoBestJet, &retBinoBestJet, &hi);
 	//Compare Exclusion between 2/3 jet
-	DrawExclusion(&exclBino2j, &retBinoBestJet, &hi, &exclBino3j);
+	DrawExclusion(&exclBino3j, &retBinoBestJet, &hi, &exclBino2j);
 
 	///==================Wino Limits 3j================================
 	GetPlotTools(Scan, ScanInterpol, filenames::file_wino3j);
@@ -660,7 +683,7 @@ int plot(int argc, char** argv) {
 														Mgluino, &hi);
 	DrawExclusion(&exclWinoBestJet, &retWinoBestJet, &hi);
 	//Compare Exclusion between 2/3 jet
-	DrawExclusion(&exclWino2j, &retWinoBestJet, &hi,&exclWino3j);
+	DrawExclusion(&exclWino3j, &retWinoBestJet, &hi,&exclWino2j);
 
 	///==================Wino Limits >200 (bin4-7 gemerged)================================
 	GetPlotTools(Scan, ScanInterpol, filenames::file_wino3j_MergedBins);

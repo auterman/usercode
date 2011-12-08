@@ -22,8 +22,9 @@ void TheLimits::Fill(const std::string filelist)
    while (1) {
       GeneratorMasses * p = new GeneratorMasses;
       masses_file >> file;
-      if (!masses_file.good()) break;
+
       add( new SusyScan(file));
+      if (!masses_file.good()) break;
    }
    std::cout << filelist << ": "<< _scan.size() <<std::endl;
    //check
@@ -45,14 +46,15 @@ void TheLimits::FillBestExpectedLimit(const std::string filelist,const std::stri
 
       masses_file >> file;
       masses_file2 >> file2;
+      //  std::cout<<"add susy scan"<<std::endl;
+            add( new SusyScan(file,file2));
       if (!masses_file.good()) {
     //	  std::cout<<"--file 1 good"<<masses_file.good()<<std::endl;
     	  break;}
       if (!masses_file2.good()) {
     //	  std::cout<<"--file 2 good"<<masses_file2.good()<<std::endl;
     	  break;}
-    //  std::cout<<"add susy scan"<<std::endl;
-      add( new SusyScan(file,file2));
+
     //  std::cout<<"==done"<<std::endl;
    }
    std::cout << filelist << ": "<< filelist2 << ": "<< _scan.size() <<std::endl;

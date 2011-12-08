@@ -33,15 +33,15 @@ class PlotTools {
   
   void Graph(  TGraph*g, double(*x)(const T*), double(*y)(const T*), double ymin=-999. );
   
-  TGraph * GetContour(TH2*, int ncont=20, int flag=0);
-  std::vector<TGraph *> GetContours(TH2*, int ncont=20);
+  TGraph * GetContour(TH2*, int ncont=20, int flag=0,bool excludeBelowExcludedRegion=false);
+  std::vector<TGraph *> GetContours(TH2*, int ncont=20,bool excludeBelowExcludedRegion=false);
 
   TGraph * GetContour005(TH2*, int ncont=20, int flag=0);
   std::vector<TGraph *> GetContours005(TH2*, int ncont=20);
 
   TGraph * GetContour(TH2*,double(*x)(const T*), double(*y)(const T*), 
                       double(*func)(const T*), int ncont=20, int flag=0,
-		      int color=1, int style=1);
+		      int color=1, int style=1,bool excludeBelowExcludedRegion=false);
 
   TGraph * GetContour005(TH2*,double(*x)(const T*), double(*y)(const T*), 
                       double(*func)(const T*), int ncont=20, int flag=0,

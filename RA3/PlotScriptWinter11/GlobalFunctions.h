@@ -58,7 +58,7 @@ double ExpExclusionM1(const SusyScan* p) {return (ExpRM1(p) > 1.0 ? 1 : 0.01); }
 double ExpExclusionP1(const SusyScan* p) {return (ExpRP1(p) > 1.0 ? 1 : 0.01); }
 double ExpExclusionM2(const SusyScan* p) {return (ExpRM2(p) > 1.0 ? 1 : 0.01); }
 double ExpExclusionP2(const SusyScan* p) {return (ExpRP2(p) > 1.0 ? 1 : 0.01); }
-double ObsExclusion(const SusyScan* p) {return (ObsR(p) > 1.0 ? 1 : 0.01);}
+double ObsExclusion(const SusyScan* p) {	return (ObsR(p) > 1.0 ? 1 : 0.01);}
 
 
 
@@ -88,39 +88,30 @@ double ExpXsecLimitAsym(const SusyScan* p) {return p->ExpRasym * p->NLOXsection;
 double ObsXsecLimitAsym(const SusyScan* p) {return p->ObsRasym * p->NLOXsection;}
 
 //add function to get NLO XS uncertainty around observed limit
-double absNLOXSecUp(const SusyScan* p){
-	//std::cout<<Mgluino(p)<<" - "<<Msquark(p)<<"XSEC Err"<<p->NLOXSecUp*p->NLOXsection<<std::endl;
-	return p->NLOXSecUp*p->NLOXsection;
 
-}
-double absNLOXSecDown(const SusyScan* p){
-	return p->NLOXSecDown*p->NLOXsection;
-}
 double NLOXsectionErrUp(const SusyScan* p) {
-	return sqrt(p->PDFXsectionErr * p->PDFXsectionErr * NLOXsection(p)
-			* NLOXsection(p) + absNLOXSecUp(p) * absNLOXSecUp(p));
+	return sqrt(p->PDFXsectionErr * p->PDFXsectionErr  + p->NLOXSecUp*p->NLOXSecUp);
 }
 double NLOXsectionErrDown(const SusyScan* p) {
-	return sqrt(p->PDFXsectionErr * p->PDFXsectionErr * NLOXsection(p)
-			* NLOXsection(p) + absNLOXSecDown(p) * absNLOXSecDown(p));
+	return sqrt(p->PDFXsectionErr * p->PDFXsectionErr  + p->NLOXSecDown*p->NLOXSecDown);
 }
 
-double NLOXsectionM1(const SusyScan* p) {
-	return NLOXsection(p) - (NLOXsectionErrDown(p));
-}
-double NLOXsectionM2(const SusyScan* p) {
-	return NLOXsection(p) - 2 * (NLOXsectionErrDown(p));
-}
 double NLOXsectionP1(const SusyScan* p) {
-	return NLOXsection(p) + NLOXsectionErrUp(p);
+	return NLOXsection(p) - (NLOXsection(p)*NLOXsectionErrUp(p));
 }
 double NLOXsectionP2(const SusyScan* p) {
-	return NLOXsection(p) + 2 * (NLOXsectionErrUp(p));
+	return NLOXsection(p) - 2 * (NLOXsection(p)*NLOXsectionErrUp(p));
+}
+double NLOXsectionM1(const SusyScan* p) {
+	return NLOXsection(p) + (NLOXsection(p)*NLOXsectionErrDown(p));
+}
+double NLOXsectionM2(const SusyScan* p) {
+	return NLOXsection(p) + 2 * (NLOXsection(p)*NLOXsectionErrDown(p));
 }
 
-double ObsExclusionM1(const SusyScan* p) {return (ObsXsecLimit(p) > NLOXsectionM1(p) && ObsXsecLimit(p) > 0.01 ? 1
+double ObsExclusionM1(const SusyScan* p) {return (ObsXsecLimit(p) > NLOXsectionM1(p)  ? 1
 	: 0.01);}
-double ObsExclusionP1(const SusyScan* p) {return (ObsXsecLimit(p) > NLOXsectionP1(p) && ObsXsecLimit(p) > 0.01 ? 1
+double ObsExclusionP1(const SusyScan* p) {return (ObsXsecLimit(p) > NLOXsectionP1(p)  ? 1
 	: 0.01); }
 
 double BestLimitFromFile1or2(const SusyScan* p) {return p->File1or2;}

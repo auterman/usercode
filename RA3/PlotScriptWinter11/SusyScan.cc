@@ -83,9 +83,8 @@ SusyScan::SusyScan(std::string filename) {
 
 	background = config.read<double> ("background", 9999);
 
-
-	NLOXSecUp = config.read<double> ("signal.scale.uncertainty", 0);
-	NLOXSecDown = config.read<double> ("signal.scale.uncertainty", 0);
+	NLOXSecUp = config.read<double> ("signal.scale.uncertainty.UP", 0);
+	NLOXSecDown = config.read<double> ("signal.scale.uncertainty.DN", 0);
 	PDFXsectionErr = config.read<double> ("signal.PDF.uncertainty", 0);
 
 	File1or2=1;

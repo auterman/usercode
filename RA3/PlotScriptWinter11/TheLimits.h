@@ -25,7 +25,11 @@ class TheLimits{
 
   void match();
 
-  void FillEmptyPointsByInterpolationInMsqMgl();  
+  void FillEmptyPointsByInterpolationInMsqMgl();
+  template<class T>
+  void FillEmptyPointsByInterpolation(double(*x)(const T*), double(*y)(const T*));
+  template<class T>
+  void FillEmptyPointsNeutralinoScan(double(*x)(const T*), double(*y)(const T*));
   template<class T>
   void ExpandGrid(double(*x)(const T*), double(*y)(const T*));
   int GetScanSize(){return _scan.size();};
@@ -82,5 +86,129 @@ void TheLimits::ExpandGrid(double(*x)(const T*), double(*y)(const T*) )
   _scan.insert(_scan.end(), new_grid.begin(), new_grid.end());
 
 }
+
+template<class T>
+void TheLimits::FillEmptyPointsByInterpolation(double(*x)(const T*),
+double(*y)(const T*))
+{
+  std::vector<SusyScan*> newpoints;
+  //first find out where to expect points
+  std::cout<< "start: TheLimits::FillEmptyPointsByInterpolation()"
+<<std::endl;
+  double gridy=9999, miny=9999, maxy=0, gridx=9999, minx=9999, maxx=0;
+  for (std::vector<SusyScan*>::const_iterator it=_scan.begin();
+it!=_scan.end(); ++it){
+    if (x(*it)<minx) minx=x(*it);
+    if (x(*it)>maxx) maxx=x(*it);
+    if (y(*it)<miny) miny=y(*it);
+    if (y(*it)>maxy) maxy=y(*it);
+    for (std::vector<SusyScan*>::const_iterator zt=it; zt!=_scan.end();
+++zt){
+      if (x(*it)==x(*zt) ) continue;
+      if ( fabs(x(*it) - x(*zt)) < gridx &&
+           y(*it)==y(*zt)) gridx = fabs(x(*it) - x(*zt));
+      if ( fabs(y(*it) - y(*zt) &&
+           x(*it)==x(*zt)) < gridy ) gridy = fabs(y(*it) - y(*zt));
+    }
+  }
+  //Now, interpolate
+  if(gridx==0)gridx=80;
+  if(gridy==0)gridy=80;
+  std::cout<<minx<<"  "<<maxx<<"  "<<gridx<<"  "<<miny<<"  "<<maxy<<" "<<gridy<<"  "<<std::endl;
+
+  for (std::vector<SusyScan*>::const_iterator it=_scan.begin();
+it!=_scan.end(); ++it){
+     //find next right neighbor in x for it:
+    //if (!(*it)) continue;
+    std::vector<SusyScan*>::const_iterator nextx=_scan.end(),
+nexty=_scan.end();
+    double dx=9999, dy=9999;
+    for (std::vector<SusyScan*>::const_iterator zt=_scan.begin();
+zt!=_scan.end(); ++zt){
+      //if (!(*zt)) continue;
+      if (fabs(x(*it)-x(*zt))<0.9 || fabs(y(*it)-y(*zt))>0.9 ) continue;
+      if ( fabs(x(*it) - x(*zt)) < dx && x(*it) < x(*zt)) {
+        dx = fabs(x(*it) - x(*zt));
+	      nextx = zt;
+      }
+      if (dx==gridx) break;
+    }
+    //interpolate in x:
+    if (dx!=gridx && nextx!=_scan.end()){
+        //std::cout << "m0 = " <<x(*it)  << ", m12="<< y(*it) << std::endl;
+       double dist = x(*nextx) - x(*it);
+       for (double r=gridx; r<dist; r+=gridx ){
+         //std::cout <<x(*it)<<"/"<<y(*it) <<"->"
+	 //          <<  x(*it)*r/dist + (x(*nextx) * (1.-r/dist)) << "<-
+//"<<x(*nextx)
+	 //          <<"/"<< y(*nextx)<<std::endl;
+	 newpoints.push_back( new SusyScan( ( (**it * (r/dist)) + (**nextx *
+(1.-r/dist)) )));
+       }
+    }
+//    //interpolate in y
+//    else{
+//
+//    }
+
+  }
+  _scan.insert(_scan.end(), newpoints.begin(), newpoints.end());
+  std::cout<< "done: TheLimits::FillEmptyPointsByInterpolation() added "
+<<newpoints.size() <<" new points."<<std::endl;
+}
+
+template<class T>
+void TheLimits::FillEmptyPointsNeutralinoScan(double(*x)(const T*),
+	double(*y)(const T*))
+{
+  std::vector<SusyScan*> newpoints;
+  //first find out where to expect points
+  std::cout<< "start: TheLimits::FillEmptyPointsNeutralinoScan()"
+<<std::endl;
+  double gridy=9999, miny=9999, maxy=0, gridx=9999, minx=9999, maxx=0;
+  for (std::vector<SusyScan*>::const_iterator it=_scan.begin();
+it!=_scan.end(); ++it){
+    if (x(*it)<minx) minx=x(*it);
+    if (x(*it)>maxx) maxx=x(*it);
+    if (y(*it)<miny) miny=y(*it);
+    if (y(*it)>maxy) maxy=y(*it);
+    for (std::vector<SusyScan*>::const_iterator zt=it; zt!=_scan.end();
+++zt){
+      if (x(*it)==x(*zt) ) continue;
+      if ( fabs(x(*it) - x(*zt)) < gridx &&
+           y(*it)==y(*zt)) gridx = fabs(x(*it) - x(*zt));
+      if ( fabs(y(*it) - y(*zt) &&
+           x(*it)==x(*zt)) < gridy ) gridy = fabs(y(*it) - y(*zt));
+    }
+  }
+gridy=20;
+  std::cout<<minx<<"  "<<maxx<<"  "<<gridx<<"  "<<miny<<"  "<<maxy<<" "<<gridy<<"  "<<std::endl;
+
+  for (int x=minx;x<=maxx;x=x+gridx){
+  	for (int y=miny;y<=maxy;y=y+gridy){
+  		if(y<x+80){
+  			SusyScan * newscan=new SusyScan();
+  			(*newscan).Mgluino=y;
+  			(*newscan).Mchi1=x;
+  			(*newscan).ObsR=9999;
+  			(*newscan).ExpR=9999;
+  			(*newscan).ExpRM1=9999;
+  			(*newscan).ExpRM2=9999;
+  			(*newscan).ExpRP1=9999;
+  			(*newscan).ExpRP2=9999;
+  			(*newscan).NLOXsection=1;
+  			newpoints.push_back(newscan);
+  		}
+
+  	}
+  }
+
+
+
+  _scan.insert(_scan.end(), newpoints.begin(), newpoints.end());
+  std::cout<< "done: TheLimits::FillEmptyPointsNeutralino() added "
+<<newpoints.size() <<" new points."<<std::endl;
+}
+
 
 #endif
