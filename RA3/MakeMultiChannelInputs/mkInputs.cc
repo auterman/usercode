@@ -321,6 +321,7 @@ public:
 	        using namespace Table;
 	        using namespace std;
 		for (vector<point>::iterator it = p_.begin(); it != p_.end(); ++it) {
+		   //std::cout << "point " <<it-p_.begin()<<", bins = "<<it->bins.size() << std::endl;
  		   for (int bin=0; bin<(int)it->bins.size(); ++bin){
 			ofstream ofile;
 			stringstream ss;
@@ -336,7 +337,7 @@ public:
 			ofile << "# channel = "<<bin<<"\n";
                         int n_channels    = 1;
 			int n_backgrounds = 3;
-			int n_nuisance    = 9; //systs & stats
+			int n_nuisance    = 8; //systs & stats
 			double d=it->bins[bin].data;
 			double b=it->bins[bin].bgd_qcd + it->bins[bin].bgd_ewk + it->bins[bin].bgd_fsr;
 			double s=it->bins[bin].signal;
@@ -488,6 +489,7 @@ void ReadSignalAcceptance(std::string label, std::string sig_file, std::string d
     double scaleDataMC = 0.953; //scale
     p.u_jes = 1.02;             //factorial uncertainty
     p.u_scaleDataMC = 1.068;    //factorial uncertainty
+    //std::cout<<std::endl<<"m(gl)="<<p.gluino<<", m(sq)="<< p.squark<<std::endl;
     for (int c=0;c<n_channels;++c){
       point::bin channel;
       channel.signal             = sig[c] * scaleDataMC;//This is in <number of generated events>, needs to be
@@ -509,7 +511,8 @@ void ReadSignalAcceptance(std::string label, std::string sig_file, std::string d
       channel.u_fsr_stat         = (channel.bgd_fsr?   1.+ u_fsr_stat[c]/channel.bgd_fsr  :0);
       channel.u_jes = p.u_jes;
       channel.u_scaleDataMC = p.u_scaleDataMC;
-      if (channel.signal>0. && channel.bgd_qcd+channel.bgd_ewk+channel.bgd_fsr>0.1) {
+      //if (channel.signal>0. && channel.bgd_qcd+channel.bgd_ewk+channel.bgd_fsr>0.1) {
+      if (channel.signal>0. ) {
         p.bins.push_back( channel );
       
 	p.signal  += channel.signal;
@@ -732,6 +735,7 @@ int main(int argc, char* argv[]) {
    AddPDFxsec("inputWinter11/PDFcross.txt", 375);
    AddPDFAcceptance("inputWinter11/PDFacceptance.txt", 375);
    Points.Write("GMSBBino375Neutr/GMSB");
+   Points.WriteSingleBin("GMSBBino375NeutrSingleChannels/GMSB");
    //2-jets
    Points.Reset();
    ReadSignalAcceptance("2j","inputWinter11/signalAcceptanceBino_Bec1_V17hg.dat", "inputWinter11/dataV20ai_Dec12.txt");
