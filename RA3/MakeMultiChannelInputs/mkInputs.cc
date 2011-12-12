@@ -311,6 +311,126 @@ public:
 			//cout << "WRITE GL:" << it->gluino << ", SQ:" << it->squark << endl;
 			ofile.close();
 		}
+	}	
+
+//=====================================================================================================
+//=====================================================================================================
+//=====================================================================================================
+
+	void WriteSingleBin(const std::string dir) {
+	        using namespace Table;
+	        using namespace std;
+		for (vector<point>::iterator it = p_.begin(); it != p_.end(); ++it) {
+ 		   for (int bin=0; bin<(int)it->bins.size(); ++bin){
+			ofstream ofile;
+			stringstream ss;
+			ss << dir << "_" << it->squark << "_" << it->gluino << "_"
+					<< it->chi << ".txt";
+			ofile.open(ss.str().c_str());
+			ofile << "# gluino = " << it->gluino << "\n";
+			ofile << "# squark = " << it-> squark << "\n";
+			ofile << "# chi1 = " << it-> chi << "\n";
+			ofile << "# Xsection.LO = " << it-> xsec << "\n";
+			ofile << "# Xsection.NLO = " << it-> xsecNLO << "\n";
+			ofile << "# Luminosity = " << it-> lumi << "\n";
+			ofile << "# channel = "<<bin<<"\n";
+                        int n_channels    = 1;
+			int n_backgrounds = 3;
+			int n_nuisance    = 9; //systs & stats
+			double d=it->bins[bin].data;
+			double b=it->bins[bin].bgd_qcd + it->bins[bin].bgd_ewk + it->bins[bin].bgd_fsr;
+			double s=it->bins[bin].signal;
+			double cont=it->bins[bin].qcd_contamination + it->bins[bin].ewk_contamination;
+			ofile << "# data = " << d << "\n";
+			ofile << "# background = " << b << "\n";
+			ofile << "# signal = " << s << "\n";
+			ofile << "# signal.contamination = " << cont << "\n";
+			ofile << "# acceptance = " << s/(it->lumi * it->xsecNLO ) << "\n";
+
+			ofile << "imax  1  number of channels" << endl;
+			ofile << "jmax " << setw(2) << n_backgrounds << "  number of backgrounds" << endl;
+			ofile << "kmax " << setw(2) << n_nuisance    << "  number of nuisance parameters (sources of systematic uncertainties)" << endl;
+			ofile << "------------" << endl;  
+
+                        //observed events in all channels
+			TTable observed("## observed events");\
+			observed.SetStyle(Empty);
+			observed.SetDelimiter("  ");
+			observed.AddColumn<string>(""); 
+			observed.AddColumn<int>("");
+			observed << "bin" << 0;
+			observed << "observation" << (int)it->bins[bin].data;
+			ofile << observed << "------------\n" << endl;  
+
+			//expected events in all channels for signal and all backgrounds
+			TTable exp("## expected events");
+			exp.SetStyle(Empty);
+			exp.SetDelimiter("  ");
+			exp.AddColumn<string>(""); 
+			exp.SetMinumumWidth(20,0);//make first column at least 20 chars
+			for (int sample=1; sample<=n_backgrounds+1; ++sample) 
+        		      exp.AddColumn<string>("");
+			exp << "bin"; 
+			    for (int sample=1; sample<=n_backgrounds+1; ++sample) {
+        		       exp << "0";
+			    }
+			exp << "process" << "signal" << "qcd" << "ewk" << "fsr";
+			exp << "process"; 
+			    for (int sample=1; sample<=n_backgrounds+1; ++sample) {
+        		       stringstream ss;
+        		       ss << (sample-1);
+        		       exp << ss.str();
+			    }	
+			exp << "rate"; 
+			  exp << ToString(it->bins[bin].signal  
+			                  - it->bins[bin].qcd_contamination 
+					  - it->bins[bin].ewk_contamination )
+			      << ToString(it->bins[bin].bgd_qcd)
+			      << ToString(it->bins[bin].bgd_ewk)
+			      << ToString(it->bins[bin].bgd_fsr);
+			ofile << exp << "------------" << std::endl;  
+			
+			TTable sys("");
+			sys.SetStyle(Empty);
+			sys.SetDelimiter("  ");
+			sys.AddColumn<string>(""); 
+			sys.SetMinumumWidth(20,0);//make first column at least 20 chars
+			    for (int sample=1; sample<=n_backgrounds+1; ++sample) 
+        		      sys.AddColumn<string>("");
+			sys << "U_Sig lnN";
+			  double u_sig = 1.0 + sqrt( //pow(it->bins[b].u_NLO-1.,2) +
+			                             pow(it->bins[bin].u_sig_stat-1,2) +
+      			                             pow(it->bins[bin].u_pdfxsec-1.,2) +
+      			                             pow(it->bins[bin].u_scaleDataMC-1.,2) +
+      			                             pow(it->bins[bin].u_jes-1.,2) +
+      			                             pow(it->bins[bin].u_pdfacc-1.,2) );
+        		  sys << ToString(u_sig,"-") // signal
+			      << "-" << "-" << "-"; //qcd, ewk, fsr
+			sys << "U_Lumi lnN";
+        		  sys << ToString(it->bins[bin].u_lumi,"-") // signal
+			      << "-" // qcd data-driven
+			      << "-" // ewk data-driven
+			      << ToString(it->bins[bin].u_lumi,"-");//fsr
+			sys << "U_qcd lnN";
+        		  sys << "-" // signal
+			      << ToString(it->bins[bin].u_qcd,"-") << "-" << "-"; //qcd, ewk, fsr
+			sys << "U_ewk lnN";
+        		  sys << "-" // signal
+			      << "-" << ToString(it->bins[bin].u_ewk,"-") << "-"; //qcd, ewk, fsr
+			sys << "U_fsr lnN";
+        		  sys << "-" // signal
+			      << "-" << "-" << ToString(it->bins[bin].u_fsr,"-"); //qcd, ewk, fsr
+			      
+			//Now the statistical uncertainties:...................................
+			sys << "U_qcd_statistic lnN" << "-" << ToString(it->bins[bin].u_qcd_stat,"-") << "-" << "-"; 
+			sys << "U_ewk_statistic lnN" <<"-"<< "-"<< ToString(it->bins[b].u_ewk_stat,"-")<< "-"; 
+			sys << "U_fsr_statistic lnN" <<"-"<< "-"<<"-"<< ToString(it->bins[b].u_fsr_stat,"-");
+			ofile << sys << "------------" << std::endl;  
+			//cout << "WRITE GL:" << it->gluino << ", SQ:" << it->squark << endl;
+			ofile.close();
+		    }	
+		}
+
 	}
 	std::vector<point> * Get(){return &p_;}
 private:
@@ -587,6 +707,7 @@ int main(int argc, char* argv[]) {
    AddPDFxsec("inputWinter11/PDFcross.txt", 375);
    AddPDFAcceptance("inputWinter11/PDFacceptance.txt", 375);
    Points.Write("GMSBWino375Neutr/GMSB");
+   Points.WriteSingleBin("GMSBWino375NeutrSingleChannels/GMSB");
 
    points MergedPoints;
    for (std::vector<point>::iterator it=Points.Get()->begin(); it!=Points.Get()->end(); ++it){
