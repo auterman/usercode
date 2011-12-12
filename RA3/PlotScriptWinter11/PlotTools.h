@@ -15,7 +15,7 @@ TGraph * GetExcludedRegion(TGraph * lowerLimit, double min1,double min2, double 
 void Smooth(TGraph * g, int n=3);
 void Smooth2D(TGraph * g, int n=3);
 TGraph* Close2D(TGraph * g);
-void drawCmsPrel(double intLumi, std::string METCut, int noJets, bool isBestjet, std::string jetLabel="", bool onlyChannelInfo=false);
+void drawCmsPrel(double intLumi, std::string METCut, int noJets, bool isBestjet, std::string jetLabel="", bool drawChannelInfo=true, bool drawCMS=false);
 void drawCmsPrelInCanvas(double intLumi);
 //void MergeBins(TH1*);
 

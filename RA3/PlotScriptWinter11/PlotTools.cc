@@ -400,21 +400,27 @@ void drawCmsPrelInCanvas(double intLumi) {
 	lat2->SetTextSize(0.04);
 	lat2->Draw("same");
 }
-void drawCmsPrel(double intLumi, std::string METCut, int noJets, bool isBestjet, std::string jetLabel, bool onlyChannelInfo) {
+void drawCmsPrel(double intLumi, std::string METCut, int noJets, bool isBestjet, std::string jetLabel, bool drawChannelInfo, bool drawCMS) {
+	//std::cout<<"draw cms prel"<<std::endl;
 	intLumi=intLumi/1000;
-	intLumi=3.7;
+
 	TLatex as;
 	as.SetNDC(true);
 	as.SetTextFont(42);
 	as.SetTextSize(0.035);
 	//as.SetTextFont(42);//ms.SetTextColor(12);
 	std::string out = "";
-	if (!onlyChannelInfo) {
+	if (drawChannelInfo) {
 		out = "#int #font[12]{L}dt = %.1ffb^{  -1}   #sqrt{s} = 7 TeV";
-		as.DrawLatex(0.12, 0.93, Form(out.c_str(), intLumi));
 	}
+	else{
+		out = "                                      #sqrt{s} = 7 TeV";
+	}
+
+		as.DrawLatex(0.12, 0.93, Form(out.c_str(), intLumi));
+
 	as.SetTextSize(0.035);
-	if (true) {
+	if (drawChannelInfo) {
 		//1#gamma, >=3 jets, MET>"+getStringFromInt(METCut)+" GeV ";
 		out = "#geq1#gamma, #geq" + getStringFromInt(noJets) + " jets";
 		if (isBestjet)
@@ -429,14 +435,15 @@ void drawCmsPrel(double intLumi, std::string METCut, int noJets, bool isBestjet,
 				out = out + ", " + METCut + "";
 			}
 		}
+		as.SetTextSize(0.035);
+		as.DrawLatex(0.55, 0.93, Form(out.c_str()));
 	}
 
-	as.SetTextSize(0.035);
-	as.DrawLatex(0.55, 0.93, Form(out.c_str()));
 
-	if (!onlyChannelInfo) {
-		as.SetTextSize(0.035);
-		as.DrawLatex(0.02, 0.93, "CMS");
+
+	if(drawCMS){
+	 as.SetTextSize(0.035);
+	 as.DrawLatex(0.02, 0.93, "CMS");
 	}
 }
 

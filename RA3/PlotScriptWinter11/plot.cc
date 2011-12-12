@@ -126,8 +126,8 @@ void setStyles(PlotTools<SusyScan>*& PlotTool){
 	retWinoBestJet.noJet = 0;
 	retWinoBestJet.METCut = "100";
 	retWinoBestJet.isBestJet = true;
-	retWinoBestJet.isBestJetFile1 = "3 jet";
-	retWinoBestJet.isBestJetFile2 = "2 jet";
+	retWinoBestJet.isBestJetFile1 = "2 jet";
+	retWinoBestJet.isBestJetFile2 = "3 jet";
 	retWinoBestJet.neutralinotype="wino";
 	retWinoBestJet.flagForComp="Wino_2_vs_3_jet";
 
@@ -203,6 +203,36 @@ void setExclusionStyles(ExclusionCurves * excl, bool isSecondCurve) {
 		excl->obs->SetLineColor(kRed);
 	}
 }
+void SetZRange(TH2F * h){
+	//cout<<"Find optimal z range..."<<endl;
+	double maxValue=0,minValue=0;
+
+	maxValue= h->GetBinContent(h->GetMaximumBin());
+	minValue= h->GetBinContent(h->GetMinimumBin());
+	if(minValue==0){
+		minValue=9999;
+		for (int x = 1; x <= h->GetNbinsX() + 1; x++) {
+			for (int y = 1; y <= h->GetNbinsY() + 1; y++) {
+				//cout<<"x:"<<x<<endl;
+				//cout<<"y:"<<y<<endl;
+				double bincontent=h->GetBinContent(x,y);
+				//cout<<"bincontent:"<<bincontent<<endl;
+
+			if(minValue>bincontent && bincontent>0){
+
+				minValue=bincontent;
+			}
+			}
+		}
+
+	}
+	minValue=minValue*0.9;
+	maxValue=maxValue*1.1;
+//	cout<<"maximum value:"<<maxValue<<endl;
+//	cout<<"minimum value:"<<minValue<<endl;
+	h->GetZaxis()->SetRangeUser(minValue,maxValue);
+
+}
 template<class T>
 void DrawStandardPlots(PlotTools<SusyScan> *PlotTool, PlotStyles style, double(*x)(const T*), double(*y)(const T*), TH1*h)
 {
@@ -224,12 +254,16 @@ void DrawStandardPlots(PlotTools<SusyScan> *PlotTool, PlotStyles style, double(*
    {TH2F *hxsec = (TH2F*)h->Clone();
    hxsec->GetZaxis()->SetTitle("NLO cross section [pb]");
    c1->SetLogz(1);
-      hxsec->GetZaxis()->SetRangeUser(0.001,100);
    PlotTool->Area(hxsec, x, y, NLOXsection);
+   SetZRange(hxsec);
+   cout<<"setrange done"<<endl;
    hxsec->GetZaxis()->SetTitleOffset(1.5);
    hxsec->Draw("colz");
+   cout<<"histo drawn"<<endl;
    if (style.drawGluinoNLSPExclusionRegion) DrawNeutrNNLSP();
-   drawCmsPrel(style.lumi,style.METCut,style.noJet,style.isBestJet);
+   cout<<"now cms pre"<<endl;
+   drawCmsPrel(style.lumi,style.METCut,style.noJet,style.isBestJet,"",false);
+   cout<<"done"<<endl;
    string nameXsPlot = "results/" + style.flag + "/Xsection";
    c1->SaveAs((nameXsPlot + ".pdf").c_str());
    //c1->SaveAs((nameXsPlot + ".root").c_str());
@@ -240,6 +274,7 @@ void DrawStandardPlots(PlotTools<SusyScan> *PlotTool, PlotStyles style, double(*
    hxsec->GetZaxis()->SetTitle("Acceptance [%]");
    c1->SetLogz(0);
    PlotTool->Area(hxsec, x, y, SignalAcceptance);
+   SetZRange(hxsec);
    hxsec->GetZaxis()->SetTitleOffset(1.5);
    hxsec->Draw("colz");
    if (style.drawGluinoNLSPExclusionRegion) DrawNeutrNNLSP();
@@ -251,10 +286,10 @@ void DrawStandardPlots(PlotTools<SusyScan> *PlotTool, PlotStyles style, double(*
    }
    //Observed X-section limit
    {TH2F *hxsec = (TH2F*)h->Clone();
-   hxsec->GetZaxis()->SetTitle("Observed cross section limit [pb]");
+   hxsec->GetZaxis()->SetTitle("(Observed) 95% CL Upper Limit [pb]");
    c1->SetLogz(1);
-   hxsec->GetZaxis()->SetRangeUser(0.001,100);
    PlotTool->Area(hxsec, x, y, ObsXsecLimit);
+   SetZRange(hxsec);
    hxsec->GetZaxis()->SetTitleOffset(1.5);
    hxsec->Draw("colz");
    if (style.drawGluinoNLSPExclusionRegion) DrawNeutrNNLSP();
@@ -266,10 +301,10 @@ void DrawStandardPlots(PlotTools<SusyScan> *PlotTool, PlotStyles style, double(*
    }
    //Expected X-section limit
    {TH2F *hxsec = (TH2F*)h->Clone();
-   hxsec->GetZaxis()->SetTitle("Expected cross section limit [pb]");
+   hxsec->GetZaxis()->SetTitle("(Expected) 95% CL Upper Limit [pb]");
    c1->SetLogz(1);
-      hxsec->GetZaxis()->SetRangeUser(0.001,100);
    PlotTool->Area(hxsec, x, y, ExpXsecLimit);
+   SetZRange(hxsec);
    hxsec->GetZaxis()->SetTitleOffset(1.5);
    hxsec->Draw("colz");
    if (style.drawGluinoNLSPExclusionRegion) DrawNeutrNNLSP();
@@ -280,10 +315,10 @@ void DrawStandardPlots(PlotTools<SusyScan> *PlotTool, PlotStyles style, double(*
    }
    //Observed asymptotoc X-section limit
    {TH2F *hxsec = (TH2F*)h->Clone();
-   hxsec->GetZaxis()->SetTitle("Observed asympt. cross section limit [pb]");
+   hxsec->GetZaxis()->SetTitle("(Observed asympt.) 95% CL Upper Limit [pb]");
    c1->SetLogz(1);
-      hxsec->GetZaxis()->SetRangeUser(0.001,100);
    PlotTool->Area(hxsec, x, y, ObsXsecLimitAsym);
+   SetZRange(hxsec);
    hxsec->GetZaxis()->SetTitleOffset(1.5);
    hxsec->Draw("colz");
    if (style.drawGluinoNLSPExclusionRegion) DrawNeutrNNLSP();
@@ -294,10 +329,10 @@ void DrawStandardPlots(PlotTools<SusyScan> *PlotTool, PlotStyles style, double(*
    }
    //Expected asymptotic X-section limit
    {TH2F *hxsec = (TH2F*)h->Clone();
-   hxsec->GetZaxis()->SetTitle("Expected asympt. cross section limit [pb]");
+   hxsec->GetZaxis()->SetTitle("(Expected asympt.) 95% CL Upper Limit [pb]");
    c1->SetLogz(1);
-      hxsec->GetZaxis()->SetRangeUser(0.001,100);
    PlotTool->Area(hxsec, x, y, ExpXsecLimitAsym);
+   SetZRange(hxsec);
    hxsec->GetZaxis()->SetTitleOffset(1.5);
    hxsec->Draw("colz");
    if (style.drawGluinoNLSPExclusionRegion) DrawNeutrNNLSP();
@@ -409,17 +444,17 @@ void DrawExclusion(ExclusionCurves * exclA,PlotStyles * style, TH1*h,ExclusionCu
    string neutralinomass=style->neutralinomass;
    string legtitle="#splitline{GGM "+neutralinotype
 		+ "-like #tilde{#Chi}^{0}}{m_{#tilde{#Chi}^{0}} = "+neutralinomass+" (GeV/c^{2})}";
-   TLegend * leg = new TLegend(0.67, 0.6, 0.99, 0.87,(legtitle).c_str());
+   TLegend * leg = new TLegend(0.64, 0.6, 0.94, 0.87,(legtitle).c_str());
    if (drawComp) {
-  	 leg = new TLegend(0.67, 0.55, 0.92, 0.87,(legtitle).c_str());
+  	leg = new TLegend(0.64, 0.55, 0.94, 0.87,(legtitle).c_str());
    }
    TH1F * legdummy=0;
    //leg->AddEntry(legdummy,  ("m_{#tilde{#Chi}^{0}} = "+neutralinomass+" (GeV/c^{2})").c_str(), "l");
    leg->SetBorderSize(0);
    leg->SetLineColor(0);
-   leg->SetFillColor(kWhite);
-   leg->SetFillStyle(kSolid);
-   leg->SetTextSize(0.035);
+   leg->SetFillColor(10);
+   leg->SetFillStyle(1001);
+   leg->SetTextSize(0.03);
 
    if (!drawComp) {
     leg->AddEntry(gCLsObsExcl, "Observed, NLO", "l");
@@ -434,8 +469,8 @@ void DrawExclusion(ExclusionCurves * exclA,PlotStyles * style, TH1*h,ExclusionCu
 	   leg->AddEntry(exclB->exp, (style->isBestJetFile2+", Expected").c_str(), "l");
 	   leg->AddEntry(exclB->onesigband, (style->isBestJetFile2+", #pm 1#sigma").c_str(), "f");
    }
-
-   //gPad->RedrawAxis();
+   leg->Draw();
+   gPad->RedrawAxis();
 
    if(!drawComp){
     //Draw Excluded region
@@ -455,7 +490,7 @@ void DrawExclusion(ExclusionCurves * exclA,PlotStyles * style, TH1*h,ExclusionCu
    if (style->drawGluinoNLSPExclusionRegion) {
     	 DrawNeutrNNLSP();
   		}
-   leg->Draw();
+
    //draw heading
    drawCmsPrel(style->lumi,style->METCut,style->noJet,style->isBestJet);
 
@@ -649,14 +684,14 @@ int plot(int argc, char** argv) {
 
 	///==================Bino Limits 2/3j - Best Expected ================================
 	//cout << "Get Best Expected!!" << endl;
-	GetBestExpectedPlotTools(Scan, ScanInterpol, filenames::file_bino3j, filenames::file_bino2j);
+	GetBestExpectedPlotTools(Scan, ScanInterpol, filenames::file_bino2j, filenames::file_bino3j);
 	//cout << "Get Best Expected 2!!" << endl;
 	setStyles(Scan);
 	DrawStandardPlots(Scan, retBinoBestJet, Msquark, Mgluino, &h);
 	ExclusionCurves exclBinoBestJet = GetExclusionContours(ScanInterpol, retBinoBestJet, Msquark, Mgluino, &hi);
 	DrawExclusion(&exclBinoBestJet, &retBinoBestJet, &hi);
 	//Compare Exclusion between 2/3 jet
-	DrawExclusion(&exclBino3j, &retBinoBestJet, &hi, &exclBino2j);
+	DrawExclusion(&exclBino2j, &retBinoBestJet, &hi, &exclBino3j);
 
 	///==================Wino Limits 3j================================
 	GetPlotTools(Scan, ScanInterpol, filenames::file_wino3j);
@@ -675,7 +710,7 @@ int plot(int argc, char** argv) {
 
 	///==================Wino Limits 2/3j - Best Expected ================================
 	//cout<<"Get Best Expected!!"<<endl;
-	GetBestExpectedPlotTools(Scan, ScanInterpol, filenames::file_wino3j, filenames::file_wino2j);
+	GetBestExpectedPlotTools(Scan, ScanInterpol, filenames::file_wino2j, filenames::file_wino3j);
 
 	setStyles(Scan);
 	DrawStandardPlots(Scan, retWinoBestJet, Msquark, Mgluino, &h);
@@ -683,7 +718,7 @@ int plot(int argc, char** argv) {
 														Mgluino, &hi);
 	DrawExclusion(&exclWinoBestJet, &retWinoBestJet, &hi);
 	//Compare Exclusion between 2/3 jet
-	DrawExclusion(&exclWino3j, &retWinoBestJet, &hi,&exclWino2j);
+	DrawExclusion(&exclWino2j, &retWinoBestJet, &hi,&exclWino3j);
 
 	///==================Wino Limits >200 (bin4-7 gemerged)================================
 	GetPlotTools(Scan, ScanInterpol, filenames::file_wino3j_MergedBins);
