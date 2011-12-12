@@ -234,7 +234,7 @@ public:
  		        for (int b=0; b<n_channels; ++b) {
 			  //Signal total systmatic uncertainty not including statistical and lumi:
 			  double u_sig = 1.0 + sqrt( //pow(it->bins[b].u_NLO-1.,2) +
-      			                             pow(it->bins[b].u_pdfxsec-1.,2) +
+      			                             //pow(it->bins[b].u_pdfxsec-1.,2) +
       			                             pow(it->bins[b].u_scaleDataMC-1.,2) +
       			                             pow(it->bins[b].u_jes-1.,2) +
       			                             pow(it->bins[b].u_pdfacc-1.,2) );
@@ -401,7 +401,7 @@ public:
 			sys << "U_Sig lnN";
 			  double u_sig = 1.0 + sqrt( //pow(it->bins[b].u_NLO-1.,2) +
 			                             pow(it->bins[bin].u_sig_stat-1,2) +
-      			                             pow(it->bins[bin].u_pdfxsec-1.,2) +
+      			                             //pow(it->bins[bin].u_pdfxsec-1.,2) +
       			                             pow(it->bins[bin].u_scaleDataMC-1.,2) +
       			                             pow(it->bins[bin].u_jes-1.,2) +
       			                             pow(it->bins[bin].u_pdfacc-1.,2) );
