@@ -1,6 +1,7 @@
 #include "QCDrs.h"
 #include "Event.h"
-#include "Rebalance.h"
+//#include "Rebalance.h"
+#include "Smear.h"
 
 
 int main(int argc, char* argv[])
@@ -14,7 +15,9 @@ int main(int argc, char* argv[])
 
   //Rebalance events 
   std::vector<Event*> rebalanced_events;
-  Rebalance( events,  rebalanced_events );
+  //Rebalance( events,  rebalanced_events );
+  
+  //Smear events by jet energy resolution
   
   //Write Events back to file
   WriteEvents("QCDpseudo_rebalanced.root", rebalanced_events);
