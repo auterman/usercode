@@ -38,6 +38,7 @@ void Event::CopyEvent(const Event& o){
   RunNr =         o.RunNr;
   EvtNr =	  o.EvtNr;
   LumiB =	  o.LumiB;
+  Weight =	  o.Weight;
   NrecoJetGen =	  o.NrecoJetGen;
   recoMetGen =	  o.recoMetGen;
   recoMetGenPhi = o.recoMetGenPhi;
@@ -171,6 +172,7 @@ void WriteEvents(std::string file, std::vector<Event*>& evts)
   myTree->Branch("RunNr",&evt->RunNr,"RunNr/I");
   myTree->Branch("EvtNr",&evt->EvtNr,"EvtNr/I");
   myTree->Branch("LumiB",&evt->LumiB,"LumiB/I");
+  myTree->Branch("Weight",&evt->Weight,"Weight/F");
 
   //---generator level jets
   myTree->Branch("NrecoJetGen",&evt->NrecoJetGen,"NrecoJetGen/I");

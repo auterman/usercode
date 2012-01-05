@@ -1,4 +1,4 @@
-<bin name="QCDrs" file="QCDrs.cc,Event.cc,NtupleSelector.cc,Rebalance.cc,table.cc">
+<bin name="QCDrs" file="QCDrs.cc,Event.cc,NtupleSelector.cc,Rebalance.cc,table.cc,Smear.cc,JetResolution.cc">
   <use name="root"/>
   <use name="PhysicsTools/KinFitter"/>
 </bin>

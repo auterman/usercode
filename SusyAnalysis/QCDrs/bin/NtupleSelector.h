@@ -21,6 +21,7 @@ public :
    Int_t           RunNr;
    Int_t           EvtNr;
    Int_t           LumiB;
+   Float_t         Weight;
    Int_t           NrecoJetGen;
    Float_t         recoJetGenPx[200];   //[NrecoJetGen]
    Float_t         recoJetGenPy[200];   //[NrecoJetGen]
@@ -74,6 +75,7 @@ public :
    TBranch        *b_RunNr;   //!
    TBranch        *b_EvtNr;   //!
    TBranch        *b_LumiB;   //!
+   TBranch        *b_Weight;   //!
    TBranch        *b_NrecoJetGen;   //!
    TBranch        *b_recoJetGenPx;   //!
    TBranch        *b_recoJetGenPy;   //!
@@ -163,6 +165,7 @@ void NtupleSelector::Init(TTree *tree)
    fChain->SetBranchAddress("RunNr", &RunNr, &b_RunNr);
    fChain->SetBranchAddress("EvtNr", &EvtNr, &b_EvtNr);
    fChain->SetBranchAddress("LumiB", &LumiB, &b_LumiB);
+   fChain->SetBranchAddress("Weight", &Weight, &b_Weight);
    fChain->SetBranchAddress("NrecoJetGen", &NrecoJetGen, &b_NrecoJetGen);
    fChain->SetBranchAddress("recoJetGenPx", &recoJetGenPx, &b_recoJetGenPx);
    fChain->SetBranchAddress("recoJetGenPy", &recoJetGenPy, &b_recoJetGenPy);
