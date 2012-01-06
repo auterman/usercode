@@ -57,8 +57,10 @@ SusyScan::SusyScan(std::string filename) {
 	Mchi1 = config.read<double> ("chi1", 0);
 	ngen  = config.read<double> ("signal.ngen", 0);
 	signal_acceptance    = config.read<double> ("signal.acceptance", 0);
+	if(signal_acceptance==0)signal_acceptance    =config.read<double> ("acceptance", 0);
+	signal_acceptance_uncertainty = config.read<double> ("signal.acceptance.uncertainty", 0);
 	signal_contamination = config.read<double> ("signal.contamination", 0);
-
+	signal_expectation = config.read<double> ("signal", 0);
 
 	//Xsection 	= config.read<double>("Xsection", 0);
 	NLOXsection = config.read<double> ("Xsection.NLO", 0);
@@ -86,7 +88,7 @@ SusyScan::SusyScan(std::string filename) {
 	NLOXSecUp = config.read<double> ("signal.scale.uncertainty.UP", 0);
 	NLOXSecDown = config.read<double> ("signal.scale.uncertainty.DN", 0);
 	PDFXsectionErr = config.read<double> ("signal.PDF.uncertainty", 0);
-
+  PDFAccErr =  config.read<double> ("signal.PDFacc.uncertainty", 0);
 	File1or2=1;
 
 }
@@ -102,7 +104,9 @@ void SusyScan::SetPtr() {
 	p.push_back(&Mchi1);
 	p.push_back(&ngen);
 	p.push_back(&signal_acceptance);
+	p.push_back(&signal_acceptance_uncertainty);
 	p.push_back(&signal_contamination);
+	p.push_back(&signal_expectation);
 	p.push_back(&NLOXsection);
 	p.push_back(&LOXsection);
 
@@ -125,6 +129,7 @@ void SusyScan::SetPtr() {
 	p.push_back(&NLOXSecUp);
 	p.push_back(&NLOXSecDown);
 	p.push_back(&PDFXsectionErr);
+	p.push_back(&PDFAccErr);
 
 	p.push_back(&File1or2);
 }

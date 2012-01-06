@@ -45,12 +45,130 @@ double PlotTools<T>::SingleValue(double(*func)(const T*)) {
 	return result;
 }
 
+template<class T>
+double PlotTools<T>::roundDouble(double xin, int n) {
+	double d = pow(10.0, n);
+	double x = floor(xin * d + 0.5) / d;
+	//	if(x==0){
+	//		double d=pow(10.0, 3);
+	//		x=floor(xin*d+0.5)/d;
+	//	}
+	return x;
+}
+
+template<class T>
+double PlotTools<T>::SingleValue(double(*func)(const T*),double(*x)(const T*), double(*y)(const T*),double xValue, double yValue) {
+	double result = 0;
+	for (typename std::vector<T*>::const_iterator it = _scan->begin(); it != _scan->end(); ++it) {
+		if(x(*it)==xValue && y(*it)==yValue){
+			result = func(*it);
+
+			//result = roundDouble(result);
+			break;
+		}
+	}
+
+	return result;
+}
+
+template<class T>
+double PlotTools<T>::LimitValue(double(*x)(const T*), double(*y)(const T*), TGraph* limit, double xValue) {
+	double yValue = limit->Eval(xValue);
+	//std::cout<<"yValue!!!!!!!!!!!!!"<<yValue<<std::endl;
+	double resultYValue = 9999;
+	for (typename std::vector<T*>::const_iterator it = _scan->begin(); it != _scan->end(); ++it) {
+		//std::cout << "xValue=========" << x(*it) << std::endl;
+
+		if (x(*it) == xValue) {
+			//std::cout << "yValue=========" << y(*it) << std::endl;
+			if (y(*it) >= yValue) {
+				//std::cout << "!!!!!!!!!!!!yValue=========" << y(*it) << std::endl;
+				if (y(*it) <= resultYValue) {
+					resultYValue = y(*it);
+					//std::cout << "new=========" << resultYValue << std::endl;
+				}
+			}
+		}
+	}
+	return resultYValue;
+}
+
+template<class T>
+std::pair<double,double> PlotTools<T>::MinLimitValues( double(*x)(const T*),double(*y)(const T*),TGraph* limit) {
+  Double_t xmin,xmax,ymin,ymax;
+  limit->ComputeRange(xmin,ymin,xmax,ymax);
+  double minx=xmin;
+  double miny=ymin;
+  double minLimitx=0;
+  double minLimity=0;
+
+  for (typename std::vector<T*>::const_iterator it = _scan->begin(); it != _scan->end(); ++it) {
+  		if(x(*it)>=minLimitx && x(*it)<=minx){
+  			minLimitx=x(*it);
+  		}
+  		if(y(*it)>=minLimity && y(*it)<=miny ){
+  		  			minLimity=y(*it);
+  		 }
+  	}
+    std::pair<double,double> res(minLimitx,minLimity);
+	return res;
+}
+
+template<class T>
+std::pair<double,double> PlotTools<T>::MaxLimitValues( double(*x)(const T*),double(*y)(const T*),TGraph* limit) {
+  Double_t xmin,xmax,ymin,ymax;
+  limit->ComputeRange(xmin,ymin,xmax,ymax);
+  double maxx=xmax;
+  double maxy=ymax;
+  double maxLimitx=0;
+  double maxLimity=0;
+//  cout<<"range x:"<<minx<<" - "<<xmax<<endl;
+//  cout<<"range y:"<<miny<<" - "<<ymax<<endl;
+  for (typename std::vector<T*>::const_iterator it = _scan->begin(); it != _scan->end(); ++it) {
+		if (x(*it) >= maxLimitx && x(*it) <= maxx) {
+			maxLimitx = x(*it);
+		}
+		if (y(*it) >= maxLimity && y(*it) <= maxy) {
+			maxLimity = y(*it);
+		}
+	}
+    std::pair<double,double> res(maxLimitx,maxLimity);
+	return res;
+}
+
+void fillXSLimitAboveForInvalidResultPoints(TH2*h,TH2*hAcc){
+	for (int x = 0; x <= h->GetXaxis()->GetNbins(); ++x) {
+
+	for (int y = 0; y <= h->GetYaxis()->GetNbins(); ++y) {
+		if (h->GetBinContent(x, y) >9000 ){
+			for (int newy = y; newy <= h->GetYaxis()->GetNbins(); ++newy) {
+
+			if (h->GetBinContent(x, newy) <9000 ){
+//						std::cout<<"Old point!! x="<<x<<" y="<<y<<"Acceptance: "<<hAcc->GetBinContent(x, y)<<std::endl;
+//						std::cout<<"New point!! x="<<x<<" y="<<newy<<"Acceptance: "<<hAcc->GetBinContent(x, newy)<<std::endl;
+//						std::cout<<"New point!! XS old:"<<h->GetBinContent(x, newy)<<std::endl;
+						double newxs=h->GetBinContent(x, newy)*hAcc->GetBinContent(x, y)/hAcc->GetBinContent(x, newy);
+//						std::cout<<"Old point!! XS new (scaled):"<<newxs<<std::endl;
+						//h->SetBinContent(x,y,newxs);
+						break;
+					}
+			}
+
+		}
+
+
+		}
+	}
+
+};
+
+
 bool isExcludedAbove(TH2*h, int x, int minyexcl) {
 
 	// std::cout<<"is excluded? x="<<x<<" y="<<minyexcl<<std::endl;
 	for (int y = minyexcl; y <= h->GetYaxis()->GetNbins(); ++y) {
 
-		if (h->GetBinContent(x, y) != 1){
+		if (h->GetBinContent(x, y) != 1 && y<h->GetYaxis()->GetNbins()-40){
 			//std::cout<<"YES!! x="<<x<<" y="<<y<<std::endl;
 			return true;
 		}
@@ -62,7 +180,7 @@ bool isExcludedAbove(TH2*h, int x, int minyexcl) {
 void FillEmptyPointsForNeutralinoScan(TH2*h) {
 	for (int x = 0; x <= h->GetXaxis()->GetNbins(); ++x){
 		for (int y = 0; y <= h->GetYaxis()->GetNbins(); ++y){
-			if(isExcludedAbove(h,x,y)){
+			if(isExcludedAbove(h,x,y) ){
 				h->SetBinContent(x, y, 0.01);
 			}
 			else{
@@ -78,7 +196,9 @@ template<class T>
 void PlotTools<T>::Area(TH2*h, double(*x)(const T*), double(*y)(const T*), double(*f)(const T*)) {
 	//std::cout << _scan->size() << ",  &scan=" << _scan << std::endl;
 	for (typename std::vector<T*>::const_iterator it = _scan->begin(); it != _scan->end(); ++it) {
+		if(f(*it)<9000){
 		h->SetBinContent(h->GetXaxis()->FindBin(x(*it)), h->GetYaxis()->FindBin(y(*it)), f(*it));
+		}
 		//std::cout  << ": x=" << x(*it) << ", y=" << y(*it) << std::endl;
 	}
 
@@ -326,9 +446,11 @@ void DrawNeutrNNLSP() {
 	gluinoNLSP->Draw("f");
 
 	TLatex tex;
-	tex.SetTextSize(0.03);
-	tex.DrawLatex(800, 400, "#tilde{g} NLSP");
-
+	tex.SetTextSize(0.05);
+	tex.SetTextFont(62);
+	tex.SetNDC(true);
+	tex.DrawLatex(0.6, 0.25, "#tilde{g} NLSP");
+	gPad->RedrawAxis();
 }
 TGraph * GetExcludedRegion(TGraph * lowerLimit, double min1, double min2, double max1, double max2) {
 	TGraph* excludedRegion = new TGraph(lowerLimit->GetN() + 3);
@@ -404,47 +526,47 @@ void drawCmsPrel(double intLumi, std::string METCut, int noJets, bool isBestjet,
 	//std::cout<<"draw cms prel"<<std::endl;
 	intLumi=intLumi/1000;
 
-	TLatex as;
-	as.SetNDC(true);
-	as.SetTextFont(42);
-	as.SetTextSize(0.035);
-	//as.SetTextFont(42);//ms.SetTextColor(12);
-	std::string out = "";
-	if (drawChannelInfo) {
-		out = "#int #font[12]{L}dt = %.1ffb^{  -1}   #sqrt{s} = 7 TeV";
-	}
-	else{
-		out = "                                      #sqrt{s} = 7 TeV";
-	}
-
-		as.DrawLatex(0.12, 0.93, Form(out.c_str(), intLumi));
-
-	as.SetTextSize(0.035);
-	if (drawChannelInfo) {
-		//1#gamma, >=3 jets, MET>"+getStringFromInt(METCut)+" GeV ";
-		out = "#geq1#gamma, #geq" + getStringFromInt(noJets) + " jets";
-		if (isBestjet)
-			out = "#geq1#gamma, #geq2/3 jets";
-		if (jetLabel != "")
-			out = jetLabel;
-		if (METCut != "") {
-
-			if (isdigit(METCut[0])) {
-				out = out + ", #slash{E}_{T} #geq " + METCut + " GeV";
-			} else {
-				out = out + ", " + METCut + "";
-			}
+		TLatex as;
+		as.SetNDC(true);
+		as.SetTextFont(43);
+		as.SetTextSize(22);
+		//as.SetTextFont(42);//ms.SetTextColor(12);
+		std::string out = "";
+		if (drawChannelInfo) {
+			out = "#int #font[12]{L}dt = %.1ffb^{  -1}   #sqrt{s} = 7 TeV";
 		}
-		as.SetTextSize(0.035);
-		as.DrawLatex(0.55, 0.93, Form(out.c_str()));
-	}
+		else{
+			out = "                                      #sqrt{s} = 7 TeV";
+		}
+
+			as.DrawLatex(0.12, 0.93, Form(out.c_str(), intLumi));
+
+		as.SetTextSize(22);
+		if (drawChannelInfo) {
+			//1#gamma, >=3 jets, MET>"+getStringFromInt(METCut)+" GeV ";
+			out = "#geq1#gamma, #geq" + getStringFromInt(noJets) + " jets";
+			if (isBestjet)
+				out = "#geq1#gamma, #geq2/3 jets";
+			if (jetLabel != "")
+				out = jetLabel;
+			if (METCut != "") {
+
+				if (isdigit(METCut[0])) {
+					out = out + ", #slash{E}_{T} #geq " + METCut + " GeV";
+				} else {
+					out = out + ", " + METCut + "";
+				}
+			}
+			as.SetTextSize(22);
+			as.DrawLatex(0.56, 0.93, Form(out.c_str()));
+		}
 
 
 
-	if(drawCMS){
-	 as.SetTextSize(0.035);
-	 as.DrawLatex(0.02, 0.93, "CMS");
-	}
+		if(drawCMS){
+		 as.SetTextSize(22);
+		 as.DrawLatex(0.02, 0.93, "CMS");
+		}
 }
 
 void Smooth(TGraph * g, int N) {

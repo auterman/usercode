@@ -22,7 +22,9 @@ public:
 	double Msquark;
 	double Mchi1;
 	double signal_acceptance;
+	double signal_acceptance_uncertainty;
 	double signal_contamination;
+	double signal_expectation;
 	double ngen;
 	double ExpR;
 	double ObsR;
@@ -46,6 +48,7 @@ public:
 	//add XS uncertainties
 	double NLOXSecUp, NLOXSecDown;
 	double PDFXsectionErr;
+	double PDFAccErr;
 
 private:
 	void SetPtr();

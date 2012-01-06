@@ -18,6 +18,8 @@
 #include <iostream>
 
 double Luminosity (const SusyScan* p){return p->Luminosity;}
+double LuminosityErr (const SusyScan* p){return p->Luminosity*0.045;}
+
 
 double Mgluino(const SusyScan* p) {return p->Mgluino;}
 
@@ -39,10 +41,23 @@ double MSquarkGluino1360(const SusyScan* p) {
 }
 
 double SignalAcceptance(const SusyScan* p) {return 100*p->signal_acceptance;}
+double SignalAcceptanceAbs(const SusyScan* p) {return p->signal_acceptance;}
+double SignalAcceptanceUncert(const SusyScan* p) {return 100*p->signal_acceptance_uncertainty/p->signal_acceptance;}
 
-double SignalContamination(const SusyScan* p) {return (p->signal_contamination);}
+
+double SignalContaminationAbs(const SusyScan* p) {return (p->signal_contamination);}
+double SignalContamination(const SusyScan* p) {return 100*(p->signal_contamination/p->signal_expectation);}
+double SignalExpectation(const SusyScan* p) {return (p->signal_expectation);}
+double SignalExpectationErr(const SusyScan* p) {return (p->signal_expectation*0.01*SignalAcceptanceUncert(p));}
 
 double NLOXsection(const SusyScan* p) {return p->NLOXsection;}
+
+double PDFAccUncertainty(const SusyScan* p){return 100*p->PDFAccErr;}
+double PDFXSUncertainty(const SusyScan* p){return 100*p->PDFXsectionErr;}
+double PDFXSUncertaintyAbs(const SusyScan* p){return p->PDFXsectionErr*p->NLOXsection;}
+double NLOXSUncertaintyUp(const SusyScan* p){return 100*p->NLOXSecUp;}
+double NLOXSUncertaintyUpAbs(const SusyScan* p){return p->NLOXSecUp*p->NLOXsection;}
+double NLOXSUncertaintyDownAbs(const SusyScan* p){return p->NLOXSecDown*p->NLOXsection;}
 
 double ExpR(const SusyScan* p) {return p->ExpR;}
 double ExpRM1(const SusyScan* p) {return p->ExpRM1;}

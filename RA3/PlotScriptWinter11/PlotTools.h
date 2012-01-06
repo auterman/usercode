@@ -18,6 +18,7 @@ TGraph* Close2D(TGraph * g);
 void drawCmsPrel(double intLumi, std::string METCut, int noJets, bool isBestjet, std::string jetLabel="", bool drawChannelInfo=true, bool drawCMS=false);
 void drawCmsPrelInCanvas(double intLumi);
 //void MergeBins(TH1*);
+void fillXSLimitAboveForInvalidResultPoints(TH2*h,TH2*hAcc);
 
 template<class T>
 class PlotTools {
@@ -30,7 +31,11 @@ class PlotTools {
   void Area(  TH2*h, double(*x)(const T*), double(*y)(const T*), 
               double(*func)(const T*));
   double SingleValue( double(*func)(const T*) );
-  
+  double SingleValue(double(*func)(const T*),double(*x)(const T*), double(*y)(const T*),double xValue, double yValue);
+  double LimitValue( double(*x)(const T*),double(*y)(const T*),TGraph* limit,double xValue);
+  std::pair<double,double> MinLimitValues( double(*x)(const T*),double(*y)(const T*),TGraph* limit);
+  std::pair<double,double> MaxLimitValues( double(*x)(const T*),double(*y)(const T*),TGraph* limit);
+  double roundDouble(double xin = 0, int n = 2) ;
   void Graph(  TGraph*g, double(*x)(const T*), double(*y)(const T*), double ymin=-999. );
   
   TGraph * GetContour(TH2*, int ncont=20, int flag=0,bool excludeBelowExcludedRegion=false);
