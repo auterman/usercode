@@ -66,8 +66,11 @@ JetResolution::JetResolution()
 
 float JetResolution::GetRandom(float pt, float eta, int i_th)
 {
+   if (i_th>2) i_th = 2;
+   int i_Pt  = GetIndex(pt,  &PtBinEdges_);
+   int i_eta = GetIndex(eta, &EtaBinEdges_);
 
-  return 1.;
+   return smearFunc_scaled.at(i_th).at(i_eta).at(i_Pt)->GetRandom();
 }
 
 
