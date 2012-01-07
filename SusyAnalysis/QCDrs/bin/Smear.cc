@@ -2,6 +2,7 @@
 #include "JetResolution.h"
 
 #include <iostream>
+#include <algorithm>
 
 struct Jet{
   Jet(float Pt,float Px,float Py,float Pz,float E,float Phi,float Eta):

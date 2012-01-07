@@ -139,8 +139,9 @@ void Rebalance( const std::vector<Event*>& evts, std::vector<Event*>& rebalanced
     else {
       ++not_converged;
       delete rebalanced;
-    }  
+    } 
+    if ((it-evts.begin())%(evts.size()/10)==0)std::cerr<<"->"<<(it-evts.begin())/10<<"%"; 
   }
-  std::cout << "Successfully rebalanced "<<rebalanced_events.size()<<" out of "<<evts.size()
+  std::cout << "\nSuccessfully rebalanced "<<rebalanced_events.size()<<" out of "<<evts.size()
             <<" events. Fit failed for "<<not_converged<<" events."<<std::endl;
 }

@@ -19,7 +19,7 @@ JetResolution::JetResolution()
    inputhist1_ 			= "hResponse1";
    inputhist2_ 			= "hResponse2";
    inputhist3p_ 		= "hResponse3p";
-   smearingfile_ 		= "file.root";
+   smearingfile_ 		= "JetResolution.root";
    outputfile_ 			= "SmearedAndScaledResponse";
    NRebin_ 			= 1;
    absoluteTailScaling_ 	= true;
