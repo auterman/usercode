@@ -16,9 +16,9 @@ JetResolution::JetResolution()
    AdditionalSmearing_variation_= 1.0;
    LowerTailScaling_variation_ 	= 1.0;
    UpperTailScaling_variation_ 	= 1.0;
-   inputhist1_ 			= "hResponse1";
-   inputhist2_ 			= "hResponse2";
-   inputhist3p_ 		= "hResponse3p";
+   inputhist1_ 			= "h_tot_Jet1_ResponsePt";
+   inputhist2_ 			= "h_tot_Jet2_ResponsePt";
+   inputhist3p_ 		= "h_tot_Jet3p_ResponsePt";
    smearingfile_ 		= "JetResolution.root";
    outputfile_ 			= "SmearedAndScaledResponse";
    NRebin_ 			= 1;
