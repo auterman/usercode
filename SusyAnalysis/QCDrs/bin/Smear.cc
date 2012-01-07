@@ -17,10 +17,10 @@ void Smear( const Event*evt, Event* rs, JetResolution * JetRes )
   // it will be sampled (int)weight times. Alternatively we could only sample it once and give the result
   // a high weight which would result in larger statistical uncertainties. 
   int Ntries = 1;
-  double w = rs->Weight;
+  double w = rs->EvtWgt;
   if ( w > 1) {
      Ntries = (int)w;
-     w = rs->Weight / Ntries;
+     w = rs->EvtWgt / Ntries;
   }
   
   //sample the event evt 'Ntries' times:
@@ -60,7 +60,7 @@ void Smear( const std::vector<Event*>& evts, std::vector<Event*>& rs_events )
     for (int i_th=0; i_th<Sample_N_times; ++i_th) {
       Event * rs_event = new Event;
       Smear( *it, rs_event, JetRes );
-      rs_event->Weight /= 100.;
+      rs_event->EvtWgt /= 100.;
       rs_events.push_back( rs_event );
       if ((it-evts.begin())%(evts.size()/10)==0&&i_th==0) std::cerr<<"->"<<(it-evts.begin())/10<<"%";
     }

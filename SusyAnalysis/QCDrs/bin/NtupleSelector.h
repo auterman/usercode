@@ -1,8 +1,8 @@
 //////////////////////////////////////////////////////////
 // This class has been automatically generated on
-// Sat Dec 31 13:50:03 2011 by ROOT version 5.18/00
+// Sat Jan  7 11:57:03 2012 by ROOT version 5.30/00
 // from TTree AnaTree/
-// found on file: QCDpseudo.root
+// found on file: QCDcontrol_data.root
 //////////////////////////////////////////////////////////
 
 #ifndef NtupleSelector_h
@@ -21,71 +21,51 @@ public :
    Int_t           RunNr;
    Int_t           EvtNr;
    Int_t           LumiB;
-   Float_t         Weight;
-   Int_t           NrecoJetGen;
-   Float_t         recoJetGenPx[200];   //[NrecoJetGen]
-   Float_t         recoJetGenPy[200];   //[NrecoJetGen]
-   Float_t         recoJetGenPz[200];   //[NrecoJetGen]
-   Float_t         recoJetGenE[200];   //[NrecoJetGen]
-   Float_t         recoJetGenPt[200];   //[NrecoJetGen]
-   Float_t         recoJetGenPhi[200];   //[NrecoJetGen]
-   Float_t         recoJetGenEta[200];   //[NrecoJetGen]
-   Float_t         recoMetGen;
-   Float_t         recoMetGenPhi;
+   Float_t         EvtWgt;
    Int_t           NrecoJet;
-   Float_t         recoJetPx[200];   //[NrecoJet]
-   Float_t         recoJetPy[200];   //[NrecoJet]
-   Float_t         recoJetPz[200];   //[NrecoJet]
-   Float_t         recoJetE[200];   //[NrecoJet]
-   Float_t         recoJetPt[200];   //[NrecoJet]
-   Float_t         recoJetPhi[200];   //[NrecoJet]
-   Float_t         recoJetEta[200];   //[NrecoJet]
+   Float_t         recoJetPx[12];   //[NrecoJet]
+   Float_t         recoJetPy[12];   //[NrecoJet]
+   Float_t         recoJetPz[12];   //[NrecoJet]
+   Float_t         recoJetE[12];   //[NrecoJet]
+   Float_t         recoJetPt[12];   //[NrecoJet]
+   Float_t         recoJetPhi[12];   //[NrecoJet]
+   Float_t         recoJetEta[12];   //[NrecoJet]
    Float_t         recoMetCal;
    Float_t         recoMetCalPhi;
    Int_t           NVtx;
-   Float_t         VtxZ[200];   //[NVtx]
+   Float_t         VtxZ[20];   //[NVtx]
    Int_t           NrecoMu;
-   Float_t         recoMuQ[200];   //[NrecoMu]
-   Float_t         recoMuPx[200];   //[NrecoMu]
-   Float_t         recoMuPy[200];   //[NrecoMu]
-   Float_t         recoMuPz[200];   //[NrecoMu]
-   Float_t         recoMuEn[200];   //[NrecoMu]
-   Float_t         recoMuPt[200];   //[NrecoMu]
-   Float_t         recoMuPhi[200];   //[NrecoMu]
-   Float_t         recoMuEta[200];   //[NrecoMu]
+   Float_t         recoMuQ[2];   //[NrecoMu]
+   Float_t         recoMuPx[2];   //[NrecoMu]
+   Float_t         recoMuPy[2];   //[NrecoMu]
+   Float_t         recoMuPz[2];   //[NrecoMu]
+   Float_t         recoMuEn[2];   //[NrecoMu]
+   Float_t         recoMuPt[2];   //[NrecoMu]
+   Float_t         recoMuPhi[2];   //[NrecoMu]
+   Float_t         recoMuEta[2];   //[NrecoMu]
    Int_t           NrecoEle;
-   Float_t         recoEleQ[200];   //[NrecoEle]
-   Float_t         recoElePx[200];   //[NrecoEle]
-   Float_t         recoElePy[200];   //[NrecoEle]
-   Float_t         recoElePz[200];   //[NrecoEle]
-   Float_t         recoEleEn[200];   //[NrecoEle]
-   Float_t         recoElePt[200];   //[NrecoEle]
-   Float_t         recoElePhi[200];   //[NrecoEle]
-   Float_t         recoEleEta[200];   //[NrecoEle]
+   Float_t         recoEleQ[3];   //[NrecoEle]
+   Float_t         recoElePx[3];   //[NrecoEle]
+   Float_t         recoElePy[3];   //[NrecoEle]
+   Float_t         recoElePz[3];   //[NrecoEle]
+   Float_t         recoEleEn[3];   //[NrecoEle]
+   Float_t         recoElePt[3];   //[NrecoEle]
+   Float_t         recoElePhi[3];   //[NrecoEle]
+   Float_t         recoEleEta[3];   //[NrecoEle]
    Int_t           NrecoPho;
-   Float_t         recoPhoPx[200];   //[NrecoPho]
-   Float_t         recoPhoPy[200];   //[NrecoPho]
-   Float_t         recoPhoPz[200];   //[NrecoPho]
-   Float_t         recoPhoEn[200];   //[NrecoPho]
-   Float_t         recoPhoPt[200];   //[NrecoPho]
-   Float_t         recoPhoPhi[200];   //[NrecoPho]
-   Float_t         recoPhoEta[200];   //[NrecoPho]
+   Float_t         recoPhoPx[2];   //[NrecoPho]
+   Float_t         recoPhoPy[2];   //[NrecoPho]
+   Float_t         recoPhoPz[2];   //[NrecoPho]
+   Float_t         recoPhoEn[2];   //[NrecoPho]
+   Float_t         recoPhoPt[2];   //[NrecoPho]
+   Float_t         recoPhoPhi[2];   //[NrecoPho]
+   Float_t         recoPhoEta[2];   //[NrecoPho]
 
    // List of branches
    TBranch        *b_RunNr;   //!
    TBranch        *b_EvtNr;   //!
    TBranch        *b_LumiB;   //!
-   TBranch        *b_Weight;   //!
-   TBranch        *b_NrecoJetGen;   //!
-   TBranch        *b_recoJetGenPx;   //!
-   TBranch        *b_recoJetGenPy;   //!
-   TBranch        *b_recoJetGenPz;   //!
-   TBranch        *b_recoJetGenE;   //!
-   TBranch        *b_recoJetGenPt;   //!
-   TBranch        *b_recoJetGenPhi;   //!
-   TBranch        *b_recoJetGenEta;   //!
-   TBranch        *b_recoMetGen;   //!
-   TBranch        *b_recoMetGenPhi;   //!
+   TBranch        *b_EvtWgt;   //!
    TBranch        *b_NrecoJet;   //!
    TBranch        *b_recoJetPx;   //!
    TBranch        *b_recoJetPy;   //!
@@ -141,7 +121,7 @@ public :
    virtual void    SlaveTerminate();
    virtual void    Terminate();
 
-   //ClassDef(NtupleSelector,0);
+//   ClassDef(NtupleSelector,0);
 };
 
 #endif
@@ -165,17 +145,7 @@ void NtupleSelector::Init(TTree *tree)
    fChain->SetBranchAddress("RunNr", &RunNr, &b_RunNr);
    fChain->SetBranchAddress("EvtNr", &EvtNr, &b_EvtNr);
    fChain->SetBranchAddress("LumiB", &LumiB, &b_LumiB);
-   fChain->SetBranchAddress("Weight", &Weight, &b_Weight);
-   fChain->SetBranchAddress("NrecoJetGen", &NrecoJetGen, &b_NrecoJetGen);
-   fChain->SetBranchAddress("recoJetGenPx", &recoJetGenPx, &b_recoJetGenPx);
-   fChain->SetBranchAddress("recoJetGenPy", &recoJetGenPy, &b_recoJetGenPy);
-   fChain->SetBranchAddress("recoJetGenPz", &recoJetGenPz, &b_recoJetGenPz);
-   fChain->SetBranchAddress("recoJetGenE", &recoJetGenE, &b_recoJetGenE);
-   fChain->SetBranchAddress("recoJetGenPt", &recoJetGenPt, &b_recoJetGenPt);
-   fChain->SetBranchAddress("recoJetGenPhi", &recoJetGenPhi, &b_recoJetGenPhi);
-   fChain->SetBranchAddress("recoJetGenEta", &recoJetGenEta, &b_recoJetGenEta);
-   fChain->SetBranchAddress("recoMetGen", &recoMetGen, &b_recoMetGen);
-   fChain->SetBranchAddress("recoMetGenPhi", &recoMetGenPhi, &b_recoMetGenPhi);
+   fChain->SetBranchAddress("EvtWgt", &EvtWgt, &b_EvtWgt);
    fChain->SetBranchAddress("NrecoJet", &NrecoJet, &b_NrecoJet);
    fChain->SetBranchAddress("recoJetPx", recoJetPx, &b_recoJetPx);
    fChain->SetBranchAddress("recoJetPy", recoJetPy, &b_recoJetPy);
@@ -187,33 +157,33 @@ void NtupleSelector::Init(TTree *tree)
    fChain->SetBranchAddress("recoMetCal", &recoMetCal, &b_recoMetCal);
    fChain->SetBranchAddress("recoMetCalPhi", &recoMetCalPhi, &b_recoMetCalPhi);
    fChain->SetBranchAddress("NVtx", &NVtx, &b_NVtx);
-   fChain->SetBranchAddress("VtxZ", &VtxZ, &b_VtxZ);
+   fChain->SetBranchAddress("VtxZ", VtxZ, &b_VtxZ);
    fChain->SetBranchAddress("NrecoMu", &NrecoMu, &b_NrecoMu);
-   fChain->SetBranchAddress("recoMuQ", &recoMuQ, &b_recoMuQ);
-   fChain->SetBranchAddress("recoMuPx", &recoMuPx, &b_recoMuPx);
-   fChain->SetBranchAddress("recoMuPy", &recoMuPy, &b_recoMuPy);
-   fChain->SetBranchAddress("recoMuPz", &recoMuPz, &b_recoMuPz);
-   fChain->SetBranchAddress("recoMuEn", &recoMuEn, &b_recoMuEn);
-   fChain->SetBranchAddress("recoMuPt", &recoMuPt, &b_recoMuPt);
-   fChain->SetBranchAddress("recoMuPhi", &recoMuPhi, &b_recoMuPhi);
-   fChain->SetBranchAddress("recoMuEta", &recoMuEta, &b_recoMuEta);
+   fChain->SetBranchAddress("recoMuQ", recoMuQ, &b_recoMuQ);
+   fChain->SetBranchAddress("recoMuPx", recoMuPx, &b_recoMuPx);
+   fChain->SetBranchAddress("recoMuPy", recoMuPy, &b_recoMuPy);
+   fChain->SetBranchAddress("recoMuPz", recoMuPz, &b_recoMuPz);
+   fChain->SetBranchAddress("recoMuEn", recoMuEn, &b_recoMuEn);
+   fChain->SetBranchAddress("recoMuPt", recoMuPt, &b_recoMuPt);
+   fChain->SetBranchAddress("recoMuPhi", recoMuPhi, &b_recoMuPhi);
+   fChain->SetBranchAddress("recoMuEta", recoMuEta, &b_recoMuEta);
    fChain->SetBranchAddress("NrecoEle", &NrecoEle, &b_NrecoEle);
-   fChain->SetBranchAddress("recoEleQ", &recoEleQ, &b_recoEleQ);
-   fChain->SetBranchAddress("recoElePx", &recoElePx, &b_recoElePx);
-   fChain->SetBranchAddress("recoElePy", &recoElePy, &b_recoElePy);
-   fChain->SetBranchAddress("recoElePz", &recoElePz, &b_recoElePz);
-   fChain->SetBranchAddress("recoEleEn", &recoEleEn, &b_recoEleEn);
-   fChain->SetBranchAddress("recoElePt", &recoElePt, &b_recoElePt);
-   fChain->SetBranchAddress("recoElePhi", &recoElePhi, &b_recoElePhi);
-   fChain->SetBranchAddress("recoEleEta", &recoEleEta, &b_recoEleEta);
+   fChain->SetBranchAddress("recoEleQ", recoEleQ, &b_recoEleQ);
+   fChain->SetBranchAddress("recoElePx", recoElePx, &b_recoElePx);
+   fChain->SetBranchAddress("recoElePy", recoElePy, &b_recoElePy);
+   fChain->SetBranchAddress("recoElePz", recoElePz, &b_recoElePz);
+   fChain->SetBranchAddress("recoEleEn", recoEleEn, &b_recoEleEn);
+   fChain->SetBranchAddress("recoElePt", recoElePt, &b_recoElePt);
+   fChain->SetBranchAddress("recoElePhi", recoElePhi, &b_recoElePhi);
+   fChain->SetBranchAddress("recoEleEta", recoEleEta, &b_recoEleEta);
    fChain->SetBranchAddress("NrecoPho", &NrecoPho, &b_NrecoPho);
-   fChain->SetBranchAddress("recoPhoPx", &recoPhoPx, &b_recoPhoPx);
-   fChain->SetBranchAddress("recoPhoPy", &recoPhoPy, &b_recoPhoPy);
-   fChain->SetBranchAddress("recoPhoPz", &recoPhoPz, &b_recoPhoPz);
-   fChain->SetBranchAddress("recoPhoEn", &recoPhoEn, &b_recoPhoEn);
-   fChain->SetBranchAddress("recoPhoPt", &recoPhoPt, &b_recoPhoPt);
-   fChain->SetBranchAddress("recoPhoPhi", &recoPhoPhi, &b_recoPhoPhi);
-   fChain->SetBranchAddress("recoPhoEta", &recoPhoEta, &b_recoPhoEta);
+   fChain->SetBranchAddress("recoPhoPx", recoPhoPx, &b_recoPhoPx);
+   fChain->SetBranchAddress("recoPhoPy", recoPhoPy, &b_recoPhoPy);
+   fChain->SetBranchAddress("recoPhoPz", recoPhoPz, &b_recoPhoPz);
+   fChain->SetBranchAddress("recoPhoEn", recoPhoEn, &b_recoPhoEn);
+   fChain->SetBranchAddress("recoPhoPt", recoPhoPt, &b_recoPhoPt);
+   fChain->SetBranchAddress("recoPhoPhi", recoPhoPhi, &b_recoPhoPhi);
+   fChain->SetBranchAddress("recoPhoEta", recoPhoEta, &b_recoPhoEta);
 }
 
 Bool_t NtupleSelector::Notify()

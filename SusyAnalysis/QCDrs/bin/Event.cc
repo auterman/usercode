@@ -38,10 +38,10 @@ void Event::CopyEvent(const Event& o){
   RunNr =         o.RunNr;
   EvtNr =	  o.EvtNr;
   LumiB =	  o.LumiB;
-  Weight =	  o.Weight;
-  NrecoJetGen =	  o.NrecoJetGen;
-  recoMetGen =	  o.recoMetGen;
-  recoMetGenPhi = o.recoMetGenPhi;
+  EvtWgt =	  o.EvtWgt;
+  //NrecoJetGen =	  o.NrecoJetGen;
+  //recoMetGen =	  o.recoMetGen;
+  //recoMetGenPhi = o.recoMetGenPhi;
   NrecoJet =	  o.NrecoJet;
   recoMetCal =	  o.recoMetCal;
   recoMetCalPhi = o.recoMetCalPhi;
@@ -51,6 +51,7 @@ void Event::CopyEvent(const Event& o){
   NrecoPho =	  o.NrecoPho;
 
   int f= sizeof(float);
+/*
   memcpy(&recoJetGenPx, &o.recoJetGenPx,  f*sizeof(&recoJetGenPx)); 
   memcpy(&recoJetGenPy, &o.recoJetGenPy,  f*sizeof(&recoJetGenPy)); 
   memcpy(&recoJetGenPz, &o.recoJetGenPz,  f*sizeof(&recoJetGenPz)); 
@@ -58,6 +59,7 @@ void Event::CopyEvent(const Event& o){
   memcpy(&recoJetGenPt, &o.recoJetGenPt,  f*sizeof(&recoJetGenPt)); 
   memcpy(&recoJetGenPhi,&o.recoJetGenPhi, f*sizeof(&recoJetGenPhi));
   memcpy(&recoJetGenEta,&o.recoJetGenEta, f*sizeof(&recoJetGenEta));
+*/
   memcpy(&recoJetPx,    &o.recoJetPx,     f*sizeof(&recoJetPx));    
   memcpy(&recoJetPy,    &o.recoJetPy,     f*sizeof(&recoJetPy));    
   memcpy(&recoJetPz,    &o.recoJetPz,     f*sizeof(&recoJetPz));    
@@ -135,7 +137,8 @@ void MakePseudoEvents( std::string file, std::vector<Event*>& evts)
 
     evt->fChain = 0;
     evt->NrecoJet = 4;
-    evt->NrecoJetGen =evt->NVtx=evt->NrecoMu=evt->NrecoEle=evt->NrecoPho=0;
+    //evt->NrecoJetGen =
+    evt->NVtx=evt->NrecoMu=evt->NrecoEle=evt->NrecoPho=0;
     evts.push_back( evt );
     
   }
@@ -172,8 +175,9 @@ void WriteEvents(std::string file, std::vector<Event*>& evts)
   myTree->Branch("RunNr",&evt->RunNr,"RunNr/I");
   myTree->Branch("EvtNr",&evt->EvtNr,"EvtNr/I");
   myTree->Branch("LumiB",&evt->LumiB,"LumiB/I");
-  myTree->Branch("Weight",&evt->Weight,"Weight/F");
+  myTree->Branch("EvtWgt",&evt->EvtWgt,"EvtWgt/F");
 
+/*
   //---generator level jets
   myTree->Branch("NrecoJetGen",&evt->NrecoJetGen,"NrecoJetGen/I");
   myTree->Branch("recoJetGenPx",evt->recoJetGenPx,"recoJetGenPx[NrecoJetGen]/F");
@@ -186,6 +190,7 @@ void WriteEvents(std::string file, std::vector<Event*>& evts)
   //---generator level MET
   myTree->Branch("recoMetGen",&evt->recoMetGen,"recoMetGen/F");
   myTree->Branch("recoMetGenPhi",&evt->recoMetGenPhi,"recoMetGenPhi/F");
+*/
 
   //---reco level jets
   myTree->Branch("NrecoJet",&evt->NrecoJet,"NrecoJet/I");

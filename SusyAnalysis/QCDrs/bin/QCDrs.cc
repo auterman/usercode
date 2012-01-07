@@ -11,7 +11,7 @@ int main(int argc, char* argv[])
 
   //MakePseudoEvents( "Pseudo QCD events", events);  ///only for testing
   //WriteEvents("QCDpseudo.root", events);
-  ReadEvents( "QCDpseudo.root", events);
+  ReadEvents( "QCDcontrol_data.root", events);
 
   //Rebalance events 
   //Rebalance( events,  rebalanced_events );
