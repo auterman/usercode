@@ -12,16 +12,16 @@ int main(int argc, char* argv[])
   //MakePseudoEvents( "Pseudo QCD events", events);  ///only for testing
   //WriteEvents("QCDpseudo.root", events);
 
-  ReadEvents( "QCDcontrol_data.root", events);
+  ReadEvents( "QCDpseudo.root", events);
 
   //Rebalance events 
-  Rebalance( events,  rebalanced_events );
+  //Rebalance( events,  rebalanced_events );
   
   //Smear events by jet energy resolution
-  //Smear(rebalanced_events, rs_events);
+  Smear(events, rs_events);
   
   //Write Events back to file
-  WriteEvents("QCDpseudo_rebalanced.root", rebalanced_events);
+  WriteEvents("QCDpseudo_rs.root", rs_events);
 
   return 0;
 }
