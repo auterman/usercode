@@ -54,17 +54,17 @@ void Smear( const Event*evt, Event* rs, JetResolution * JetRes )
 
 void Smear( const std::vector<Event*>& evts, std::vector<Event*>& rs_events )
 {
-  int Sample_N_times = 100;
+  int Sample_N_times = 2;
   JetResolution * JetRes = new JetResolution();
   std::cerr<<"...smearing: ";
   for (std::vector<Event*>::const_iterator it=evts.begin(); it!=evts.end(); ++it){
     for (int i_th=0; i_th<Sample_N_times; ++i_th) {
       Event * rs_event = new Event;
       Smear( *it, rs_event, JetRes );
-      rs_event->EvtWgt /= 100.;
+      rs_event->EvtWgt /= Sample_N_times;
       rs_events.push_back( rs_event );
-      if ((it-evts.begin())%(evts.size()/10)==0&&i_th==0) std::cerr<<"->"<<(it-evts.begin())/10<<"%";
     }
+    if ((it-evts.begin())%(evts.size()/10)==0) std::cerr<<"->"<<(it-evts.begin())/10<<"%";
   }
   delete JetRes;
   

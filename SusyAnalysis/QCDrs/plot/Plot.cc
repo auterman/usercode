@@ -12,12 +12,12 @@
 void FillHist(TH1*h, const std::vector<Event*>& evts, float(*var)(const Event*) )
 {
   for (std::vector<Event*>::const_iterator it=evts.begin(); it!=evts.end(); ++it) {
-    //h->Fill( var(*it), (*it)->EvtWgt );
-    h->Fill( var(*it), 1 );
+    //if ( (*it)->HT()<350. || (*it)->MHT()<100 ) continue;
+    h->Fill( var(*it), (*it)->EvtWgt );
   }  
 }
 
-float HT(const Event * evt){ return evt->HT(); }
+float HT(const Event * evt){ return evt->MHT(); }
 
 
 int main(int argc, char* argv[])
@@ -42,11 +42,11 @@ int main(int argc, char* argv[])
   //STL container for all events
   std::vector<Event*> eventsA, eventsB;
 
-  ReadEvents( "QCDpseudo.root", eventsA);
-  ReadEvents( "Qcdpseudo_rs.root", eventsB );
+  ReadEvents( "QCDcontrol_data.root", eventsA);
+  ReadEvents( "QCDcontrol_rs.root", eventsB );
 
   //Fill histograms
-  TH1F* ht_A = new TH1F("ht_A",";HT (GeV);events",100,0,1000);
+  TH1F* ht_A = new TH1F("ht_A",";MHT (GeV);events",100,0,1000);
   TH1F* ht_B = (TH1F*)ht_A->Clone();  
   FillHist(ht_A, eventsA, HT);
   FillHist(ht_B, eventsB, HT);
@@ -55,6 +55,7 @@ int main(int argc, char* argv[])
   
   //plotting
   TCanvas c1;
+  ht_B->Scale( ht_A->Integral()/ht_B->Integral() );
   if (ht_B->GetMaximum()>ht_A->GetMaximum()) ht_A->SetMaximum( ht_B->GetMaximum() );
   ht_A->Draw("h");
   ht_B->Draw("pe, same");

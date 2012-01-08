@@ -8,7 +8,8 @@
 #include <map>
 #include <iostream>
 
-bool Rebalance( const Event* evt, Event* rebalanced )
+bool Rebalance( const Event* evt, Event* rebalanced,  JetResolution * JetRes=0;
+ )
 {
    //// Interface to KinFitter
    TKinFitter* myFit = new TKinFitter();
@@ -38,9 +39,12 @@ bool Rebalance( const Event* evt, Event* rebalanced )
          TLorentzVector* lv = new TLorentzVector(tmppx, tmppy, tmppz, tmpe);
          lvec_m.push_back(lv);
          TMatrixD* cM = new TMatrixD(3, 3);
-         (*cM)(0, 0) = sqrt( evt->recoJetPt[i] ); //JetResolution_Pt2(it->pt(), it->eta(), i);
-         (*cM)(1, 1) = 0.05;                 //JetResolution_Eta2(it->energy(), it->eta());
-         (*cM)(2, 2) = 0.05;                 //JetResolution_Phi2(it->energy(), it->eta());
+         (*cM)(0, 0) = JetRes->JetResolution_Pt2(it->pt(), it->eta(), i);
+         (*cM)(1, 1) = JetRes->JetResolution_Eta2(it->energy(), it->eta());
+         (*cM)(2, 2) = JetRes->JetResolution_Phi2(it->energy(), it->eta());
+//         (*cM)(0, 0) = sqrt( evt->recoJetPt[i] ); //JetResolution_Pt2(it->pt(), it->eta(), i);
+//         (*cM)(1, 1) = 0.05;                 //JetResolution_Eta2(it->energy(), it->eta());
+//         (*cM)(2, 2) = 0.05;                 //JetResolution_Phi2(it->energy(), it->eta());
          covMat_m.push_back(cM);
          char name[10];
          sprintf(name, "jet%i", i);
@@ -132,9 +136,10 @@ bool Rebalance( const Event* evt, Event* rebalanced )
 void Rebalance( const std::vector<Event*>& evts, std::vector<Event*>& rebalanced_events )
 {
   int not_converged=0;
+  JetResolution * JetRes = new JetResolution();
   for (std::vector<Event*>::const_iterator it=evts.begin(); it!=evts.end(); ++it){
     Event * rebalanced = new Event;
-    if ( Rebalance( *it, rebalanced ) )
+    if ( Rebalance( *it, rebalanced, JetRes ) )
       rebalanced_events.push_back( rebalanced );
     else {
       ++not_converged;
@@ -142,6 +147,7 @@ void Rebalance( const std::vector<Event*>& evts, std::vector<Event*>& rebalanced
     } 
     if ((it-evts.begin())%(evts.size()/10)==0)std::cerr<<"->"<<(it-evts.begin())/10<<"%"; 
   }
+  delete JetRes;
   std::cout << "\nSuccessfully rebalanced "<<rebalanced_events.size()<<" out of "<<evts.size()
             <<" events. Fit failed for "<<not_converged<<" events."<<std::endl;
 }

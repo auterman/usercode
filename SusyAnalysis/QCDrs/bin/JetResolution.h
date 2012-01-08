@@ -16,6 +16,11 @@ class JetResolution{
   
   float GetRandom(float pt, float eta, int i_th);
 
+  double JetResolution_Pt2(const double&, const double&, const int&);
+  double JetResolution_Ptrel(const double&, const double&, const int&);
+  double JetResolution_Eta2(const double&, const double&);
+  double JetResolution_Phi2(const double&, const double&);
+
  private:
   
   //Copied from SmearProducer:

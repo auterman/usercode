@@ -64,6 +64,43 @@ JetResolution::JetResolution()
 }
 
 
+//--------------------------------------------------------------------------
+// pt resolution for KinFitter
+double QCDSmearProd::JetResolution_Pt2(const double& pt, const double& eta, const int& i) {
+   int i_jet;
+   i < 2 ? i_jet = i : i_jet = 2;
+   int i_eta = GetIndex(eta, &EtaBinEdges_);
+   //return pow(pt, 2) * pow(SigmaPt_scaled.at(i_jet).at(i_eta)->Eval(pt), 2);
+   return pow(pt, 2) * pow(SigmaPt.at(i_jet).at(i_eta)->Eval(pt), 2);
+}
+//--------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------
+// relative pt resolution for KinFitter
+double QCDSmearProd::JetResolution_Ptrel(const double& pt, const double& eta, const int& i) {
+   int i_jet;
+   i < 2 ? i_jet = i : i_jet = 2;
+   int i_eta = GetIndex(eta, &EtaBinEdges_);
+   return SigmaPt_scaled.at(i_jet).at(i_eta)->Eval(pt);
+}
+//--------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------
+// eta resolution for KinFitter
+double QCDSmearProd::JetResolution_Eta2(const double& e, const double& eta) {
+   //may be artifically reduced (no angular fit)
+   return (pow(0.05 / TMath::Sqrt(e), 2) + pow(0.005, 2)) / 1.e6;
+}
+//--------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------
+// phi resolution for KinFitter
+double QCDSmearProd::JetResolution_Phi2(const double& e, const double& eta) {
+   //may be artifically reduced (no angular fit)
+   return (pow(0.05 / TMath::Sqrt(e), 2) + pow(0.005, 2)) / 1.e6;
+}
+//--------------------------------------------------------------------------
+
 float JetResolution::GetRandom(float pt, float eta, int i_th)
 {
    if (i_th>2) i_th = 2;
@@ -389,8 +426,8 @@ void JetResolution::LoadResponseHistograms()
                if (smearFunc.at(i_jet).at(i_eta).at(i_Pt)->GetEntries() > 0) {
                   N = smearFunc.at(i_jet).at(i_eta).at(i_Pt)->Integral();
                }
-               std::cout << "Too few entries for (i_Pt, i_eta, i_jet): " << i_Pt << ", " << i_eta << ", " << i_jet
-                     << ", entries = " << smearFunc.at(i_jet).at(i_eta).at(i_Pt)->GetEntries() << std::endl;
+               //std::cout << "Too few entries for (i_Pt, i_eta, i_jet): " << i_Pt << ", " << i_eta << ", " << i_jet
+               //      << ", entries = " << smearFunc.at(i_jet).at(i_eta).at(i_Pt)->GetEntries() << std::endl;
                for (int j = 1; j <= smearFunc_scaled.at(i_jet).at(i_eta).at(i_Pt)->GetNbinsX(); ++j) {
                   double pt = (PtBinEdges_.at(i_Pt) + PtBinEdges_.at(i_Pt + 1)) / 2;
                   double g = N * TMath::Gaus(smearFunc_scaled.at(i_jet).at(i_eta).at(i_Pt)->GetBinCenter(j), 1.,
