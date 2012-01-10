@@ -1,4 +1,5 @@
 #include "Rebalance.h"
+#include "JetResolution.h"
 
 #include "PhysicsTools/KinFitter/interface/TKinFitter.h"
 #include "PhysicsTools/KinFitter/interface/TFitParticleEtEtaPhi.h"
@@ -8,8 +9,14 @@
 #include <map>
 #include <iostream>
 
-bool Rebalance( const Event* evt, Event* rebalanced,  JetResolution * JetRes=0;
- )
+struct Jet{
+  Jet(float Pt,float Px,float Py,float Pz,float E,float Phi,float Eta):
+      Pt(Pt),Px(Px),Py(Py),Pz(Pz),E(E),Phi(Phi),Eta(Eta){}
+  bool operator<(const Jet& o) const {return Pt>o.Pt;}    
+  float Pt,Px,Py,Pz,E,Phi,Eta;
+};
+
+bool Rebalance( const Event* evt, Event* rebalanced,  JetResolution * JetRes=0)
 {
    //// Interface to KinFitter
    TKinFitter* myFit = new TKinFitter();
@@ -21,6 +28,7 @@ bool Rebalance( const Event* evt, Event* rebalanced,  JetResolution * JetRes=0;
    bool result = true;
    double MHTx_high = 0;
    double MHTy_high = 0;
+   std::vector<Jet> rebjets;
 
    //// Fill measured particles to vector
    for (int i = 0; i<evt->NrecoJet; ++i) {
@@ -39,9 +47,11 @@ bool Rebalance( const Event* evt, Event* rebalanced,  JetResolution * JetRes=0;
          TLorentzVector* lv = new TLorentzVector(tmppx, tmppy, tmppz, tmpe);
          lvec_m.push_back(lv);
          TMatrixD* cM = new TMatrixD(3, 3);
-         (*cM)(0, 0) = JetRes->JetResolution_Pt2(it->pt(), it->eta(), i);
-         (*cM)(1, 1) = JetRes->JetResolution_Eta2(it->energy(), it->eta());
-         (*cM)(2, 2) = JetRes->JetResolution_Phi2(it->energy(), it->eta());
+//std::cout << "Jet "<<i<<" Pt="<<evt->recoJetPt[i]<<", sigma="
+//          << JetRes->JetResolution_Pt2(evt->recoJetPt[i],evt->recoJetEta[i],i)<<std::endl;	 
+         (*cM)(0, 0) = JetRes->JetResolution_Pt2(evt->recoJetPt[i], evt->recoJetEta[i], i);
+         (*cM)(1, 1) = JetRes->JetResolution_Eta2(evt->recoJetE[i], evt->recoJetEta[i]);
+         (*cM)(2, 2) = JetRes->JetResolution_Phi2(evt->recoJetE[i], evt->recoJetEta[i]);
 //         (*cM)(0, 0) = sqrt( evt->recoJetPt[i] ); //JetResolution_Pt2(it->pt(), it->eta(), i);
 //         (*cM)(1, 1) = 0.05;                 //JetResolution_Eta2(it->energy(), it->eta());
 //         (*cM)(2, 2) = 0.05;                 //JetResolution_Phi2(it->energy(), it->eta());
@@ -53,7 +63,12 @@ bool Rebalance( const Event* evt, Event* rebalanced,  JetResolution * JetRes=0;
          TFitParticleEtEtaPhi* jet2 = new TFitParticleEtEtaPhi(name, name, lvec_m.back(), covMat_m.back());
          fitted.push_back(jet2);
          myFit->addMeasParticle(fitted.back());
-         ++i;
+      }
+      else {
+	  rebjets.push_back(Jet( 
+	       evt->recoJetPt[i],
+	       evt->recoJetPx[i],evt->recoJetPy[i],evt->recoJetPz[i],
+	       evt->recoJetE[i],evt->recoJetPhi[i],evt->recoJetEta[i]));
       }
    }
 
@@ -89,7 +104,7 @@ bool Rebalance( const Event* evt, Event* rebalanced,  JetResolution * JetRes=0;
       F = myFit->getF();
       int dof = myFit->getNDF();
       prob = TMath::Prob(chi2, dof);
-      //if (prob < 1.e-8) result = false;
+      if (prob < 1.e-5) result = false;
       //cout << "chi2, prop, F = " << chi2 << " " << prob << " " << F << endl;
    } else {
       chi2 = 99999;
@@ -104,17 +119,26 @@ bool Rebalance( const Event* evt, Event* rebalanced,  JetResolution * JetRes=0;
    rebalanced->CopyEvent( *evt );
    rebalanced->NrecoJet = measured.size();
    for (unsigned int i = 0; i < measured.size(); ++i) {
-     rebalanced->recoJetPx[i] = fitted.at(i)->getCurr4Vec()->Px();
-     rebalanced->recoJetPy[i] = fitted.at(i)->getCurr4Vec()->Py();
-     rebalanced->recoJetPz[i] = fitted.at(i)->getCurr4Vec()->Pz();
-     rebalanced->recoJetE[i]  = fitted.at(i)->getCurr4Vec()->E();
-     rebalanced->recoJetPt[i] = sqrt( rebalanced->recoJetPx[i]*rebalanced->recoJetPx[i]+
-                                      rebalanced->recoJetPy[i]*rebalanced->recoJetPy[i] );
+          rebjets.push_back(Jet( 
+	         fitted.at(i)->getCurr4Vec()->Pt(),
+	         fitted.at(i)->getCurr4Vec()->Px(),fitted.at(i)->getCurr4Vec()->Py(),
+		 fitted.at(i)->getCurr4Vec()->Pz(),fitted.at(i)->getCurr4Vec()->E(),
+		 fitted.at(i)->getCurr4Vec()->Phi(),fitted.at(i)->getCurr4Vec()->Eta()));
    }
-   //std::cout<<"Fit Status="<<status
-   //	    <<", old HT="<<evt->HT()<<", MHT="<<evt->MHT()
-   //	    <<";  new HT="<<rebalanced->HT()<<", MHT="<<rebalanced->MHT()<<std::endl
-   //	    <<std::endl;
+   
+   std::sort(rebjets.begin(), rebjets.end());
+   for (std::vector<Jet>::const_iterator jet=rebjets.begin(); jet!=rebjets.end(); ++jet){
+   //std::cout<<result << ": #"<<jet-rebjets.begin()<<" jet old-pT="
+   //                  <<rebalanced->recoJetPt[jet-rebjets.begin()]
+   //                  <<", new-Pt="<<jet->Pt<<std::endl;
+      rebalanced->recoJetPt[jet-rebjets.begin()] = jet->Pt;
+      rebalanced->recoJetPx[jet-rebjets.begin()] = jet->Px;
+      rebalanced->recoJetPy[jet-rebjets.begin()] = jet->Py;
+      rebalanced->recoJetPz[jet-rebjets.begin()] = jet->Pz;
+      rebalanced->recoJetE[ jet-rebjets.begin()] = jet->E;
+      rebalanced->recoJetPhi[jet-rebjets.begin()] = jet->Phi;
+      rebalanced->recoJetEta[jet-rebjets.begin()] = jet->Eta;
+   }  
 
 
    delete myFit;

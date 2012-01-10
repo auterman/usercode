@@ -66,7 +66,7 @@ JetResolution::JetResolution()
 
 //--------------------------------------------------------------------------
 // pt resolution for KinFitter
-double QCDSmearProd::JetResolution_Pt2(const double& pt, const double& eta, const int& i) {
+double JetResolution::JetResolution_Pt2(const double& pt, const double& eta, const int& i) {
    int i_jet;
    i < 2 ? i_jet = i : i_jet = 2;
    int i_eta = GetIndex(eta, &EtaBinEdges_);
@@ -77,7 +77,7 @@ double QCDSmearProd::JetResolution_Pt2(const double& pt, const double& eta, cons
 
 //--------------------------------------------------------------------------
 // relative pt resolution for KinFitter
-double QCDSmearProd::JetResolution_Ptrel(const double& pt, const double& eta, const int& i) {
+double JetResolution::JetResolution_Ptrel(const double& pt, const double& eta, const int& i) {
    int i_jet;
    i < 2 ? i_jet = i : i_jet = 2;
    int i_eta = GetIndex(eta, &EtaBinEdges_);
@@ -87,7 +87,7 @@ double QCDSmearProd::JetResolution_Ptrel(const double& pt, const double& eta, co
 
 //--------------------------------------------------------------------------
 // eta resolution for KinFitter
-double QCDSmearProd::JetResolution_Eta2(const double& e, const double& eta) {
+double JetResolution::JetResolution_Eta2(const double& e, const double& eta) {
    //may be artifically reduced (no angular fit)
    return (pow(0.05 / TMath::Sqrt(e), 2) + pow(0.005, 2)) / 1.e6;
 }
@@ -95,7 +95,7 @@ double QCDSmearProd::JetResolution_Eta2(const double& e, const double& eta) {
 
 //--------------------------------------------------------------------------
 // phi resolution for KinFitter
-double QCDSmearProd::JetResolution_Phi2(const double& e, const double& eta) {
+double JetResolution::JetResolution_Phi2(const double& e, const double& eta) {
    //may be artifically reduced (no angular fit)
    return (pow(0.05 / TMath::Sqrt(e), 2) + pow(0.005, 2)) / 1.e6;
 }

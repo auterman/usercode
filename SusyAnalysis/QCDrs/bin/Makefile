@@ -30,6 +30,9 @@ table.o: table.cc table.h column.h
 Event.o: Event.h Event.cc
 	$(C) $(RCXX) -c Event.cc
 
+Selection.o: Selection.h Selection.cc
+	$(C) $(RCXX) -c Selection.cc
+
 NtupleSelector.o: NtupleSelector.h NtupleSelector.cc
 	$(C) $(RCXX) -c NtupleSelector.cc
 
