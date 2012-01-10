@@ -18,6 +18,7 @@ struct Jet{
 
 bool Rebalance( const Event* evt, Event* rebalanced,  JetResolution * JetRes=0)
 {
+ std::cout<<"Evt = "<<evt->EvtNr;
    //// Interface to KinFitter
    TKinFitter* myFit = new TKinFitter();
    std::vector<TLorentzVector*> lvec_m;
@@ -33,7 +34,7 @@ bool Rebalance( const Event* evt, Event* rebalanced,  JetResolution * JetRes=0)
    //// Fill measured particles to vector
    for (int i = 0; i<evt->NrecoJet; ++i) {
 
-      if (evt->recoJetPt[i] >= 20. ) {  //use all jets >= 20. GeV
+      if (evt->recoJetPt[i] >= 10. ) {  //use all jets >= 20. GeV
          MHTx_high -= evt->recoJetPx[i];
          MHTy_high -= evt->recoJetPy[i];
 
@@ -126,11 +127,14 @@ bool Rebalance( const Event* evt, Event* rebalanced,  JetResolution * JetRes=0)
 		 fitted.at(i)->getCurr4Vec()->Phi(),fitted.at(i)->getCurr4Vec()->Eta()));
    }
    
-   std::sort(rebjets.begin(), rebjets.end());
+   //std::sort(rebjets.begin(), rebjets.end());
    for (std::vector<Jet>::const_iterator jet=rebjets.begin(); jet!=rebjets.end(); ++jet){
-   //std::cout<<result << ": #"<<jet-rebjets.begin()<<" jet old-pT="
-   //                  <<rebalanced->recoJetPt[jet-rebjets.begin()]
-   //                  <<", new-Pt="<<jet->Pt<<std::endl;
+   std::cout<<result << ": #"<<jet-rebjets.begin()
+            <<" jet old-pT="<<rebalanced->recoJetPt[jet-rebjets.begin()]
+            <<",  old-phi="<<rebalanced->recoJetPhi[jet-rebjets.begin()]
+                     <<", new-Pt="<<jet->Pt
+                     <<", new-Phi="<<jet->Phi
+		     <<std::endl;
       rebalanced->recoJetPt[jet-rebjets.begin()] = jet->Pt;
       rebalanced->recoJetPx[jet-rebjets.begin()] = jet->Px;
       rebalanced->recoJetPy[jet-rebjets.begin()] = jet->Py;

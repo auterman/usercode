@@ -14,7 +14,7 @@ float Event::MHT() const
 {
   double mhtx=0., mhty=0;
   for (unsigned i=0; i<(unsigned)NrecoJet; ++i)
-    if (recoJetPt[i]>50. && fabs(recoJetEta[i])<5.0 ) {
+    if (recoJetPt[i]>30. && fabs(recoJetEta[i])<5.0 ) {
       mhtx += recoJetPx[i];
       mhty += recoJetPy[i];
     }  
@@ -25,7 +25,7 @@ float Event::HT() const
 {
   double ht=0.;
   for (unsigned i=0; i<(unsigned)NrecoJet; ++i)
-    if (recoJetPt[i]>50. && fabs(recoJetEta[i])<2.0 )
+    if (recoJetPt[i]>50. && fabs(recoJetEta[i])<2.5 )
       ht += recoJetPt[i];
   return ht;      
 }
