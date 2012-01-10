@@ -16,19 +16,13 @@ int main(int argc, char* argv[])
   //STL container for all events
   std::vector<Event*> events, rebalanced_events, rs_events;
   
-  ReadEvents( "data/QCDcontrol_data2.root", events);
-//  //Cut(events, Weight, '<', 1); // remove all events with weight < 1
-//  //WriteEvents("data/QCDcontrol_data2.root", events);
-//
+  ReadEvents( "data/QCDcontrol_data.root", events);
+
   Rebalance( events,  rebalanced_events );
-  //Cut(rebalanced_events, MHT, '>', 1); 
   WriteEvents("data/QCDcontrol_rebalanced.root", rebalanced_events);
   
-  //Smear events by jet energy resolution
-  
-//  ReadEvents( "data/QCDcontrol_data2.root", rebalanced_events);
-//  Cut(rebalanced_events, Weight, '<', 1); // remove all events with weight < 1
-//
+  //Smear events by jet energy resolution  
+//  ReadEvents( "data/QCDcontrol_rebalanced.root", rebalanced_events);
   Smear(rebalanced_events, rs_events);
   Cut(rs_events, Jet1Pt, '<', 70); 
   Cut(rs_events, Jet2Pt, '<', 50); 

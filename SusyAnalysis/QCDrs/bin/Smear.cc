@@ -67,7 +67,7 @@ void Smear( const Event*evt, Event* rs, JetResolution * JetRes )
 
 void Smear( const std::vector<Event*>& evts, std::vector<Event*>& rs_events )
 {
-  int Sample_N_times = 10;
+  int Sample_N_times = 2;
   gRandom->SetSeed(0);
   std::cout<<"...reading jet resolutions"<<std::endl;
   JetResolution * JetRes = new JetResolution();

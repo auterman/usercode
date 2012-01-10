@@ -18,7 +18,6 @@ struct Jet{
 
 bool Rebalance( const Event* evt, Event* rebalanced,  JetResolution * JetRes=0)
 {
- std::cout<<"Evt = "<<evt->EvtNr;
    //// Interface to KinFitter
    TKinFitter* myFit = new TKinFitter();
    std::vector<TLorentzVector*> lvec_m;
@@ -48,14 +47,9 @@ bool Rebalance( const Event* evt, Event* rebalanced,  JetResolution * JetRes=0)
          TLorentzVector* lv = new TLorentzVector(tmppx, tmppy, tmppz, tmpe);
          lvec_m.push_back(lv);
          TMatrixD* cM = new TMatrixD(3, 3);
-//std::cout << "Jet "<<i<<" Pt="<<evt->recoJetPt[i]<<", sigma="
-//          << JetRes->JetResolution_Pt2(evt->recoJetPt[i],evt->recoJetEta[i],i)<<std::endl;	 
          (*cM)(0, 0) = JetRes->JetResolution_Pt2(evt->recoJetPt[i], evt->recoJetEta[i], i);
          (*cM)(1, 1) = JetRes->JetResolution_Eta2(evt->recoJetE[i], evt->recoJetEta[i]);
          (*cM)(2, 2) = JetRes->JetResolution_Phi2(evt->recoJetE[i], evt->recoJetEta[i]);
-//         (*cM)(0, 0) = sqrt( evt->recoJetPt[i] ); //JetResolution_Pt2(it->pt(), it->eta(), i);
-//         (*cM)(1, 1) = 0.05;                 //JetResolution_Eta2(it->energy(), it->eta());
-//         (*cM)(2, 2) = 0.05;                 //JetResolution_Phi2(it->energy(), it->eta());
          covMat_m.push_back(cM);
          char name[10];
          sprintf(name, "jet%i", i);
@@ -76,9 +70,6 @@ bool Rebalance( const Event* evt, Event* rebalanced,  JetResolution * JetRes=0)
    //// Add momentum constraints
    double MET_constraint_x = 0.;
    double MET_constraint_y = 0.;
-   //// default: rebalance MHT of fitted jets
-   MET_constraint_x = 0.;
-   MET_constraint_y = 0.;
    TFitConstraintEp* momentumConstr1 = new TFitConstraintEp("px", "px", 0, TFitConstraintEp::pX, MET_constraint_x);
    TFitConstraintEp* momentumConstr2 = new TFitConstraintEp("py", "py", 0, TFitConstraintEp::pY, MET_constraint_y);
    for (unsigned int i = 0; i < fitted.size(); ++i) {
@@ -99,26 +90,23 @@ bool Rebalance( const Event* evt, Event* rebalanced,  JetResolution * JetRes=0)
    double chi2 = 0;
    double F = 0;
    double prob = 0;
-   //if (status == 0 || status == 1) {
    if (status == 0) {
       chi2 = myFit->getS();
       F = myFit->getF();
       int dof = myFit->getNDF();
       prob = TMath::Prob(chi2, dof);
-      if (prob < 1.e-5) result = false;
-      //cout << "chi2, prop, F = " << chi2 << " " << prob << " " << F << endl;
+      if (prob < 1.e-2) result = false;
    } else {
       chi2 = 99999;
       prob = 0;
       F = 99999;
       result = false;
-      //cout << "chi2, prop, F = " << chi2 << " " << prob << " " << F << endl;
    }
    //   h_fitProb->Fill(prob);  /// plot fit probability
 
    //// Get the output of KinFitter
    rebalanced->CopyEvent( *evt );
-   rebalanced->NrecoJet = measured.size();
+   //rebalanced->NrecoJet = measured.size();
    for (unsigned int i = 0; i < measured.size(); ++i) {
           rebjets.push_back(Jet( 
 	         fitted.at(i)->getCurr4Vec()->Pt(),
@@ -127,14 +115,8 @@ bool Rebalance( const Event* evt, Event* rebalanced,  JetResolution * JetRes=0)
 		 fitted.at(i)->getCurr4Vec()->Phi(),fitted.at(i)->getCurr4Vec()->Eta()));
    }
    
-   //std::sort(rebjets.begin(), rebjets.end());
+   std::sort(rebjets.begin(), rebjets.end());
    for (std::vector<Jet>::const_iterator jet=rebjets.begin(); jet!=rebjets.end(); ++jet){
-   std::cout<<result << ": #"<<jet-rebjets.begin()
-            <<" jet old-pT="<<rebalanced->recoJetPt[jet-rebjets.begin()]
-            <<",  old-phi="<<rebalanced->recoJetPhi[jet-rebjets.begin()]
-                     <<", new-Pt="<<jet->Pt
-                     <<", new-Phi="<<jet->Phi
-		     <<std::endl;
       rebalanced->recoJetPt[jet-rebjets.begin()] = jet->Pt;
       rebalanced->recoJetPx[jet-rebjets.begin()] = jet->Px;
       rebalanced->recoJetPy[jet-rebjets.begin()] = jet->Py;
@@ -167,9 +149,9 @@ void Rebalance( const std::vector<Event*>& evts, std::vector<Event*>& rebalanced
   JetResolution * JetRes = new JetResolution();
   for (std::vector<Event*>::const_iterator it=evts.begin(); it!=evts.end(); ++it){
     Event * rebalanced = new Event;
-    if ( Rebalance( *it, rebalanced, JetRes ) )
+    if ( Rebalance( *it, rebalanced, JetRes ) ) {
       rebalanced_events.push_back( rebalanced );
-    else {
+    } else {
       ++not_converged;
       delete rebalanced;
     } 

@@ -24,10 +24,7 @@ float MHT(const Event * evt){ return evt->MHT(); }
 float Jet1Pt(const Event * evt){ return evt->recoJetPt[0]; }
 float Jet2Pt(const Event * evt){ return evt->recoJetPt[1]; }
 float Jet3Pt(const Event * evt){ return evt->recoJetPt[2]; }
-float JetMultiplicity(const Event * evt){ 
-//int N=0; for (int i=0;i<evt->NrecoJet;++i) if (evt->recoJetPt[i]>50.) ++N;return N; 
-return evt->NrecoJet;
-}
+float JetMultiplicity(const Event * evt){ int N=0; for (int i=0;i<evt->NrecoJet;++i) if (evt->recoJetPt[i]>50.) ++N;return N; }
 
 
 int main(int argc, char* argv[])
@@ -55,7 +52,7 @@ int main(int argc, char* argv[])
   //STL container for all events
   std::vector<Event*> eventsA, eventsB, eventsC;
 
-  ReadEvents( "data/QCDcontrol_data2.root", eventsA);
+  ReadEvents( "data/QCDcontrol_data.root", eventsA);
   ReadEvents( "data/QCDcontrol_rebalanced.root", eventsB );
   ReadEvents( "data/QCDcontrol_rs.root", eventsC );
 
