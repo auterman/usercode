@@ -43,7 +43,7 @@ void Smear( const std::vector<Event*>& evts, std::vector<Event*>& rs_events )
 {
   int Sample_N_times = 2;
   gRandom->SetSeed(0);
-  std::cout<<"...reading jet resolutions"<<std::endl;
+  std::cout<<"...reading jet resolutions for smearing"<<std::endl;
   JetResolution * JetRes = new JetResolution();
   std::cerr<<"...smearing: ";
   for (std::vector<Event*>::const_iterator it=evts.begin(); it!=evts.end(); ++it){
@@ -53,7 +53,7 @@ void Smear( const std::vector<Event*>& evts, std::vector<Event*>& rs_events )
       rs_event->EvtWgt /= (float)Sample_N_times;
       rs_events.push_back( rs_event );
     }
-    if (int(it-evts.begin())%(evts.size()/10)==0) std::cerr<<"->"<<int(it-evts.begin())/10<<"%";
+    if (int(it-evts.begin())%(evts.size()/10)==0) std::cerr<<"->"<<int(it-evts.begin())/(evts.size()/10)*10<<"%";
   }
   delete JetRes;
   

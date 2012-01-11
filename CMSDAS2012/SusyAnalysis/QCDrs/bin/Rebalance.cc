@@ -67,7 +67,9 @@ bool Rebalance( const Event* evt, Event* rebalanced,  JetResolution * JetRes=0)
 void Rebalance( const std::vector<Event*>& evts, std::vector<Event*>& rebalanced_events )
 {
   int not_converged=0;
+  std::cout<<"...reading jet energy resolutions for rebalancing"<<std::endl;
   JetResolution * JetRes = new JetResolution();
+  std::cerr<<"...rebalancing: ";
   for (std::vector<Event*>::const_iterator it=evts.begin(); it!=evts.end(); ++it){
     Event * rebalanced = new Event;
     if ( Rebalance( *it, rebalanced, JetRes ) ) {
@@ -76,7 +78,7 @@ void Rebalance( const std::vector<Event*>& evts, std::vector<Event*>& rebalanced
       ++not_converged;
       delete rebalanced;
     } 
-    if ((it-evts.begin())%(evts.size()/10)==0)std::cerr<<"->"<<(it-evts.begin())/(evts.size()/10)<<"%"; 
+    if ((it-evts.begin())%(evts.size()/10)==0)std::cerr<<"->"<<(it-evts.begin())/(evts.size()/10)*10<<"%"; 
   }
   delete JetRes;
   std::cout << "\nSuccessfully rebalanced "<<rebalanced_events.size()<<" out of "<<evts.size()
