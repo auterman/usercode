@@ -28,11 +28,11 @@ int main(int argc, char* argv[])
   std::vector<Event*> events, rebalanced_events, rs_events;
   
   //Read the control sample
-  ReadEvents( "data/QCDcontrol_data.root", events);
+  ReadEvents( "QCDcontrol_data.root", events);
  
   //Rebalance events 'events', resulting events are 'rebalanced_events'
   Rebalance( events,  rebalanced_events );
-  WriteEvents("data/QCDcontrol_rebalanced.root", rebalanced_events);
+  WriteEvents("QCDcontrol_rebalanced.root", rebalanced_events);
   
   //Smear events 'rebalanced_events' by jet energy resolution, result is 'rs_events'  
   Smear(rebalanced_events, rs_events);
@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
   Cut(rs_events, Jet3Pt, '<', 50); 
   
   //Write the 'rs_events' to file
-  WriteEvents("data/QCDcontrol_rs.root", rs_events);
+  WriteEvents("QCDcontrol_rs.root", rs_events);
 
   return 0;
 }
