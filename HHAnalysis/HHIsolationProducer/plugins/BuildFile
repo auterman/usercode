@@ -1,5 +1,0 @@
-<library file=HHisolatedMuons.cc>
-  <use name=FWCore/Framework>
-  <use name=FWCore/ParameterSet>
-  <use name=DataFormats/MuonReco>
-</library>
