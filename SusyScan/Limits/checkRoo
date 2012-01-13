@@ -1,9 +1,0 @@
-#!/bin/bash
-
-for i in `ls -d limits_*` 
-do
-  NUM=`grep -L RooMCMC $i/* | wc -l`
-  TOT=`grep -l -m1 RooMCMC $i/* | wc -l`
-  echo "$NUM of $TOT jobs in $i not finished; issue: ./RooStat \`grep -L RooMCMC $i/*\`" 
-done
-
