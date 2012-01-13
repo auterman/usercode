@@ -1,3 +1,0 @@
-module JetID = JetID {
-	InputTag Jets = iterativeCone5CaloJets
-}
