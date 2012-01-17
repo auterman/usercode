@@ -67,19 +67,30 @@ SusyScan::SusyScan(std::string filename) {
 	LOXsection = config.read<double> ("Xsection.LO", 0);
 
 	ExpR = config.read<double> ("CLs expected", 9999);
+	if(ExpR<=0.0001)ExpR=9999;
 	ObsR = config.read<double> ("CLs observed", 9999);
+	if(ObsR<=0.0001)ObsR=9999;
 	ExpRM1 = config.read<double> ("CLs expected m1sigma", 9999);
+   	if(ExpRM1<=0.0001)ExpRM1=9999;	
 	ExpRP1 = config.read<double> ("CLs expected p1sigma", 9999);
+	if(ExpRP1<=0.0001)ExpRP1=9999;
 	ExpRM2 = config.read<double> ("CLs expected m2sigma", 9999);
+	if(ExpRM2<=0.0001)ExpRM2=9999;
 	ExpRP2 = config.read<double> ("CLs expected p2sigma", 9999);
+	if(ExpRP2<=0.0001)ExpRP2=9999;
 
 	ExpRasym   = config.read<double> ("CLs expected asymptotic", 9999);
+	if(ExpRasym<=0.0001)ExpRasym=9999;
 	ObsRasym   = config.read<double> ("CLs observed asymptotic", 9999);
+	if(ObsRasym<=0.0001)ObsRasym=9999;
 	ExpRasymM1 = config.read<double> ("CLs expected asymptotic m1sigma", 9999);
+	if(ExpRasymM1<=0.0001)ExpRasymM1=9999;
 	ExpRasymP1 = config.read<double> ("CLs expected asymptotic p1sigma", 9999);
+	if(ExpRasymP1<=0.0001)ExpRasymP1=9999;
 	ExpRasymM2 = config.read<double> ("CLs expected asymptotic m2sigma", 9999);
+	if(ExpRasymM2<=0.0001)ExpRasymM2=9999;
 	ExpRasymP2 = config.read<double> ("CLs expected asymptotic p2sigma", 9999);
-
+	if(ExpRasymP2<=0.0001)ExpRasymP2=9999;
 
 	Luminosity = config.read<double> ("Luminosity", 9999);
 

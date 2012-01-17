@@ -31,32 +31,27 @@ using namespace std;
 namespace filenames {
 //ATTENTION: do not forget to add new filenames in main function!!
 
-string file_wino3j = "2012-01-06-00-07-GMSBWino375Neutr";
-string file_wino2j = "2012-01-06-00-08-GMSBWino375Neutr2j";
+string file_wino3j = "2012-01-13-00-28-GMSBWino375Neutr";
+string file_wino2j = "2012-01-13-00-28-GMSBWino375Neutr2j";
 
-string file_bino3j = "2012-01-06-00-03-GMSBBino375Neutr";
-string file_bino2j = "2012-01-06-00-06-GMSBBino375Neutr2j";
 
-string file_binoNeutr3j = "2012-01-06-00-09-GMSB_SquarkGluino_vs_Neutralino";
-string file_binoNeutr2j = "2012-01-06-00-10-GMSB_SquarkGluino_vs_Neutralino2j";
+string file_bino3j = "2012-01-09-14-56-GMSBBino375Neutr";
+string file_bino2j = "2012-01-09-14-57-GMSBBino375Neutr2j";
+
+string file_binoNeutr3j = "2012-01-13-00-29-GMSB_SquarkGluino_vs_Neutralino";
+string file_binoNeutr2j = "2012-01-13-00-29-GMSB_SquarkGluino_vs_Neutralino2j";
 
 string file_wino3j_MergedBins = "2011-11-27-16-33-GMSBWino375NeutrMerged";
 
-string file_wino3j_SingleBins = "2011-12-19-21-50-GMSBWino375NeutrSingleChannels";
-string file_bino3j_SingleBins = "2011-12-19-21-49-GMSBBino375NeutrSingleChannels";
-string file_binoNeutr3j_SingleBins = "2011-12-19-21-51-GMSB_SquarkGluino_vs_NeutralinoSingleChannels";
-string file_wino2j_SingleBins = "2011-12-19-21-50-GMSBWino375NeutrSingleChannels2j";
-string file_bino2j_SingleBins = "2011-12-19-21-49-GMSBBino375NeutrSingleChannels2j";
-string file_binoNeutr2j_SingleBins = "2011-12-19-21-51-GMSB_SquarkGluino_vs_NeutralinoSingleChannels2j";
+string file_wino3j_SingleBins = "2012-01-09-17-57-GMSBWino375NeutrSingleChannels";
+string file_bino3j_SingleBins = "2012-01-09-17-55-GMSBBino375NeutrSingleChannels";
+string file_binoNeutr3j_SingleBins = "2012-01-09-18-14-GMSB_SquarkGluino_vs_NeutralinoSingleChannels";
+string file_wino2j_SingleBins = "2012-01-09-17-58-GMSBWino375NeutrSingleChannels2j";
+string file_bino2j_SingleBins = "2012-01-09-17-56-GMSBBino375NeutrSingleChannels2j";
+string file_binoNeutr2j_SingleBins = "2012-01-09-18-15-GMSB_SquarkGluino_vs_NeutralinoSingleChannels2j";
 
 string file_bino3j_DemoPoint = "2011-12-19-21-53-DemoPoint";
-
-
-
-//2012-01-06-00-03-GMSBBino375Neutr/                   2012-01-06-00-07-GMSBWino375Neutr/                   2012-01-06-00-09-GMSB_SquarkGluino_vs_Neutralino/
-//2012-01-06-00-06-GMSBBino375Neutr2j/                 2012-01-06-00-08-GMSBWino375Neutr2j/                 2012-01-06-00-10-GMSB_SquarkGluino_vs_Neutralino2j/
-
-
+string file_bino2j_DemoPoint = "2012-01-13-00-27-DemoPoint";
 
 
 
@@ -290,7 +285,7 @@ void CreateSamplePointTexFile(PlotTools<SusyScan> *PlotTool, double(*x)(const T*
 		ofile << "\\def\\" << name << "ObsXSAsym{" << PlotTool->SingleValue(ObsXsecLimitAsym, x, y, xValue, yValue) << "}" << endl;
 		ofile << "\\def\\" << name << "ExpXSAsym{" << PlotTool->SingleValue(ExpXsecLimitAsym, x, y, xValue, yValue) << "}" << endl;
 	}
-	ofile << "\\def\\" << name << "signalacceptance{" << PlotTool->roundDouble(PlotTool->SingleValue(SignalAcceptanceAbs, x, y, xValue, yValue),2) << "}" << endl;
+	ofile << "\\def\\" << name << "signalacceptance{" << PlotTool->roundDouble(PlotTool->SingleValue(SignalAcceptance, x, y, xValue, yValue),0) << "}" << endl;
 
 	ofile << "\\def\\" << name << "signalacceptanceuncertainty{" <<PlotTool->roundDouble(PlotTool->SingleValue(SignalAcceptanceUncert, x, y, xValue, yValue),0) << "}" << endl;
 
@@ -592,11 +587,14 @@ void PlotAllObserved(std::vector<ExclusionCurves*> limits, PlotStyles * style, T
 		int color = 1;
 		for (std::vector<ExclusionCurves*>::iterator it = limits.begin(); it != limits.end(); ++it) {
 			TGraph * g = (*it)->obs_asym;
+			if (color == 1) {
+				g = (*it)->obs;
+			}
 			if (color == 5) color=kOrange-3;
 			g->SetLineColor(color);
 			g->SetLineStyle(1);
 
-			if (color == 0) {
+			if (color == 1) {
 				g->SetLineWidth(3);
 				g->Draw("l");
 			} else {
@@ -633,10 +631,13 @@ void PlotAllObserved(std::vector<ExclusionCurves*> limits, PlotStyles * style, T
 			int color = 1;
 			for (std::vector<ExclusionCurves*>::iterator it = limits.begin(); it != limits.end(); ++it) {
 				TGraph * g = (*it)->exp_asym;
+				if (color == 1) {
+								g = (*it)->exp;
+							}
 				if (color == 5) color=kOrange-3;
 				g->SetLineColor(color);
 				g->SetLineStyle(1);
-				if (color == 0) {
+				if (color == 1) {
 					g->SetLineWidth(3);
 
 					g->Draw("l");
@@ -806,9 +807,10 @@ ExclusionCurves GetExclusionContours(PlotTools<SusyScan> *PlotTool, PlotStyles s
 	{
 		TH2F *hxsec = (TH2F*) h->Clone();
 		hxsec->GetZaxis()->SetTitle("Observed in/out");
-		PlotTool->Area(hxsec, x, y, ExpExclusionAsym);
+
+		PlotTool->Area(hxsec, x, y, ObsExclusionAsym);
 		hxsec->GetZaxis()->SetTitleOffset(1.5);
-		std::vector<TGraph*> contours = PlotTool->GetContours(hxsec, 3, excludeBelowExcludedRegion);
+		std::vector<TGraph*> contours = PlotTool->GetContours(hxsec, 3, excludeBelowExcludedRegion,true);
 		/// :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 		hxsec->Draw("colz");
 		int col = kBlue - 10;
@@ -837,9 +839,9 @@ ExclusionCurves GetExclusionContours(PlotTools<SusyScan> *PlotTool, PlotStyles s
 		TH2F *hs = (TH2F*) h->Clone();
 		hs->GetZaxis()->SetTitle("");
 		TGraph * gCLsObsExcl = PlotTool->GetContour(hs, x, y, ObsExclusion, 3, 0, 1, 1, excludeBelowExcludedRegion);
-		TGraph * gCLsObsExclAsym = PlotTool->GetContour(hs, x, y, ObsExclusionAsym, 3, 0, 1, 1, excludeBelowExcludedRegion);
+		TGraph * gCLsObsExclAsym = PlotTool->GetContour(hs, x, y, ObsExclusionAsym, 3, 0, 1, 1, excludeBelowExcludedRegion,true);
 		TGraph * gCLsExpExcl = PlotTool->GetContour(hs, x, y, ExpExclusion, 3, 0, 1, 2, excludeBelowExcludedRegion);
-		TGraph * gCLsExpExclAsym = PlotTool->GetContour(hs, x, y, ExpExclusionAsym, 3, 0, 1, 2, excludeBelowExcludedRegion);
+		TGraph * gCLsExpExclAsym = PlotTool->GetContour(hs, x, y, ExpExclusionAsym, 3, 0, 1, 2, excludeBelowExcludedRegion,true);
 		TGraph * gCLsExpExclm1 = PlotTool->GetContour(hs, x, y, ExpExclusionM1, 3, 1, 5, 2, excludeBelowExcludedRegion);
 		TGraph * gCLsExpExclp1 = PlotTool->GetContour(hs, x, y, ExpExclusionP1, 3, 0, 5, 2, excludeBelowExcludedRegion);
 		TGraph * gCLsObsExclm1 = PlotTool->GetContour(hs, x, y, ObsExclusionM1, 3, 1, 5, 2, excludeBelowExcludedRegion);
@@ -1093,14 +1095,13 @@ int plot(int argc, char** argv) {
 	///==================CREATE TEX DEFINITIONS FOR SAMPLE POINT/RESULTING LIMITS================================
 	string filenameforresulttex = "results/interpretationresults.tex";
 	std::system(("rm " + filenameforresulttex).c_str());
-	GetPlotTools(Scan, ScanInterpol, filenames::file_bino3j);
-	//CreateSamplePointTexFile(ScanInterpol, Msquark, Mgluino, 720., 800., filenameforresulttex);
-	CreateResultPointTexFile(exclBino3j.obs, ScanInterpol, Msquark, Mgluino, 1000, "Bino", filenameforresulttex);
-	GetPlotTools(Scan, ScanInterpol, filenames::file_wino3j);
-	CreateResultPointTexFile(exclWino3j.obs, ScanInterpol, Msquark, Mgluino, 1000, "Wino", filenameforresulttex);
-	GetPlotTools(Scan, ScanInterpol, filenames::file_binoNeutr3j);
-	CreateResultPointTexFile(exclBinoNeutr_gl_3j.obs, ScanInterpol, Mchi1, Mgluino, 150, "BinoNeutrMin", filenameforresulttex);
-	CreateResultPointTexFile(exclBinoNeutr_gl_3j.obs, ScanInterpol, Mchi1, Mgluino, 650, "BinoNeutrMax", filenameforresulttex);
+	GetPlotTools(Scan, ScanInterpol, filenames::file_bino2j);
+	CreateResultPointTexFile(exclBino2j.obs, ScanInterpol, Msquark, Mgluino, 1200, "Bino", filenameforresulttex);
+	GetPlotTools(Scan, ScanInterpol, filenames::file_wino2j);
+	CreateResultPointTexFile(exclWino2j.obs, ScanInterpol, Msquark, Mgluino, 1000, "Wino", filenameforresulttex);
+	GetPlotTools(Scan, ScanInterpol, filenames::file_binoNeutr2j);
+	CreateResultPointTexFile(exclBinoNeutr_gl_2j.obs, ScanInterpol, Mchi1, Mgluino, 150, "BinoNeutrMin", filenameforresulttex);
+	CreateResultPointTexFile(exclBinoNeutr_gl_2j.obs, ScanInterpol, Mchi1, Mgluino, 650, "BinoNeutrMax", filenameforresulttex);
 
 	///==================Limits - which channel is most sensitive? ---3 jet
 	PlotBinComparison(Scan, ScanInterpol, Msquark, Mgluino, filenames::file_wino3j, filenames::file_wino3j_SingleBins, retWino3j, &hi, &h);
@@ -1112,7 +1113,9 @@ int plot(int argc, char** argv) {
 	PlotBinComparison(Scan, ScanInterpol, Mchi1, Mgluino, filenames::file_binoNeutr2j, filenames::file_binoNeutr2j_SingleBins, retBinoNeutr_Gluino2j, &hNeutrGluinoi,&hNeutrGluino, true);
 
 	///==================Limits - Demopoint (bino,3 jet)
-	PlotBinComparison(Scan, ScanInterpol, Msquark, Mgluino, filenames::file_bino3j, filenames::file_bino3j_DemoPoint, retBino3j, &hi, &h, false, filenameforresulttex);
+	//PlotBinComparison(Scan, ScanInterpol, Msquark, Mgluino, filenames::file_bino3j, filenames::file_bino3j_DemoPoint, retBino3j, &hi, &h, false, filenameforresulttex);
+	///==================Limits - Demopoint (bino,2 jet)
+	PlotBinComparison(Scan, ScanInterpol, Msquark, Mgluino, filenames::file_bino2j, filenames::file_bino2j_DemoPoint, retBino2j, &hi, &h, false, filenameforresulttex);
 
 }
 
@@ -1133,6 +1136,7 @@ int main(int argc, char** argv) {
 	filenames.push_back(filenames::file_bino2j_SingleBins);
 	filenames.push_back(filenames::file_binoNeutr2j_SingleBins);
 	filenames.push_back(filenames::file_bino3j_DemoPoint);
+	filenames.push_back(filenames::file_bino2j_DemoPoint);
 	redoFileList(filenames);
 	return plot(argc, argv);
 }

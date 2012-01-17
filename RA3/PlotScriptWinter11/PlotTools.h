@@ -38,15 +38,15 @@ class PlotTools {
   double roundDouble(double xin = 0, int n = 2) ;
   void Graph(  TGraph*g, double(*x)(const T*), double(*y)(const T*), double ymin=-999. );
   
-  TGraph * GetContour(TH2*, int ncont=20, int flag=0,bool excludeBelowExcludedRegion=false);
-  std::vector<TGraph *> GetContours(TH2*, int ncont=20,bool excludeBelowExcludedRegion=false);
+  TGraph * GetContour(TH2*, int ncont=20, int flag=0,bool excludeBelowExcludedRegion=false,bool isAsymptoticLimit=false);
+  std::vector<TGraph *> GetContours(TH2*, int ncont=20,bool excludeBelowExcludedRegion=false,bool isAsymptoticLimit=false);
 
   TGraph * GetContour005(TH2*, int ncont=20, int flag=0);
   std::vector<TGraph *> GetContours005(TH2*, int ncont=20);
 
   TGraph * GetContour(TH2*,double(*x)(const T*), double(*y)(const T*), 
                       double(*func)(const T*), int ncont=20, int flag=0,
-		      int color=1, int style=1,bool excludeBelowExcludedRegion=false);
+		      int color=1, int style=1,bool excludeBelowExcludedRegion=false,bool isAsymptoticLimit=false);
 
   TGraph * GetContour005(TH2*,double(*x)(const T*), double(*y)(const T*), 
                       double(*func)(const T*), int ncont=20, int flag=0,

@@ -75,6 +75,7 @@ template<class T>
 double PlotTools<T>::LimitValue(double(*x)(const T*), double(*y)(const T*), TGraph* limit, double xValue) {
 	double yValue = limit->Eval(xValue);
 	//std::cout<<"yValue!!!!!!!!!!!!!"<<yValue<<std::endl;
+	//std::cout<<"xValue!!!!!!!!!!!!!"<<xValue<<std::endl;
 	double resultYValue = 9999;
 	for (typename std::vector<T*>::const_iterator it = _scan->begin(); it != _scan->end(); ++it) {
 		//std::cout << "xValue=========" << x(*it) << std::endl;
@@ -192,6 +193,33 @@ void FillEmptyPointsForNeutralinoScan(TH2*h) {
 
 }
 
+void FillEmptyPointsForLowMassPoints(TH2*h) {
+	for (int x = 0; x <= h->GetXaxis()->GetNbins(); ++x){
+		for (int y = 0; y <= 20; ++y){
+			if(isExcludedAbove(h,x,y) ){
+				h->SetBinContent(x, y, 0.01);
+			}
+			else{
+				h->SetBinContent(x, y, 1);
+			}
+		}
+	}
+
+
+}
+
+void RejectHighExcludedPointsPerHand(TH2*h) {
+	for (int x = 50; x <=  h->GetXaxis()->GetNbins(); ++x){
+		for (int y = 50; y <=  h->GetYaxis()->GetNbins(); ++y){
+
+				h->SetBinContent(x, y, 1);
+
+		}
+	}
+
+
+}
+
 template<class T>
 void PlotTools<T>::Area(TH2*h, double(*x)(const T*), double(*y)(const T*), double(*f)(const T*)) {
 	//std::cout << _scan->size() << ",  &scan=" << _scan << std::endl;
@@ -251,13 +279,19 @@ TGraph * PlotTools<T>::GetContour005(TH2*h, int ncont, int flag) {
 }
 
 template<class T>
-std::vector<TGraph*> PlotTools<T>::GetContours(TH2*h, int ncont,bool excludeBelowExcludedRegion) {
+std::vector<TGraph*> PlotTools<T>::GetContours(TH2*h, int ncont,bool excludeBelowExcludedRegion,bool isAsymptoticLimit) {
 	if (!h)
 		return std::vector<TGraph*>();
 	TH2 * plot = (TH2*) h->Clone();
 	if(excludeBelowExcludedRegion){
 	 FillEmptyPointsForNeutralinoScan(plot);
 	}
+	if(isAsymptoticLimit){
+	  //RejectHighExcludedPointsPerHand(plot);
+	  //FillEmptyPointsForNeutralinoScan(plot);
+	  FillEmptyPointsForLowMassPoints(plot);
+	}
+	//FillEmptyPointsForLowMassPoints(plot);
 	plot->SetContour(ncont);
 	plot->SetFillColor(1);
 	plot->Draw("CONT Z List");
@@ -286,8 +320,8 @@ std::vector<TGraph*> PlotTools<T>::GetContours(TH2*h, int ncont,bool excludeBelo
 }
 
 template<class T>
-TGraph * PlotTools<T>::GetContour(TH2*h, int ncont, int flag,bool excludeBelowExcludedRegion) {
-	std::vector<TGraph*> gs = GetContours(h, ncont,excludeBelowExcludedRegion);
+TGraph * PlotTools<T>::GetContour(TH2*h, int ncont, int flag,bool excludeBelowExcludedRegion,bool isAsymptoticLimit) {
+	std::vector<TGraph*> gs = GetContours(h, ncont,excludeBelowExcludedRegion,isAsymptoticLimit);
 	//assert(gs.size()>flag && "ERROR: Requested a non-existing contour index! Check with ExclusionTestContours first!");
 	return (gs.size() > flag ? (TGraph*) gs[flag]->Clone() : new TGraph(0));
 }
@@ -295,11 +329,11 @@ TGraph * PlotTools<T>::GetContour(TH2*h, int ncont, int flag,bool excludeBelowEx
 
 template<class T>
 TGraph * PlotTools<T>::GetContour(TH2*h, double(*x)(const T*), double(*y)(const T*), double(*func)(
-	const T*), int ncont, int flag, int color, int style,bool excludeBelowExcludedRegion) {
+	const T*), int ncont, int flag, int color, int style,bool excludeBelowExcludedRegion,bool isAsymptoticLimit) {
 	TH2*hist = (TH2*) h->Clone();
 	Area(hist, x, y, func);
 
-	TGraph * graph = GetContour(hist, ncont, flag, excludeBelowExcludedRegion);
+	TGraph * graph = GetContour(hist, ncont, flag, excludeBelowExcludedRegion,isAsymptoticLimit);
 	graph->SetLineColor(color);
 	graph->SetLineStyle(style);
 	return graph;
@@ -395,7 +429,7 @@ TGraph * PlotTools<T>::ModifyExpSigma(TGraph*g1, TGraph*g2, TGraph*g3) {
 }
 
 double GetX(TGraph* g, double x0, double y0) {
-	double dn = 999999999, up = 9999999999, minx, maxx;
+	double dn = 99999999, up = 999999999, minx, maxx;
 	for (int i = 0; i < g->GetN(); ++i) {
 		double x, y;
 		g->GetPoint(i, x, y);
