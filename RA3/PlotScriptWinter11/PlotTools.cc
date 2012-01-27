@@ -291,7 +291,7 @@ std::vector<TGraph*> PlotTools<T>::GetContours(TH2*h, int ncont,bool excludeBelo
 	  //FillEmptyPointsForNeutralinoScan(plot);
 	  FillEmptyPointsForLowMassPoints(plot);
 	}
-	//FillEmptyPointsForLowMassPoints(plot);
+	else{FillEmptyPointsForLowMassPoints(plot);}
 	plot->SetContour(ncont);
 	plot->SetFillColor(1);
 	plot->Draw("CONT Z List");
@@ -506,7 +506,7 @@ TGraph * GetExcludedRegion(TGraph * lowerLimit, double min1, double min2, double
 	//excludedRegion->SetPoint(nbins+3,400,2000.1);
 
 
-	excludedRegion->SetFillStyle(3004);
+	excludedRegion->SetFillStyle(3356);
 	return excludedRegion;
 
 }

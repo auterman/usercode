@@ -124,9 +124,14 @@ double NLOXsectionM2(const SusyScan* p) {
 	return NLOXsection(p) + 2 * (NLOXsection(p)*NLOXsectionErrDown(p));
 }
 
-double ObsExclusionM1(const SusyScan* p) {return (ObsXsecLimit(p) > NLOXsectionM1(p)  ? 1
+double ObsExclusionXSM1(const SusyScan* p) {return (ObsXsecLimit(p) > NLOXsectionM1(p)  ? 1
 	: 0.01);}
-double ObsExclusionP1(const SusyScan* p) {return (ObsXsecLimit(p) > NLOXsectionP1(p)  ? 1
+double ObsExclusionXSP1(const SusyScan* p) {return (ObsXsecLimit(p) > NLOXsectionP1(p)  ? 1
+	: 0.01); }
+
+double ExpExclusionXSM1(const SusyScan* p) {return (ExpXsecLimit(p) > NLOXsectionM1(p)  ? 1
+	: 0.01);}
+double ExpExclusionXSP1(const SusyScan* p) {return (ExpXsecLimit(p) > NLOXsectionP1(p)  ? 1
 	: 0.01); }
 
 double BestLimitFromFile1or2(const SusyScan* p) {return p->File1or2;}

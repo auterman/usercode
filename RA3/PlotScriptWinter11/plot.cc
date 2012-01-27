@@ -27,33 +27,36 @@ using namespace std;
 #include <cmath>
 #include <stdio.h>
 
-
 namespace filenames {
 //ATTENTION: do not forget to add new filenames in main function!!
 
-string file_wino3j = "2012-01-13-00-28-GMSBWino375Neutr";
-string file_wino2j = "2012-01-13-00-28-GMSBWino375Neutr2j";
+string file_wino3j = "2012-01-19-22-36-GMSBWino375Neutr";
+string file_wino2j = "2012-01-19-22-36-GMSBWino375Neutr2j";
+string file_wino2jSYST = "2012-01-26-00-27-GMSBBWno375Neutr2j_SysScale1.5";
 
+string file_bino3j = "2012-01-19-22-34-GMSBBino375Neutr";
+string file_bino2j = "2012-01-19-22-34-GMSBBino375Neutr2j";
+string file_bino2jSYST = "2012-01-26-00-25-GMSBBino375Neutr2j_SysScale1.5";
 
-string file_bino3j = "2012-01-09-14-56-GMSBBino375Neutr";
-string file_bino2j = "2012-01-09-14-57-GMSBBino375Neutr2j";
-
-string file_binoNeutr3j = "2012-01-13-00-29-GMSB_SquarkGluino_vs_Neutralino";
-string file_binoNeutr2j = "2012-01-13-00-29-GMSB_SquarkGluino_vs_Neutralino2j";
+string file_binoNeutr3j = "2012-01-19-22-40-GMSB_SquarkGluino_vs_Neutralino";
+string file_binoNeutr2j = "2012-01-19-22-40-GMSB_SquarkGluino_vs_Neutralino2j";
+string file_binoNeutr2jSYST = "2012-01-26-00-24-GMSB_SquarkGluino_vs_Neutralino2j_SysScale1.5";
 
 string file_wino3j_MergedBins = "2011-11-27-16-33-GMSBWino375NeutrMerged";
 
-string file_wino3j_SingleBins = "2012-01-09-17-57-GMSBWino375NeutrSingleChannels";
-string file_bino3j_SingleBins = "2012-01-09-17-55-GMSBBino375NeutrSingleChannels";
-string file_binoNeutr3j_SingleBins = "2012-01-09-18-14-GMSB_SquarkGluino_vs_NeutralinoSingleChannels";
-string file_wino2j_SingleBins = "2012-01-09-17-58-GMSBWino375NeutrSingleChannels2j";
-string file_bino2j_SingleBins = "2012-01-09-17-56-GMSBBino375NeutrSingleChannels2j";
-string file_binoNeutr2j_SingleBins = "2012-01-09-18-15-GMSB_SquarkGluino_vs_NeutralinoSingleChannels2j";
+string file_wino3j_SingleBins = "2012-01-19-22-59-GMSBWino375NeutrSingleChannels";
+string file_bino3j_SingleBins = "2012-01-19-22-58-GMSBBino375NeutrSingleChannels";
+string file_binoNeutr3j_SingleBins = "2012-01-19-23-01-GMSB_SquarkGluino_vs_NeutralinoSingleChannels";
+string file_wino2j_SingleBins = "2012-01-19-22-59-GMSBWino375NeutrSingleChannels2j";
+string file_bino2j_SingleBins = "2012-01-19-22-56-GMSBBino375NeutrSingleChannels2j";
+string file_binoNeutr2j_SingleBins = "2012-01-19-23-01-GMSB_SquarkGluino_vs_NeutralinoSingleChannels2j";
 
 string file_bino3j_DemoPoint = "2011-12-19-21-53-DemoPoint";
-string file_bino2j_DemoPoint = "2012-01-13-00-27-DemoPoint";
+string file_bino2j_DemoPoint = "2012-01-19-22-34-DemoPoint";
 
-
+//2012-01-26-00-46-GMSBWino375Neutr2j_.006fakerate/
+//2012-01-26-00-45-GMSBBino375Neutr2j_.006fakerate/
+//2012-01-26-00-45-GMSB_SquarkGluino_vs_Neutralino2j_.006fakerate/
 
 //Remove files with crashed expected/observed limits?
 //find . | grep -l "CLs observed asymptotic = $" 2011-11-2*/* | while read line; do echo rm $line; done
@@ -72,6 +75,8 @@ struct PlotStyles {
 	int noJet;
 	bool isBestJet;
 	bool drawObsNLOXSErrorBand;
+	bool drawExpNLOXSErrorBand;
+	bool drawExpErrorBand;
 	bool drawGluinoNLSPExclusionRegion;
 	string isBestJetFile1;
 	string isBestJetFile2;
@@ -86,16 +91,19 @@ struct PlotStyles {
 namespace styles {
 PlotStyles ret;
 PlotStyles retWino2j;
+PlotStyles retWino2jSYST;
 PlotStyles retWino3j;
 PlotStyles retWinoMerged3j;
 PlotStyles retWinoBestJet;
 
 PlotStyles retBino2j;
+PlotStyles retBino2jSYST;
 PlotStyles retBino3j;
 PlotStyles retBinoBestJet;
 
 PlotStyles retBinoNeutr_Gluino3j;
 PlotStyles retBinoNeutr_Gluino2j;
+PlotStyles retBinoNeutr_Gluino2jSYST;
 PlotStyles retBinoNeutr_GluinoBestJet;
 PlotStyles retBinoNeutr_Squark;
 
@@ -112,12 +120,20 @@ void setStyles(PlotTools<SusyScan>*& PlotTool) {
 	ret.neutralinomass = "375";
 	ret.flagForComp = "";
 	ret.drawObsNLOXSErrorBand = true;
+	ret.drawExpNLOXSErrorBand = false;
+	ret.drawExpErrorBand = true;
+
 	ret.drawGluinoNLSPExclusionRegion = false;
 
 	retWino2j = ret;
 	retWino2j.flag = "Wino2j";
 	retWino2j.noJet = 2;
 	retWino2j.neutralinotype = "wino";
+	retWino2jSYST = retWino2j;
+	retWino2jSYST.flag = "Wino2jSYST";
+	retWino2jSYST.flagForComp = "Wino2jSYSTComp";
+	retWino2jSYST.isBestJetFile1 = "";
+	retWino2jSYST.isBestJetFile2 = "SYST * 1.5";
 
 	retWino3j = ret;
 	retWino3j.flag = "Wino3j";
@@ -144,7 +160,11 @@ void setStyles(PlotTools<SusyScan>*& PlotTool) {
 	retBino2j.flag = "Bino2j";
 	retBino2j.noJet = 2;
 	retBino2j.neutralinotype = "bino";
-
+	retBino2jSYST = retBino2j;
+	retBino2jSYST.flag = "Bino2jSYST";
+	retBino2jSYST.flagForComp = "Bino2jSYSTComp";
+		retBino2jSYST.isBestJetFile1 = "";
+		retBino2jSYST.isBestJetFile2 = "SYST * 1.5";
 	retBino3j = ret;
 	retBino3j.flag = "Bino3j";
 	retBino3j.noJet = 3;
@@ -164,6 +184,11 @@ void setStyles(PlotTools<SusyScan>*& PlotTool) {
 	retBinoNeutr_Gluino2j = retBinoNeutr_Gluino3j;
 	retBinoNeutr_Gluino2j.flag = "BinoNeutr_gl_2j";
 	retBinoNeutr_Gluino2j.noJet = 2;
+	retBinoNeutr_Gluino2jSYST = retBinoNeutr_Gluino2j;
+	retBinoNeutr_Gluino2jSYST.flag = "BinoNeutr_gl_2jSYST";
+	retBinoNeutr_Gluino2jSYST.flagForComp = "BinoNeutr_gl_2jSYSTComp";
+	retBinoNeutr_Gluino2jSYST.isBestJetFile1 = "";
+	retBinoNeutr_Gluino2jSYST.isBestJetFile2 = "SYST * 1.5";
 
 	retBinoNeutr_GluinoBestJet = retWinoBestJet;
 	retBinoNeutr_GluinoBestJet.flag = "BinoNeutrBestJet";
@@ -204,32 +229,54 @@ struct ExclusionCurves {
 	TGraph * exp_asym;
 	TGraph * exp;
 	TGraph * onesigband;
-	TGraph * onesigbandNLOXS;
+	TGraph * onesigbandNLOXSObs;
+	TGraph * onesigbandNLOXSExp;
 	TGraph * p1sigma;
-	TGraph * p1sigmaNLOCX;
+	TGraph * p1sigmaNLOXSObs;
+	TGraph * p1sigmaNLOXSExp;
+	TGraph * m1sigma;
+	TGraph * m1sigmaNLOXSObs;
+	TGraph * m1sigmaNLOXSExp;
 
 };
 void setExclusionStyles(ExclusionCurves * excl, bool isSecondCurve) {
-	excl->exp->SetLineWidth(2);
+	int coloredBandExp=kOrange -8;//kOrange -8
+	int theoryBandObs=1;
+	int theoryBandExp=kOrange +4;//kOrange +4
+	excl->exp->SetLineWidth(3);
 	excl->exp->SetLineStyle(2);
-	excl->obs->SetLineWidth(2);
-	excl->onesigband->SetLineWidth(0);
-	excl->onesigbandNLOXS->SetLineWidth(0);
+	excl->exp->SetLineColor(theoryBandExp);
+	excl->obs->SetLineWidth(3);
+
 	if (!isSecondCurve) {
-		excl->onesigband->SetLineColor(42);
-		excl->onesigbandNLOXS->SetLineColor(42);
-		excl->onesigband->SetFillColor(42);
-		excl->onesigbandNLOXS->SetFillColor(42);
+		excl->onesigband->SetLineColor(coloredBandExp);
+		excl->onesigbandNLOXSObs->SetLineColor(theoryBandObs);
+		excl->onesigband->SetFillColor(coloredBandExp);
+		excl->onesigbandNLOXSObs->SetFillColor(theoryBandObs);
+		excl->exp->SetFillColor(theoryBandExp);
+		excl->obs->SetFillColor(theoryBandObs);
+		excl->m1sigmaNLOXSObs->SetLineColor(theoryBandObs);
+		excl->p1sigmaNLOXSObs->SetLineColor(theoryBandObs);
+		excl->m1sigmaNLOXSExp->SetLineColor(theoryBandExp);
+		excl->p1sigmaNLOXSExp->SetLineColor(theoryBandExp);
+
+		excl->m1sigmaNLOXSObs->SetLineStyle(3);
+		excl->p1sigmaNLOXSObs->SetLineStyle(3);
+		excl->m1sigmaNLOXSExp->SetLineStyle(3);
+		excl->p1sigmaNLOXSExp->SetLineStyle(3);
 	} else {
-		excl->onesigband->SetFillColor(kRed - 5);
+		excl->onesigband->SetFillColor(theoryBandExp);
 		excl->onesigband->SetFillStyle(3004);
-		excl->onesigband->SetLineColor(kRed - 5);
-		excl->onesigbandNLOXS->SetFillColor(kRed - 5);
-		excl->onesigbandNLOXS->SetFillStyle(3004);
-		excl->onesigbandNLOXS->SetLineColor(kRed - 5);
-		excl->exp->SetLineColor(kRed);
-		excl->obs->SetLineColor(kRed);
+		excl->onesigband->SetLineColor(theoryBandExp);
+		excl->onesigband->SetLineWidth(1);
+		excl->onesigbandNLOXSObs->SetFillColor(theoryBandObs);
+		excl->onesigbandNLOXSObs->SetFillStyle(3004);
+		excl->onesigbandNLOXSObs->SetLineColor(theoryBandObs);
+		excl->onesigbandNLOXSObs->SetLineWidth(1);
+		excl->exp->SetLineColor(theoryBandExp);
+		excl->obs->SetLineColor(theoryBandExp);
 	}
+
 }
 void SetZRange(TH2F * h) {
 	//cout<<"Find optimal z range..."<<endl;
@@ -266,18 +313,18 @@ void CreateSamplePointTexFile(PlotTools<SusyScan> *PlotTool, double(*x)(const T*
 	std::cout << "==========SAMPLE POINT TEX DEFS===============" << endl;
 	ofstream ofile;
 	ofile.open(filename.c_str(), ios::out | ios::app);
-	ofile << "\\def\\" << name << "squark{" << xValue  << "}" << endl;
+	ofile << "\\def\\" << name << "squark{" << xValue << "}" << endl;
 	ofile << "\\def\\" << name << "gluino{" << yValue << "}" << endl;
-	ofile << "\\def\\" << name << "neutralino{" <<  PlotTool->SingleValue(Mchi1, x, y, xValue, yValue) << "}" << endl;
+	ofile << "\\def\\" << name << "neutralino{" << PlotTool->SingleValue(Mchi1, x, y, xValue, yValue) << "}" << endl;
 	if (!onlyAsympAvailable) {
-		ofile << "\\def\\" << name << "NLOXS{" << PlotTool->roundDouble(PlotTool->SingleValue(NLOXsection, x, y, xValue, yValue),2) << "}" << endl;
-		ofile << "\\def\\" << name << "NLOXSUp{" << PlotTool->roundDouble(PlotTool->SingleValue(NLOXSUncertaintyUpAbs, x, y, xValue, yValue),2) << "}" << endl;
-		ofile << "\\def\\" << name << "NLOXSDn{" << PlotTool->roundDouble(PlotTool->SingleValue(NLOXSUncertaintyDownAbs, x, y, xValue, yValue),2) << "}" << endl;
-		ofile << "\\def\\" << name << "PDFXSErr{" << PlotTool->roundDouble(PlotTool->SingleValue(PDFXSUncertaintyAbs, x, y, xValue, yValue),2) << "}" << endl;
-		ofile << "\\def\\" << name << "ObsXS{" << PlotTool->roundDouble( PlotTool->SingleValue(ObsXsecLimit, x, y, xValue, yValue),2) << "}" << endl;
-		ofile << "\\def\\" << name << "ExpXS{" <<  PlotTool->roundDouble(PlotTool->SingleValue(ExpXsecLimit, x, y, xValue, yValue),2) << "}" << endl;
-		ofile << "\\def\\" << name << "NLOXSM{" << PlotTool->roundDouble(PlotTool->SingleValue(NLOXsectionM1, x, y, xValue, yValue),2) << "}" << endl;
-		ofile << "\\def\\" << name << "NLOXSP{" << PlotTool->roundDouble(PlotTool->SingleValue(NLOXsectionP1, x, y, xValue, yValue),2) << "}" << endl;
+		ofile << "\\def\\" << name << "NLOXS{" << PlotTool->roundDouble(PlotTool->SingleValue(NLOXsection, x, y, xValue, yValue), 2) << "}" << endl;
+		ofile << "\\def\\" << name << "NLOXSUp{" << PlotTool->roundDouble(PlotTool->SingleValue(NLOXSUncertaintyUpAbs, x, y, xValue, yValue), 2) << "}" << endl;
+		ofile << "\\def\\" << name << "NLOXSDn{" << PlotTool->roundDouble(PlotTool->SingleValue(NLOXSUncertaintyDownAbs, x, y, xValue, yValue), 2) << "}" << endl;
+		ofile << "\\def\\" << name << "PDFXSErr{" << PlotTool->roundDouble(PlotTool->SingleValue(PDFXSUncertaintyAbs, x, y, xValue, yValue), 2) << "}" << endl;
+		ofile << "\\def\\" << name << "ObsXS{" << PlotTool->roundDouble(PlotTool->SingleValue(ObsXsecLimit, x, y, xValue, yValue), 2) << "}" << endl;
+		ofile << "\\def\\" << name << "ExpXS{" << PlotTool->roundDouble(PlotTool->SingleValue(ExpXsecLimit, x, y, xValue, yValue), 2) << "}" << endl;
+		ofile << "\\def\\" << name << "NLOXSM{" << PlotTool->roundDouble(PlotTool->SingleValue(NLOXsectionM1, x, y, xValue, yValue), 2) << "}" << endl;
+		ofile << "\\def\\" << name << "NLOXSP{" << PlotTool->roundDouble(PlotTool->SingleValue(NLOXsectionP1, x, y, xValue, yValue), 2) << "}" << endl;
 
 		ofile << "\\def\\" << name << "lumi{" << PlotTool->roundDouble(0.001 * PlotTool->SingleValue(Luminosity, x, y, xValue, yValue), 2) << "}" << endl;
 		ofile << "\\def\\" << name << "lumiErr{" << PlotTool->roundDouble(0.001 * PlotTool->SingleValue(LuminosityErr, x, y, xValue, yValue), 2) << "}" << endl;
@@ -285,9 +332,9 @@ void CreateSamplePointTexFile(PlotTools<SusyScan> *PlotTool, double(*x)(const T*
 		ofile << "\\def\\" << name << "ObsXSAsym{" << PlotTool->SingleValue(ObsXsecLimitAsym, x, y, xValue, yValue) << "}" << endl;
 		ofile << "\\def\\" << name << "ExpXSAsym{" << PlotTool->SingleValue(ExpXsecLimitAsym, x, y, xValue, yValue) << "}" << endl;
 	}
-	ofile << "\\def\\" << name << "signalacceptance{" << PlotTool->roundDouble(PlotTool->SingleValue(SignalAcceptance, x, y, xValue, yValue),0) << "}" << endl;
+	ofile << "\\def\\" << name << "signalacceptance{" << PlotTool->roundDouble(PlotTool->SingleValue(SignalAcceptance, x, y, xValue, yValue), 0) << "}" << endl;
 
-	ofile << "\\def\\" << name << "signalacceptanceuncertainty{" <<PlotTool->roundDouble(PlotTool->SingleValue(SignalAcceptanceUncert, x, y, xValue, yValue),0) << "}" << endl;
+	ofile << "\\def\\" << name << "signalacceptanceuncertainty{" << PlotTool->roundDouble(PlotTool->SingleValue(SignalAcceptanceUncert, x, y, xValue, yValue), 0) << "}" << endl;
 
 	ofile << "\\def\\" << name << "expSignalEvts{" << PlotTool->roundDouble(PlotTool->SingleValue(SignalExpectation, x, y, xValue, yValue), 0) << "}" << endl;
 	ofile << "\\def\\" << name << "expSignalEvtsErr{" << PlotTool->roundDouble(PlotTool->SingleValue(SignalExpectationErr, x, y, xValue, yValue), 0) << "}" << endl;
@@ -304,7 +351,7 @@ void CreateResultPointTexFile(TGraph * limit, PlotTools<SusyScan> *PlotTool, dou
 	//Find corresponding y Value - where is the observed limit for given x Value?
 	double yValue = PlotTool->LimitValue(x, y, limit, xValue);
 	ofile << "\\def\\res" << name << "yValue{" << yValue << "}" << endl;
-	ofile << "\\def\\res" << name << "obsXSLimit{" << PlotTool->roundDouble(PlotTool->SingleValue(ObsXsecLimit, x, y, xValue, yValue),2) << "}" << endl;
+	ofile << "\\def\\res" << name << "obsXSLimit{" << PlotTool->roundDouble(PlotTool->SingleValue(ObsXsecLimit, x, y, xValue, yValue), 2) << "}" << endl;
 	ofile << "\\def\\res" << name << "acceptance{" << PlotTool->roundDouble(PlotTool->SingleValue(SignalAcceptance, x, y, xValue, yValue), 0) << "}" << endl;
 	ofile << "\\def\\res" << name << "expSignalEvts{" << PlotTool->roundDouble(PlotTool->SingleValue(SignalExpectation, x, y, xValue, yValue), 0) << "}" << endl;
 
@@ -464,7 +511,7 @@ void DrawStandardPlots(PlotTools<SusyScan> *PlotTool, PlotStyles style, double(*
 		PlotTool->Area(hxsec, x, y, ObsXsecLimit);
 		TH2F *hacc = (TH2F*) h->Clone();
 		PlotTool->Area(hacc, x, y, SignalAcceptance);
-		fillXSLimitAboveForInvalidResultPoints(hxsec,hacc);
+		fillXSLimitAboveForInvalidResultPoints(hxsec, hacc);
 		SetZRange(hxsec);
 		hxsec->GetZaxis()->SetTitleOffset(1.5);
 		hxsec->Draw("colz");
@@ -561,14 +608,14 @@ void DrawStandardPlots(PlotTools<SusyScan> *PlotTool, PlotStyles style, double(*
 
 void PlotAllObserved(std::vector<ExclusionCurves*> limits, PlotStyles * style, TH1*h) {
 	gStyle->SetPadRightMargin(0.08);
-				gStyle->SetPadLeftMargin(0.2);
-				gStyle->SetTitleOffset(1.3, "xyz");
-				gStyle->SetTitleOffset(1.9, "y");
-				gStyle->SetNdivisions(505);
-				gStyle->SetTitleFont(43, "xyz");
-				gStyle->SetTitleSize(32, "xyz");
+	gStyle->SetPadLeftMargin(0.2);
+	gStyle->SetTitleOffset(1.3, "xyz");
+	gStyle->SetTitleOffset(1.9, "y");
+	gStyle->SetNdivisions(505);
+	gStyle->SetTitleFont(43, "xyz");
+	gStyle->SetTitleSize(32, "xyz");
 	c1->UseCurrentStyle();
-		h->UseCurrentStyle();
+	h->UseCurrentStyle();
 	{
 
 		h->Draw();
@@ -590,7 +637,8 @@ void PlotAllObserved(std::vector<ExclusionCurves*> limits, PlotStyles * style, T
 			if (color == 1) {
 				g = (*it)->obs;
 			}
-			if (color == 5) color=kOrange-3;
+			if (color == 5)
+				color = kOrange - 3;
 			g->SetLineColor(color);
 			g->SetLineStyle(1);
 
@@ -616,49 +664,50 @@ void PlotAllObserved(std::vector<ExclusionCurves*> limits, PlotStyles * style, T
 		c1->SaveAs(("results/" + style->flag + "/AllLimitsPerBin.png").c_str());
 	}
 	{
-			h->Draw();
-			string neutralinotype = style->neutralinotype;
-			string neutralinomass = style->neutralinomass;
-			string legtitle = "#splitline{GGM " + neutralinotype + "-like #tilde{#Chi}^{0}}{#slash{E}_{T} [GeV]:}";
-			TLegend * leg = new TLegend(0.62, 0.52, 0.95, 0.87, "");
-			leg->SetBorderSize(0);
-			leg->SetLineColor(0);
-			leg->SetFillColor(10);
-			leg->SetFillStyle(1001);
-			leg->SetTextFont(42);
-			leg->SetTextSize(0.035);
-			leg->SetHeader(legtitle.c_str());
-			int color = 1;
-			for (std::vector<ExclusionCurves*>::iterator it = limits.begin(); it != limits.end(); ++it) {
-				TGraph * g = (*it)->exp_asym;
-				if (color == 1) {
-								g = (*it)->exp;
-							}
-				if (color == 5) color=kOrange-3;
-				g->SetLineColor(color);
-				g->SetLineStyle(1);
-				if (color == 1) {
-					g->SetLineWidth(3);
-
-					g->Draw("l");
-				} else {
-					g->Draw("lsame");
-				}
-				leg->AddEntry(g, ((*it)->Name).c_str(), "l");
-				color++;
+		h->Draw();
+		string neutralinotype = style->neutralinotype;
+		string neutralinomass = style->neutralinomass;
+		string legtitle = "#splitline{GGM " + neutralinotype + "-like #tilde{#Chi}^{0}}{#slash{E}_{T} [GeV]:}";
+		TLegend * leg = new TLegend(0.62, 0.52, 0.95, 0.87, "");
+		leg->SetBorderSize(0);
+		leg->SetLineColor(0);
+		leg->SetFillColor(10);
+		leg->SetFillStyle(1001);
+		leg->SetTextFont(42);
+		leg->SetTextSize(0.035);
+		leg->SetHeader(legtitle.c_str());
+		int color = 1;
+		for (std::vector<ExclusionCurves*>::iterator it = limits.begin(); it != limits.end(); ++it) {
+			TGraph * g = (*it)->exp_asym;
+			if (color == 1) {
+				g = (*it)->exp;
 			}
+			if (color == 5)
+				color = kOrange - 3;
+			g->SetLineColor(color);
+			g->SetLineStyle(1);
+			if (color == 1) {
+				g->SetLineWidth(3);
 
-			if (style->drawGluinoNLSPExclusionRegion) {
-				DrawNeutrNNLSP();
+				g->Draw("l");
+			} else {
+				g->Draw("lsame");
 			}
-
-			//draw heading
-			drawCmsPrel(style->lumi, style->METCut, style->noJet, style->isBestJet);
-			leg->Draw();
-			gPad->RedrawAxis();
-			c1->SaveAs(("results/" + style->flag + "/AllLimitsPerBinExp.pdf").c_str());
-			c1->SaveAs(("results/" + style->flag + "/AllLimitsPerBinExp.png").c_str());
+			leg->AddEntry(g, ((*it)->Name).c_str(), "l");
+			color++;
 		}
+
+		if (style->drawGluinoNLSPExclusionRegion) {
+			DrawNeutrNNLSP();
+		}
+
+		//draw heading
+		drawCmsPrel(style->lumi, style->METCut, style->noJet, style->isBestJet);
+		leg->Draw();
+		gPad->RedrawAxis();
+		c1->SaveAs(("results/" + style->flag + "/AllLimitsPerBinExp.pdf").c_str());
+		c1->SaveAs(("results/" + style->flag + "/AllLimitsPerBinExp.png").c_str());
+	}
 
 }
 
@@ -667,7 +716,7 @@ void DrawExclusion(ExclusionCurves * exclA, PlotStyles * style, TH1*h, Exclusion
 		cout << "No Exclusion Cruves To Draw...exclA is 0" << endl;
 		return;
 	};
-	if (exclA->exp == 0 || exclA->obs == 0 || exclA->onesigband == 0 || exclA->onesigbandNLOXS == 0) {
+	if (exclA->exp == 0 || exclA->obs == 0) {
 		cout << "No Exclusion Cruves To Draw...exclA is not properly filled" << endl;
 		return;
 	}
@@ -691,8 +740,6 @@ void DrawExclusion(ExclusionCurves * exclA, PlotStyles * style, TH1*h, Exclusion
 	gStyle->SetTitleFont(43, "xyz");
 	gStyle->SetTitleSize(32, "xyz");
 
-
-
 	//set styles of Graphs
 	setExclusionStyles(exclA, false);
 	if (drawComp) {
@@ -700,29 +747,36 @@ void DrawExclusion(ExclusionCurves * exclA, PlotStyles * style, TH1*h, Exclusion
 	}
 
 	c1->UseCurrentStyle();
-		h->UseCurrentStyle();
+	h->UseCurrentStyle();
 	{//Exclusion Contours
 		TH2F *hs = (TH2F*) h->Clone();
 		hs->GetZaxis()->SetTitle("");
 
-		TGraph * gCLsObsExcl = exclA->obs;
-		TGraph * gCLsExpExcl = exclA->exp;
-		TGraph * gCLs1Sigma = exclA->onesigband;
-		if (style->drawObsNLOXSErrorBand)
-			gCLs1Sigma = exclA->onesigbandNLOXS;
 		//Draw Graphs
 		hs->Draw("");
-		gCLs1Sigma->Draw("f");
-		gCLsObsExcl->Draw("l");
-		gCLsExpExcl->Draw("l");
+		if (style->drawExpErrorBand)
+			exclA->onesigband->Draw("f");
+		exclA->obs->Draw("l");
+		exclA->exp->Draw("l");
+
+		if (!drawComp) {
+			if (style->drawExpNLOXSErrorBand)
+				exclA->m1sigmaNLOXSExp->Draw("l");
+			if (style->drawExpNLOXSErrorBand)
+				exclA->p1sigmaNLOXSExp->Draw("l");
+			if (style->drawObsNLOXSErrorBand)
+				exclA->m1sigmaNLOXSObs->Draw("l");
+			if (style->drawObsNLOXSErrorBand)
+				exclA->p1sigmaNLOXSObs->Draw("l");
+		}
 		//Draw additional graphs
+
 		if (drawComp) {
 
-			if (style->drawObsNLOXSErrorBand) {
-				exclB->onesigbandNLOXS->Draw("f");
-			} else {
+			setExclusionStyles(exclB, true);
+
+			if (style->drawExpErrorBand)
 				exclB->onesigband->Draw("f");
-			}
 			exclB->obs->Draw("l");
 			exclB->exp->Draw("l");
 		}
@@ -735,7 +789,7 @@ void DrawExclusion(ExclusionCurves * exclA, PlotStyles * style, TH1*h, Exclusion
 			legtitle = "#splitline{GGM " + neutralinotype + "-like #tilde{#Chi}^{0}}{m_{#tilde{q}} = 2500 GeV}";
 		}
 
-		TLegend * leg = new TLegend(0.55, 0.57, 0.95, 0.87);
+		TLegend * leg = new TLegend(0.58, 0.57, 0.95, 0.87);
 		if (drawComp) {
 			leg = new TLegend(0.6, 0.5, 0.95, 0.87);
 		}
@@ -750,17 +804,39 @@ void DrawExclusion(ExclusionCurves * exclA, PlotStyles * style, TH1*h, Exclusion
 		leg->SetTextSize(0.04);
 		leg->SetHeader(legtitle.c_str());
 
+		leg->AddEntry((TObject*) 0, "", "");
+		leg->AddEntry((TObject*) 0, "NLO limits", "");
 		if (!drawComp) {
-			leg->AddEntry(gCLsObsExcl, "Obs., NLO", "l");
-			leg->AddEntry(gCLsExpExcl, "Exp., NLO", "l");
-			leg->AddEntry(gCLs1Sigma, "#pm 1#sigma, NLO", "lf");
+
+			leg->AddEntry(exclA->obs, "Observed", "l");
+			if (style->drawObsNLOXSErrorBand)
+				leg->AddEntry(exclA->m1sigmaNLOXSObs, "  #pm 1#sigma (theory)", "l");
+			leg->AddEntry(exclA->exp, "Expected", "l");
+			if (style->drawExpErrorBand)
+				leg->AddEntry(exclA->onesigband, "  #pm 1#sigma (exper.)", "f");
+			//leg->AddEntry(exclA->onesigband, "#pm 1#sigma, NLO", "lf");
+			if (style->drawExpNLOXSErrorBand)
+				leg->AddEntry(exclA->m1sigmaNLOXSExp, "  #pm 1#sigma (theory)", "l");
+
 		} else {
-			leg->AddEntry(exclA->obs, (style->isBestJetFile1 + ", Obs.").c_str(), "l");
-			leg->AddEntry(exclA->exp, (style->isBestJetFile1 + ", Exp.").c_str(), "l");
-			leg->AddEntry(exclA->onesigband, (style->isBestJetFile1 + ", #pm 1#sigma").c_str(), "f");
-			leg->AddEntry(exclB->obs, (style->isBestJetFile2 + ", Obs.").c_str(), "l");
-			leg->AddEntry(exclB->exp, (style->isBestJetFile2 + ", Exp.").c_str(), "l");
-			leg->AddEntry(exclB->onesigband, (style->isBestJetFile2 + ", #pm 1#sigma").c_str(), "f");
+
+			string title1 = style->isBestJetFile1;
+			string title2 = style->isBestJetFile2;
+
+			if (title1 != "") {
+				leg->AddEntry((TObject*) 0, title1.c_str(), "");
+			}
+			leg->AddEntry(exclA->obs, (" Observed"), "l");
+			leg->AddEntry(exclA->exp, (" Expected"), "l");
+			leg->AddEntry(exclA->onesigband, ("  #pm 1#sigma (exper.)"), "f");
+
+			if (title2 != "") {
+				leg->AddEntry((TObject*) 0, title2.c_str(), "");
+			}
+			leg->AddEntry(exclB->obs, (" Observed"), "l");
+			leg->AddEntry(exclB->exp, (" Expected"), "l");
+			leg->AddEntry(exclB->onesigband, ("  #pm 1#sigma (exper.)"), "f");
+
 		}
 		leg->Draw();
 		gPad->RedrawAxis();
@@ -772,9 +848,10 @@ void DrawExclusion(ExclusionCurves * exclA, PlotStyles * style, TH1*h, Exclusion
 			double max2 = hs->GetYaxis()->GetBinLowEdge(hs->GetNbinsX() + 1);
 			double max1 = hs->GetXaxis()->GetBinLowEdge(hs->GetNbinsX() + 1);
 			TGraph * edgeOfExclRegion = exclA->p1sigma;
-			if (style->drawObsNLOXSErrorBand)
-				edgeOfExclRegion = exclA->p1sigmaNLOCX;
+
 			TGraph * excludedRegion = GetExcludedRegion(edgeOfExclRegion, min1, min2, max1, max2);
+			gStyle->SetHatchesSpacing(3.5);
+			gStyle->SetHatchesLineWidth(1);
 			excludedRegion->Draw("f");
 			TLatex* lat3 = new TLatex(0.24, 0.3, "Excluded");
 			lat3->SetNDC(true);
@@ -795,6 +872,8 @@ void DrawExclusion(ExclusionCurves * exclA, PlotStyles * style, TH1*h, Exclusion
 			nameExcl = "results/Comp_" + style->flagForComp + "/Exclusion_";
 		}
 		c1->SaveAs((nameExcl + ".pdf").c_str());
+		c1->SaveAs((nameExcl + ".root").c_str());
+		c1->SaveAs((nameExcl + ".C").c_str());
 		c1->SaveAs((nameExcl + ".png").c_str());
 	}
 
@@ -808,9 +887,9 @@ ExclusionCurves GetExclusionContours(PlotTools<SusyScan> *PlotTool, PlotStyles s
 		TH2F *hxsec = (TH2F*) h->Clone();
 		hxsec->GetZaxis()->SetTitle("Observed in/out");
 
-		PlotTool->Area(hxsec, x, y, ObsExclusionAsym);
+		PlotTool->Area(hxsec, x, y, ObsExclusion);
 		hxsec->GetZaxis()->SetTitleOffset(1.5);
-		std::vector<TGraph*> contours = PlotTool->GetContours(hxsec, 3, excludeBelowExcludedRegion,true);
+		std::vector<TGraph*> contours = PlotTool->GetContours(hxsec, 3, excludeBelowExcludedRegion, true);
 		/// :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 		hxsec->Draw("colz");
 		int col = kBlue - 10;
@@ -818,7 +897,7 @@ ExclusionCurves GetExclusionContours(PlotTools<SusyScan> *PlotTool, PlotStyles s
 			if (!*cont)
 				continue;
 			double x, y;
-			(*cont)->GetPoint(0, x, y);
+			(*cont)->GetPoint(1600, x, y);
 			(*cont)->SetLineColor(col);
 			(*cont)->Draw("l");
 			TLatex l;
@@ -839,23 +918,29 @@ ExclusionCurves GetExclusionContours(PlotTools<SusyScan> *PlotTool, PlotStyles s
 		TH2F *hs = (TH2F*) h->Clone();
 		hs->GetZaxis()->SetTitle("");
 		TGraph * gCLsObsExcl = PlotTool->GetContour(hs, x, y, ObsExclusion, 3, 0, 1, 1, excludeBelowExcludedRegion);
-		TGraph * gCLsObsExclAsym = PlotTool->GetContour(hs, x, y, ObsExclusionAsym, 3, 0, 1, 1, excludeBelowExcludedRegion,true);
+		TGraph * gCLsObsExclAsym = PlotTool->GetContour(hs, x, y, ObsExclusionAsym, 3, 0, 1, 1, excludeBelowExcludedRegion, true);
 		TGraph * gCLsExpExcl = PlotTool->GetContour(hs, x, y, ExpExclusion, 3, 0, 1, 2, excludeBelowExcludedRegion);
-		TGraph * gCLsExpExclAsym = PlotTool->GetContour(hs, x, y, ExpExclusionAsym, 3, 0, 1, 2, excludeBelowExcludedRegion,true);
+		TGraph * gCLsExpExclAsym = PlotTool->GetContour(hs, x, y, ExpExclusionAsym, 3, 0, 1, 2, excludeBelowExcludedRegion, true);
 		TGraph * gCLsExpExclm1 = PlotTool->GetContour(hs, x, y, ExpExclusionM1, 3, 1, 5, 2, excludeBelowExcludedRegion);
 		TGraph * gCLsExpExclp1 = PlotTool->GetContour(hs, x, y, ExpExclusionP1, 3, 0, 5, 2, excludeBelowExcludedRegion);
-		TGraph * gCLsObsExclm1 = PlotTool->GetContour(hs, x, y, ObsExclusionM1, 3, 1, 5, 2, excludeBelowExcludedRegion);
-		TGraph * gCLsObsExclp1 = PlotTool->GetContour(hs, x, y, ObsExclusionP1, 3, 0, 5, 2, excludeBelowExcludedRegion);
-		Smooth(gCLsObsExcl,15);
-		Smooth(gCLsObsExclAsym,15);
-		Smooth(gCLsExpExcl,15);
-		Smooth(gCLsExpExclAsym,15);
-		Smooth(gCLsExpExclm1,15);
-		Smooth(gCLsExpExclp1,15);
-		Smooth(gCLsObsExclm1,15);
-		Smooth(gCLsObsExclp1,15);
+		TGraph * gCLsObsExclXSm1 = PlotTool->GetContour(hs, x, y, ObsExclusionXSM1, 3, 1, 5, 2, excludeBelowExcludedRegion);
+		TGraph * gCLsObsExclXSp1 = PlotTool->GetContour(hs, x, y, ObsExclusionXSP1, 3, 0, 5, 2, excludeBelowExcludedRegion);
+		TGraph * gCLsExpExclXSm1 = PlotTool->GetContour(hs, x, y, ExpExclusionXSM1, 3, 1, 5, 2, excludeBelowExcludedRegion);
+		TGraph * gCLsExpExclXSp1 = PlotTool->GetContour(hs, x, y, ExpExclusionXSP1, 3, 0, 5, 2, excludeBelowExcludedRegion);
+		Smooth(gCLsObsExcl, 15);
+		Smooth(gCLsObsExclAsym, 15);
+		Smooth(gCLsExpExcl, 15);
+		Smooth(gCLsExpExclAsym, 15);
+		Smooth(gCLsExpExclm1, 15);
+		Smooth(gCLsExpExclp1, 15);
+		Smooth(gCLsObsExclXSm1, 15);
+		Smooth(gCLsObsExclXSp1, 15);
+		Smooth(gCLsExpExclXSm1, 15);
+		Smooth(gCLsExpExclXSp1, 15);
 		TGraph * gCLs1Sigma = MakeBand(gCLsExpExclm1, gCLsExpExclp1);
-		TGraph * gCLs1SigmaObsNLO = MakeBand(gCLsObsExclm1, gCLsObsExclp1);
+		TGraph * gCLs1SigmaObsXSNLO = MakeBand(gCLsObsExclXSm1, gCLsObsExclXSp1);
+		TGraph * gCLs1SigmaExpXSNLO = MakeBand(gCLsExpExclXSm1, gCLsExpExclXSp1);
+
 		ExclusionCurves ret;
 		ret.exp = gCLsExpExcl;
 		ret.exp_asym = gCLsExpExclAsym;
@@ -863,8 +948,14 @@ ExclusionCurves GetExclusionContours(PlotTools<SusyScan> *PlotTool, PlotStyles s
 		ret.obs_asym = gCLsObsExclAsym;
 		ret.onesigband = gCLs1Sigma;
 		ret.p1sigma = gCLsExpExclp1;
-		ret.onesigbandNLOXS = gCLs1SigmaObsNLO;
-		ret.p1sigmaNLOCX = gCLsObsExclp1;
+		ret.m1sigma = gCLsExpExclm1;
+		ret.onesigbandNLOXSObs = gCLs1SigmaObsXSNLO;
+		ret.onesigbandNLOXSExp = gCLs1SigmaExpXSNLO;
+		ret.p1sigmaNLOXSObs = gCLsObsExclXSp1;
+		ret.m1sigmaNLOXSObs = gCLsObsExclXSm1;
+		ret.p1sigmaNLOXSExp = gCLsExpExclXSp1;
+		ret.m1sigmaNLOXSExp = gCLsExpExclXSm1;
+
 		ret.Name = altFlagName;
 		return ret;
 	}
@@ -936,52 +1027,51 @@ void PlotBinComparison(PlotTools<SusyScan>*& Scan, PlotTools<SusyScan>*& ScanInt
 	GetPlotTools(Scan, ScanInterpol, filename, excludeBelowExcludedRegion, false);
 	ExclusionCurves exclBinoCombinedChannels = GetExclusionContours(ScanInterpol, ret, x, y, hi, excludeBelowExcludedRegion, ">100", "comb");
 	if (doResultTex)
-		CreateSamplePointTexFile(ScanInterpol,x,  y, 720.,800., filenameforresulttex, "");
+		CreateSamplePointTexFile(ScanInterpol, x, y, 720., 800., filenameforresulttex, "");
 
 	GetPlotTools(Scan, ScanInterpol, filenameSingleBins, excludeBelowExcludedRegion, false, "/filelist_ch0.txt");
 	ExclusionCurves exclBinoChannel0 = GetExclusionContours(ScanInterpol, ret, x, y, hi, excludeBelowExcludedRegion, "100-120", "bin1");
 	if (doResultTex)
-		CreateSamplePointTexFile(ScanInterpol, x,y, 720.,800., filenameforresulttex, "binA");
+		CreateSamplePointTexFile(ScanInterpol, x, y, 720., 800., filenameforresulttex, "binA");
 	GetPlotTools(Scan, ScanInterpol, filenameSingleBins, excludeBelowExcludedRegion, false, "/filelist_ch1.txt");
 	ExclusionCurves exclBinoChannel1 = GetExclusionContours(ScanInterpol, ret, x, y, hi, excludeBelowExcludedRegion, "120-160", "bin2");
 	if (doResultTex)
-			CreateSamplePointTexFile(ScanInterpol, x,y, 720.,800., filenameforresulttex, "binB");
+		CreateSamplePointTexFile(ScanInterpol, x, y, 720., 800., filenameforresulttex, "binB");
 
 	GetPlotTools(Scan, ScanInterpol, filenameSingleBins, excludeBelowExcludedRegion, false, "/filelist_ch2.txt");
 	ExclusionCurves exclBinoChannel2 = GetExclusionContours(ScanInterpol, ret, x, y, hi, excludeBelowExcludedRegion, "160-200", "bin3");
 	if (doResultTex)
-			CreateSamplePointTexFile(ScanInterpol, x,y, 720.,800., filenameforresulttex, "binC");
+		CreateSamplePointTexFile(ScanInterpol, x, y, 720., 800., filenameforresulttex, "binC");
 
 	GetPlotTools(Scan, ScanInterpol, filenameSingleBins, excludeBelowExcludedRegion, false, "/filelist_ch3.txt");
 	ExclusionCurves exclBinoChannel3 = GetExclusionContours(ScanInterpol, ret, x, y, hi, excludeBelowExcludedRegion, "200-270", "bin4");
 	if (doResultTex)
-			CreateSamplePointTexFile(ScanInterpol, x,y, 720.,800., filenameforresulttex, "binD");
+		CreateSamplePointTexFile(ScanInterpol, x, y, 720., 800., filenameforresulttex, "binD");
 
 	GetPlotTools(Scan, ScanInterpol, filenameSingleBins, excludeBelowExcludedRegion, false, "/filelist_ch4.txt");
 	ExclusionCurves exclBinoChannel4 = GetExclusionContours(ScanInterpol, ret, x, y, hi, excludeBelowExcludedRegion, "270-350", "bin5");
 	if (doResultTex)
-			CreateSamplePointTexFile(ScanInterpol, x,y, 720.,800., filenameforresulttex, "binE");
+		CreateSamplePointTexFile(ScanInterpol, x, y, 720., 800., filenameforresulttex, "binE");
 
 	GetPlotTools(Scan, ScanInterpol, filenameSingleBins, excludeBelowExcludedRegion, false, "/filelist_ch5.txt");
 	ExclusionCurves exclBinoChannel5 = GetExclusionContours(ScanInterpol, ret, x, y, hi, excludeBelowExcludedRegion, ">350", "bin6");
 	if (doResultTex)
-			CreateSamplePointTexFile(ScanInterpol, x,y, 720.,800., filenameforresulttex, "binF");
-	if(!doResultTex){
-	setStyles(Scan);
-	PlotStyles retHighest=ret;
-	retHighest.flag=ret.flag+"HighestBin";
-	DrawStandardPlots(Scan, retHighest, x, y, h);
+		CreateSamplePointTexFile(ScanInterpol, x, y, 720., 800., filenameforresulttex, "binF");
+	if (!doResultTex) {
+		setStyles(Scan);
+		PlotStyles retHighest = ret;
+		retHighest.flag = ret.flag + "HighestBin";
+		DrawStandardPlots(Scan, retHighest, x, y, h);
 
-
-	std::vector<ExclusionCurves*> limitvector;
-	limitvector.push_back(&exclBinoCombinedChannels);
-//	limitvector.push_back(&exclBinoChannel0);
-//	limitvector.push_back(&exclBinoChannel1);
-	limitvector.push_back(&exclBinoChannel2);
-	limitvector.push_back(&exclBinoChannel3);
-	limitvector.push_back(&exclBinoChannel4);
-	limitvector.push_back(&exclBinoChannel5);
-	PlotAllObserved(limitvector, &ret, hi);
+		std::vector<ExclusionCurves*> limitvector;
+		limitvector.push_back(&exclBinoCombinedChannels);
+		//	limitvector.push_back(&exclBinoChannel0);
+		//	limitvector.push_back(&exclBinoChannel1);
+		limitvector.push_back(&exclBinoChannel2);
+		limitvector.push_back(&exclBinoChannel3);
+		limitvector.push_back(&exclBinoChannel4);
+		limitvector.push_back(&exclBinoChannel5);
+		PlotAllObserved(limitvector, &ret, hi);
 	}
 }
 int plot(int argc, char** argv) {
@@ -1013,21 +1103,27 @@ int plot(int argc, char** argv) {
 	ExclusionCurves exclBinoNeutr_gl_3j = GetExclusionContours(ScanInterpol, retBinoNeutr_Gluino3j, Mchi1, Mgluino, &hNeutrGluinoi, true);
 	DrawExclusion(&exclBinoNeutr_gl_3j, &retBinoNeutr_Gluino3j, &hNeutrGluinoi);
 
-	///==================Bino-Neutr vs Gluino Limits 3j================================
+	///==================Bino-Neutr vs Gluino Limits 2j================================
 	GetPlotTools(Scan, ScanInterpol, filenames::file_binoNeutr2j, true);
 	setStyles(Scan);
 	DrawStandardPlots(Scan, retBinoNeutr_Gluino2j, Mchi1, Mgluino, &hNeutrGluino);
 	ExclusionCurves exclBinoNeutr_gl_2j = GetExclusionContours(ScanInterpol, retBinoNeutr_Gluino2j, Mchi1, Mgluino, &hNeutrGluinoi, true);
 	DrawExclusion(&exclBinoNeutr_gl_2j, &retBinoNeutr_Gluino2j, &hNeutrGluinoi);
 
+	//===Compare Exclusion between 2 jet & SYSTUP
+	GetPlotTools(Scan, ScanInterpol, filenames::file_binoNeutr2jSYST, true);
+	setStyles(Scan);
+	ExclusionCurves exclBinoNeutr_gl_2jSYST = GetExclusionContours(ScanInterpol, retBinoNeutr_Gluino2jSYST, Mchi1, Mgluino, &hNeutrGluinoi, true);
+	DrawExclusion(&exclBinoNeutr_gl_2j, &retBinoNeutr_Gluino2jSYST, &hNeutrGluinoi, &exclBinoNeutr_gl_2jSYST);
+
 	///==================Bino-Neutr Limits 2/3j - Best Expected ================================
-		//cout << "Get Best Expected!!" << endl;
-		GetBestExpectedPlotTools(Scan, ScanInterpol, filenames::file_binoNeutr2j, filenames::file_binoNeutr3j);
-		//cout << "Get Best Expected 2!!" << endl;
-		setStyles(Scan);
-		DrawStandardPlots(Scan, retBinoNeutr_GluinoBestJet, Mchi1, Mgluino, &hNeutrGluino);
-		ExclusionCurves exclBinoNeutrBestJet = GetExclusionContours(ScanInterpol, retBinoNeutr_GluinoBestJet, Mchi1, Mgluino, &hNeutrGluinoi);
-		DrawExclusion(&exclBinoNeutrBestJet, &retBinoNeutr_GluinoBestJet, &hi);
+	//cout << "Get Best Expected!!" << endl;
+	GetBestExpectedPlotTools(Scan, ScanInterpol, filenames::file_binoNeutr2j, filenames::file_binoNeutr3j);
+	//cout << "Get Best Expected 2!!" << endl;
+	setStyles(Scan);
+	DrawStandardPlots(Scan, retBinoNeutr_GluinoBestJet, Mchi1, Mgluino, &hNeutrGluino);
+	ExclusionCurves exclBinoNeutrBestJet = GetExclusionContours(ScanInterpol, retBinoNeutr_GluinoBestJet, Mchi1, Mgluino, &hNeutrGluinoi);
+	DrawExclusion(&exclBinoNeutrBestJet, &retBinoNeutr_GluinoBestJet, &hi);
 	//Compare Exclusion between 2/3 jet
 	DrawExclusion(&exclBinoNeutr_gl_2j, &retBinoNeutr_GluinoBestJet, &hNeutrGluinoi, &exclBinoNeutr_gl_3j);
 
@@ -1048,6 +1144,15 @@ int plot(int argc, char** argv) {
 	DrawStandardPlots(Scan, retBino2j, Msquark, Mgluino, &h);
 	ExclusionCurves exclBino2j = GetExclusionContours(ScanInterpol, retBino2j, Msquark, Mgluino, &hi);
 	DrawExclusion(&exclBino2j, &retBino2j, &hi);
+
+	///Bino Limits 2j SYST UP
+		GetPlotTools(Scan, ScanInterpol, filenames::file_bino2jSYST);
+		setStyles(Scan);
+		//DrawStandardPlots(Scan, retBino2jSYST, Msquark, Mgluino, &h);
+		ExclusionCurves exclBino2jSYST = GetExclusionContours(ScanInterpol, retBino2jSYST, Msquark, Mgluino, &hi);
+		//DrawExclusion(&exclBino2jSYST, &retBino2jSYST, &hi);
+		//===Compare Exclusion between 2 jet & SYSTUP
+		DrawExclusion(&exclBino2j, &retBino2jSYST, &hi, &exclBino2jSYST);
 
 	///==================Bino Limits 2/3j - Best Expected ================================
 	//cout << "Get Best Expected!!" << endl;
@@ -1073,6 +1178,15 @@ int plot(int argc, char** argv) {
 	DrawStandardPlots(Scan, retWino2j, Msquark, Mgluino, &h);
 	ExclusionCurves exclWino2j = GetExclusionContours(ScanInterpol, retWino2j, Msquark, Mgluino, &hi);
 	DrawExclusion(&exclWino2j, &retWino2j, &hi);
+
+	///Wino Limits 2j SYST UP
+	GetPlotTools(Scan, ScanInterpol, filenames::file_wino2jSYST);
+	setStyles(Scan);
+	//DrawStandardPlots(Scan, retWino2jSYST, Msquark, Mgluino, &h);
+	ExclusionCurves exclWino2jSYST = GetExclusionContours(ScanInterpol, retWino2jSYST, Msquark, Mgluino, &hi);
+	//DrawExclusion(&exclWino2jSYST, &retWino2jSYST, &hi);
+	//===Compare Exclusion between 2 jet & SYSTUP
+	DrawExclusion(&exclWino2j, &retWino2jSYST, &hi, &exclWino2jSYST);
 
 	///==================Wino Limits 2/3j - Best Expected ================================
 	//cout<<"Get Best Expected!!"<<endl;
@@ -1106,11 +1220,11 @@ int plot(int argc, char** argv) {
 	///==================Limits - which channel is most sensitive? ---3 jet
 	PlotBinComparison(Scan, ScanInterpol, Msquark, Mgluino, filenames::file_wino3j, filenames::file_wino3j_SingleBins, retWino3j, &hi, &h);
 	PlotBinComparison(Scan, ScanInterpol, Msquark, Mgluino, filenames::file_bino3j, filenames::file_bino3j_SingleBins, retBino3j, &hi, &h, false);
-	PlotBinComparison(Scan, ScanInterpol, Mchi1, Mgluino, filenames::file_binoNeutr3j, filenames::file_binoNeutr3j_SingleBins, retBinoNeutr_Gluino3j, &hNeutrGluinoi,&hNeutrGluino, true);
+	PlotBinComparison(Scan, ScanInterpol, Mchi1, Mgluino, filenames::file_binoNeutr3j, filenames::file_binoNeutr3j_SingleBins, retBinoNeutr_Gluino3j, &hNeutrGluinoi, &hNeutrGluino, true);
 	///==================Limits - which channel is most sensitive? ---2 jet
 	PlotBinComparison(Scan, ScanInterpol, Msquark, Mgluino, filenames::file_wino2j, filenames::file_wino2j_SingleBins, retWino2j, &hi, &h);
 	PlotBinComparison(Scan, ScanInterpol, Msquark, Mgluino, filenames::file_bino2j, filenames::file_bino2j_SingleBins, retBino2j, &hi, &h);
-	PlotBinComparison(Scan, ScanInterpol, Mchi1, Mgluino, filenames::file_binoNeutr2j, filenames::file_binoNeutr2j_SingleBins, retBinoNeutr_Gluino2j, &hNeutrGluinoi,&hNeutrGluino, true);
+	PlotBinComparison(Scan, ScanInterpol, Mchi1, Mgluino, filenames::file_binoNeutr2j, filenames::file_binoNeutr2j_SingleBins, retBinoNeutr_Gluino2j, &hNeutrGluinoi, &hNeutrGluino, true);
 
 	///==================Limits - Demopoint (bino,3 jet)
 	//PlotBinComparison(Scan, ScanInterpol, Msquark, Mgluino, filenames::file_bino3j, filenames::file_bino3j_DemoPoint, retBino3j, &hi, &h, false, filenameforresulttex);
@@ -1123,11 +1237,14 @@ int main(int argc, char** argv) {
 	vector < string > filenames;
 	filenames.push_back(filenames::file_wino3j);
 	filenames.push_back(filenames::file_wino2j);
+	filenames.push_back(filenames::file_wino2jSYST);
 	filenames.push_back(filenames::file_wino3j_MergedBins);
 	filenames.push_back(filenames::file_bino3j);
 	filenames.push_back(filenames::file_bino2j);
+	filenames.push_back(filenames::file_bino2jSYST);
 	filenames.push_back(filenames::file_binoNeutr3j);
 	filenames.push_back(filenames::file_binoNeutr2j);
+	filenames.push_back(filenames::file_binoNeutr2jSYST);
 
 	filenames.push_back(filenames::file_wino3j_SingleBins);
 	filenames.push_back(filenames::file_bino3j_SingleBins);
