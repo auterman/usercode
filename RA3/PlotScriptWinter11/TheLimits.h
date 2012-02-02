@@ -62,16 +62,16 @@ void TheLimits::ExpandGrid(double(*x)(const T*), double(*y)(const T*) )
         dy=fabs(y(*it)-y(*ny) );
 	next_y=ny;
       }
-    if (next_y!=_scan.end()) {  
+    if (next_y!=_scan.end()) {
 	T*  ny = new T((**it + **next_y) * 0.5);
 	new_grid.push_back( ny );
-
+//if(y(ny)==2000){
 //	std::cout
-//	<< "l<>x:"<<x(*it)<< ",y:"<<y(*it)<<", sigma"<<(*it)->NLOXsection
-//	<< " <>x:"<<x(ny) << ",y:"<<y(ny)<<", sigma="<<ny->NLOXsection
-//	<< " r<>x:"<<x(*next_y)<< ",y:"<<y(*next_y)<<", sigma="<<(*next_y)->NLOXsection
+//	<< "l<>x:"<<x(*it)<< ",y:"<<y(*it)<<", sigma"
+//	<< " <>x:"<<x(ny) << ",y:"<<y(ny)<<", sigma="
+//	<< " r<>x:"<<x(*next_y)<< ",y:"<<y(*next_y)<<", sigma="
 //	<<std::endl;
-	
+//}
     }
     if (next_x!=_scan.end()) {  
 	T*  nx = new T((**it + **next_x) * 0.5);

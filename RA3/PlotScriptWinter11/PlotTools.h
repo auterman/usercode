@@ -64,6 +64,8 @@ class PlotTools {
   TGraph * ModifyExpSigma(TGraph*, TGraph*, TGraph*);
   TGraph * ModifyExpSigmaY(TGraph*, TGraph*, TGraph*);
 
+  void SetMaxYPointAfterSmooth(TGraph*,double ,double);
+
  private:
   std::vector<T*> * _scan; 
   

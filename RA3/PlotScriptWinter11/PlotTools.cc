@@ -192,11 +192,60 @@ void FillEmptyPointsForNeutralinoScan(TH2*h) {
 
 
 }
+template<class T>
+void PlotTools<T>::SetMaxYPointAfterSmooth(TGraph* g,double minXNew,double maxYNew){
+
+  	double xFormaxY=0;
+  	double yForminX=0;
+  	double yFormaxX=0;
+  	double maxY=0;
+  	double maxX=0;
+  	double minX=9999;
+  	for (int j = 0; j < (int)g->GetN(); ++j) {
+  				double gx, gy;
+  				g->GetPoint(j, gx, gy);
+  				if(gy>maxY ){
+  					maxY=gy;
+  					xFormaxY=gx;
+  				}
+  				if(gx<minX ){
+  					minX=gx;
+  					yForminX=gy;
+  				  				}
+  				if(gx>maxX){
+  					maxX=gx;
+  				  					yFormaxX=gy;
+  				  				  				}
+  	}
+  	//only set point for squark-gluino-scan!!!
+  	if(minX>200){
+  	 g->SetPoint(g->GetN(),xFormaxY,maxYNew);
+  	 g->SetPoint(0,maxYNew,yFormaxX);
+  	}
+  	else{
+  		 g->SetPoint(g->GetN(),minXNew,yForminX);
+  	}
+  }
 
 void FillEmptyPointsForLowMassPoints(TH2*h) {
 	for (int x = 0; x <= h->GetXaxis()->GetNbins(); ++x){
-		for (int y = 0; y <= 20; ++y){
+		for (int y = 0; y <= 40; ++y){
 			if(isExcludedAbove(h,x,y) ){
+				h->SetBinContent(x, y, 0.01);
+			}
+			else{
+				h->SetBinContent(x, y, 1);
+			}
+		}
+	}
+
+
+}
+void FillOverflowRowToImprovePlotting(TH2*h) {
+	for (int x = 0; x <= h->GetXaxis()->GetNbins(); ++x){
+		for (int y =h->GetNbinsY()+1; y >= h->GetNbinsY()-1; --y){
+
+			if(h->GetBinContent(x, y-1) != 1 ){
 				h->SetBinContent(x, y, 0.01);
 			}
 			else{
@@ -292,6 +341,7 @@ std::vector<TGraph*> PlotTools<T>::GetContours(TH2*h, int ncont,bool excludeBelo
 	  FillEmptyPointsForLowMassPoints(plot);
 	}
 	else{FillEmptyPointsForLowMassPoints(plot);}
+	FillOverflowRowToImprovePlotting(plot);
 	plot->SetContour(ncont);
 	plot->SetFillColor(1);
 	plot->Draw("CONT Z List");
@@ -489,9 +539,14 @@ void DrawNeutrNNLSP() {
 TGraph * GetExcludedRegion(TGraph * lowerLimit, double min1, double min2, double max1, double max2) {
 	TGraph* excludedRegion = new TGraph(lowerLimit->GetN() + 3);
 	int nbins = lowerLimit->GetN();
-
+double maxXgrpoint=0;
+double minXgrpoint=9999;
+double maxYgrpoint=0;
 	for (int i = 0; i < nbins + 1; i++) {
 		double x, y;
+		if(maxXgrpoint<x)maxXgrpoint=x;
+		if(minXgrpoint<x)minXgrpoint=x;
+		if(maxYgrpoint<y)maxYgrpoint=y;
 		lowerLimit->GetPoint(i, x, y);
 		excludedRegion->SetPoint(i, x, y);
 		if (i == nbins) {
@@ -502,11 +557,12 @@ TGraph * GetExcludedRegion(TGraph * lowerLimit, double min1, double min2, double
 	//excludedRegion->SetPoint(nbins,2000.1,400);
 	// excludedRegion->SetPoint(nbins+2,min1,max2);
 	excludedRegion->SetPoint(nbins + 2, min1, min2);
-	excludedRegion->SetPoint(nbins + 3, max1, min2);
+	excludedRegion->SetPoint(nbins + 3, maxXgrpoint, min2);
 	//excludedRegion->SetPoint(nbins+3,400,2000.1);
 
 
-	excludedRegion->SetFillStyle(3356);
+	excludedRegion->SetFillStyle(1001);
+	excludedRegion->SetFillColor(kBlue-10);
 	return excludedRegion;
 
 }
@@ -562,20 +618,22 @@ void drawCmsPrel(double intLumi, std::string METCut, int noJets, bool isBestjet,
 
 		TLatex as;
 		as.SetNDC(true);
+		as.SetTextColor(12);
 		as.SetTextFont(43);
-		as.SetTextSize(22);
+		as.SetTextSize(18);
 		//as.SetTextFont(42);//ms.SetTextColor(12);
 		std::string out = "";
 		if (drawChannelInfo) {
-			out = "#int #font[12]{L}dt = %.1ffb^{  -1}   #sqrt{s} = 7 TeV";
+			out = "#int #font[12]{L}dt = %.1ffb^{  -1}  #sqrt{s} = 7 TeV";
 		}
 		else{
-			out = "                                      #sqrt{s} = 7 TeV";
+			out = "                                     #sqrt{s} = 7 TeV";
 		}
 
-			as.DrawLatex(0.12, 0.93, Form(out.c_str(), intLumi));
+			as.DrawLatex(0.19, 0.93, Form(out.c_str(), intLumi));
 
 		as.SetTextSize(22);
+		as.SetTextColor(1);
 		if (drawChannelInfo) {
 			//1#gamma, >=3 jets, MET>"+getStringFromInt(METCut)+" GeV ";
 			out = "#geq1#gamma, #geq" + getStringFromInt(noJets) + " jets";
@@ -592,6 +650,7 @@ void drawCmsPrel(double intLumi, std::string METCut, int noJets, bool isBestjet,
 				}
 			}
 			as.SetTextSize(22);
+
 			as.DrawLatex(0.56, 0.93, Form(out.c_str()));
 		}
 
@@ -599,7 +658,9 @@ void drawCmsPrel(double intLumi, std::string METCut, int noJets, bool isBestjet,
 
 		if(drawCMS){
 		 as.SetTextSize(22);
-		 as.DrawLatex(0.02, 0.93, "CMS");
+		 as.DrawLatex(0.0, 0.96, "CMS");
+		 as.SetTextSize(20);
+		 as.DrawLatex(0.0, 0.93, "preliminary");
 		}
 }
 

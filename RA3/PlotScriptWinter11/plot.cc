@@ -46,10 +46,10 @@ string file_wino3j_MergedBins = "2011-11-27-16-33-GMSBWino375NeutrMerged";
 
 string file_wino3j_SingleBins = "2012-01-30-17-36-GMSBWino375NeutrSingleChannels";
 string file_bino3j_SingleBins = "2012-01-30-17-35-GMSBBino375NeutrSingleChannels";
-string file_binoNeutr3j_SingleBins = "2012-01-19-23-01-GMSB_SquarkGluino_vs_NeutralinoSingleChannels";
+string file_binoNeutr3j_SingleBins = "2012-02-02-17-19-GMSB_SquarkGluino_vs_NeutralinoSingleChannels2j";
 string file_bino2j_SingleBins = "2012-01-30-17-35-GMSBBino375NeutrSingleChannels2j";
 string file_wino2j_SingleBins = "2012-01-30-17-36-GMSBWino375NeutrSingleChannels2j";
-string file_binoNeutr2j_SingleBins = "2012-01-19-23-01-GMSB_SquarkGluino_vs_NeutralinoSingleChannels2j";
+string file_binoNeutr2j_SingleBins = "2012-02-02-17-34-GMSB_SquarkGluino_vs_NeutralinoSingleChannels";
 
 string file_bino3j_DemoPoint = "2011-12-19-21-53-DemoPoint";
 string file_bino2j_DemoPoint = "2012-01-30-17-28-DemoPoint";
@@ -237,9 +237,9 @@ struct ExclusionCurves {
 
 };
 void setExclusionStyles(ExclusionCurves * excl, bool isSecondCurve, bool isFirstCurveButComp=false) {
-	int coloredBandExp=kOrange -3;//kOrange -8
+	int coloredBandExp=kOrange-3;//yuri:kOrange-3
 	int theoryBandObs=kBlue;
-	int theoryBandExp=kOrange+9;//kOrange +4
+	int theoryBandExp=kOrange+9;
 
 	if(isFirstCurveButComp){
 		 coloredBandExp=kBlue-10;
@@ -758,7 +758,10 @@ void DrawExclusion(ExclusionCurves * exclA, PlotStyles * style, TH1*h, Exclusion
 	{//Exclusion Contours
 		TH2F *hs = (TH2F*) h->Clone();
 		hs->GetZaxis()->SetTitle("");
-
+		if(!style->drawGluinoNLSPExclusionRegion){
+		hs->GetXaxis()->SetRangeUser(400,2000);
+		hs->GetYaxis()->SetRangeUser(400,2000);
+		}
 		//Draw Graphs
 		hs->Draw("");
 
@@ -861,6 +864,7 @@ void DrawExclusion(ExclusionCurves * exclA, PlotStyles * style, TH1*h, Exclusion
 		if (!drawComp) {
 			//Draw Excluded region
 			double min1 = hs->GetXaxis()->GetBinLowEdge(0);
+			//if(style->drawGluinoNLSPExclusionRegion)min1 = hs->GetXaxis()->GetBinLowEdge(1);
 			double min2 = hs->GetYaxis()->GetBinLowEdge(0);
 			double max2 = hs->GetYaxis()->GetBinLowEdge(hs->GetNbinsX() + 1);
 			double max1 = hs->GetXaxis()->GetBinLowEdge(hs->GetNbinsX() + 1);
@@ -936,7 +940,7 @@ ExclusionCurves GetExclusionContours(PlotTools<SusyScan> *PlotTool, PlotStyles s
 	}
 
 	{//Exclusion Contours
-		TH2F *hs = (TH2F*) h->Clone();
+		TH2F *hs = (TH2F*) h->Clone("exclconth");
 		hs->GetZaxis()->SetTitle("");
 		TGraph * gCLsObsExcl = PlotTool->GetContour(hs, x, y, ObsExclusion, 3, 0, 1, 1, excludeBelowExcludedRegion);
 		TGraph * gCLsObsExclAsym = PlotTool->GetContour(hs, x, y, ObsExclusionAsym, 3, 0, 1, 1, excludeBelowExcludedRegion, true);
@@ -949,7 +953,7 @@ ExclusionCurves GetExclusionContours(PlotTools<SusyScan> *PlotTool, PlotStyles s
 		TGraph * gCLsExpExclXSm1 = PlotTool->GetContour(hs, x, y, ExpExclusionXSM1, 3, 1, 5, 2, excludeBelowExcludedRegion);
 		TGraph * gCLsExpExclXSp1 = PlotTool->GetContour(hs, x, y, ExpExclusionXSP1, 3, 0, 5, 2, excludeBelowExcludedRegion);
 		int smooth=15;
-		int smoothAsym=25;
+		int smoothAsym=35;
 		Smooth(gCLsObsExcl,smooth);
 		Smooth(gCLsObsExclAsym,smoothAsym);
 		Smooth(gCLsExpExcl,smooth);
@@ -960,10 +964,31 @@ ExclusionCurves GetExclusionContours(PlotTools<SusyScan> *PlotTool, PlotStyles s
 		Smooth(gCLsObsExclXSp1,smooth);
 		Smooth(gCLsExpExclXSm1,smooth);
 		Smooth(gCLsExpExclXSp1,smooth);
+
+
+																																																																																																																																																																																																																																																																																																																												Smooth(gCLsExpExclXSm1,smooth);
+																																																																																																																																																																																																																																																																																																																																																Smooth(gCLsExpExclXSp1,smooth);
+
+		double minX = hs->GetXaxis()->GetBinLowEdge(0);
+
+		double maxY = hs->GetYaxis()->GetBinLowEdge(hs->GetNbinsX()+1);
+
+		PlotTool->SetMaxYPointAfterSmooth(gCLsObsExcl, minX, maxY);
+	//	PlotTool->SetMaxYPointAfterSmooth(gCLsObsExclAsym, minX, maxY);
+		PlotTool->SetMaxYPointAfterSmooth(gCLsExpExcl, minX, maxY);
+	//	PlotTool->SetMaxYPointAfterSmooth(gCLsExpExclAsym, minX, maxY);
+		PlotTool->SetMaxYPointAfterSmooth(gCLsExpExclm1, minX, maxY);
+		PlotTool->SetMaxYPointAfterSmooth(gCLsExpExclp1, minX, maxY);
+		PlotTool->SetMaxYPointAfterSmooth(gCLsObsExclXSm1, minX, maxY);
+		PlotTool->SetMaxYPointAfterSmooth(gCLsObsExclXSp1, minX, maxY);
+		PlotTool->SetMaxYPointAfterSmooth(gCLsExpExclXSm1, minX, maxY);
+		PlotTool->SetMaxYPointAfterSmooth(gCLsExpExclXSp1, minX, maxY);
+
 		TGraph * gCLs1Sigma = MakeBand(gCLsExpExclm1, gCLsExpExclp1);
 		TGraph * gCLs1SigmaObsXSNLO = MakeBand(gCLsObsExclXSm1, gCLsObsExclXSp1);
 		TGraph * gCLs1SigmaExpXSNLO = MakeBand(gCLsExpExclXSm1, gCLsExpExclXSp1);
 
+//
 //		for (int i=0;i<gCLsObsExcl->GetN();++i){
 //			double gx, gy;
 //			gCLsObsExcl->GetPoint(i,gx,gy);
@@ -1002,6 +1027,8 @@ void interpolateAndFillPoints(TheLimits * genpointsInterpol, TheLimits * genpoin
 		genpointsInterpol->ExpandGrid<SusyScan> (Mchi1, Mgluino);
 		genpointsInterpol->ExpandGrid<SusyScan> (Mchi1, Mgluino);
 
+		//genpointsInterpol->ExpandGrid<SusyScan> (Mgluino, Mchi1);
+
 		genpointsInterpol->FillEmptyPointsNeutralinoScan(Mchi1, Mgluino);
 		genpointsInterpol->FillEmptyPointsByInterpolation(Mchi1, Mgluino);
 		genpointsInterpol->FillEmptyPointsByInterpolation(Mgluino, Mchi1);
@@ -1012,8 +1039,14 @@ void interpolateAndFillPoints(TheLimits * genpointsInterpol, TheLimits * genpoin
 		genpointsInterpol->FillEmptyPointsByInterpolation(Msquark, Mgluino);
 		genpoints->FillEmptyPointsByInterpolation(Mgluino, Msquark);
 		genpointsInterpol->FillEmptyPointsByInterpolation(Mgluino, Msquark);
+
 		genpointsInterpol->ExpandGrid<SusyScan> (Msquark, Mgluino);
 		genpointsInterpol->ExpandGrid<SusyScan> (Msquark, Mgluino);
+		genpointsInterpol->ExpandGrid<SusyScan> (Msquark, Mgluino);
+//		genpointsInterpol->ExpandGrid<SusyScan> (Mgluino, Msquark);
+//		genpointsInterpol->ExpandGrid<SusyScan> (Mgluino, Msquark);
+
+
 	}
 
 }
@@ -1116,15 +1149,18 @@ int plot(int argc, char** argv) {
 	gStyle->SetTextSize(32);
 
 	TH2F h("h", ";m_{#tilde{q}} [GeV]; m_{#tilde{g}} [GeV]; cross section [pb]", 21, 360, 2040, 21, 360, 2040);
-	TH2F hi("hi", ";m_{#tilde{q}} [GeV]; m_{#tilde{g}} [GeV]; cross section [pb]", 81, 390, 2010, 81, 390, 2010);
+	TH2F hi("hi", ";m_{#tilde{q}} [GeV]; m_{#tilde{g}} [GeV]; cross section [pb]", 161, 395, 2005, 161, 395, 2005);
+
+
+
 
 	TH2F hNeutrGluino("hNeutrGluino", ";m_{#chi^{0}_{1}} [GeV]; m_{#tilde{g}} [GeV]; cross section [pb]", 10, 100, 1100, 21, 360, 2040);
 
 	TH2F hNeutrGluinoi("hNeutrGluinoi", ";m_{#chi^{0}_{1}} [GeV]; m_{#tilde{g}} [GeV]; cross section [pb]", 37, 125, 1075, 93, 150, 2010);
 
-	TH2F hNeutrSquark("hNeutrSquark", ";m_{#chi^{0}_{1}} [GeV]; m_{#tilde{q}} [GeV]; cross section [pb]", 10, 100, 1100, 21, 360, 2040);
-
-	TH2F hNeutrSquarki("hNeutrSquarki", ";m_{#chi^{0}_{1}} [GeV]; m_{#tilde{q}} [GeV]; cross section [pb]", 37, 125, 1075, 93, 150, 2010);
+//	TH2F hNeutrSquark("hNeutrSquark", ";m_{#chi^{0}_{1}} [GeV]; m_{#tilde{q}} [GeV]; cross section [pb]", 10, 100, 1100, 21, 360, 2040);
+//
+//	TH2F hNeutrSquarki("hNeutrSquarki", ";m_{#chi^{0}_{1}} [GeV]; m_{#tilde{q}} [GeV]; cross section [pb]", 37, 125, 1075, 93, 150, 2010);
 
 	PlotTools<SusyScan> *Scan, *ScanInterpol;
 
