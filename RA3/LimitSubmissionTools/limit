@@ -6,6 +6,7 @@ MODEL="${1##*/}"
 OPTIONS='-M HybridNew --frequentist'
 RESULT="$MODEL.result.txt"
 LOG_ASYMPTOTIC='asymptotic.log'
+LOG_LIKELIHOOD='profileliklihood.log'
 
 rm -f $RESULT
 touch $RESULT
@@ -47,6 +48,7 @@ function float_cond()
 }
 
 #Calculate asymptotic CLs x-section limits
+echo "$EXE -M Asymptotic $1 > $LOG_ASYMPTOTIC"
 $EXE -M Asymptotic $1 > $LOG_ASYMPTOTIC
 OBSas=`grep "Observed Limit: r <" $LOG_ASYMPTOTIC | cut -b 21-`
 EXPas=`grep "Expected 50.0%: r <" $LOG_ASYMPTOTIC | cut -b 21-`
@@ -73,28 +75,72 @@ echo "CLs expected m2sigma asymptotic = $EXPm2as" >> $RESULT
 echo "CLs expected m1sigma asymptotic = $EXPm1as" >> $RESULT
 echo "CLs expected p1sigma asymptotic = $EXPp1as" >> $RESULT
 echo "CLs expected p2sigma asymptotic = $EXPp2as" >> $RESULT
+
+
+#Calculate Profile Likelihood limits
+$EXE -M ProfileLikelihood $1 -t 250 > $LOG_LIKELIHOOD
+PL_EXP=`grep "median expected limit" $LOG_LIKELIHOOD | cut -d '<' -f 2 | cut -d '@' -f 1`
+PL_EXPm2=`grep "95% expected band :" $LOG_LIKELIHOOD | cut -d ':' -f 2 | cut -d '<' -f 1`
+PL_EXPp2=`grep "95% expected band :" $LOG_LIKELIHOOD | cut -d ':' -f 2 | cut -d '<' -f 3`
+PL_EXPm1=`grep "68% expected band :" $LOG_LIKELIHOOD | cut -d ':' -f 2 | cut -d '<' -f 1`
+PL_EXPp1=`grep "68% expected band :" $LOG_LIKELIHOOD | cut -d ':' -f 2 | cut -d '<' -f 3`
+echo "" >> $RESULT
+#echo "CLs observed profile likelihood = $OBSas" >> $RESULT
+echo "CLs expected profile likelihood = $PL_EXP" >> $RESULT
+echo "CLs expected m2sigma profile likelihood = $PL_EXPm2" >> $RESULT
+echo "CLs expected m1sigma profile likelihood = $PL_EXPm1" >> $RESULT
+echo "CLs expected p1sigma profile likelihood = $PL_EXPp1" >> $RESULT
+echo "CLs expected p2sigma profile likelihood = $PL_EXPp2" >> $RESULT
 echo "" >> $RESULT
 cat $RESULT
 
-range=`echo "scale=$float_scale; $EXPp2as-$EXPm2as" | bc`
+
+
+
+range=`echo "scale=$float_scale; $PL_EXPp2-$PL_EXPm2" | bc`
 step=`echo "scale=$float_scale; $range/$STEPS" | bc`
 
 #create grid around the asymptotic limits
-i=$EXPm2as
+i=$PL_EXPm2
 n=1
+pos=0
 #set -f
-while [ $(float_cond "$i <= $EXPp2as") == 0 ]
+while [ $(float_cond "$i <= $PL_EXPp2") == 0 ]
 do
   echo "Point $n of $STEPS, testing r=$i"
   if [[ $(float_cond "$i > 0.0001") == 0 ]]; then
-    $EXE $OPTIONS --saveToys --saveHybridResult --clsAcc 0 -s -1 -n $MODEL --singlePoint $i $1 &> /dev/null
+    echo "$EXE $OPTIONS --saveToys --saveHybridResult --clsAcc 0 -s -1 -n $MODEL --singlePoint $i $1 &> CLsFrequ.$i.log"
+    $EXE $OPTIONS --saveToys --saveHybridResult --clsAcc 0 -s -1 -n $MODEL --singlePoint $i $1 &> CLsFrequ.$MODEL.$i.log
+    CLs=`grep -A 1 "And I'm done" CLsFrequ.$MODEL.$i.log | grep "CLs" | cut -d '=' -f 2 | cut -d '+' -f 1`
+    CLsUnc=`grep -A 1 "And I'm done" CLsFrequ.$MODEL.$i.log | grep "CLs" | cut -d '-' -f 2`
+    CLb=`grep -A 3 "And I'm done" CLsFrequ.$MODEL.$i.log | grep "CLb" | cut -d '=' -f 2 | cut -d '+' -f 1`
+    CLbUnc=`grep -A 3 "And I'm done" CLsFrequ.$MODEL.$i.log | grep "CLb" | cut -d '-' -f 2`
+    CLsb=`grep -A 4 "And I'm done" CLsFrequ.$MODEL.$i.log | grep "CLsplusb" | cut -d '=' -f 2 | cut -d '+' -f 1`
+    CLsbUnc=`grep -A 4 "And I'm done" CLsFrequ.$MODEL.$i.log | grep "CLsplusb" | cut -d '-' -f 2`
+    echo "$i   $CLs +- $CLsUnc   $CLb +- $CLbUnc   $CLsb +- $CLsbUnc"
+    r[pos]=$i
+    CLsArray[pos]=$CLs
+    CLsUncArray[pos]=$CLsUnc
+    CLbArray[pos]=$CLb
+    CLbUncArray[pos]=$CLbUnc
+    CLsbArray[pos]=$CLsb
+    CLsbUncArray[pos]=$CLsbUnc
   fi    
   i=$(float_eval "$i + $step" )
   n=$(($n+1))
+  pos=$(($pos+1))
 done
+echo "scanned r = ${r[*]}" >> $RESULT
+echo "CLs for scanned r = ${CLsArray[*]}" >> $RESULT
+echo "CLsUnc for scanned r = ${CLsUncArray[*]}" >> $RESULT
+echo "CLb for scanned r = ${CLbArray[*]}" >> $RESULT
+echo "CLbUnc for scanned r = ${CLbUncArray[*]}" >> $RESULT
+echo "CLsb for scanned r = ${CLsbArray[*]}" >> $RESULT
+echo "CLsbUnc for scanned r = ${CLsbUncArray[*]}" >> $RESULT
 
 #calculate from grid obs and exp CLS hybrid limits
 echo "hadd $MODEL.root higgsCombine$MODEL.*.root"
+rm -f $MODEL.root
 hadd $MODEL.root higgsCombine$MODEL.*.root
 echo "$EXE $1 $OPTIONS --grid=$MODEL.root > $MODEL.obs.log"
 $EXE $1 $OPTIONS --grid=$MODEL.root > $MODEL.obs.log
@@ -136,3 +182,4 @@ echo "CLs expected p2sigma = $CLsExpP2" >> $RESULT
 echo "CLs expected p2sigma error= $CLsExpP2Error" >> $RESULT
 
 cat $RESULT
+rm -f *.root *.log
