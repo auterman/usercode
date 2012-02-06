@@ -1,6 +1,7 @@
 #!/bin/bash
 
 STEPS=100
+PL_STEPS=250
 EXE=combine
 MODEL="${1##*/}"
 OPTIONS='-M HybridNew --frequentist'
@@ -78,7 +79,8 @@ echo "CLs expected p2sigma asymptotic = $EXPp2as" >> $RESULT
 
 
 #Calculate Profile Likelihood limits
-$EXE -M ProfileLikelihood $1 -t 250 > $LOG_LIKELIHOOD
+echo "$EXE -M ProfileLikelihood $1 -t $PL_STEPS > $LOG_LIKELIHOOD"
+$EXE -M ProfileLikelihood $1 -t $PL_STEPS > $LOG_LIKELIHOOD
 PL_EXP=`grep "median expected limit" $LOG_LIKELIHOOD | cut -d '<' -f 2 | cut -d '@' -f 1`
 PL_EXPm2=`grep "95% expected band :" $LOG_LIKELIHOOD | cut -d ':' -f 2 | cut -d '<' -f 1`
 PL_EXPp2=`grep "95% expected band :" $LOG_LIKELIHOOD | cut -d ':' -f 2 | cut -d '<' -f 3`
@@ -94,11 +96,34 @@ echo "CLs expected p2sigma profile likelihood = $PL_EXPp2" >> $RESULT
 echo "" >> $RESULT
 cat $RESULT
 
+if [[ $PL_EXPm2 == *nan* ]]; then
+  echo "PL_EXPm2 is nan, replace lower range limit with EXPm2as=$EXPm2as"
+  PL_EXPm2=$EXPm2as
+fi
+if [[ $PL_EXPp2 == *nan* ]]; then
+  echo "PL_EXPp2 is nan, replace upper range limit with EXPp2as=$EXPp2as"
+  PL_EXPp2=$EXPp2as
+fi
 
-
-
+if [ $(float_cond "$PL_EXPm2 != $PL_EXPp2 && $OBSas > 0.0001") == 0 ]; then
+    if [ $(float_cond "$OBSas > $PL_EXPp2") == 0 ]; then
+      echo "Observed asymptotic limit r=$OBSas is larger then upper range limit PL_EXPp2=$PL_EXPp2! Replacing upper range limit with 1.3*r_Obs."
+      PL_EXPp2=$(float_eval "1.3*$OBSas" ) 
+    fi
+    if [ $(float_cond "$OBSas < $PL_EXPm2") == 0 ]; then  
+      echo "Observed asymptotic limit r=$OBSas is lower then lower range limit PL_EXPm2=$PL_EXPm2! Replacing lower range limit with 0.7*r_Obs."
+      PL_EXPm2=$(float_eval "0.7*$OBSas" )
+    fi
+fi
+if [ $(float_cond "$PL_EXPm2 == $PL_EXPp2") == 0 ]; then 
+  echo "PL_EXPm2 == PL_EXPp2, replace range limit with asymptotic limits"
+  PL_EXPm2=$EXPm2as
+  PL_EXPp2=$EXPp2as
+fi
 range=`echo "scale=$float_scale; $PL_EXPp2-$PL_EXPm2" | bc`
 step=`echo "scale=$float_scale; $range/$STEPS" | bc`
+
+echo "-2sigma=$PL_EXPm2 ... +2sigma=$PL_EXPp2, range=$range, step=$step"
 
 #create grid around the asymptotic limits
 i=$PL_EXPm2
