@@ -16,7 +16,6 @@
 //LUMI
 const double luminosity = 4320.0;
 const double luminosityUncertainty = 1.045; //4.5% as recommended for LP
-const double scaleUncertainty = 0.2;        //suggested by Yuri, see mail June 30th. !Note:obsolete, is not used for limit calculation
 const string WinoScanString = "Wino"; //sub-string in signalAcceptance input file, specifying if the number of generated events has to be set manually (because of generator cuts).
 
 std::string ToString(double d, std::string s=""){
@@ -714,7 +713,7 @@ int main(int argc, char* argv[]) {
    //3-jets
    {
    Points.Reset();
-   ReadSignalAcceptance("","inputWinter11/signalAcceptanceWinoSummer11.dat", "inputWinter11/data_Summer11.txt");
+   ReadSignalAcceptance("","inputWinter11/signalAcceptanceWino_preARC20120208.dat", "inputWinter11/data_preARC20120208");
    AddXsec("inputWinter11/wino375NLOxsec2_Dec1.dat");
    AddPDFxsec("inputWinter11/PDFcross.txt", 375);
    AddPDFAcceptance("inputWinter11/PDFacceptance.txt", 375);
@@ -736,7 +735,7 @@ int main(int argc, char* argv[]) {
 
    //2-jets
    Points.Reset();
-   ReadSignalAcceptance("2j","inputWinter11/signalAcceptanceWinoSummer11.dat", "inputWinter11/data_Summer11.txt");
+   ReadSignalAcceptance("2j","inputWinter11/signalAcceptanceWino_preARC20120208.dat", "inputWinter11/data_preARC20120208");
    AddXsec("inputWinter11/wino375NLOxsec2_Dec1.dat");
    AddPDFxsec("inputWinter11/PDFcross.txt", 375);
    AddPDFAcceptance("inputWinter11/PDFacceptance.txt", 375);
@@ -749,7 +748,7 @@ int main(int argc, char* argv[]) {
    ///////////////Bino 375
    //3-jets
    Points.Reset();
-   ReadSignalAcceptance("","inputWinter11/signalAcceptanceBinoSummer11.dat", "inputWinter11/data_Summer11.txt");
+   ReadSignalAcceptance("","inputWinter11/signalAcceptanceBino_preARC20120208.dat", "inputWinter11/data_preARC20120208");
    AddXsec("inputWinter11/bino375NLOxsec2_Dec1.dat");
    AddPDFxsec("inputWinter11/PDFcross.txt", 375);
    AddPDFAcceptance("inputWinter11/PDFacceptance.txt", 375);
@@ -761,7 +760,7 @@ int main(int argc, char* argv[]) {
    }
    //2-jets
    Points.Reset();
-   ReadSignalAcceptance("2j","inputWinter11/signalAcceptanceBinoSummer11.dat", "inputWinter11/data_Summer11.txt");
+   ReadSignalAcceptance("2j","inputWinter11/signalAcceptanceBino_preARC20120208.dat", "inputWinter11/data_preARC20120208");
    AddXsec("inputWinter11/bino375NLOxsec2_Dec1.dat");
    AddPDFxsec("inputWinter11/PDFcross.txt", 375);
    AddPDFAcceptance("inputWinter11/PDFacceptance.txt", 375);
@@ -774,7 +773,7 @@ int main(int argc, char* argv[]) {
    // Squark vs Neutralino (and Gluino vs Neutralino) ////////////////////////////
    //3-jets
    Points.Reset();
-   ReadSignalAcceptance("","inputWinter11/signalAcceptanceBinoNeutrSummer11.dat", "inputWinter11/data_Summer11.txt");
+   ReadSignalAcceptance("","inputWinter11/signalAcceptanceBinoNeutr_preARC20120208.dat", "inputWinter11/data_preARC20120208");
    AddXsec("inputWinter11/binochixsec2_Dec1.dat");
    AddPDFxsec("inputWinter11/PDFcrossBino_NeutrScan.txt");
    AddPDFAcceptance("inputWinter11/PDFacceptanceBino_NeutrScan.txt");
@@ -786,7 +785,7 @@ int main(int argc, char* argv[]) {
    }
    //2-jets
    Points.Reset();
-   ReadSignalAcceptance("2j","inputWinter11/signalAcceptanceBinoNeutrSummer11.dat", "inputWinter11/data_Summer11.txt");
+   ReadSignalAcceptance("2j","inputWinter11/signalAcceptanceBinoNeutr_preARC20120208.dat", "inputWinter11/data_preARC20120208");
    AddXsec("inputWinter11/binochixsec2_Dec1.dat");
    AddPDFxsec("inputWinter11/PDFcrossBino_NeutrScan.txt");
    AddPDFAcceptance("inputWinter11/PDFacceptanceBino_NeutrScan.txt");
