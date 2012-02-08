@@ -719,8 +719,8 @@ int main(int argc, char* argv[]) {
    points MergedPoints;
    for (std::vector<point>::iterator it=Points.Get()->begin(); it!=Points.Get()->end(); ++it)
       MergedPoints.Add( *MergeBins(*it, 6));
-   std::system("GMSBWino375Neutr");
-   std::system("GMSBWino375NeutrSingleChannels");
+   std::system("mkdir GMSBWino375Neutr");
+   std::system("mkdir GMSBWino375NeutrSingleChannels");
    MergedPoints.Write("GMSBWino375Neutr/GMSB");
    MergedPoints.WriteSingleBin("GMSBWino375NeutrSingleChannels/GMSB");
    }
@@ -731,7 +731,7 @@ int main(int argc, char* argv[]) {
      DeleteBins(*it,0,2);
      MergedPoints.Add( *MergeBins(*it) );
    }
-   std::system("GMSBWino375NeutrMerged");
+   std::system("mkdir GMSBWino375NeutrMerged");
    MergedPoints.Write("GMSBWino375NeutrMerged/GMSB");
    }
 
@@ -744,8 +744,8 @@ int main(int argc, char* argv[]) {
    {points MergedPoints;
    for (std::vector<point>::iterator it=Points.Get()->begin(); it!=Points.Get()->end(); ++it)
       MergedPoints.Add( *MergeBins(*it, 6));
-   std::system("GMSBWino375Neutr2j");
-   std::system("GMSBWino375NeutrSingleChannels2j");
+   std::system("mkdir GMSBWino375Neutr2j");
+   std::system("mkdir GMSBWino375NeutrSingleChannels2j");
    MergedPoints.Write("GMSBWino375Neutr2j/GMSB");
    MergedPoints.WriteSingleBin("GMSBWino375NeutrSingleChannels2j/GMSB");
    }
@@ -759,8 +759,8 @@ int main(int argc, char* argv[]) {
    {points MergedPoints;
    for (std::vector<point>::iterator it=Points.Get()->begin(); it!=Points.Get()->end(); ++it)
       MergedPoints.Add( *MergeBins(*it, 6));
-   std::system("GMSBBino375Neutr");
-   std::system("GMSBBino375NeutrSingleChannels");
+   std::system("mkdir GMSBBino375Neutr");
+   std::system("mkdir GMSBBino375NeutrSingleChannels");
    MergedPoints.Write("GMSBBino375Neutr/GMSB");
    MergedPoints.WriteSingleBin("GMSBBino375NeutrSingleChannels/GMSB");
    }
@@ -773,8 +773,8 @@ int main(int argc, char* argv[]) {
    {points MergedPoints;
    for (std::vector<point>::iterator it=Points.Get()->begin(); it!=Points.Get()->end(); ++it)
       MergedPoints.Add( *MergeBins(*it, 6));
-   std::system("GMSBBino375Neutr2j");
-   std::system("GMSBBino375NeutrSingleChannels2j");
+   std::system("mkdir GMSBBino375Neutr2j");
+   std::system("mkdir GMSBBino375NeutrSingleChannels2j");
    MergedPoints.Write("GMSBBino375Neutr2j/GMSB");
    MergedPoints.WriteSingleBin("GMSBBino375NeutrSingleChannels2j/GMSB");
    }
@@ -788,8 +788,8 @@ int main(int argc, char* argv[]) {
    {points MergedPoints;
    for (std::vector<point>::iterator it=Points.Get()->begin(); it!=Points.Get()->end(); ++it)
       MergedPoints.Add( *MergeBins(*it, 6));
-   std::system("GMSB_SquarkGluino_vs_Neutralino");
-   std::system("GMSB_SquarkGluino_vs_NeutralinoSingleChannels");
+   std::system("mkdir GMSB_SquarkGluino_vs_Neutralino");
+   std::system("mkdir GMSB_SquarkGluino_vs_NeutralinoSingleChannels");
    MergedPoints.Write("GMSB_SquarkGluino_vs_Neutralino/GMSB");
    MergedPoints.WriteSingleBin("GMSB_SquarkGluino_vs_NeutralinoSingleChannels/GMSB");
    }
@@ -802,8 +802,8 @@ int main(int argc, char* argv[]) {
    {points MergedPoints;
    for (std::vector<point>::iterator it=Points.Get()->begin(); it!=Points.Get()->end(); ++it)
       MergedPoints.Add( *MergeBins(*it, 6));
-   std::system("GMSB_SquarkGluino_vs_Neutralino2j");
-   std::system("GMSB_SquarkGluino_vs_NeutralinoSingleChannels2j");
+   std::system("mkdir GMSB_SquarkGluino_vs_Neutralino2j");
+   std::system("mkdir GMSB_SquarkGluino_vs_NeutralinoSingleChannels2j");
    MergedPoints.Write("GMSB_SquarkGluino_vs_Neutralino2j/GMSB");
    MergedPoints.WriteSingleBin("GMSB_SquarkGluino_vs_NeutralinoSingleChannels2j/GMSB");
    }
