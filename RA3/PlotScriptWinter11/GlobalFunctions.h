@@ -17,6 +17,10 @@
 #include <cmath>
 #include <iostream>
 
+double DataEvts (const SusyScan* p){return p->data;}
+double BkgEvts (const SusyScan* p){return p->background;}
+double BkgEvtsUncert (const SusyScan* p){return p->backgroundScaledUp - p->background;}
+
 double Luminosity (const SusyScan* p){return p->Luminosity;}
 double LuminosityErr (const SusyScan* p){return p->Luminosity*0.045;}
 
@@ -78,6 +82,8 @@ double ObsExclusion(const SusyScan* p) {	return (ObsR(p) > 1.0 ? 1 : 0.01);}
 
 
 double ExpXsecLimit(const SusyScan* p) {return p->ExpR * p->NLOXsection;}
+double ExpXsecLimitErrUp(const SusyScan* p) {return (ExpRP1(p)* p->NLOXsection)-ExpXsecLimit(p);}
+double ExpXsecLimitErrDn(const SusyScan* p) {return (ExpRM1(p)* p->NLOXsection)-ExpXsecLimit(p);}
 double ObsXsecLimit(const SusyScan* p) {
 	if(Mchi1(p)==650 && Mgluino(p)==480){
 		std::cout<<Mgluino(p)<<" - "<<Mchi1(p)<<"XSEC "<<p->NLOXsection<<" - ObsR:"<<p->ObsR<<std::endl;
@@ -88,6 +94,8 @@ double ObsXsecLimit(const SusyScan* p) {
 	return p->ObsR * p->NLOXsection;
 }
 
+double ExpNeventLimit(const SusyScan* p) {return ExpXsecLimit(p)*Luminosity(p);}
+double ObsNeventLimit(const SusyScan* p) {return ObsXsecLimit(p)*Luminosity(p);}
 
 double ExpRasym(const SusyScan* p) {return p->ExpRasym;}
 double ExpRasymM1(const SusyScan* p) {return p->ExpRasymM1;}
@@ -101,6 +109,14 @@ double ObsExclusionAsym(const SusyScan* p) {return (ObsRasym(p) > 1.0 ? 1 : 0.01
 
 double ExpXsecLimitAsym(const SusyScan* p) {return p->ExpRasym * p->NLOXsection;}
 double ObsXsecLimitAsym(const SusyScan* p) {return p->ObsRasym * p->NLOXsection;}
+
+double percDiffObsXS(const SusyScan* p){
+
+	if(ObsXsecLimit(p)!=0 && ObsXsecLimitAsym(p)!=0)
+	return 100* ((ObsXsecLimit(p)-ObsXsecLimitAsym(p))/ObsXsecLimit(p));
+
+	else return 0;
+}
 
 //add function to get NLO XS uncertainty around observed limit
 

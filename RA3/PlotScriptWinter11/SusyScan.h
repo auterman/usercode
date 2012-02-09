@@ -11,7 +11,7 @@ public:
 	SusyScan(std::string file);
 	//use file with best expected limit from both files for setting SusyScan
 	SusyScan(std::string file,std::string file2);
-
+	static bool checkPointOk(std::string file);
 private:
 	std::vector<double*> p;
 public:
@@ -26,6 +26,8 @@ public:
 	double signal_contamination;
 	double signal_expectation;
 	double ngen;
+	double data;
+
 	double ExpR;
 	double ObsR;
 	double ExpRM1;
@@ -42,6 +44,7 @@ public:
 	double LOXsection;
 	double Luminosity;
 	double background;
+	double backgroundScaledUp;
 	//default: 1, index of choosen inputfile
 	//filled if SusyScan is filled with two input files
 	double File1or2;

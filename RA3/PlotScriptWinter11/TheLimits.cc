@@ -22,7 +22,7 @@ void TheLimits::Fill(const std::string filelist)
    while (1) {
       GeneratorMasses * p = new GeneratorMasses;
       masses_file >> file;
-
+      //if(SusyScan::checkPointOk(file))
       add( new SusyScan(file));
       if (!masses_file.good()) break;
    }

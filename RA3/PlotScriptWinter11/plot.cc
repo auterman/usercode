@@ -30,29 +30,36 @@ using namespace std;
 namespace filenames {
 //ATTENTION: do not forget to add new filenames in main function!!
 
-string file_wino3j = "2012-01-30-17-33-GMSBWino375Neutr";
-string file_wino2j = "2012-01-30-17-32-GMSBWino375Neutr2j";
-string file_wino2jSYST = "2012-01-19-22-36-GMSBWino375Neutr2j";
+string file_wino3j = "2012-02-08-17-39-GMSBWino375Neutr";
+string file_wino2j = "2012-02-08-17-37-GMSBWino375Neutr2j";
+//the following configuration is automatically compared with result above
+//configure legend titles, etc in 'setStyles'-function below
+string file_wino2jSYST = "2012-02-05-00-49-GMSBWino375Neutr2j";
 
-string file_bino3j = "2012-01-30-17-29-GMSBBino375Neutr";
-string file_bino2j = "2012-01-30-17-28-GMSBBino375Neutr2j";
-string file_bino2jSYST = "2012-01-19-22-34-GMSBBino375Neutr2j";
+string file_bino3j = "2012-02-08-17-40-GMSBBino375Neutr";
+string file_bino2j = "2012-02-08-17-37-GMSBBino375Neutr2j";
+//the following configuration is automatically compared with result above
+//configure legend titles, etc in 'setStyles'-function below
+string file_bino2jSYST = "2012-02-05-00-49-GMSBBino375Neutr2j";
 
-string file_binoNeutr3j = "2012-01-30-17-34-GMSB_SquarkGluino_vs_Neutralino";
-string file_binoNeutr2j = "2012-01-30-17-34-GMSB_SquarkGluino_vs_Neutralino2j";
-string file_binoNeutr2jSYST = "2012-01-19-22-40-GMSB_SquarkGluino_vs_Neutralino2j";
+string file_binoNeutr3j = "2012-02-08-17-38-GMSB_SquarkGluino_vs_Neutralino";
+string file_binoNeutr2j = "2012-02-08-17-38-GMSB_SquarkGluino_vs_Neutralino2j";
+//the following configuration is automatically compared with result above
+//configure legend titles, etc in 'setStyles'-function below
+string file_binoNeutr2jSYST = "2012-02-05-00-50-GMSB_SquarkGluino_vs_Neutralino2j";
 
-string file_wino3j_MergedBins = "2011-11-27-16-33-GMSBWino375NeutrMerged";
+//compare result with corresponding 'one bin'-limit, currently no up-to-date version, thus not processed
+//string file_wino3j_MergedBins = "2011-11-27-16-33-GMSBWino375NeutrMerged";
 
-string file_wino3j_SingleBins = "2012-01-30-17-36-GMSBWino375NeutrSingleChannels";
-string file_bino3j_SingleBins = "2012-01-30-17-35-GMSBBino375NeutrSingleChannels";
-string file_binoNeutr3j_SingleBins = "2012-02-02-17-19-GMSB_SquarkGluino_vs_NeutralinoSingleChannels2j";
-string file_bino2j_SingleBins = "2012-01-30-17-35-GMSBBino375NeutrSingleChannels2j";
-string file_wino2j_SingleBins = "2012-01-30-17-36-GMSBWino375NeutrSingleChannels2j";
-string file_binoNeutr2j_SingleBins = "2012-02-02-17-34-GMSB_SquarkGluino_vs_NeutralinoSingleChannels";
+string file_wino3j_SingleBins = "2012-02-08-17-48-GMSBWino375NeutrSingleChannels";
+string file_bino3j_SingleBins = "2012-02-08-17-48-GMSBBino375NeutrSingleChannels";
+string file_binoNeutr3j_SingleBins = "2012-02-08-17-46-GMSB_SquarkGluino_vs_NeutralinoSingleChannels2j";
+string file_bino2j_SingleBins = "2012-02-08-17-46-GMSBBino375NeutrSingleChannels2j";
+string file_wino2j_SingleBins = "2012-02-08-17-47-GMSBWino375NeutrSingleChannels2j";
+string file_binoNeutr2j_SingleBins = "2012-02-08-17-47-GMSB_SquarkGluino_vs_NeutralinoSingleChannels";
 
-string file_bino3j_DemoPoint = "2011-12-19-21-53-DemoPoint";
-string file_bino2j_DemoPoint = "2012-01-30-17-28-DemoPoint";
+//string file_bino3j_DemoPoint = "2011-12-19-21-53-DemoPoint";
+string file_bino2j_DemoPoint = "2012-02-08-17-36-DemoPointBino375Neutr2j";
 
 
 //Remove files with crashed expected/observed limits?
@@ -130,7 +137,7 @@ void setStyles(PlotTools<SusyScan>*& PlotTool) {
 	retWino2jSYST.flag = "Wino2jSYST";
 	retWino2jSYST.flagForComp = "Wino2jSYSTComp";
 	retWino2jSYST.isBestJetFile1 = "";
-	retWino2jSYST.isBestJetFile2 = "SYST * 1.5";
+	retWino2jSYST.isBestJetFile2 = "AN11/512 v5";
 
 	retWino3j = ret;
 	retWino3j.flag = "Wino3j";
@@ -161,7 +168,7 @@ void setStyles(PlotTools<SusyScan>*& PlotTool) {
 	retBino2jSYST.flag = "Bino2jSYST";
 	retBino2jSYST.flagForComp = "Bino2jSYSTComp";
 		retBino2jSYST.isBestJetFile1 = "";
-		retBino2jSYST.isBestJetFile2 = "SYST * 1.5";
+		retBino2jSYST.isBestJetFile2 = "AN11/512 v5";
 	retBino3j = ret;
 	retBino3j.flag = "Bino3j";
 	retBino3j.noJet = 3;
@@ -185,7 +192,7 @@ void setStyles(PlotTools<SusyScan>*& PlotTool) {
 	retBinoNeutr_Gluino2jSYST.flag = "BinoNeutr_gl_2jSYST";
 	retBinoNeutr_Gluino2jSYST.flagForComp = "BinoNeutr_gl_2jSYSTComp";
 	retBinoNeutr_Gluino2jSYST.isBestJetFile1 = "";
-	retBinoNeutr_Gluino2jSYST.isBestJetFile2 = "SYST * 1.5";
+	retBinoNeutr_Gluino2jSYST.isBestJetFile2 = "AN11/512 v5";
 
 	retBinoNeutr_GluinoBestJet = retWinoBestJet;
 	retBinoNeutr_GluinoBestJet.flag = "BinoNeutrBestJet";
@@ -332,8 +339,45 @@ void CreateSamplePointTexFile(PlotTools<SusyScan> *PlotTool, double(*x)(const T*
 		ofile << "\\def\\" << name << "NLOXSUp{" << PlotTool->roundDouble(PlotTool->SingleValue(NLOXSUncertaintyUpAbs, x, y, xValue, yValue), 2) << "}" << endl;
 		ofile << "\\def\\" << name << "NLOXSDn{" << PlotTool->roundDouble(PlotTool->SingleValue(NLOXSUncertaintyDownAbs, x, y, xValue, yValue), 2) << "}" << endl;
 		ofile << "\\def\\" << name << "PDFXSErr{" << PlotTool->roundDouble(PlotTool->SingleValue(PDFXSUncertaintyAbs, x, y, xValue, yValue), 2) << "}" << endl;
-		ofile << "\\def\\" << name << "ObsXS{" << PlotTool->roundDouble(PlotTool->SingleValue(ObsXsecLimit, x, y, xValue, yValue), 2) << "}" << endl;
-		ofile << "\\def\\" << name << "ExpXS{" << PlotTool->roundDouble(PlotTool->SingleValue(ExpXsecLimit, x, y, xValue, yValue), 2) << "}" << endl;
+		double obsxs=PlotTool->SingleValue(ObsXsecLimit, x, y, xValue, yValue);
+		if (obsxs <= 0.1) {
+			obsxs = PlotTool->roundDouble(obsxs, 3);
+		} else {
+			obsxs = PlotTool->roundDouble(obsxs, 2);
+		}
+		double expxs = PlotTool->SingleValue(ExpXsecLimit, x, y, xValue, yValue);
+		if (expxs <= 0.1) {
+			expxs = PlotTool->roundDouble(expxs, 3);
+		} else {
+			expxs = PlotTool->roundDouble(expxs, 2);
+		}
+		ofile << "\\def\\" << name << "ObsXS{" <<  obsxs<< "}" << endl;
+		ofile << "\\def\\" << name << "ExpXS{" <<  expxs<< "}" << endl;
+		double obsNevents=PlotTool->roundDouble(PlotTool->SingleValue(ObsNeventLimit, x, y, xValue, yValue), 0);
+		if (obsNevents >= 1000) {
+			obsNevents = 0.01 * obsNevents;
+			if (obsNevents < 10)
+				obsNevents = PlotTool->roundDouble(obsNevents, 1);
+			else
+				PlotTool->roundDouble(obsNevents, 0);
+			obsNevents = 100 * obsNevents;
+		}
+		double expNevents = PlotTool->roundDouble(PlotTool->SingleValue(ExpNeventLimit, x, y, xValue, yValue), 0);
+		if (expNevents >= 1000) {
+			expNevents = 0.01 * expNevents;
+			if (expNevents < 10)
+				expNevents = PlotTool->roundDouble(expNevents, 1);
+			else
+				PlotTool->roundDouble(expNevents, 0);
+			expNevents = 100 * expNevents;
+		}
+		double expxsM1 = PlotTool->roundDouble(PlotTool->SingleValue(ExpXsecLimitErrDn, x, y, xValue, yValue),3);
+		double expxsP1 = PlotTool->roundDouble(PlotTool->SingleValue(ExpXsecLimitErrUp, x, y, xValue, yValue),3);
+		ofile << "\\def\\" << name << "ExpXSM1{" <<  expxsM1<< "}" << endl;
+		ofile << "\\def\\" << name << "ExpXSP1{" <<  expxsP1<< "}" << endl;
+		ofile << "\\def\\" << name << "ObsNevents{" <<  obsNevents<< "}" << endl;
+		ofile << "\\def\\" << name << "ExpNevents{" <<  expNevents<< "}" << endl;
+
 		ofile << "\\def\\" << name << "NLOXSM{" << PlotTool->roundDouble(PlotTool->SingleValue(NLOXsectionM1, x, y, xValue, yValue), 2) << "}" << endl;
 		ofile << "\\def\\" << name << "NLOXSP{" << PlotTool->roundDouble(PlotTool->SingleValue(NLOXsectionP1, x, y, xValue, yValue), 2) << "}" << endl;
 
@@ -343,13 +387,19 @@ void CreateSamplePointTexFile(PlotTools<SusyScan> *PlotTool, double(*x)(const T*
 		ofile << "\\def\\" << name << "ObsXSAsym{" << PlotTool->SingleValue(ObsXsecLimitAsym, x, y, xValue, yValue) << "}" << endl;
 		ofile << "\\def\\" << name << "ExpXSAsym{" << PlotTool->SingleValue(ExpXsecLimitAsym, x, y, xValue, yValue) << "}" << endl;
 	}
-	ofile << "\\def\\" << name << "signalacceptance{" << PlotTool->roundDouble(PlotTool->SingleValue(SignalAcceptance, x, y, xValue, yValue), 0) << "}" << endl;
+	double signalacceptance=PlotTool->roundDouble(PlotTool->SingleValue(SignalAcceptance, x, y, xValue, yValue), 1);
+	if(signalacceptance>=10)signalacceptance=PlotTool->roundDouble(signalacceptance,0);
+	ofile << "\\def\\" << name << "signalacceptance{" << signalacceptance << "}" << endl;
 
 	ofile << "\\def\\" << name << "signalacceptanceuncertainty{" << PlotTool->roundDouble(PlotTool->SingleValue(SignalAcceptanceUncert, x, y, xValue, yValue), 0) << "}" << endl;
 
 	ofile << "\\def\\" << name << "expSignalEvts{" << PlotTool->roundDouble(PlotTool->SingleValue(SignalExpectation, x, y, xValue, yValue), 0) << "}" << endl;
 	ofile << "\\def\\" << name << "expSignalEvtsErr{" << PlotTool->roundDouble(PlotTool->SingleValue(SignalExpectationErr, x, y, xValue, yValue), 0) << "}" << endl;
 	ofile << "\\def\\" << name << "expBkgContEvts{" << PlotTool->roundDouble(PlotTool->SingleValue(SignalContaminationAbs, x, y, xValue, yValue), 0) << "}" << endl;
+
+	ofile << "\\def\\" << name << "obsDataEvts{" << PlotTool->roundDouble(PlotTool->SingleValue(DataEvts, x, y, xValue, yValue), 0) << "}" << endl;
+	ofile << "\\def\\" << name << "expSMBkgEvts{" << PlotTool->roundDouble(PlotTool->SingleValue(BkgEvts, x, y, xValue, yValue), 0) << "}" << endl;
+	ofile << "\\def\\" << name << "expSMBkgEvtsErr{" << PlotTool->roundDouble(PlotTool->SingleValue(BkgEvtsUncert, x, y, xValue, yValue), 0) << "}" << endl;
 
 	ofile.close();
 }
@@ -520,10 +570,11 @@ void DrawStandardPlots(PlotTools<SusyScan> *PlotTool, PlotStyles style, double(*
 		hxsec->GetZaxis()->SetTitle("(Observed) 95% CL Upper Limit [pb]");
 		c1->SetLogz(1);
 		PlotTool->Area(hxsec, x, y, ObsXsecLimit);
-		TH2F *hacc = (TH2F*) h->Clone();
-		PlotTool->Area(hacc, x, y, SignalAcceptance);
-		fillXSLimitAboveForInvalidResultPoints(hxsec, hacc);
+//		TH2F *hacc = (TH2F*) h->Clone();
+//		PlotTool->Area(hacc, x, y, SignalAcceptance);
+//		fillXSLimitAboveForInvalidResultPoints(hxsec, hacc);
 		SetZRange(hxsec);
+
 		hxsec->GetZaxis()->SetTitleOffset(1.5);
 		hxsec->Draw("colz");
 		if (style.drawGluinoNLSPExclusionRegion)
@@ -534,6 +585,24 @@ void DrawStandardPlots(PlotTools<SusyScan> *PlotTool, PlotStyles style, double(*
 		c1->SaveAs((nameXsPlot + ".png").c_str());
 		c1->SaveAs((nameXsPlot + ".root").c_str());
 	}
+	//Diff Observed X-section limit freq vs asympt.
+		{
+			TH2F *hxsec = (TH2F*) h->Clone();
+			hxsec->GetZaxis()->SetTitle("#Delta obs. XS limit (freq./asympt.) [%]");
+			c1->SetLogz(0);
+			PlotTool->Area(hxsec, x, y, percDiffObsXS);
+
+		//	SetZRange(hxsec);
+			hxsec->GetZaxis()->SetTitleOffset(1.5);
+			hxsec->Draw("colz");
+			if (style.drawGluinoNLSPExclusionRegion)
+				DrawNeutrNNLSP();
+			drawCmsPrel(style.lumi, style.METCut, style.noJet, style.isBestJet);
+			string nameXsPlot = "results/" + style.flag + "/DiffObsXsecLimit";
+			c1->SaveAs((nameXsPlot + ".pdf").c_str());
+			c1->SaveAs((nameXsPlot + ".png").c_str());
+			c1->SaveAs((nameXsPlot + ".root").c_str());
+		}
 	//Expected X-section limit
 	{
 		TH2F *hxsec = (TH2F*) h->Clone();
@@ -542,6 +611,7 @@ void DrawStandardPlots(PlotTools<SusyScan> *PlotTool, PlotStyles style, double(*
 		PlotTool->Area(hxsec, x, y, ExpXsecLimit);
 		SetZRange(hxsec);
 		hxsec->GetZaxis()->SetTitleOffset(1.5);
+
 		hxsec->Draw("colz");
 		if (style.drawGluinoNLSPExclusionRegion)
 			DrawNeutrNNLSP();
@@ -668,7 +738,7 @@ void PlotAllObserved(std::vector<ExclusionCurves*> limits, PlotStyles * style, T
 		}
 
 		//draw heading
-		drawCmsPrel(style->lumi, style->METCut, style->noJet, style->isBestJet);
+		drawCmsPrel(style->lumi, "", style->noJet, style->isBestJet);
 		leg->Draw();
 		gPad->RedrawAxis();
 		c1->SaveAs(("results/" + style->flag + "/AllLimitsPerBin.pdf").c_str());
@@ -713,7 +783,7 @@ void PlotAllObserved(std::vector<ExclusionCurves*> limits, PlotStyles * style, T
 		}
 
 		//draw heading
-		drawCmsPrel(style->lumi, style->METCut, style->noJet, style->isBestJet);
+		drawCmsPrel(style->lumi, "", style->noJet, style->isBestJet);
 		leg->Draw();
 		gPad->RedrawAxis();
 		c1->SaveAs(("results/" + style->flag + "/AllLimitsPerBinExp.pdf").c_str());
@@ -952,8 +1022,8 @@ ExclusionCurves GetExclusionContours(PlotTools<SusyScan> *PlotTool, PlotStyles s
 		TGraph * gCLsObsExclXSp1 = PlotTool->GetContour(hs, x, y, ObsExclusionXSP1, 3, 0, 5, 2, excludeBelowExcludedRegion);
 		TGraph * gCLsExpExclXSm1 = PlotTool->GetContour(hs, x, y, ExpExclusionXSM1, 3, 1, 5, 2, excludeBelowExcludedRegion);
 		TGraph * gCLsExpExclXSp1 = PlotTool->GetContour(hs, x, y, ExpExclusionXSP1, 3, 0, 5, 2, excludeBelowExcludedRegion);
-		int smooth=15;
-		int smoothAsym=35;
+		int smooth=25;
+		int smoothAsym=25;
 		Smooth(gCLsObsExcl,smooth);
 		Smooth(gCLsObsExclAsym,smoothAsym);
 		Smooth(gCLsExpExcl,smooth);
@@ -966,17 +1036,14 @@ ExclusionCurves GetExclusionContours(PlotTools<SusyScan> *PlotTool, PlotStyles s
 		Smooth(gCLsExpExclXSp1,smooth);
 
 
-																																																																																																																																																																																																																																																																																																																												Smooth(gCLsExpExclXSm1,smooth);
-																																																																																																																																																																																																																																																																																																																																																Smooth(gCLsExpExclXSp1,smooth);
-
 		double minX = hs->GetXaxis()->GetBinLowEdge(0);
 
 		double maxY = hs->GetYaxis()->GetBinLowEdge(hs->GetNbinsX()+1);
 
 		PlotTool->SetMaxYPointAfterSmooth(gCLsObsExcl, minX, maxY);
-	//	PlotTool->SetMaxYPointAfterSmooth(gCLsObsExclAsym, minX, maxY);
+		PlotTool->SetMaxYPointAfterSmooth(gCLsObsExclAsym, minX, maxY);
 		PlotTool->SetMaxYPointAfterSmooth(gCLsExpExcl, minX, maxY);
-	//	PlotTool->SetMaxYPointAfterSmooth(gCLsExpExclAsym, minX, maxY);
+		PlotTool->SetMaxYPointAfterSmooth(gCLsExpExclAsym, minX, maxY);
 		PlotTool->SetMaxYPointAfterSmooth(gCLsExpExclm1, minX, maxY);
 		PlotTool->SetMaxYPointAfterSmooth(gCLsExpExclp1, minX, maxY);
 		PlotTool->SetMaxYPointAfterSmooth(gCLsObsExclXSm1, minX, maxY);
@@ -1034,7 +1101,7 @@ void interpolateAndFillPoints(TheLimits * genpointsInterpol, TheLimits * genpoin
 		genpointsInterpol->FillEmptyPointsByInterpolation(Mgluino, Mchi1);
 
 	} else {
-		//Make grid in Msquark, Mgluino finer by factor of 4 by linear interpolation
+
 		genpoints->FillEmptyPointsByInterpolation(Msquark, Mgluino);
 		genpointsInterpol->FillEmptyPointsByInterpolation(Msquark, Mgluino);
 		genpoints->FillEmptyPointsByInterpolation(Mgluino, Msquark);
@@ -1126,6 +1193,7 @@ void PlotBinComparison(PlotTools<SusyScan>*& Scan, PlotTools<SusyScan>*& ScanInt
 		setStyles(Scan);
 		PlotStyles retHighest = ret;
 		retHighest.flag = ret.flag + "HighestBin";
+		retHighest.METCut = "350";
 		DrawStandardPlots(Scan, retHighest, x, y, h);
 
 		std::vector<ExclusionCurves*> limitvector;
@@ -1154,9 +1222,9 @@ int plot(int argc, char** argv) {
 
 
 
-	TH2F hNeutrGluino("hNeutrGluino", ";m_{#chi^{0}_{1}} [GeV]; m_{#tilde{g}} [GeV]; cross section [pb]", 10, 100, 1100, 21, 360, 2040);
+	TH2F hNeutrGluino("hNeutrGluino", ";m_{#chi^{0}_{1}} [GeV]; m_{#tilde{g}} [GeV]; cross section [pb]", 10, 100, 1100, 24, 120, 2040);
 
-	TH2F hNeutrGluinoi("hNeutrGluinoi", ";m_{#chi^{0}_{1}} [GeV]; m_{#tilde{g}} [GeV]; cross section [pb]", 37, 125, 1075, 93, 150, 2010);
+	TH2F hNeutrGluinoi("hNeutrGluinoi", ";m_{#chi^{0}_{1}} [GeV]; m_{#tilde{g}} [GeV]; cross section [pb]", 37, 137.5, 1062.5, 93, 150, 2010);
 
 //	TH2F hNeutrSquark("hNeutrSquark", ";m_{#chi^{0}_{1}} [GeV]; m_{#tilde{q}} [GeV]; cross section [pb]", 10, 100, 1100, 21, 360, 2040);
 //
@@ -1270,11 +1338,11 @@ int plot(int argc, char** argv) {
 	DrawExclusion(&exclWino2j, &retWinoBestJet, &hi, &exclWino3j);
 
 	///==================Wino Limits >200 (bin4-7 gemerged)================================
-	GetPlotTools(Scan, ScanInterpol, filenames::file_wino3j_MergedBins);
-	setStyles(Scan);
-	DrawStandardPlots(Scan, retWinoMerged3j, Msquark, Mgluino, &h);
-	ExclusionCurves exclWino1Bin = GetExclusionContours(ScanInterpol, retWinoMerged3j, Msquark, Mgluino, &hi);
-	DrawExclusion(&exclWino1Bin, &retWinoMerged3j, &hi);
+//	GetPlotTools(Scan, ScanInterpol, filenames::file_wino3j_MergedBins);
+//	setStyles(Scan);
+//	DrawStandardPlots(Scan, retWinoMerged3j, Msquark, Mgluino, &h);
+//	ExclusionCurves exclWino1Bin = GetExclusionContours(ScanInterpol, retWinoMerged3j, Msquark, Mgluino, &hi);
+//	DrawExclusion(&exclWino1Bin, &retWinoMerged3j, &hi);
 
 	///==================CREATE TEX DEFINITIONS FOR SAMPLE POINT/RESULTING LIMITS================================
 	string filenameforresulttex = "results/interpretationresults.tex";
@@ -1308,7 +1376,7 @@ int main(int argc, char** argv) {
 	filenames.push_back(filenames::file_wino3j);
 	filenames.push_back(filenames::file_wino2j);
 	filenames.push_back(filenames::file_wino2jSYST);
-	filenames.push_back(filenames::file_wino3j_MergedBins);
+//	filenames.push_back(filenames::file_wino3j_MergedBins);
 	filenames.push_back(filenames::file_bino3j);
 	filenames.push_back(filenames::file_bino2j);
 	filenames.push_back(filenames::file_bino2jSYST);
@@ -1322,7 +1390,7 @@ int main(int argc, char** argv) {
 	filenames.push_back(filenames::file_wino2j_SingleBins);
 	filenames.push_back(filenames::file_bino2j_SingleBins);
 	filenames.push_back(filenames::file_binoNeutr2j_SingleBins);
-	filenames.push_back(filenames::file_bino3j_DemoPoint);
+	//filenames.push_back(filenames::file_bino3j_DemoPoint);
 	filenames.push_back(filenames::file_bino2j_DemoPoint);
 	redoFileList(filenames);
 	return plot(argc, argv);

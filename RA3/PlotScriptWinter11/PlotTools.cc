@@ -229,7 +229,7 @@ void PlotTools<T>::SetMaxYPointAfterSmooth(TGraph* g,double minXNew,double maxYN
 
 void FillEmptyPointsForLowMassPoints(TH2*h) {
 	for (int x = 0; x <= h->GetXaxis()->GetNbins(); ++x){
-		for (int y = 0; y <= 40; ++y){
+		for (int y = 0; y <= h->GetYaxis()->GetNbins()/2; ++y){
 			if(isExcludedAbove(h,x,y) ){
 				h->SetBinContent(x, y, 0.01);
 			}
@@ -258,7 +258,7 @@ void FillOverflowRowToImprovePlotting(TH2*h) {
 }
 
 void RejectHighExcludedPointsPerHand(TH2*h) {
-	for (int x = 50; x <=  h->GetXaxis()->GetNbins(); ++x){
+	for (int x = 60; x <=  h->GetXaxis()->GetNbins(); ++x){
 		for (int y = 50; y <=  h->GetYaxis()->GetNbins(); ++y){
 
 				h->SetBinContent(x, y, 1);
@@ -340,8 +340,8 @@ std::vector<TGraph*> PlotTools<T>::GetContours(TH2*h, int ncont,bool excludeBelo
 	  //FillEmptyPointsForNeutralinoScan(plot);
 	  FillEmptyPointsForLowMassPoints(plot);
 	}
-	else{FillEmptyPointsForLowMassPoints(plot);}
-	FillOverflowRowToImprovePlotting(plot);
+	//else{FillEmptyPointsForLowMassPoints(plot);}
+	//RejectHighExcludedPointsPerHand(plot);
 	plot->SetContour(ncont);
 	plot->SetFillColor(1);
 	plot->Draw("CONT Z List");

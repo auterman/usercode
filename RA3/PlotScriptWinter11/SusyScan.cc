@@ -45,11 +45,80 @@ SusyScan::SusyScan(std::string filename,std::string filename2) {
 	}
 }
 
+bool SusyScan::checkPointOk(std::string filename){
+	ConfigFile config(filename);
+ std::cout <<"check file..."<<filename<<std::endl;
+double  ExpTemp = config.read<double> ("CLs expected", 9999);
+      double  ObsTemp = config.read<double> ("CLs observed", 9999);
+        ////////////////////////////////////////////////////////
+        ///check if limit is ok - cls<0.05...
+                ////////////////////////////////////////////////////////
+                std::vector<float> dummy;
+                string clsForR_str=config.read<string>("CLs for scanned r","");
+                string scannedR_str=config.read<string>("scanned r","");
+		bool clsForLimitok=true;
+                if(clsForR_str!=""&&scannedR_str!=""){
+                clsForLimitok=false;
+                std::vector<float> clsForR=bag_of<float>(config.read<string>("CLs for scanned r"));
+                std::vector<float> scannedR=bag_of<float>(config.read<string>("scanned r"));
+        //      std::cout <<"@@@@@@@@@@@@@@@START CLS for R===!"<<ObsR<<std::endl;
+                        for(int i=0;i<scannedR.size();++i){
+        //                      std::cout <<"-- R==="<< scannedR.at(i) <<std::endl;
+                                if(scannedR.at(i)>=ObsTemp){
+                                        //std::cout <<"@@@@@@@@@@@@@@@CLS for R==="<< clsForR.at(i) <<std::endl;
+                                        //std::cout <<"===============r===ObsR:"<< scannedR.at(i) <<"    "<<ObsR<<std::endl;
+                                        //std::cout <<"===============r===prev:"<< scannedR.at(i-1) <<"    "<<std::endl;
+                                        if( clsForR.at(i)<=0.1)clsForLimitok=true;
+					else if(i>0 ){
+						if(clsForR.at(i-1)<=0.1)clsForLimitok=true;
+					else{
+                                                std::cout <<"===============cls===ObsR:"<< clsForR.at(i) <<"    "<<ObsTemp<<std::endl;
+                                                if(i>0)std::cout <<"===============cls===prev:"<< clsForR.at(i-1) <<"    "<<std::endl;
+                                        }
+
+
+					}
+                                        else{
+                                                std::cout <<"===============cls===ObsR:"<< clsForR.at(i) <<"    "<<ObsTemp<<std::endl;
+                                        	if(i>0)std::cout <<"===============cls===prev:"<< clsForR.at(i-1) <<"    "<<std::endl;
+					}
+                                        break;
+                                }
+                                //std::cout <<"@@@@@@@@@@@@@@@CLS for R==="<< clsForR.at(i) <<std::endl;
+                        }
+
+                        for(int i=0;i<scannedR.size();++i){
+        //                      std::cout <<"-- R==="<< scannedR.at(i) <<std::endl;
+                                if(scannedR.at(i)>ExpTemp){
+                                        //std::cout <<"@@@@@@@@@@@@@@@CLS for R==="<< clsForR.at(i) <<std::endl;
+                                        //std::cout <<"===============r===ObsR:"<< scannedR.at(i) <<"    "<<ObsR<<std::endl;
+                                        //std::cout <<"===============r===prev:"<< scannedR.at(i-1) <<"    "<<std::endl;
+                                        if( clsForR.at(i)<0.1)clsForLimitok=true;
+                                        else{
+                                                std::cout <<"===============r===ExpR:"<< clsForR.at(i) <<"    "<<ExpTemp<<std::endl;
+                                        }
+
+                                        break;
+                                }
+	      
+                                //std::cout <<"@@@@@@@@@@@@@@@CLS for R==="<< clsForR.at(i) <<std::endl;
+                        }
+                }
+	return clsForLimitok;	
+}
+
 SusyScan::SusyScan(std::string filename) {
 	//std::cout<<"create SusyScan..."<<filename<<std::endl;
 	ConfigFile config(filename);
+	
 
+
+	if(true){
+	
+	
 	SetPtr();
+
+	
 
 
 	Mgluino = config.read<double> ("gluino", 0);
@@ -92,16 +161,18 @@ SusyScan::SusyScan(std::string filename) {
 	ExpRasymP2 = config.read<double> ("CLs expected asymptotic p2sigma", 9999);
 	if(ExpRasymP2<=0.0001)ExpRasymP2=9999;
 
+///////////////////////////////////////////////
+
 	Luminosity = config.read<double> ("Luminosity", 9999);
-
+	data = config.read<double> ("data", 9999);
 	background = config.read<double> ("background", 9999);
-
+	backgroundScaledUp = config.read<double> ("background.uncertainty", 0);
 	NLOXSecUp = config.read<double> ("signal.scale.uncertainty.UP", 0);
 	NLOXSecDown = config.read<double> ("signal.scale.uncertainty.DN", 0);
 	PDFXsectionErr = config.read<double> ("signal.PDF.uncertainty", 0);
   PDFAccErr =  config.read<double> ("signal.PDFacc.uncertainty", 0);
 	File1or2=1;
-
+	}
 }
 
 
@@ -136,6 +207,8 @@ void SusyScan::SetPtr() {
 	p.push_back(&ExpRasymP2);
 	p.push_back(&Luminosity);
 	p.push_back(&background);
+	p.push_back(&backgroundScaledUp);
+	p.push_back(&data);
 
 	p.push_back(&NLOXSecUp);
 	p.push_back(&NLOXSecDown);
