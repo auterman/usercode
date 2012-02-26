@@ -567,7 +567,7 @@ void DrawStandardPlots(PlotTools<SusyScan> *PlotTool, PlotStyles style, double(*
 	//Observed X-section limit
 	{
 		TH2F *hxsec = (TH2F*) h->Clone();
-		hxsec->GetZaxis()->SetTitle("(Observed) 95% CL Upper Limit [pb]");
+		hxsec->GetZaxis()->SetTitle("95% CL Upper Limit [pb]");
 		c1->SetLogz(1);
 		PlotTool->Area(hxsec, x, y, ObsXsecLimit);
 //		TH2F *hacc = (TH2F*) h->Clone();
@@ -606,7 +606,7 @@ void DrawStandardPlots(PlotTools<SusyScan> *PlotTool, PlotStyles style, double(*
 	//Expected X-section limit
 	{
 		TH2F *hxsec = (TH2F*) h->Clone();
-		hxsec->GetZaxis()->SetTitle("(Expected) 95% CL Upper Limit [pb]");
+		hxsec->GetZaxis()->SetTitle("Expected 95% CL Upper Limit [pb]");
 		c1->SetLogz(1);
 		PlotTool->Area(hxsec, x, y, ExpXsecLimit);
 		SetZRange(hxsec);
