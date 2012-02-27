@@ -22,7 +22,7 @@ double BkgEvts (const SusyScan* p){return p->background;}
 double BkgEvtsUncert (const SusyScan* p){return p->backgroundScaledUp - p->background;}
 
 double Luminosity (const SusyScan* p){return p->Luminosity;}
-double LuminosityErr (const SusyScan* p){return p->Luminosity*0.045;}
+double LuminosityErr (const SusyScan* p){return p->Luminosity*0.036;}
 
 
 double Mgluino(const SusyScan* p) {return p->Mgluino;}

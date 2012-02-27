@@ -686,27 +686,24 @@ void Smooth(TGraph * g, int N) {
 		gauss[i] /= sum;
 
 	for (int i = 0; i < g->GetN(); ++i) {
-		double avy = 0., avx = 0., x, x0, y;
+		double avy = 0., avx = 0., x, y;
 		int points = 0;
 		for (int j = i - N / 2; j <= i + N / 2; ++j) {
-			if (j < 0)
+			if (j < 0) {
 				old->GetPoint(0, x, y);
-			else if (j >= g->GetN())
+		        }		
+			else if (j >= g->GetN()) {
 				old->GetPoint(old->GetN() - 1, x, y);
-			else
-				old->GetPoint(j, x, y);
-			if (i == j)
-				x0 = x;
+			}	
+			else 
+			  old->GetPoint(j, x, y);
 			avy += y * gauss[points];
 			avx += x * gauss[points];
 			++points;
 		}
-		if (i - N / 2 < 0 || i + N / 2 >= g->GetN())
-			g->SetPoint(i, x0, avy);
-		else
-			g->SetPoint(i, avx, avy);
+		g->SetPoint(i, avx, avy);
 	}
-	delete old;
+	delete old;	
 }
 
 void Smooth2D(TGraph * g, int N) {

@@ -1238,7 +1238,7 @@ int plot(int argc, char** argv) {
 	DrawStandardPlots(Scan, retBinoNeutr_Gluino3j, Mchi1, Mgluino, &hNeutrGluino);
 	ExclusionCurves exclBinoNeutr_gl_3j = GetExclusionContours(ScanInterpol, retBinoNeutr_Gluino3j, Mchi1, Mgluino, &hNeutrGluinoi, true);
 	DrawExclusion(&exclBinoNeutr_gl_3j, &retBinoNeutr_Gluino3j, &hNeutrGluinoi);
-
+	
 	///==================Bino-Neutr vs Gluino Limits 2j================================
 	GetPlotTools(Scan, ScanInterpol, filenames::file_binoNeutr2j, true);
 	setStyles(Scan);
