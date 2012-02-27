@@ -1028,21 +1028,22 @@ ExclusionCurves GetExclusionContours(PlotTools<SusyScan> *PlotTool, PlotStyles s
 		TGraph * gCLsExpExclXSp1 = PlotTool->GetContour(hs, x, y, ExpExclusionXSP1, 3, 0, 5, 2, excludeBelowExcludedRegion);
 		int smooth=40;
 		int smoothAsym=15;
+		int flag = 2; //fuer gluini_neutralino; 0 oder 1 sonst
 
-		Smooth(gCLsObsExcl,smooth);
-		Smooth(gCLsObsExclAsym,smoothAsym);
+		Smooth(gCLsObsExcl,smooth,flag);
+		Smooth(gCLsObsExclAsym,smoothAsym,flag);
 
-		Smooth(gCLsExpExcl,smooth);
-		Smooth(gCLsExpExclAsym,smoothAsym);
+		Smooth(gCLsExpExcl,smooth,flag);
+		Smooth(gCLsExpExclAsym,smoothAsym,flag);
 
-		Smooth(gCLsExpExclm1,smooth);
-		Smooth(gCLsExpExclp1,smooth);
+		Smooth(gCLsExpExclm1,smooth,flag);
+		Smooth(gCLsExpExclp1,smooth,flag);
 
-		Smooth(gCLsObsExclXSm1,smooth);
-		Smooth(gCLsObsExclXSp1,smooth);
+		Smooth(gCLsObsExclXSm1,smooth,flag);
+		Smooth(gCLsObsExclXSp1,smooth,flag);
 
-		Smooth(gCLsExpExclXSm1,smooth);
-		Smooth(gCLsExpExclXSp1,smooth);
+		Smooth(gCLsExpExclXSm1,smooth,flag);
+		Smooth(gCLsExpExclXSp1,smooth,flag);
 
 
 
@@ -1249,7 +1250,7 @@ int plot(int argc, char** argv) {
 	DrawStandardPlots(Scan, retBinoNeutr_Gluino3j, Mchi1, Mgluino, &hNeutrGluino);
 	ExclusionCurves exclBinoNeutr_gl_3j = GetExclusionContours(ScanInterpol, retBinoNeutr_Gluino3j, Mchi1, Mgluino, &hNeutrGluinoi, true);
 	DrawExclusion(&exclBinoNeutr_gl_3j, &retBinoNeutr_Gluino3j, &hNeutrGluinoi);
-
+/*
 	///==================Bino-Neutr vs Gluino Limits 2j================================
 	GetPlotTools(Scan, ScanInterpol, filenames::file_binoNeutr2j, true);
 	setStyles(Scan);
@@ -1379,7 +1380,7 @@ int plot(int argc, char** argv) {
 	//PlotBinComparison(Scan, ScanInterpol, Msquark, Mgluino, filenames::file_bino3j, filenames::file_bino3j_DemoPoint, retBino3j, &hi, &h, false, filenameforresulttex);
 	///==================Limits - Demopoint (bino,2 jet)
 	PlotBinComparison(Scan, ScanInterpol, Msquark, Mgluino, filenames::file_bino2j, filenames::file_bino2j_DemoPoint, retBino2j, &hi, &h, false, filenameforresulttex);
-
+*/
 }
 
 int main(int argc, char** argv) {

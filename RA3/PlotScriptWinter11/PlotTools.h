@@ -12,7 +12,7 @@ class TCanvas;
 TGraph * MakeBand(TGraph *g1, TGraph *g2, bool b=false);
 void DrawNeutrNNLSP();
 TGraph * GetExcludedRegion(TGraph * lowerLimit, double min1,double min2, double max1,double max2);
-void Smooth(TGraph * g, int n=3);
+void Smooth(TGraph * g, int n=3, int flag=0);
 void Smooth2D(TGraph * g, int n=3);
 TGraph* Close2D(TGraph * g);
 void drawCmsPrel(double intLumi, std::string METCut, int noJets, bool isBestjet, std::string jetLabel="", bool drawChannelInfo=true, bool drawCMS=false);

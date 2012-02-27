@@ -664,7 +664,7 @@ void drawCmsPrel(double intLumi, std::string METCut, int noJets, bool isBestjet,
 		}
 }
 
-void Smooth(TGraph * g, int N) {
+void Smooth(TGraph * g, int N, int flag) {
 	TGraph * old = (TGraph*) g->Clone();
 	//int N = (n%2==0?n+1:n);
 	if (N > 2 * g->GetN())
@@ -686,7 +686,7 @@ void Smooth(TGraph * g, int N) {
 		gauss[i] /= sum;
 
 	for (int i = 0; i < g->GetN(); ++i) {
-		double avy = 0., avx = 0., x, y;
+		double avy = 0., avx = 0., x, x0, y, y0;
 		int points = 0;
 		for (int j = i - N / 2; j <= i + N / 2; ++j) {
 			if (j < 0) {
@@ -699,9 +699,19 @@ void Smooth(TGraph * g, int N) {
 			  old->GetPoint(j, x, y);
 			avy += y * gauss[points];
 			avx += x * gauss[points];
+			
+			if (i == j) {
+				x0 = x;
+				y0 = y;
+			}	
 			++points;
 		}
-		g->SetPoint(i, avx, avy);
+		if      ((flag==1 && i - N / 2 < 0 ) || (flag==2 && i + N / 2 >= g->GetN()))
+			g->SetPoint(i, x0, avy);
+		else if ((flag==1 && i + N / 2 >= g->GetN()) || (flag==2 && i - N / 2 < 0 ))
+			g->SetPoint(i, avx, y0);
+		else
+			g->SetPoint(i, avx, avy);
 	}
 	delete old;	
 }
