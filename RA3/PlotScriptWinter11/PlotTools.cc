@@ -218,7 +218,7 @@ void PlotTools<T>::SetMaxYPointAfterSmooth(TGraph* g,double minXNew,double maxYN
   				  				  				}
   	}
   	//only set point for squark-gluino-scan!!!
-  	if(minX>200){
+  	if(minX>350){
   	 g->SetPoint(g->GetN(),xFormaxY,maxYNew);
   	 g->SetPoint(0,maxYNew,yFormaxX);
   	}
