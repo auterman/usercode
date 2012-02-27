@@ -30,36 +30,38 @@ using namespace std;
 namespace filenames {
 //ATTENTION: do not forget to add new filenames in main function!!
 
-string file_wino3j = "2012-02-08-17-39-GMSBWino375Neutr";
-string file_wino2j = "2012-02-08-17-37-GMSBWino375Neutr2j";
+string file_wino3j = "2012-02-26-19-10-GMSBWino375Neutr";
+string file_wino2j = "2012-02-26-19-09-GMSBWino375Neutr2j";
 //the following configuration is automatically compared with result above
 //configure legend titles, etc in 'setStyles'-function below
-string file_wino2jSYST = "2012-02-05-00-49-GMSBWino375Neutr2j";
+string file_wino2jSYST = "2012-02-08-17-37-GMSBWino375Neutr2j";
 
-string file_bino3j = "2012-02-08-17-40-GMSBBino375Neutr";
-string file_bino2j = "2012-02-08-17-37-GMSBBino375Neutr2j";
+string file_bino3j = "2012-02-26-19-11-GMSBBino375Neutr";
+string file_bino2j = "2012-02-26-19-08-GMSBBino375Neutr2j";
 //the following configuration is automatically compared with result above
 //configure legend titles, etc in 'setStyles'-function below
-string file_bino2jSYST = "2012-02-05-00-49-GMSBBino375Neutr2j";
+string file_bino2jSYST = "2012-02-08-17-37-GMSBBino375Neutr2j";
 
-string file_binoNeutr3j = "2012-02-08-17-38-GMSB_SquarkGluino_vs_Neutralino";
-string file_binoNeutr2j = "2012-02-08-17-38-GMSB_SquarkGluino_vs_Neutralino2j";
+string file_binoNeutr3j = "2012-02-26-19-10-GMSB_SquarkGluino_vs_Neutralino";
+string file_binoNeutr2j = "2012-02-26-19-10-GMSB_SquarkGluino_vs_Neutralino2j";
 //the following configuration is automatically compared with result above
 //configure legend titles, etc in 'setStyles'-function below
-string file_binoNeutr2jSYST = "2012-02-05-00-50-GMSB_SquarkGluino_vs_Neutralino2j";
+string file_binoNeutr2jSYST = "2012-02-08-17-38-GMSB_SquarkGluino_vs_Neutralino2j";
 
 //compare result with corresponding 'one bin'-limit, currently no up-to-date version, thus not processed
 //string file_wino3j_MergedBins = "2011-11-27-16-33-GMSBWino375NeutrMerged";
 
-string file_wino3j_SingleBins = "2012-02-08-17-48-GMSBWino375NeutrSingleChannels";
-string file_bino3j_SingleBins = "2012-02-08-17-48-GMSBBino375NeutrSingleChannels";
-string file_binoNeutr3j_SingleBins = "2012-02-08-17-46-GMSB_SquarkGluino_vs_NeutralinoSingleChannels2j";
-string file_bino2j_SingleBins = "2012-02-08-17-46-GMSBBino375NeutrSingleChannels2j";
-string file_wino2j_SingleBins = "2012-02-08-17-47-GMSBWino375NeutrSingleChannels2j";
-string file_binoNeutr2j_SingleBins = "2012-02-08-17-47-GMSB_SquarkGluino_vs_NeutralinoSingleChannels";
+string file_bino3j_SingleBins = "2012-02-26-19-13-GMSBBino375NeutrSingleChannels";
+string file_wino3j_SingleBins = "2012-02-26-19-13-GMSBWino375NeutrSingleChannels";
+string file_binoNeutr3j_SingleBins = "2012-02-26-19-14-GMSB_SquarkGluino_vs_NeutralinoSingleChannels";
+
+string file_bino2j_SingleBins = "2012-02-26-19-12-GMSBBino375NeutrSingleChannels2j";
+string file_wino2j_SingleBins = "2012-02-26-19-13-GMSBWino375NeutrSingleChannels2j";
+string file_binoNeutr2j_SingleBins = "2012-02-26-19-14-GMSB_SquarkGluino_vs_NeutralinoSingleChannels2j";
 
 //string file_bino3j_DemoPoint = "2011-12-19-21-53-DemoPoint";
-string file_bino2j_DemoPoint = "2012-02-08-17-36-DemoPointBino375Neutr2j";
+string file_bino2j_DemoPoint = "2012-02-26-19-07-DemoPointBino375Neutr2j";
+
 
 
 //Remove files with crashed expected/observed limits?
@@ -579,7 +581,7 @@ void DrawStandardPlots(PlotTools<SusyScan> *PlotTool, PlotStyles style, double(*
 		hxsec->Draw("colz");
 		if (style.drawGluinoNLSPExclusionRegion)
 			DrawNeutrNNLSP();
-		drawCmsPrel(style.lumi, style.METCut, style.noJet, style.isBestJet);
+		drawCmsPrel(style.lumi, style.METCut, style.noJet, style.isBestJet,"",true,true);
 		string nameXsPlot = "results/" + style.flag + "/ObsXsecLimit";
 		c1->SaveAs((nameXsPlot + ".pdf").c_str());
 		c1->SaveAs((nameXsPlot + ".png").c_str());
@@ -956,7 +958,9 @@ void DrawExclusion(ExclusionCurves * exclA, PlotStyles * style, TH1*h, Exclusion
 		}
 		gPad->RedrawAxis();
 		//draw heading
-		drawCmsPrel(style->lumi, style->METCut, style->noJet, style->isBestJet);
+		bool drawCMSPrel=false;
+		if (!drawComp)drawCMSPrel=true;
+		drawCmsPrel(style->lumi, style->METCut, style->noJet, style->isBestJet,"",true,drawCMSPrel);
 
 		string nameExcl = "results/" + style->flag + "/Exclusion_";
 
@@ -982,7 +986,7 @@ ExclusionCurves GetExclusionContours(PlotTools<SusyScan> *PlotTool, PlotStyles s
 		TH2F *hxsec = (TH2F*) h->Clone();
 		hxsec->GetZaxis()->SetTitle("Observed in/out");
 
-		PlotTool->Area(hxsec, x, y, ExpExclusionAsym);
+		PlotTool->Area(hxsec, x, y, ObsExclusion);
 		hxsec->GetZaxis()->SetTitleOffset(1.5);
 		std::vector<TGraph*> contours = PlotTool->GetContours(hxsec, 3, excludeBelowExcludedRegion, true);
 		/// :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -1022,18 +1026,25 @@ ExclusionCurves GetExclusionContours(PlotTools<SusyScan> *PlotTool, PlotStyles s
 		TGraph * gCLsObsExclXSp1 = PlotTool->GetContour(hs, x, y, ObsExclusionXSP1, 3, 0, 5, 2, excludeBelowExcludedRegion);
 		TGraph * gCLsExpExclXSm1 = PlotTool->GetContour(hs, x, y, ExpExclusionXSM1, 3, 1, 5, 2, excludeBelowExcludedRegion);
 		TGraph * gCLsExpExclXSp1 = PlotTool->GetContour(hs, x, y, ExpExclusionXSP1, 3, 0, 5, 2, excludeBelowExcludedRegion);
-		int smooth=25;
-		int smoothAsym=25;
+		int smooth=40;
+		int smoothAsym=15;
+
 		Smooth(gCLsObsExcl,smooth);
 		Smooth(gCLsObsExclAsym,smoothAsym);
+
 		Smooth(gCLsExpExcl,smooth);
 		Smooth(gCLsExpExclAsym,smoothAsym);
+
 		Smooth(gCLsExpExclm1,smooth);
 		Smooth(gCLsExpExclp1,smooth);
+
 		Smooth(gCLsObsExclXSm1,smooth);
 		Smooth(gCLsObsExclXSp1,smooth);
+
 		Smooth(gCLsExpExclXSm1,smooth);
 		Smooth(gCLsExpExclXSp1,smooth);
+
+
 
 
 		double minX = hs->GetXaxis()->GetBinLowEdge(0);
@@ -1238,7 +1249,7 @@ int plot(int argc, char** argv) {
 	DrawStandardPlots(Scan, retBinoNeutr_Gluino3j, Mchi1, Mgluino, &hNeutrGluino);
 	ExclusionCurves exclBinoNeutr_gl_3j = GetExclusionContours(ScanInterpol, retBinoNeutr_Gluino3j, Mchi1, Mgluino, &hNeutrGluinoi, true);
 	DrawExclusion(&exclBinoNeutr_gl_3j, &retBinoNeutr_Gluino3j, &hNeutrGluinoi);
-	
+
 	///==================Bino-Neutr vs Gluino Limits 2j================================
 	GetPlotTools(Scan, ScanInterpol, filenames::file_binoNeutr2j, true);
 	setStyles(Scan);
