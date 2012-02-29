@@ -22,7 +22,7 @@ double BkgEvts (const SusyScan* p){return p->background;}
 double BkgEvtsUncert (const SusyScan* p){return p->backgroundScaledUp - p->background;}
 
 double Luminosity (const SusyScan* p){return p->Luminosity;}
-double LuminosityErr (const SusyScan* p){return p->Luminosity*0.036;}
+double LuminosityErr (const SusyScan* p){return p->Luminosity*0.045;}
 
 
 double Mgluino(const SusyScan* p) {return p->Mgluino;}
@@ -94,8 +94,8 @@ double ObsXsecLimit(const SusyScan* p) {
 	return p->ObsR * p->NLOXsection;
 }
 
-double ExpNeventLimit(const SusyScan* p) {return ExpXsecLimit(p)*Luminosity(p);}
-double ObsNeventLimit(const SusyScan* p) {return ObsXsecLimit(p)*Luminosity(p);}
+double ExpNeventLimit(const SusyScan* p) {return ExpXsecLimit(p)*Luminosity(p)*p->signal_acceptance;}
+double ObsNeventLimit(const SusyScan* p) {return ObsXsecLimit(p)*Luminosity(p)*p->signal_acceptance;}
 
 double ExpRasym(const SusyScan* p) {return p->ExpRasym;}
 double ExpRasymM1(const SusyScan* p) {return p->ExpRasymM1;}

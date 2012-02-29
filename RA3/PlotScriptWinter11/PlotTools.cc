@@ -620,7 +620,7 @@ void drawCmsPrel(double intLumi, std::string METCut, int noJets, bool isBestjet,
 		as.SetNDC(true);
 		as.SetTextColor(12);
 		as.SetTextFont(43);
-		as.SetTextSize(18);
+		as.SetTextSize(20);
 		//as.SetTextFont(42);//ms.SetTextColor(12);
 		std::string out = "";
 		if (drawChannelInfo) {
@@ -630,7 +630,7 @@ void drawCmsPrel(double intLumi, std::string METCut, int noJets, bool isBestjet,
 			out = "                                     #sqrt{s} = 7 TeV";
 		}
 
-			as.DrawLatex(0.19, 0.93, Form(out.c_str(), intLumi));
+			as.DrawLatex(0.16, 0.94, Form(out.c_str(), intLumi));
 
 		as.SetTextSize(22);
 		as.SetTextColor(1);
@@ -651,7 +651,7 @@ void drawCmsPrel(double intLumi, std::string METCut, int noJets, bool isBestjet,
 			}
 			as.SetTextSize(22);
 
-			as.DrawLatex(0.56, 0.93, Form(out.c_str()));
+			as.DrawLatex(0.56, 0.94, Form(out.c_str()));
 		}
 
 
