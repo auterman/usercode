@@ -16,7 +16,9 @@
 //LUMI
 const double luminosity = 4614.0;
 const double luminosityUncertainty = 1.036; //updated, 26.2.2012
-const string WinoScanString = "Wino"; //sub-string in signalAcceptance input file, specifying if the number of generated events has to be set manually (because of generator cuts).
+const std::string WinoScanString = "Wino"; //sub-string in signalAcceptance input file, specifying if the number of generated events has to be set manually (because of generator cuts).
+const std::string T1lgScanString = "T1lg";
+
 
 std::string ToString(double d, std::string s=""){
   if (d==0&&s!="") return s;
@@ -463,6 +465,8 @@ void ReadSignalAcceptance(std::string label, std::string sig_file, std::string d
     //override the totalGenEvents number in case of the neutralino scan (because of generator cuts):
     if (sig_file.find( WinoScanString )!=string::npos) {
       p.totalGenerated = 60000;
+    } else if (sig_file.find( T1lgScanString )!=string::npos) {
+      p.totalGenerated = 10000;
     }
     
     p.lumi = luminosity;
@@ -550,6 +554,8 @@ void ReadSignalAcceptance(std::string label, std::string sig_file, std::string d
   } while(1);  
   if (sig_file.find( WinoScanString )!=string::npos) {
       std::cout << "Run on "<< WinoScanString<<" scan, using GeneratedEvents = 60000"<< std::endl;
+  } else if (sig_file.find( T1lgScanString )!=string::npos) {
+      std::cout << "Run on "<< T1lgScanString<<" scan, using GeneratedEvents = 10000"<< std::endl;
   }
   if (fsr_cfg!=dat_cfg) delete fsr_cfg;
   if (dat_cfg!=cfg) delete dat_cfg;
@@ -807,4 +813,43 @@ int main(int argc, char* argv[]) {
    MergedPoints.Write("GMSB_SquarkGluino_vs_Neutralino2j/GMSB");
    MergedPoints.WriteSingleBin("GMSB_SquarkGluino_vs_NeutralinoSingleChannels2j/GMSB");
    }
+   
+   //New-stuff, i.e. official SMS and new private scans March 2012//:
+   //T1lg, 2-jet
+   Points.Reset();
+   ReadSignalAcceptance("2j","inputWinter11/signalAcceptanceT1lg.dat", "inputWinter11/data_postApproval20120226.txt");
+   //AddXsec("inputWinter11/binochixsec2_Dec1.dat");
+   //AddPDFxsec("inputWinter11/PDFcrossBino_NeutrScan.txt");
+   AddPDFAcceptance("inputWinter11/PDFacceptanceBino_NeutrScan.txt");
+   {points MergedPoints;
+   for (std::vector<point>::iterator it=Points.Get()->begin(); it!=Points.Get()->end(); ++it)
+      MergedPoints.Add( *MergeBins(*it, 6));
+   std::system("mkdir GMSB_T1lg2j");
+   std::system("mkdir GMSB_T1lgSingleChannels2j");
+   MergedPoints.Write("GMSB_T1lg2j/GMSB");
+   MergedPoints.WriteSingleBin("GMSB_T1lgSingleChannels2j/GMSB");
+   }
+   
+   //T1lg, 3-jet
+   Points.Reset();
+   ReadSignalAcceptance("","inputWinter11/signalAcceptanceT1lg.dat", "inputWinter11/data_postApproval20120226.txt");
+   //AddXsec("inputWinter11/binochixsec2_Dec1.dat");
+   //AddPDFxsec("inputWinter11/PDFcrossBino_NeutrScan.txt");
+   AddPDFAcceptance("inputWinter11/PDFacceptanceBino_NeutrScan.txt");
+   {points MergedPoints;
+   for (std::vector<point>::iterator it=Points.Get()->begin(); it!=Points.Get()->end(); ++it)
+      MergedPoints.Add( *MergeBins(*it, 6));
+   std::system("mkdir GMSB_T1lg");
+   std::system("mkdir GMSB_T1lgSingleChannels");
+   MergedPoints.Write("GMSB_T1lg/GMSB");
+   MergedPoints.WriteSingleBin("GMSB_T1lgSingleChannels/GMSB");
+   }
+   
+   
+   
+   
+   
+   
+   
+   
 }
