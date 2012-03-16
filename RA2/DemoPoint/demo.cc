@@ -28,7 +28,7 @@ void WriteTable(std::ostream& os, const Table::TableStyle style, const std::stri
   ConfigFile * config[N];
   table.AddColumn<string>(""); //desciption
   double sig[N],xsec[N],qcdyield[N],lostle[N],tau[N],zinvis[N],u_qcd2[N],u_wtop2[N],u_zinvis2[N],u_sig2[N];
-  string signal[N], background[N], qcd[N], wtop[N], z[N];
+  string acceptance[N], signal[N], background[N], qcd[N], wtop[N], z[N];
   
   for (int ch=min; ch<=max; ++ch) {
     int i = ch - min;
@@ -46,15 +46,19 @@ void WriteTable(std::ostream& os, const Table::TableStyle style, const std::stri
       config[ch-min] = 0;
     }
     sig[i]=0;
-    signal[i] = background[i] = qcd[i] = wtop[i] = z[i] = "-";
+    acceptance[i] = signal[i] = background[i] = qcd[i] = wtop[i] = z[i] = "-";
     
     if (config[i]){
        qcdyield[i]  = config[i]->read<double>("qcd_0"),
        lostle[i]    = config[i]->read<double>("lostle_0"),
        tau[i]	    = config[i]->read<double>("tau_0"),
        zinvis[i]    = config[i]->read<double>("zinvis_0");
-       u_qcd2[i]    = pow(config[i]->read<double>("qcd_trigger"),2)+pow(config[i]->read<double>("QCD_stat_unc"),2)+pow(config[i]->read<double>("other_QCD_uncerts"),2),
-       u_wtop2[i]   = pow(config[i]->read<double>("lostle_trigger"),2)+pow(config[i]->read<double>("other_lostlepton_uncertainties"),2)+pow(config[i]->read<double>("lole_non-closure"),2)+
+       u_qcd2[i]    = pow(config[i]->read<double>("qcd_trigger"),2)+
+                      pow(config[i]->read<double>("QCD_stat_unc"),2)+
+		      pow(config[i]->read<double>("other_QCD_uncerts"),2),
+       u_wtop2[i]   = pow(config[i]->read<double>("lostle_trigger"),2)+
+                      pow(config[i]->read<double>("other_lostlepton_uncertainties"),2)+
+		      //pow(config[i]->read<double>("lole_non-closure"),2)+
      		      pow(config[i]->read<double>("stat_IsoMuCS"),2)+
      		      pow(config[i]->read<double>("tau_trigger"),2)+pow(config[i]->read<double>("other_tau_uncertainties"),2),
        u_zinvis2[i] = pow(config[i]->read<double>("zinvis_trigger"),2)+pow(config[i]->read<double>("systematic_uncertainties"),2)+pow(config[i]->read<double>("statistics"),2);
@@ -69,6 +73,7 @@ void WriteTable(std::ostream& os, const Table::TableStyle style, const std::stri
        signal[i]    = ToString(sig[i])+ " +- "+ToString(sqrt(u_sig2[i]));
        background[i] = ToString(qcdyield[i]+lostle[i]+tau[i]+zinvis[i]) + " +- "+ToString(sqrt(u_qcd2[i]+u_wtop2[i]+u_zinvis2[i]));
        xsec[i]      = config[i]->read<double>("Xsection.NLO", -1);
+       acceptance[i]= ToString(100*sig[i]/(xsec[i]*config[i]->read<double>("Luminosity")) );
     }
   }    
 
@@ -86,7 +91,9 @@ void WriteTable(std::ostream& os, const Table::TableStyle style, const std::stri
   table << "signal";
   for (int i=0; i<=max-min; ++i)  table << signal[i];
   table << "sig. cont.";
-  for (int i=0; i<=max-min; ++i)  table << (!config[i]?"-":ToString(config[i]->read<double>("signal_contamination_0", -1)));
+  for (int i=0; i<=max-min; ++i)  table << (!config[i]?"-":ToString(config[i]->read<double>("signal_contamination_0", -1),2));
+  table << "Acceptance [%]";
+  for (int i=0; i<=max-min; ++i)  table << acceptance[i];
   //--------------------------------------------------------------------------------------------------------------
   table << "xsec NLO [pb]";
   for (int i=0; i<=max-min; ++i)  table << (!config[i]?"-":ToString(xsec[i],3));
@@ -128,6 +135,7 @@ void WriteTable(std::ostream& os, const Table::TableStyle style, const std::stri
        <<" pb-1 ("
        <<std::fixed << std::setprecision(4)<< xsec * config->read<double>("CLs expected asymptotic", 0)
        <<" pb-1) at 95% CL.\n"; 
+     ss << "The total luminosity corresponds to "<< config->read<double>("Luminosity", 0) << " pb-1."<<std::endl;   
       table.SetCaption(ss.str());
     }
   }  

@@ -24,8 +24,8 @@ std::string TTable::hline(char c,char r) const {
 }
 
 
-  std::ostream& operator<<( std::ostream& os, const TTable& tab )
-  {
+std::ostream& operator<<( std::ostream& os, const TTable& tab )
+{
     //determine current style
     if (tab.GetTable()->size()==0) return os;
     std::string delimiter = tab.GetDelimiter();
