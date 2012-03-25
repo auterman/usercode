@@ -57,14 +57,16 @@ void WriteTable(std::ostream& os, const Table::TableStyle style, const std::stri
                       pow(config[i]->read<double>("QCD_stat_unc"),2)+
 		      pow(config[i]->read<double>("other_QCD_uncerts"),2),
        u_wtop2[i]   = pow(config[i]->read<double>("lostle_trigger"),2)+
-                      pow(config[i]->read<double>("other_lostlepton_uncertainties"),2)+
+                      pow(config[i]->read<double>("lostlepton_uncertainties"),2)+
 		      //pow(config[i]->read<double>("lole_non-closure"),2)+
      		      pow(config[i]->read<double>("stat_IsoMuCS"),2)+
      		      pow(config[i]->read<double>("tau_trigger"),2)+pow(config[i]->read<double>("other_tau_uncertainties"),2),
        u_zinvis2[i] = pow(config[i]->read<double>("zinvis_trigger"),2)+pow(config[i]->read<double>("systematic_uncertainties"),2)+pow(config[i]->read<double>("statistics"),2);
        sig[i]	    = config[i]->read<double>("signal_0"), 
        u_sig2[i]    = pow(config[i]->read<double>("signal_stat"),2)+
-                       pow(config[i]->read<double>("signal_syst"),2)+
+                       pow(config[i]->read<double>("other_syst"),2)+
+                       pow(config[i]->read<double>("JES"),2)+
+                       pow(config[i]->read<double>("JER"),2)+
                        pow(config[i]->read<double>("signal_trigger"),2)+
     	               pow(config[i]->read<double>("signal_syst_acceptance_PDF"),2);
        qcd[i]       = ToString(qcdyield[i])+" +- "+ToString(sqrt(u_qcd2[i]));	       
