@@ -23,9 +23,12 @@ do
   mv $i $WORKPATH/job$ZERO$id/config/.
   id=$(($id+1)) 
 done
-rm -f /tmp/.temp*
-sed "s|AUniquePlaceholderName|$FULLWORKPATH|g" Orig.sh > /tmp/.temp1
+#rm -f /tmp/tmp*
+TMP1=`mktemp`
+sed "s|AUniquePlaceholderName|$FULLWORKPATH|g" Orig.sh > $TMP1
 #sed "s|ConfigDirPlaceholderName|$1|g" /tmp/.temp1 > /tmp/.temp2
-sed "s|ReleaseDirPlaceholderName|$CMSSW_BASE|g" /tmp/.temp1 > $WORKPATH/Job$INPUT.sh
+sed "s|ReleaseDirPlaceholderName|$CMSSW_BASE|g" $TMP1 > $WORKPATH/Job$INPUT.sh
+rm $TMP1
 chmod a+x $WORKPATH/Job$INPUT.sh
-echo "qsub -j y -o /dev/null -t 1-`ls -l $1/* | wc -l` -l h_cpu=01:00:00 -l h_vmem=4000M $WORKPATH/Job$INPUT.sh"
+echo "qsub -j y -o /dev/null -t 1-`ls -l $1/* | wc -l` -l h_cpu=04:00:00 -l h_vmem=4000M $WORKPATH/Job$INPUT.sh"
+qsub -j y -o /dev/null -t 1-`ls -l $1/* | wc -l` -l h_cpu=04:00:00 -l h_vmem=4000M $WORKPATH/Job$INPUT.sh
