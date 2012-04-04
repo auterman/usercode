@@ -27,7 +27,9 @@ void WriteTable(std::ostream& os, const Table::TableStyle style, const std::stri
   table.SetDelimiter(" | ");
   ConfigFile * config[N];
   table.AddColumn<string>(""); //desciption
-  double sig[N],xsec[N],qcdyield[N],lostle[N],tau[N],zinvis[N],u_qcd2[N],u_wtop2[N],u_zinvis2[N],u_sig2[N];
+  double sig[N],xsec[N],qcdyield[N],lostle[N],tau[N],zinvis[N],u_qcd2[N],u_ll[N],u_tau[N],u_wtop2[N],u_zinvis2[N],u_sig2[N];
+  double totbgd=0, u_totbgd=0, totqcd=0, u_totqcd=0, u_totqcd2=0, tottau=0, u_tottau=0, u_tottau2=0, totz=0, u_totz=0, u_totz2=0, 
+         totll=0, u_totll=0;
   string acceptance[N], signal[N], background[N], qcd[N], wtop[N], z[N];
   
   for (int ch=min; ch<=max; ++ch) {
@@ -61,14 +63,33 @@ void WriteTable(std::ostream& os, const Table::TableStyle style, const std::stri
 		      //pow(config[i]->read<double>("lole_non-closure"),2)+
      		      pow(config[i]->read<double>("stat_IsoMuCS"),2)+
      		      pow(config[i]->read<double>("tau_trigger"),2)+pow(config[i]->read<double>("other_tau_uncertainties"),2),
+       u_ll[i]      = pow(config[i]->read<double>("lostle_trigger"),2)+
+                      pow(config[i]->read<double>("lostlepton_uncertainties"),2)+
+		      //pow(config[i]->read<double>("lole_non-closure"),2)+
+     		      pow(config[i]->read<double>("stat_IsoMuCS"),2);
+       u_tau[i]     = pow(config[i]->read<double>("stat_IsoMuCS"),2)+
+     		      pow(config[i]->read<double>("tau_trigger"),2)+pow(config[i]->read<double>("other_tau_uncertainties"),2),
        u_zinvis2[i] = pow(config[i]->read<double>("zinvis_trigger"),2)+pow(config[i]->read<double>("systematic_uncertainties"),2)+pow(config[i]->read<double>("statistics"),2);
        sig[i]	    = config[i]->read<double>("signal_0"), 
        u_sig2[i]    = pow(config[i]->read<double>("signal_stat"),2)+
                        pow(config[i]->read<double>("other_syst"),2)+
-                       pow(config[i]->read<double>("JES"),2)+
-                       pow(config[i]->read<double>("JER"),2)+
-                       pow(config[i]->read<double>("signal_trigger"),2)+
-    	               pow(config[i]->read<double>("signal_syst_acceptance_PDF"),2);
+                       //pow(config[i]->read<double>("JES"),2)+
+                       //pow(config[i]->read<double>("JER"),2)+
+                       pow(config[i]->read<double>("signal_trigger"),2);
+    	               //pow(config[i]->read<double>("signal_syst_acceptance_PDF"),2);
+       totbgd	    += qcdyield[i]+lostle[i]+tau[i]+zinvis[i];
+       totqcd       += qcdyield[i]; 
+       totll        += lostle[i]; 
+       totz         += zinvis[i]; 
+       tottau       += tau[i]; 
+
+       u_totqcd     += u_qcd2[i]; 
+       u_tottau     += sqrt(pow(config[i]->read<double>("tau_trigger"),2)+pow(config[i]->read<double>("other_tau_uncertainties"),2));
+       u_tottau2    += pow(config[i]->read<double>("stat_IsoMuCS"),2);
+       u_totz       += sqrt(pow(config[i]->read<double>("zinvis_trigger"),2)+pow(config[i]->read<double>("systematic_uncertainties"),2)); 
+       u_totz2      += pow(config[i]->read<double>("statistics"),2);
+       u_totll      += sqrt(pow(config[i]->read<double>("lostle_trigger"),2)+pow(config[i]->read<double>("lostlepton_uncertainties"),2));
+
        qcd[i]       = ToString(qcdyield[i])+" +- "+ToString(sqrt(u_qcd2[i]));	       
        wtop[i]      = ToString(lostle[i]+tau[i])+" +- "+ToString(sqrt(u_wtop2[i]));
        z[i]         = ToString(zinvis[i])+ " +- "+ToString(sqrt(u_zinvis2[i]));
@@ -122,6 +143,11 @@ void WriteTable(std::ostream& os, const Table::TableStyle style, const std::stri
     if (config) {
      stringstream ss;
      double xsec = config->read<double>("Xsection.NLO");
+     ss<<"\nQCD           "<<totqcd<<" +- "<<sqrt(u_totqcd)<<"\n"
+       <<  "Z->invisible  "<<totz<<" +- "<<sqrt(u_totz2+u_totz*u_totz)<<"\n"
+       <<  "lost-lepton   "<<totll<<" +- "<<sqrt(u_totll*u_totll+u_tottau2)<<"\n"
+       <<  "hadronic tau  "<<tottau<<" +- "<<sqrt(u_tottau*u_tottau+u_tottau2)<<"\n"
+       <<  "total bkgd    "<<totbgd<<" +- "<<sqrt(u_totqcd+ u_totz2+u_totz*u_totz+ u_totll*u_totll+ u_tottau*u_tottau+u_tottau2)<<"\n";
      ss<<"\nThe combined frequentistic observed (expected) CLs cross-section limit for this point is  "
        <<std::fixed << std::setprecision(4)<< xsec * config->read<double>("CLs observed", 0)
        <<" pb-1 ("
