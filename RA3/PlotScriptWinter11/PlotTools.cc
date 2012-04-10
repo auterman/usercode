@@ -168,8 +168,8 @@ bool isExcludedAbove(TH2*h, int x, int minyexcl) {
 
 	// std::cout<<"is excluded? x="<<x<<" y="<<minyexcl<<std::endl;
 	for (int y = minyexcl; y <= h->GetYaxis()->GetNbins(); ++y) {
-
-		if (h->GetBinContent(x, y) != 1 && y<h->GetYaxis()->GetNbins()-40){
+//
+		if (h->GetBinContent(x, y) != 1){
 			//std::cout<<"YES!! x="<<x<<" y="<<y<<std::endl;
 			return true;
 		}
@@ -268,6 +268,18 @@ void RejectHighExcludedPointsPerHand(TH2*h) {
 
 
 }
+void RejectFailedPointsPerHand(TH2*h) {
+	for (int x = 0; x <=  h->GetXaxis()->GetNbins(); ++x){
+		for (int y = 0; y <=  h->GetYaxis()->GetNbins(); ++y){
+     if(h->GetBinContent(x, y)==0){
+    	// std::cout  << ": x=" << x << ", y=" << y <<"h->GetBinContent(x, y) "<<h->GetBinContent(x, y)<< std::endl;
+				h->SetBinContent(x, y, 1);
+     }
+		}
+	}
+
+
+}
 
 template<class T>
 void PlotTools<T>::Area(TH2*h, double(*x)(const T*), double(*y)(const T*), double(*f)(const T*)) {
@@ -332,6 +344,7 @@ std::vector<TGraph*> PlotTools<T>::GetContours(TH2*h, int ncont,bool excludeBelo
 	if (!h)
 		return std::vector<TGraph*>();
 	TH2 * plot = (TH2*) h->Clone();
+	RejectFailedPointsPerHand(plot);
 	if(excludeBelowExcludedRegion){
 	 FillEmptyPointsForNeutralinoScan(plot);
 	}
