@@ -29,6 +29,9 @@ using namespace std;
 
 namespace filenames {
 //ATTENTION: do not forget to add new filenames in main function!!
+string file_T1lgScan = "2012-04-05-16-04-GMSB_T1lg2j";
+string file_T1ggScan = "2012-04-05-16-02-GMSB_T1gg2j";
+
 string file_wino3j = "2012-02-08-17-39-GMSBWino375Neutr";
 string file_wino2j = "2012-02-08-17-37-GMSBWino375Neutr2j";
 //the following configuration is automatically compared with result above
@@ -94,6 +97,10 @@ struct PlotStyles {
 };
 namespace styles {
 PlotStyles ret;
+
+PlotStyles retT1lg2j;
+PlotStyles retT1gg2j;
+
 PlotStyles retWino2j;
 PlotStyles retWino2jSYST;
 PlotStyles retWino3j;
@@ -138,6 +145,14 @@ void setStyles(PlotTools<SusyScan>*& PlotTool) {
 	retWino2jSYST.flagForComp = "Wino2jSYSTComp";
 	retWino2jSYST.isBestJetFile1 = "";
 	retWino2jSYST.isBestJetFile2 = "AN11/512 v5";
+
+	retT1lg2j=retWino2j;
+	retT1lg2j.flag = "T1lg";
+	retT1lg2j.neutralinotype = "SMS";
+	retT1lg2j.drawGluinoNLSPExclusionRegion = true;
+
+	retT1gg2j = retT1lg2j;
+	retT1gg2j.flag = "T1gg";
 
 	retWino3j = ret;
 	retWino3j.flag = "Wino3j";
@@ -452,8 +467,9 @@ void DrawStandardPlots(PlotTools<SusyScan> *PlotTool, PlotStyles style, double(*
 		hxsec->GetZaxis()->SetTitleOffset(1.5);
 		hxsec->Draw("colz");
 		cout << "histo drawn" << endl;
-		if (style.drawGluinoNLSPExclusionRegion)
-			DrawNeutrNNLSP();
+		if (style.drawGluinoNLSPExclusionRegion){
+			DrawNeutrNNLSP(hxsec->GetXaxis()->GetXmax());
+		}
 		cout << "now cms pre" << endl;
 		drawCmsPrel(style.lumi, style.METCut, style.noJet, style.isBestJet, "", false);
 		cout << "done" << endl;
@@ -472,7 +488,7 @@ void DrawStandardPlots(PlotTools<SusyScan> *PlotTool, PlotStyles style, double(*
 		hxsec->GetZaxis()->SetTitleOffset(1.5);
 		hxsec->Draw("colz");
 		if (style.drawGluinoNLSPExclusionRegion)
-			DrawNeutrNNLSP();
+			DrawNeutrNNLSP(hxsec->GetXaxis()->GetXmax());
 		drawCmsPrel(style.lumi, style.METCut, style.noJet, style.isBestJet);
 		string nameXsPlot = "results/" + style.flag + "/Acceptance";
 		c1->SaveAs((nameXsPlot + ".pdf").c_str());
@@ -489,7 +505,7 @@ void DrawStandardPlots(PlotTools<SusyScan> *PlotTool, PlotStyles style, double(*
 		hxsec->GetZaxis()->SetTitleOffset(1.5);
 		hxsec->Draw("colz");
 		if (style.drawGluinoNLSPExclusionRegion)
-			DrawNeutrNNLSP();
+			DrawNeutrNNLSP(hxsec->GetXaxis()->GetXmax());
 		drawCmsPrel(style.lumi, style.METCut, style.noJet, style.isBestJet);
 		string nameXsPlot = "results/" + style.flag + "/SigCont";
 		c1->SaveAs((nameXsPlot + ".pdf").c_str());
@@ -506,7 +522,7 @@ void DrawStandardPlots(PlotTools<SusyScan> *PlotTool, PlotStyles style, double(*
 		hxsec->GetZaxis()->SetTitleOffset(1.5);
 		hxsec->Draw("colz");
 		if (style.drawGluinoNLSPExclusionRegion)
-			DrawNeutrNNLSP();
+			DrawNeutrNNLSP(hxsec->GetXaxis()->GetXmax());
 		drawCmsPrel(style.lumi, style.METCut, style.noJet, style.isBestJet);
 		string nameXsPlot = "results/" + style.flag + "/ExpectedSignal";
 		c1->SaveAs((nameXsPlot + ".pdf").c_str());
@@ -523,7 +539,7 @@ void DrawStandardPlots(PlotTools<SusyScan> *PlotTool, PlotStyles style, double(*
 		hxsec->GetZaxis()->SetTitleOffset(1.5);
 		hxsec->Draw("colz");
 		if (style.drawGluinoNLSPExclusionRegion)
-			DrawNeutrNNLSP();
+			DrawNeutrNNLSP(hxsec->GetXaxis()->GetXmax());
 		drawCmsPrel(style.lumi, style.METCut, style.noJet, style.isBestJet, "", false);
 		string nameXsPlot = "results/" + style.flag + "/PDFAccUncert";
 		c1->SaveAs((nameXsPlot + ".pdf").c_str());
@@ -540,7 +556,7 @@ void DrawStandardPlots(PlotTools<SusyScan> *PlotTool, PlotStyles style, double(*
 		hxsec->GetZaxis()->SetTitleOffset(1.5);
 		hxsec->Draw("colz");
 		if (style.drawGluinoNLSPExclusionRegion)
-			DrawNeutrNNLSP();
+			DrawNeutrNNLSP(hxsec->GetXaxis()->GetXmax());
 		drawCmsPrel(style.lumi, style.METCut, style.noJet, style.isBestJet, "", false);
 		string nameXsPlot = "results/" + style.flag + "/PDFXSUncert";
 		c1->SaveAs((nameXsPlot + ".pdf").c_str());
@@ -557,7 +573,7 @@ void DrawStandardPlots(PlotTools<SusyScan> *PlotTool, PlotStyles style, double(*
 		hxsec->GetZaxis()->SetTitleOffset(1.5);
 		hxsec->Draw("colz");
 		if (style.drawGluinoNLSPExclusionRegion)
-			DrawNeutrNNLSP();
+			DrawNeutrNNLSP(hxsec->GetXaxis()->GetXmax());
 		drawCmsPrel(style.lumi, style.METCut, style.noJet, style.isBestJet, "", false);
 		string nameXsPlot = "results/" + style.flag + "/NLOXSUncert";
 		c1->SaveAs((nameXsPlot + ".pdf").c_str());
@@ -578,7 +594,7 @@ void DrawStandardPlots(PlotTools<SusyScan> *PlotTool, PlotStyles style, double(*
 		hxsec->GetZaxis()->SetTitleOffset(1.5);
 		hxsec->Draw("colz");
 		if (style.drawGluinoNLSPExclusionRegion)
-			DrawNeutrNNLSP();
+			DrawNeutrNNLSP(hxsec->GetXaxis()->GetXmax());
 		drawCmsPrel(style.lumi, style.METCut, style.noJet, style.isBestJet,"",true,true);
 		string nameXsPlot = "results/" + style.flag + "/ObsXsecLimit";
 		c1->SaveAs((nameXsPlot + ".pdf").c_str());
@@ -596,7 +612,7 @@ void DrawStandardPlots(PlotTools<SusyScan> *PlotTool, PlotStyles style, double(*
 			hxsec->GetZaxis()->SetTitleOffset(1.5);
 			hxsec->Draw("colz");
 			if (style.drawGluinoNLSPExclusionRegion)
-				DrawNeutrNNLSP();
+				DrawNeutrNNLSP(hxsec->GetXaxis()->GetXmax());
 			drawCmsPrel(style.lumi, style.METCut, style.noJet, style.isBestJet);
 			string nameXsPlot = "results/" + style.flag + "/DiffObsXsecLimit";
 			c1->SaveAs((nameXsPlot + ".pdf").c_str());
@@ -614,7 +630,7 @@ void DrawStandardPlots(PlotTools<SusyScan> *PlotTool, PlotStyles style, double(*
 
 		hxsec->Draw("colz");
 		if (style.drawGluinoNLSPExclusionRegion)
-			DrawNeutrNNLSP();
+			DrawNeutrNNLSP(hxsec->GetXaxis()->GetXmax());
 		drawCmsPrel(style.lumi, style.METCut, style.noJet, style.isBestJet);
 		string nameXsPlot = "results/" + style.flag + "/ExpXsecLimit";
 		c1->SaveAs((nameXsPlot + ".pdf").c_str());
@@ -630,7 +646,7 @@ void DrawStandardPlots(PlotTools<SusyScan> *PlotTool, PlotStyles style, double(*
 		hxsec->GetZaxis()->SetTitleOffset(1.5);
 		hxsec->Draw("colz");
 		if (style.drawGluinoNLSPExclusionRegion)
-			DrawNeutrNNLSP();
+			DrawNeutrNNLSP(hxsec->GetXaxis()->GetXmax());
 		drawCmsPrel(style.lumi, style.METCut, style.noJet, style.isBestJet);
 		string nameXsPlot = "results/" + style.flag + "/ObsAsympXsecLimit";
 		c1->SaveAs((nameXsPlot + ".pdf").c_str());
@@ -646,7 +662,7 @@ void DrawStandardPlots(PlotTools<SusyScan> *PlotTool, PlotStyles style, double(*
 		hxsec->GetZaxis()->SetTitleOffset(1.5);
 		hxsec->Draw("colz");
 		if (style.drawGluinoNLSPExclusionRegion)
-			DrawNeutrNNLSP();
+			DrawNeutrNNLSP(hxsec->GetXaxis()->GetXmax());
 		drawCmsPrel(style.lumi, style.METCut, style.noJet, style.isBestJet);
 		string nameXsPlot = "results/" + style.flag + "/ExpAsympXsecLimit";
 		c1->SaveAs((nameXsPlot + ".pdf").c_str());
@@ -662,7 +678,7 @@ void DrawStandardPlots(PlotTools<SusyScan> *PlotTool, PlotStyles style, double(*
 			PlotTool->Area(hxsec, x, y, BestLimitFromFile1or2);
 			hxsec->Draw("col");
 			if (style.drawGluinoNLSPExclusionRegion)
-				DrawNeutrNNLSP();
+				DrawNeutrNNLSP(hxsec->GetXaxis()->GetXmax());
 			drawCmsPrel(style.lumi, style.METCut, style.noJet, style.isBestJet);
 			TLatex as;
 			as.SetNDC(true);
@@ -734,7 +750,7 @@ void PlotAllObserved(std::vector<ExclusionCurves*> limits, PlotStyles * style, T
 		}
 
 		if (style->drawGluinoNLSPExclusionRegion) {
-			DrawNeutrNNLSP();
+			DrawNeutrNNLSP(h->GetXaxis()->GetXmax());
 		}
 
 		//draw heading
@@ -779,7 +795,7 @@ void PlotAllObserved(std::vector<ExclusionCurves*> limits, PlotStyles * style, T
 		}
 
 		if (style->drawGluinoNLSPExclusionRegion) {
-			DrawNeutrNNLSP();
+			DrawNeutrNNLSP(h->GetXaxis()->GetXmax());
 		}
 
 		//draw heading
@@ -952,7 +968,7 @@ void DrawExclusion(ExclusionCurves * exclA, PlotStyles * style, TH1*h, Exclusion
 			lat3->Draw();
 		}
 		if (style->drawGluinoNLSPExclusionRegion) {
-			DrawNeutrNNLSP();
+			DrawNeutrNNLSP(hs->GetXaxis()->GetXmax());
 		}
 		gPad->RedrawAxis();
 		//draw heading
@@ -1100,20 +1116,20 @@ ExclusionCurves GetExclusionContours(PlotTools<SusyScan> *PlotTool, PlotStyles s
 	}
 
 }
-void interpolateAndFillPoints(TheLimits * genpointsInterpol, TheLimits * genpoints, bool isNeutrGluinoScan = false) {
+void interpolateAndFillPoints(TheLimits * genpointsInterpol, TheLimits * genpoints, bool isNeutrGluinoScan = false ) {
 	if (isNeutrGluinoScan) {
 		cout << "!!!!!!!!!FillNeutrGluinoSCAN!!!!!!!!!!!!" << endl;
 		genpoints->FillEmptyPointsByInterpolation(Mchi1, Mgluino);
 		genpoints->FillEmptyPointsByInterpolation(Mgluino, Mchi1);
 
-		genpointsInterpol->ExpandGrid<SusyScan> (Mchi1, Mgluino);
-		genpointsInterpol->ExpandGrid<SusyScan> (Mchi1, Mgluino);
-
-		//genpointsInterpol->ExpandGrid<SusyScan> (Mgluino, Mchi1);
-
-		genpointsInterpol->FillEmptyPointsNeutralinoScan(Mchi1, Mgluino);
-		genpointsInterpol->FillEmptyPointsByInterpolation(Mchi1, Mgluino);
-		genpointsInterpol->FillEmptyPointsByInterpolation(Mgluino, Mchi1);
+//		genpointsInterpol->ExpandGrid<SusyScan> (Mchi1, Mgluino);
+//		genpointsInterpol->ExpandGrid<SusyScan> (Mchi1, Mgluino);
+//
+//		genpointsInterpol->ExpandGrid<SusyScan> (Mgluino, Mchi1);
+//
+//		genpointsInterpol->FillEmptyPointsNeutralinoScan(Mchi1, Mgluino);
+//		genpointsInterpol->FillEmptyPointsByInterpolation(Mchi1, Mgluino);
+//		genpointsInterpol->FillEmptyPointsByInterpolation(Mgluino, Mchi1);
 
 	} else {
 
@@ -1245,149 +1261,170 @@ int plot(int argc, char** argv) {
 //
 //	TH2F hNeutrSquarki("hNeutrSquarki", ";m_{#chi^{0}_{1}} [GeV]; m_{#tilde{q}} [GeV]; cross section [pb]", 37, 125, 1075, 93, 150, 2010);
 
+	TH2F hNeutrGluinoSMS("hNeutrGluinoSMS", ";m_{#chi^{0}_{1}} [GeV]; m_{#tilde{g}} [GeV]; cross section [pb]", 72, 87.5, 1887.5, 65, 87.5, 2012.5);
+
+
 	PlotTools<SusyScan> *Scan, *ScanInterpol;
 
-	///==================Bino-Neutr vs Gluino Limits 3j================================
-	GetPlotTools(Scan, ScanInterpol, filenames::file_binoNeutr3j, true);
-	setStyles(Scan);
-	DrawStandardPlots(Scan, retBinoNeutr_Gluino3j, Mchi1, Mgluino, &hNeutrGluino);
-	ExclusionCurves exclBinoNeutr_gl_3j = GetExclusionContours(ScanInterpol, retBinoNeutr_Gluino3j, Mchi1, Mgluino, &hNeutrGluinoi, true);
-	DrawExclusion(&exclBinoNeutr_gl_3j, &retBinoNeutr_Gluino3j, &hNeutrGluinoi);
-
-	///==================Bino-Neutr vs Gluino Limits 2j================================
-	GetPlotTools(Scan, ScanInterpol, filenames::file_binoNeutr2j, true);
-	setStyles(Scan);
-	DrawStandardPlots(Scan, retBinoNeutr_Gluino2j, Mchi1, Mgluino, &hNeutrGluino);
-	ExclusionCurves exclBinoNeutr_gl_2j = GetExclusionContours(ScanInterpol, retBinoNeutr_Gluino2j, Mchi1, Mgluino, &hNeutrGluinoi, true);
-	DrawExclusion(&exclBinoNeutr_gl_2j, &retBinoNeutr_Gluino2j, &hNeutrGluinoi);
-	DrawExclusion(&exclBinoNeutr_gl_2j, &retBinoNeutr_Gluino2j, &hNeutrGluinoi,0,true);
-
-	//===Compare Exclusion between 2 jet & SYSTUP
-	GetPlotTools(Scan, ScanInterpol, filenames::file_binoNeutr2jSYST, true);
-	setStyles(Scan);
-	ExclusionCurves exclBinoNeutr_gl_2jSYST = GetExclusionContours(ScanInterpol, retBinoNeutr_Gluino2jSYST, Mchi1, Mgluino, &hNeutrGluinoi, true);
-	DrawExclusion(&exclBinoNeutr_gl_2j, &retBinoNeutr_Gluino2jSYST, &hNeutrGluinoi, &exclBinoNeutr_gl_2jSYST);
-
-	///==================Bino-Neutr Limits 2/3j - Best Expected ================================
-	//cout << "Get Best Expected!!" << endl;
-	GetBestExpectedPlotTools(Scan, ScanInterpol, filenames::file_binoNeutr2j, filenames::file_binoNeutr3j);
-	//cout << "Get Best Expected 2!!" << endl;
-	setStyles(Scan);
-	DrawStandardPlots(Scan, retBinoNeutr_GluinoBestJet, Mchi1, Mgluino, &hNeutrGluino);
-	ExclusionCurves exclBinoNeutrBestJet = GetExclusionContours(ScanInterpol, retBinoNeutr_GluinoBestJet, Mchi1, Mgluino, &hNeutrGluinoi);
-	DrawExclusion(&exclBinoNeutrBestJet, &retBinoNeutr_GluinoBestJet, &hi);
-	//Compare Exclusion between 2/3 jet
-	DrawExclusion(&exclBinoNeutr_gl_2j, &retBinoNeutr_GluinoBestJet, &hNeutrGluinoi, &exclBinoNeutr_gl_3j);
-
-	///==================Bino Limits 3j================================
-	//cout << "Get Bino 3j!!" << endl;
-	GetPlotTools(Scan, ScanInterpol, filenames::file_bino3j);
-	//cout << "Get PlotTools done!!" << endl;
-	setStyles(Scan);
-	//cout << "Draw plots" << endl;
-	DrawStandardPlots(Scan, retBino3j, Msquark, Mgluino, &h);
-	//cout << "GetExclusion" << endl;
-	ExclusionCurves exclBino3j = GetExclusionContours(ScanInterpol, retBino3j, Msquark, Mgluino, &hi);
-	//cout << "Draw Exclusion" << endl;
-	DrawExclusion(&exclBino3j, &retBino3j, &hi);
-	///==================Bino Limits 2j================================
-	GetPlotTools(Scan, ScanInterpol, filenames::file_bino2j);
-	setStyles(Scan);
-	DrawStandardPlots(Scan, retBino2j, Msquark, Mgluino, &h);
-	ExclusionCurves exclBino2j = GetExclusionContours(ScanInterpol, retBino2j, Msquark, Mgluino, &hi);
-	DrawExclusion(&exclBino2j, &retBino2j, &hi);
-	DrawExclusion(&exclBino2j, &retBino2j, &hi,0,true);
-
-	///Bino Limits 2j SYST UP
-		GetPlotTools(Scan, ScanInterpol, filenames::file_bino2jSYST);
+	///==================T1lg Neutr vs Gluino Limits 2j================================
+		GetPlotTools(Scan, ScanInterpol, filenames::file_T1lgScan, true);
 		setStyles(Scan);
-		//DrawStandardPlots(Scan, retBino2jSYST, Msquark, Mgluino, &h);
-		ExclusionCurves exclBino2jSYST = GetExclusionContours(ScanInterpol, retBino2jSYST, Msquark, Mgluino, &hi);
-		//DrawExclusion(&exclBino2jSYST, &retBino2jSYST, &hi);
-		//===Compare Exclusion between 2 jet & SYSTUP
-		DrawExclusion(&exclBino2j, &retBino2jSYST, &hi, &exclBino2jSYST);
+		DrawStandardPlots(Scan, retT1lg2j, Mchi1, Mgluino, &hNeutrGluinoSMS);
+		ExclusionCurves exclT1lg_2j = GetExclusionContours(ScanInterpol, retT1lg2j, Mchi1, Mgluino, &hNeutrGluinoSMS, true);
+		DrawExclusion(&exclT1lg_2j, &retT1lg2j, &hNeutrGluinoSMS);
 
-	///==================Bino Limits 2/3j - Best Expected ================================
-	//cout << "Get Best Expected!!" << endl;
-	GetBestExpectedPlotTools(Scan, ScanInterpol, filenames::file_bino2j, filenames::file_bino3j);
-	//cout << "Get Best Expected 2!!" << endl;
-	setStyles(Scan);
-	DrawStandardPlots(Scan, retBinoBestJet, Msquark, Mgluino, &h);
-	ExclusionCurves exclBinoBestJet = GetExclusionContours(ScanInterpol, retBinoBestJet, Msquark, Mgluino, &hi);
-	DrawExclusion(&exclBinoBestJet, &retBinoBestJet, &hi);
-	//Compare Exclusion between 2/3 jet
-	DrawExclusion(&exclBino2j, &retBinoBestJet, &hi, &exclBino3j);
+		///==================T1gg Neutr vs Gluino Limits 2j================================
+				GetPlotTools(Scan, ScanInterpol, filenames::file_T1ggScan, true);
+				setStyles(Scan);
+				DrawStandardPlots(Scan, retT1gg2j, Mchi1, Mgluino, &hNeutrGluinoSMS);
+				ExclusionCurves exclT1gg_2j = GetExclusionContours(ScanInterpol, retT1gg2j, Mchi1, Mgluino, &hNeutrGluinoSMS, true);
+				DrawExclusion(&exclT1gg_2j, &retT1gg2j, &hNeutrGluinoSMS);
 
-	///==================Wino Limits 3j================================
-	GetPlotTools(Scan, ScanInterpol, filenames::file_wino3j);
-	setStyles(Scan);
-	DrawStandardPlots(Scan, retWino3j, Msquark, Mgluino, &h);
-	ExclusionCurves exclWino3j = GetExclusionContours(ScanInterpol, retWino3j, Msquark, Mgluino, &hi);
-	DrawExclusion(&exclWino3j, &retWino3j, &hi);
 
-	///==================Wino Limits 2j================================
-	GetPlotTools(Scan, ScanInterpol, filenames::file_wino2j);
-	setStyles(Scan);
-	DrawStandardPlots(Scan, retWino2j, Msquark, Mgluino, &h);
-	ExclusionCurves exclWino2j = GetExclusionContours(ScanInterpol, retWino2j, Msquark, Mgluino, &hi);
-	DrawExclusion(&exclWino2j, &retWino2j, &hi);
-	DrawExclusion(&exclWino2j, &retWino2j, &hi,0,true);
-	///Wino Limits 2j SYST UP
-	GetPlotTools(Scan, ScanInterpol, filenames::file_wino2jSYST);
-	setStyles(Scan);
-	//DrawStandardPlots(Scan, retWino2jSYST, Msquark, Mgluino, &h);
-	ExclusionCurves exclWino2jSYST = GetExclusionContours(ScanInterpol, retWino2jSYST, Msquark, Mgluino, &hi);
-	//DrawExclusion(&exclWino2jSYST, &retWino2jSYST, &hi);
-	//===Compare Exclusion between 2 jet & SYSTUP
-	DrawExclusion(&exclWino2j, &retWino2jSYST, &hi, &exclWino2jSYST);
 
-	///==================Wino Limits 2/3j - Best Expected ================================
-	//cout<<"Get Best Expected!!"<<endl;
-	GetBestExpectedPlotTools(Scan, ScanInterpol, filenames::file_wino2j, filenames::file_wino3j);
-
-	setStyles(Scan);
-	DrawStandardPlots(Scan, retWinoBestJet, Msquark, Mgluino, &h);
-	ExclusionCurves exclWinoBestJet = GetExclusionContours(ScanInterpol, retWinoBestJet, Msquark, Mgluino, &hi);
-	DrawExclusion(&exclWinoBestJet, &retWinoBestJet, &hi);
-	//Compare Exclusion between 2/3 jet
-	DrawExclusion(&exclWino2j, &retWinoBestJet, &hi, &exclWino3j);
-
-	///==================Wino Limits >200 (bin4-7 gemerged)================================
-//	GetPlotTools(Scan, ScanInterpol, filenames::file_wino3j_MergedBins);
+//	///==================Bino-Neutr vs Gluino Limits 3j================================
+//	GetPlotTools(Scan, ScanInterpol, filenames::file_binoNeutr3j, true);
 //	setStyles(Scan);
-//	DrawStandardPlots(Scan, retWinoMerged3j, Msquark, Mgluino, &h);
-//	ExclusionCurves exclWino1Bin = GetExclusionContours(ScanInterpol, retWinoMerged3j, Msquark, Mgluino, &hi);
-//	DrawExclusion(&exclWino1Bin, &retWinoMerged3j, &hi);
-
-	///==================CREATE TEX DEFINITIONS FOR SAMPLE POINT/RESULTING LIMITS================================
-	string filenameforresulttex = "results/interpretationresults.tex";
-	std::system(("rm " + filenameforresulttex).c_str());
-	GetPlotTools(Scan, ScanInterpol, filenames::file_bino2j);
-	CreateResultPointTexFile(exclBino2j.obs, ScanInterpol, Msquark, Mgluino, 1200, "Bino", filenameforresulttex);
-	GetPlotTools(Scan, ScanInterpol, filenames::file_wino2j);
-	CreateResultPointTexFile(exclWino2j.obs, ScanInterpol, Msquark, Mgluino, 1000, "Wino", filenameforresulttex);
-	GetPlotTools(Scan, ScanInterpol, filenames::file_binoNeutr2j);
-	CreateResultPointTexFile(exclBinoNeutr_gl_2j.obs, ScanInterpol, Mchi1, Mgluino, 150, "BinoNeutrMin", filenameforresulttex);
-	CreateResultPointTexFile(exclBinoNeutr_gl_2j.obs, ScanInterpol, Mchi1, Mgluino, 650, "BinoNeutrMax", filenameforresulttex);
-
-	///==================Limits - which channel is most sensitive? ---3 jet
-	PlotBinComparison(Scan, ScanInterpol, Msquark, Mgluino, filenames::file_wino3j, filenames::file_wino3j_SingleBins, retWino3j, &hi, &h);
-	PlotBinComparison(Scan, ScanInterpol, Msquark, Mgluino, filenames::file_bino3j, filenames::file_bino3j_SingleBins, retBino3j, &hi, &h, false);
-	PlotBinComparison(Scan, ScanInterpol, Mchi1, Mgluino, filenames::file_binoNeutr3j, filenames::file_binoNeutr3j_SingleBins, retBinoNeutr_Gluino3j, &hNeutrGluinoi, &hNeutrGluino, true);
-	///==================Limits - which channel is most sensitive? ---2 jet
-	PlotBinComparison(Scan, ScanInterpol, Msquark, Mgluino, filenames::file_wino2j, filenames::file_wino2j_SingleBins, retWino2j, &hi, &h);
-	PlotBinComparison(Scan, ScanInterpol, Msquark, Mgluino, filenames::file_bino2j, filenames::file_bino2j_SingleBins, retBino2j, &hi, &h);
-	PlotBinComparison(Scan, ScanInterpol, Mchi1, Mgluino, filenames::file_binoNeutr2j, filenames::file_binoNeutr2j_SingleBins, retBinoNeutr_Gluino2j, &hNeutrGluinoi, &hNeutrGluino, true);
-
-	///==================Limits - Demopoint (bino,3 jet)
-	//PlotBinComparison(Scan, ScanInterpol, Msquark, Mgluino, filenames::file_bino3j, filenames::file_bino3j_DemoPoint, retBino3j, &hi, &h, false, filenameforresulttex);
-	///==================Limits - Demopoint (bino,2 jet)
-	PlotBinComparison(Scan, ScanInterpol, Msquark, Mgluino, filenames::file_bino2j, filenames::file_bino2j_DemoPoint, retBino2j, &hi, &h, false, filenameforresulttex);
+//	DrawStandardPlots(Scan, retBinoNeutr_Gluino3j, Mchi1, Mgluino, &hNeutrGluino);
+//	ExclusionCurves exclBinoNeutr_gl_3j = GetExclusionContours(ScanInterpol, retBinoNeutr_Gluino3j, Mchi1, Mgluino, &hNeutrGluinoi, true);
+//	DrawExclusion(&exclBinoNeutr_gl_3j, &retBinoNeutr_Gluino3j, &hNeutrGluinoi);
+//
+//	///==================Bino-Neutr vs Gluino Limits 2j================================
+//	GetPlotTools(Scan, ScanInterpol, filenames::file_binoNeutr2j, true);
+//	setStyles(Scan);
+//	DrawStandardPlots(Scan, retBinoNeutr_Gluino2j, Mchi1, Mgluino, &hNeutrGluino);
+//	ExclusionCurves exclBinoNeutr_gl_2j = GetExclusionContours(ScanInterpol, retBinoNeutr_Gluino2j, Mchi1, Mgluino, &hNeutrGluinoi, true);
+//	DrawExclusion(&exclBinoNeutr_gl_2j, &retBinoNeutr_Gluino2j, &hNeutrGluinoi);
+//	DrawExclusion(&exclBinoNeutr_gl_2j, &retBinoNeutr_Gluino2j, &hNeutrGluinoi,0,true);
+//
+//	//===Compare Exclusion between 2 jet & SYSTUP
+//	GetPlotTools(Scan, ScanInterpol, filenames::file_binoNeutr2jSYST, true);
+//	setStyles(Scan);
+//	ExclusionCurves exclBinoNeutr_gl_2jSYST = GetExclusionContours(ScanInterpol, retBinoNeutr_Gluino2jSYST, Mchi1, Mgluino, &hNeutrGluinoi, true);
+//	DrawExclusion(&exclBinoNeutr_gl_2j, &retBinoNeutr_Gluino2jSYST, &hNeutrGluinoi, &exclBinoNeutr_gl_2jSYST);
+//
+//	///==================Bino-Neutr Limits 2/3j - Best Expected ================================
+//	//cout << "Get Best Expected!!" << endl;
+//	GetBestExpectedPlotTools(Scan, ScanInterpol, filenames::file_binoNeutr2j, filenames::file_binoNeutr3j);
+//	//cout << "Get Best Expected 2!!" << endl;
+//	setStyles(Scan);
+//	DrawStandardPlots(Scan, retBinoNeutr_GluinoBestJet, Mchi1, Mgluino, &hNeutrGluino);
+//	ExclusionCurves exclBinoNeutrBestJet = GetExclusionContours(ScanInterpol, retBinoNeutr_GluinoBestJet, Mchi1, Mgluino, &hNeutrGluinoi);
+//	DrawExclusion(&exclBinoNeutrBestJet, &retBinoNeutr_GluinoBestJet, &hi);
+//	//Compare Exclusion between 2/3 jet
+//	DrawExclusion(&exclBinoNeutr_gl_2j, &retBinoNeutr_GluinoBestJet, &hNeutrGluinoi, &exclBinoNeutr_gl_3j);
+//
+//	///==================Bino Limits 3j================================
+//	//cout << "Get Bino 3j!!" << endl;
+//	GetPlotTools(Scan, ScanInterpol, filenames::file_bino3j);
+//	//cout << "Get PlotTools done!!" << endl;
+//	setStyles(Scan);
+//	//cout << "Draw plots" << endl;
+//	DrawStandardPlots(Scan, retBino3j, Msquark, Mgluino, &h);
+//	//cout << "GetExclusion" << endl;
+//	ExclusionCurves exclBino3j = GetExclusionContours(ScanInterpol, retBino3j, Msquark, Mgluino, &hi);
+//	//cout << "Draw Exclusion" << endl;
+//	DrawExclusion(&exclBino3j, &retBino3j, &hi);
+//	///==================Bino Limits 2j================================
+//	GetPlotTools(Scan, ScanInterpol, filenames::file_bino2j);
+//	setStyles(Scan);
+//	DrawStandardPlots(Scan, retBino2j, Msquark, Mgluino, &h);
+//	ExclusionCurves exclBino2j = GetExclusionContours(ScanInterpol, retBino2j, Msquark, Mgluino, &hi);
+//	DrawExclusion(&exclBino2j, &retBino2j, &hi);
+//	DrawExclusion(&exclBino2j, &retBino2j, &hi,0,true);
+//
+//	///Bino Limits 2j SYST UP
+//		GetPlotTools(Scan, ScanInterpol, filenames::file_bino2jSYST);
+//		setStyles(Scan);
+//		//DrawStandardPlots(Scan, retBino2jSYST, Msquark, Mgluino, &h);
+//		ExclusionCurves exclBino2jSYST = GetExclusionContours(ScanInterpol, retBino2jSYST, Msquark, Mgluino, &hi);
+//		//DrawExclusion(&exclBino2jSYST, &retBino2jSYST, &hi);
+//		//===Compare Exclusion between 2 jet & SYSTUP
+//		DrawExclusion(&exclBino2j, &retBino2jSYST, &hi, &exclBino2jSYST);
+//
+//	///==================Bino Limits 2/3j - Best Expected ================================
+//	//cout << "Get Best Expected!!" << endl;
+//	GetBestExpectedPlotTools(Scan, ScanInterpol, filenames::file_bino2j, filenames::file_bino3j);
+//	//cout << "Get Best Expected 2!!" << endl;
+//	setStyles(Scan);
+//	DrawStandardPlots(Scan, retBinoBestJet, Msquark, Mgluino, &h);
+//	ExclusionCurves exclBinoBestJet = GetExclusionContours(ScanInterpol, retBinoBestJet, Msquark, Mgluino, &hi);
+//	DrawExclusion(&exclBinoBestJet, &retBinoBestJet, &hi);
+//	//Compare Exclusion between 2/3 jet
+//	DrawExclusion(&exclBino2j, &retBinoBestJet, &hi, &exclBino3j);
+//
+//	///==================Wino Limits 3j================================
+//	GetPlotTools(Scan, ScanInterpol, filenames::file_wino3j);
+//	setStyles(Scan);
+//	DrawStandardPlots(Scan, retWino3j, Msquark, Mgluino, &h);
+//	ExclusionCurves exclWino3j = GetExclusionContours(ScanInterpol, retWino3j, Msquark, Mgluino, &hi);
+//	DrawExclusion(&exclWino3j, &retWino3j, &hi);
+//
+//	///==================Wino Limits 2j================================
+//	GetPlotTools(Scan, ScanInterpol, filenames::file_wino2j);
+//	setStyles(Scan);
+//	DrawStandardPlots(Scan, retWino2j, Msquark, Mgluino, &h);
+//	ExclusionCurves exclWino2j = GetExclusionContours(ScanInterpol, retWino2j, Msquark, Mgluino, &hi);
+//	DrawExclusion(&exclWino2j, &retWino2j, &hi);
+//	DrawExclusion(&exclWino2j, &retWino2j, &hi,0,true);
+//	///Wino Limits 2j SYST UP
+//	GetPlotTools(Scan, ScanInterpol, filenames::file_wino2jSYST);
+//	setStyles(Scan);
+//	//DrawStandardPlots(Scan, retWino2jSYST, Msquark, Mgluino, &h);
+//	ExclusionCurves exclWino2jSYST = GetExclusionContours(ScanInterpol, retWino2jSYST, Msquark, Mgluino, &hi);
+//	//DrawExclusion(&exclWino2jSYST, &retWino2jSYST, &hi);
+//	//===Compare Exclusion between 2 jet & SYSTUP
+//	DrawExclusion(&exclWino2j, &retWino2jSYST, &hi, &exclWino2jSYST);
+//
+//	///==================Wino Limits 2/3j - Best Expected ================================
+//	//cout<<"Get Best Expected!!"<<endl;
+//	GetBestExpectedPlotTools(Scan, ScanInterpol, filenames::file_wino2j, filenames::file_wino3j);
+//
+//	setStyles(Scan);
+//	DrawStandardPlots(Scan, retWinoBestJet, Msquark, Mgluino, &h);
+//	ExclusionCurves exclWinoBestJet = GetExclusionContours(ScanInterpol, retWinoBestJet, Msquark, Mgluino, &hi);
+//	DrawExclusion(&exclWinoBestJet, &retWinoBestJet, &hi);
+//	//Compare Exclusion between 2/3 jet
+//	DrawExclusion(&exclWino2j, &retWinoBestJet, &hi, &exclWino3j);
+//
+//	///==================Wino Limits >200 (bin4-7 gemerged)================================
+////	GetPlotTools(Scan, ScanInterpol, filenames::file_wino3j_MergedBins);
+////	setStyles(Scan);
+////	DrawStandardPlots(Scan, retWinoMerged3j, Msquark, Mgluino, &h);
+////	ExclusionCurves exclWino1Bin = GetExclusionContours(ScanInterpol, retWinoMerged3j, Msquark, Mgluino, &hi);
+////	DrawExclusion(&exclWino1Bin, &retWinoMerged3j, &hi);
+//
+//	///==================CREATE TEX DEFINITIONS FOR SAMPLE POINT/RESULTING LIMITS================================
+//	string filenameforresulttex = "results/interpretationresults.tex";
+//	std::system(("rm " + filenameforresulttex).c_str());
+//	GetPlotTools(Scan, ScanInterpol, filenames::file_bino2j);
+//	CreateResultPointTexFile(exclBino2j.obs, ScanInterpol, Msquark, Mgluino, 1200, "Bino", filenameforresulttex);
+//	GetPlotTools(Scan, ScanInterpol, filenames::file_wino2j);
+//	CreateResultPointTexFile(exclWino2j.obs, ScanInterpol, Msquark, Mgluino, 1000, "Wino", filenameforresulttex);
+//	GetPlotTools(Scan, ScanInterpol, filenames::file_binoNeutr2j);
+//	CreateResultPointTexFile(exclBinoNeutr_gl_2j.obs, ScanInterpol, Mchi1, Mgluino, 150, "BinoNeutrMin", filenameforresulttex);
+//	CreateResultPointTexFile(exclBinoNeutr_gl_2j.obs, ScanInterpol, Mchi1, Mgluino, 650, "BinoNeutrMax", filenameforresulttex);
+//
+//	///==================Limits - which channel is most sensitive? ---3 jet
+//	PlotBinComparison(Scan, ScanInterpol, Msquark, Mgluino, filenames::file_wino3j, filenames::file_wino3j_SingleBins, retWino3j, &hi, &h);
+//	PlotBinComparison(Scan, ScanInterpol, Msquark, Mgluino, filenames::file_bino3j, filenames::file_bino3j_SingleBins, retBino3j, &hi, &h, false);
+//	PlotBinComparison(Scan, ScanInterpol, Mchi1, Mgluino, filenames::file_binoNeutr3j, filenames::file_binoNeutr3j_SingleBins, retBinoNeutr_Gluino3j, &hNeutrGluinoi, &hNeutrGluino, true);
+//	///==================Limits - which channel is most sensitive? ---2 jet
+//	PlotBinComparison(Scan, ScanInterpol, Msquark, Mgluino, filenames::file_wino2j, filenames::file_wino2j_SingleBins, retWino2j, &hi, &h);
+//	PlotBinComparison(Scan, ScanInterpol, Msquark, Mgluino, filenames::file_bino2j, filenames::file_bino2j_SingleBins, retBino2j, &hi, &h);
+//	PlotBinComparison(Scan, ScanInterpol, Mchi1, Mgluino, filenames::file_binoNeutr2j, filenames::file_binoNeutr2j_SingleBins, retBinoNeutr_Gluino2j, &hNeutrGluinoi, &hNeutrGluino, true);
+//
+//	///==================Limits - Demopoint (bino,3 jet)
+//	//PlotBinComparison(Scan, ScanInterpol, Msquark, Mgluino, filenames::file_bino3j, filenames::file_bino3j_DemoPoint, retBino3j, &hi, &h, false, filenameforresulttex);
+//	///==================Limits - Demopoint (bino,2 jet)
+//	PlotBinComparison(Scan, ScanInterpol, Msquark, Mgluino, filenames::file_bino2j, filenames::file_bino2j_DemoPoint, retBino2j, &hi, &h, false, filenameforresulttex);
 
 }
 
 int main(int argc, char** argv) {
 	vector < string > filenames;
+	filenames.push_back(filenames::file_T1ggScan);
+	filenames.push_back(filenames::file_T1lgScan);
 	filenames.push_back(filenames::file_wino3j);
 	filenames.push_back(filenames::file_wino2j);
 	filenames.push_back(filenames::file_wino2jSYST);

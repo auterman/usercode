@@ -520,11 +520,11 @@ template<class T>
 bool PlotTools<T>::sort_TGraph::operator()(const TGraph*g1, const TGraph*g2) {
 	return g1->GetN() > g2->GetN();
 }
-void DrawNeutrNNLSP() {
+void DrawNeutrNNLSP(double max) {
 	TGraph*gluinoNLSP = new TGraph(0);
 	gluinoNLSP->SetPoint(0, 50, 50);
-	gluinoNLSP->SetPoint(1, 1100, 1100);
-	gluinoNLSP->SetPoint(2, 1100, 50);
+	gluinoNLSP->SetPoint(1, max, max);
+	gluinoNLSP->SetPoint(2, max, 50);
 	gluinoNLSP->SetPoint(3, 50, 50);
 	gluinoNLSP->SetFillColor(kGray);
 	gluinoNLSP->Draw("f");
@@ -623,16 +623,27 @@ void drawCmsPrel(double intLumi, std::string METCut, int noJets, bool isBestjet,
 		as.SetTextSize(20);
 		//as.SetTextFont(42);//ms.SetTextColor(12);
 		std::string out = "";
+//		if (drawChannelInfo) {
+//			out = "#int #font[12]{L}dt = %.1ffb^{  -1}  #sqrt{s} = 7 TeV";
+//		}
+//		else{
+//			out = "                                     #sqrt{s} = 7 TeV";
+//		}
+//
+//			as.DrawLatex(0.16, 0.94, Form(out.c_str(), intLumi));
 		if (drawChannelInfo) {
-			out = "#int #font[12]{L}dt = %.1ffb^{  -1}  #sqrt{s} = 7 TeV";
-		}
-		else{
-			out = "                                     #sqrt{s} = 7 TeV";
-		}
+						//out = "#int #font[12]{L}dt = %.1ffb^{  -1}  #sqrt{s} = 7 TeV";
+						out = "%.1ffb^{  -1}  #sqrt{s} = 7 TeV";
+					}
+					else{
+						out = "                                     #sqrt{s} = 7 TeV";
+						out = "               #sqrt{s} = 7 TeV";
+					}
 
-			as.DrawLatex(0.16, 0.94, Form(out.c_str(), intLumi));
+						//as.DrawLatex(0.28, 0.905, Form(out.c_str(), intLumi));
+						as.DrawLatex(0.45, 0.905, Form(out.c_str(), intLumi));
 
-		as.SetTextSize(22);
+		as.SetTextSize(20);
 		as.SetTextColor(1);
 		if (drawChannelInfo) {
 			//1#gamma, >=3 jets, MET>"+getStringFromInt(METCut)+" GeV ";
@@ -641,26 +652,29 @@ void drawCmsPrel(double intLumi, std::string METCut, int noJets, bool isBestjet,
 				out = "#geq1#gamma, #geq2/3 jets";
 			if (jetLabel != "")
 				out = jetLabel;
-			if (METCut != "") {
+//			if (METCut != "") {
+//
+//				if (isdigit(METCut[0])) {
+//					out = out + ", #slash{E}_{T} #geq " + METCut + " GeV";
+//				} else {
+//					out = out + ", " + METCut + "";
+//				}
+//			}
+			as.SetTextSize(20);
 
-				if (isdigit(METCut[0])) {
-					out = out + ", #slash{E}_{T} #geq " + METCut + " GeV";
-				} else {
-					out = out + ", " + METCut + "";
-				}
-			}
-			as.SetTextSize(22);
+		//	as.DrawLatex(0.56, 0.905, Form(out.c_str()));
+			as.DrawLatex(0.75, 0.905, Form(out.c_str()));
 
-			as.DrawLatex(0.56, 0.94, Form(out.c_str()));
 		}
 
 
 
 		if(drawCMS){
-		 as.SetTextSize(22);
-		 as.DrawLatex(0.0, 0.96, "CMS");
 		 as.SetTextSize(20);
-		 as.DrawLatex(0.0, 0.93, "preliminary");
+		 //as.DrawLatex(0.0, 0.905, "CMS preliminary");
+		 as.DrawLatex(0.20, 0.905, "CMS preliminary");
+		 as.SetTextSize(20);
+		 //as.DrawLatex(0.0, 0.93, "preliminary");
 		}
 }
 
