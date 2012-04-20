@@ -55,21 +55,21 @@ TCanvas * GetLimitTemplateCanvas(TCanvas *GridCanvas, TH1*myHist=0){
    mSUGRA->GetXaxis()->SetTitle("m_{0} [GeV]");
    mSUGRA->GetXaxis()->SetLabelFont(42);
    mSUGRA->GetXaxis()->SetLabelOffset(0.007);
-   mSUGRA->GetXaxis()->SetLabelSize(0.05);
-   mSUGRA->GetXaxis()->SetTitleSize(0.06);
+   mSUGRA->GetXaxis()->SetLabelSize(0.04);
+   mSUGRA->GetXaxis()->SetTitleSize(0.045);
    mSUGRA->GetXaxis()->SetTitleOffset(1.1);
    mSUGRA->GetXaxis()->SetTitleFont(42);
    mSUGRA->GetYaxis()->SetTitle("m_{1/2} [GeV]");
    mSUGRA->GetYaxis()->SetLabelFont(42);
    mSUGRA->GetYaxis()->SetLabelOffset(0.007);
-   mSUGRA->GetYaxis()->SetLabelSize(0.05);
-   mSUGRA->GetYaxis()->SetTitleSize(0.06);
+   mSUGRA->GetYaxis()->SetLabelSize(0.04);
+   mSUGRA->GetYaxis()->SetTitleSize(0.045);
    mSUGRA->GetYaxis()->SetTitleOffset(1.2);
    mSUGRA->GetYaxis()->SetTitleFont(42);
    mSUGRA->GetZaxis()->SetLabelFont(42);
    mSUGRA->GetZaxis()->SetLabelOffset(0.007);
-   mSUGRA->GetZaxis()->SetLabelSize(0.05);
-   mSUGRA->GetZaxis()->SetTitleSize(0.06);
+   mSUGRA->GetZaxis()->SetLabelSize(0.04);
+   mSUGRA->GetZaxis()->SetTitleSize(0.045);
    mSUGRA->GetZaxis()->SetTitleFont(42);
    mSUGRA->Draw("BOX");
    

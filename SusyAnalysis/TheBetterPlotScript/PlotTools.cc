@@ -357,6 +357,7 @@ void drawCmsPrel(double intLumi) {
 	lat2->SetTextSize(0.04);
 	lat2->Draw("same");
 }
+
 void Smooth(TH2 * h, int N) {
 	TH2F * old = (TH2F*) h->Clone();
 

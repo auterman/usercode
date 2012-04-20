@@ -33,12 +33,15 @@ void ReadEvent(Event& evt, ConfigFile& config)
   evt.Add( ReadVariable(config, "ExpRM2",      "CLs expected m2sigma", -9999999 ) );
   evt.Add( ReadVariable(config, "ExpRP2",      "CLs expected p2sigma", -9999999 ) );
 
+  evt.Add( ReadVariable(config, "u_signal_theory", "signal signal_theory_syst", 0 ) );
+
   if (1)
   for (int ch=0; ch<nchannels; ++ch) {
     std::stringstream ss;
     ss<<ch;
     std::string flag = ss.str(); 
-    evt.Add( ReadVariable(config, "signal_"+flag,                  "signal_"+flag, -1 ) );
+    evt.Add( ReadVariable(config, "signal_"+flag,                  "signal_"+flag, 0 ) );
+/*
     evt.Add( ReadVariable(config, "signal_"+flag+"_contamination", "signal_contamination_"+flag, -1) ); 	       
     evt.Add( ReadVariable(config, "signal_"+flag+"_stat_UP",	   "signal_"+flag+"_signal stat_UP", -1) );
     evt.Add( ReadVariable(config, "signal_"+flag+"_stat_DN",	   "signal_"+flag+"_signal stat_DN", -1) );
@@ -76,6 +79,7 @@ void ReadEvent(Event& evt, ConfigFile& config)
     evt.Set( "signal_"+flag+"_JES_DN",      100.*evt.Get("signal_"+flag+"_JES_DN")/signal );   
     evt.Set( "signal_"+flag+"_JER_UP",      100.*evt.Get("signal_"+flag+"_JER_UP")/signal );  
     evt.Set( "signal_"+flag+"_JER_DN",      100.*evt.Get("signal_"+flag+"_JER_DN")/signal );   
+*/
   }
 
 }
@@ -85,6 +89,8 @@ void CalculateVariablesOnTheFly(Event& evt)
   evt.Add( Variable(0, new Info("ObsRtheoryM1","") ) );
   evt.Add( Variable(evt.Get("ObsR")*evt.Get("Xsection"), new Info("ObsXsecLimit","") ) );
   evt.Add( Variable(evt.Get("ExpR")*evt.Get("Xsection"), new Info("ExpXsecLimit","") ) );
+
+  double signal=0;
   if (1)
   for (int ch=0; ch<nchannels; ++ch) {
      std::stringstream ss;
@@ -92,8 +98,9 @@ void CalculateVariablesOnTheFly(Event& evt)
      std::string flag = ss.str(); 
      double N = (evt.Get("Xsection")*evt.Get("Luminosity"));
      evt.Add( Variable( (N!=0?100. * evt.Get("signal_"+flag)/N:0), new Info("signal_"+flag+"_acceptance","") ) );
-
+     signal += evt.Get("signal_"+flag);
   }
+  evt.Add( Variable(evt.Get("ObsR")+evt.Get("u_signal_theory")/signal, new Info("ObsRtheory","") ) );
 }
 
 void AddGeneratorVariables(Event& evt, GeneratorMasses& p)

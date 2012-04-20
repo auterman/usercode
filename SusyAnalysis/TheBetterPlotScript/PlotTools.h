@@ -94,6 +94,9 @@ class PlotTools {
   TH2 * GetHist(double(*x)(const T*), double(*y)(const T*));
 */
   
+  ///add (more) scan points
+  void addEvents(Events*evts){scan_->insert(scan_->end(),evts->begin(),evts->end());}
+  
   int N_Channels() const{return nchannels_;};
  private:
   
@@ -112,6 +115,7 @@ class sort_TGraph{
 
 TGraph* RA2Observed_36pb();
 TGraph* RA2Observed_1fb( );
+TGraph* gl_LEP();
 TGraph* sq_TEV();
 TGraph* sq_CDF();
 TGraph* sq_DEZ();
