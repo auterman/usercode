@@ -76,7 +76,7 @@ void PlotTools::VectorOf(std::vector<double>& v, const std::string& f) {
      v.push_back(F(*it));
 }
 
-void PlotTools::FillEmptyPointsByInterpolation(const std::string& x, const std::string& y)
+void PlotTools::FillEmptyPointsByInterpolation1D(const std::string& x, const std::string& y)
 {
   std::cout << "...Fill Empty Points By Interpolation in x = '" <<x<<"'"<<std::flush;
   Fill X(x);
@@ -125,6 +125,107 @@ void PlotTools::FillEmptyPointsByInterpolation(const std::string& x, const std::
 	 //          <<  X(*it)*r/dist + (x(*nextx) * (1.-r/dist)) << "<- "<<x(*nextx) 
 	 //          <<"/"<< y(*nextx)<<std::endl;
 	 newpoints.push_back( Event( ( (*it * (r/dist)) + (*nextx * (1.-r/dist)) )));
+       }	 
+    }	
+
+  }
+  scan_->insert(scan_->end(), newpoints.begin(), newpoints.end());
+  std::cout<< ": added " <<newpoints.size() <<" new points."<<std::endl;
+}
+
+
+
+
+
+
+void PlotTools::FillEmptyPointsByInterpolation(const std::string& x, const std::string& y)
+{
+  std::cout << "...Fill Empty Points By 2D linear Interpolation in x = '" <<x<<"' and y = '"<<y<<"'"<<std::endl;
+  Fill X(x);
+  Fill Y(y);
+  
+  Events newpoints;
+  //first find out where to expect points
+  //std::cout<< "start: TheLimits::FillEmptyPointsByInterpolation()" <<std::endl;
+/*
+  double gridy=9999, miny=9999, maxy=0, gridx=9999, minx=9999, maxx=0;
+  for (Events::const_iterator it=scan_->begin(); it!=scan_->end(); ++it){
+    if (X(*it)<minx) minx=X(*it);
+    if (X(*it)>maxx) maxx=X(*it);
+    if (Y(*it)<miny) miny=Y(*it);
+    if (Y(*it)>maxy) maxy=Y(*it);
+    for (Events::const_iterator zt=it; zt!=scan_->end(); ++zt){
+      if ( fabs(X(*it) - X(*zt)) < gridx && fabs(Y(*it)-Y(*zt))<0.9 && fabs(X(*it)-X(*zt))>0.9 ) 
+        gridx = fabs(X(*it) - X(*zt));
+      if ( fabs(Y(*it) - Y(*zt)) < gridy && fabs(X(*it)-X(*zt))<0.9 && fabs(Y(*it)-Y(*zt))>0.9 ) 
+        gridy = fabs(Y(*it) - Y(*zt));
+    }
+  } 
+  //Now, interpolate
+  std::cout<<minx<<"  "<<maxx<<"  "<<gridx<<"  "<<miny<<"  "<<maxy<<"  "<<gridy<<"  "<<std::endl;
+*/
+  double gridx=20, gridy=20;
+  for (Events::const_iterator it=scan_->begin(); it!=scan_->end(); ++it){
+    //find next right neighbor in x for it:
+    Events::const_iterator nextx=scan_->end();
+    double dx=9999; 
+    for (Events::const_iterator zt=scan_->begin(); zt!=scan_->end(); ++zt){
+      if (fabs(X(*it)-X(*zt))<0.9 || fabs(Y(*it)-Y(*zt))>0.9 ) continue;
+      if ( fabs(X(*it) - X(*zt)) < dx && X(*it) < X(*zt)) {
+        dx = fabs(X(*it) - X(*zt));
+	nextx = zt;
+      }	
+      if (dx==gridx) break;	
+    }
+    //interpolate in x:
+    if (dx!=gridx && nextx!=scan_->end()){
+        //std::cout << "m0 = " <<X(*it)  << ", m12="<< Y(*it) << std::endl;
+       double distx = X(*nextx) - X(*it);
+       for (double r=gridx; r<distx; r+=gridx ){
+         Events::const_iterator miny=scan_->end(), maxy=scan_->end();
+         //find upper and lower neighbors in 'y' for nextx
+	 double current_x=X(*it)+r, dmin=9999, dmax=9999;
+	 for (Events::const_iterator zt=scan_->begin(); zt!=scan_->end(); ++zt){
+	   if (fabs(current_x-X(*zt))>0.9) continue;
+	   if ( fabs(Y(*it) - Y(*zt)) < dmin && Y(*it) > Y(*zt)) {
+	     dmin = fabs(Y(*it) - Y(*zt));
+	     miny = zt;
+	   }	
+	   if ( fabs(Y(*it) - Y(*zt)) < dmax && Y(*it) < Y(*zt)) {
+	     dmax = fabs(Y(*it) - Y(*zt));
+	     maxy = zt;
+	   }	
+	   if (dmin==gridy && dmax==gridy) break;	
+	 }
+	 double disty=dmin+dmax;
+	 double bias_xy=3;
+	 double totdist = distx+disty*bias_xy;
+	 
+	 //if (maxy!=scan_->end()) std::cout << "             MaxY:"<<X(*maxy)<<"/"<<Y(*maxy)<<" ("<<(dmin/disty) * distx/totdist <<")"<<std::endl;
+         //std::cout <<X(*it)<<"/"<<Y(*it) <<" ("<< ((1.-r   /distx) * disty/totdist)<<")"<<"       -> "<<current_x<<" <  NextX:"
+	 //          <<  X(*nextx)<<"/"<<Y(*nextx)<<" ("<< ((r/distx) * disty/totdist)<<")"<<std::endl; 
+	 //if (miny!=scan_->end()) std::cout << "             MinY:"<<X(*miny)<<"/"<<Y(*miny)<<" ("<< (dmax/disty * distx/totdist)<<")"<<std::endl;
+	 	 
+         //std::cout <<X(*it)<<"/"<<Y(*it) <<"->"
+	 //          <<  X(*it)*r/dist + (x(*nextx) * (1.-r/dist)) << "<- "<<x(*nextx) 
+	 //          <<"/"<< y(*nextx)<<std::endl;
+	 if (miny!=scan_->end() && maxy!=scan_->end() && nextx!=scan_->end()) {
+	         newpoints.push_back( Event( ( 
+		                       (*it   * ((1.-r   /distx) * disty*bias_xy/totdist)) + (*nextx * ((r/distx) * disty*bias_xy/totdist)) +
+	                               (*miny * (dmax/disty * distx/totdist)) + (*maxy  * ((dmin/disty) * distx/totdist))
+	                           ) ) );
+	   //std::cout << "----------------------\n"
+	   //          <<"added point >> "<<X(newpoints.back())<<"/"<<Y(newpoints.back())<<std::endl;
+	 	 
+	   
+	 }			   
+         else if (nextx!=scan_->end())			 
+	         newpoints.push_back( Event( ( (*it * (1.-r/distx)) + (*nextx * (r/distx)) )));
+
+         else if (miny!=scan_->end() && maxy!=scan_->end())			 
+	         newpoints.push_back( Event( ( (*miny * (dmax/disty)) + (*maxy  * ((dmin/disty))) )));
+//	 std::cout<<std::endl;
+//	 std::cout<<std::endl;
        }	 
     }	
 

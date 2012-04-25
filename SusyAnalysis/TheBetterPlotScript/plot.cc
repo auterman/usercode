@@ -109,7 +109,7 @@ void DrawStandardPlots(PlotTools *pt, const std::string& flag, const std::string
 
    //Linear z-scale
    c1->SetLogz(0);
-   DrawPlot2D(pt,c1,h,flag,x,y,"Acceptance",        "Acceptance", 0.0, 25.);
+   DrawPlot2D(pt,c1,h,flag,x,y,"Acceptance",        "Acceptance", 0.0, 30.);
 
    //1D Histograms
    DrawHist1D(pt,c1,flag,x,y,"SignalStatUnc",	  "Rel. Signal Statistical uncertainty", 20);
@@ -126,6 +126,7 @@ void DrawStandardPlots(PlotTools *pt, const std::string& flag, const std::string
 
 void DrawStandardLimitPlots(PlotTools *pt, const std::string& flag, const std::string& x, const std::string& y, TH2*h)
 {
+
    c1->SetRightMargin(0.18);
    
    //Log z-scale
@@ -161,18 +162,10 @@ void DrawStandardPlotsPerBin(PlotTools *pt, const std::string& flag, const std::
       DrawPlot2D(pt,c1,h,flag,x,y,"signal_"+b+"_stat_DN",	"Signal Stat. DN [%]"+bl, 0.01, 100.);	
       DrawPlot2D(pt,c1,h,flag,x,y,"signal_"+b+"_syst_UP",	"Signal Syst. UP [%]"+bl, 0.01, 100.);	
       DrawPlot2D(pt,c1,h,flag,x,y,"signal_"+b+"_syst_DN",	"Signal Syst. DN [%]"+bl, 0.01, 100.);	
-      DrawPlot2D(pt,c1,h,flag,x,y,"signal_"+b+"_AccPDF_UP",	"Signal Acc. PDF UP [%]"+bl, 0.01, 100.);	
-      DrawPlot2D(pt,c1,h,flag,x,y,"signal_"+b+"_AccPDF_DN",	"Signal Acc. PDF DN [%]"+bl, 0.01, 100.);	
-      DrawPlot2D(pt,c1,h,flag,x,y,"signal_"+b+"_ScaleUP",	"Signal Scale UP [%]"+bl, 0.01, 100.);	
-      DrawPlot2D(pt,c1,h,flag,x,y,"signal_"+b+"_Scale_DN",	"Signal Scale DN [%]"+bl, 0.01, 100.);	
-      DrawPlot2D(pt,c1,h,flag,x,y,"signal_"+b+"_XsecPDF_UP",	"Signal Xsec. PDF UP [%]"+bl, 0.01, 100.);   
-      DrawPlot2D(pt,c1,h,flag,x,y,"signal_"+b+"_XsecPDF_DN",	"Signal Xsec. PDF DN [%]"+bl, 0.01, 100.);   
+      DrawPlot2D(pt,c1,h,flag,x,y,"signal_"+b+"_theory_UP",	"Signal Theory UP [%]"+bl, 0.01, 100.);	
+      DrawPlot2D(pt,c1,h,flag,x,y,"signal_"+b+"_theory_DN",	"Signal Theory DN [%]"+bl, 0.01, 100.);	
       DrawPlot2D(pt,c1,h,flag,x,y,"signal_"+b+"_trigger_UP",	"Signal trigger UP [%]"+bl, 0.01, 100.);   
       DrawPlot2D(pt,c1,h,flag,x,y,"signal_"+b+"_trigger_DN", 	"Signal trigger DN [%]"+bl, 0.01, 100.);   
-      DrawPlot2D(pt,c1,h,flag,x,y,"signal_"+b+"_JES_UP",	"Signal JES UP [%]"+bl, 0.01, 100.);   
-      DrawPlot2D(pt,c1,h,flag,x,y,"signal_"+b+"_JES_DN", 	"Signal JES DN [%]"+bl, 0.01, 100.);   
-      DrawPlot2D(pt,c1,h,flag,x,y,"signal_"+b+"_JER_UP",	"Signal JER UP [%]"+bl, 0.01, 100.);   
-      DrawPlot2D(pt,c1,h,flag,x,y,"signal_"+b+"_JER_DN", 	"Signal JER DN [%]"+bl, 0.01, 100.);   
 
       //1D Histograms
       DrawHist1D(pt,c1,flag,x,y,"signal_"+b+"_contamination", "Signal contamination [%]"+bl, 20);
@@ -180,18 +173,10 @@ void DrawStandardPlotsPerBin(PlotTools *pt, const std::string& flag, const std::
       DrawHist1D(pt,c1,flag,x,y,"signal_"+b+"_stat_DN",       "Signal Stat. DN [%]"+bl, 20);  
       DrawHist1D(pt,c1,flag,x,y,"signal_"+b+"_syst_UP",       "Signal Syst. UP [%]"+bl, 20);  
       DrawHist1D(pt,c1,flag,x,y,"signal_"+b+"_syst_DN",       "Signal Syst. DN [%]"+bl, 20);  
-      DrawHist1D(pt,c1,flag,x,y,"signal_"+b+"_AccPDF_UP",     "Signal Acc. PDF UP [%]"+bl, 20);       
-      DrawHist1D(pt,c1,flag,x,y,"signal_"+b+"_AccPDF_DN",     "Signal Acc. PDF DN [%]"+bl, 20);       
-      DrawHist1D(pt,c1,flag,x,y,"signal_"+b+"_ScaleUP",       "Signal Scale UP [%]"+bl, 20);  
-      DrawHist1D(pt,c1,flag,x,y,"signal_"+b+"_Scale_DN",      "Signal Scale DN [%]"+bl, 20);  
-      DrawHist1D(pt,c1,flag,x,y,"signal_"+b+"_XsecPDF_UP",    "Signal Xsec. PDF UP [%]"+bl, 20);   
-      DrawHist1D(pt,c1,flag,x,y,"signal_"+b+"_XsecPDF_DN",    "Signal Xsec. PDF DN [%]"+bl, 20);   
+      DrawHist1D(pt,c1,flag,x,y,"signal_"+b+"_theory_UP",     "Signal Acc. PDF UP [%]"+bl, 20);       
+      DrawHist1D(pt,c1,flag,x,y,"signal_"+b+"_theory_DN",     "Signal Acc. PDF DN [%]"+bl, 20);       
       DrawHist1D(pt,c1,flag,x,y,"signal_"+b+"_trigger_UP",    "Signal trigger UP [%]"+bl, 20);   
       DrawHist1D(pt,c1,flag,x,y,"signal_"+b+"_trigger_DN",    "Signal trigger DN [%]"+bl, 20);   
-      DrawHist1D(pt,c1,flag,x,y,"signal_"+b+"_JES_UP",        "Signal JES UP [%]"+bl, 20);   
-      DrawHist1D(pt,c1,flag,x,y,"signal_"+b+"_JES_DN",        "Signal JES DN [%]"+bl, 20);   
-      DrawHist1D(pt,c1,flag,x,y,"signal_"+b+"_JER_UP",        "Signal JER UP [%]"+bl, 20);   
-      DrawHist1D(pt,c1,flag,x,y,"signal_"+b+"_JER_DN",        "Signal JER DN [%]"+bl, 20);   
    }
    
 }
@@ -201,7 +186,7 @@ void DrawExclusion(PlotTools *PlotTool, std::string flag, const std::string& x, 
 {
    //Require an observed CLs limit:
    PlotTool->Remove("ObsR", Compare::less, 0.0);
-   PlotTool->FillEmptyPointsByInterpolation(x, y);
+   PlotTool->FillEmptyPointsByInterpolation1D(x, y);
  
    //Xsection
    {TH2F *hxsec = (TH2F*)h->Clone();
@@ -577,7 +562,7 @@ void GetPlotTools(PlotTools*& plotTools, std::string filename, std::string Gener
   plotTools->Remove("ObsR", Compare::less, 0.0);
 
 
-  plotTools->FillEmptyPointsByInterpolation("Mzero", "Mhalf");
+  //plotTools->FillEmptyPointsByInterpolation("Mzero", "Mhalf");
 
 
   //Make grid in Mzero, Mhalf finer by factors of 2 by linear interpolation
@@ -626,9 +611,13 @@ int plot(int argc, char** argv) {
   TH2F h_plot("h",";m_{0} (GeV/c^{2}); m_{1/2} (GeV/c^{2}); cross section [pb]",
           148,50, 3010, 47, 90, 1030);
 
+
+  //PlotTool->Remove("ObsR", Compare::less, 0.000001);
+  //PlotTool->FillEmptyPointsByInterpolation("Mzero", "Mhalf");
+
   c1=c_square; c1->cd();
   DrawStandardPlots(      PlotTool, "cMSSM", "Mzero", "Mhalf", &h_plot);
-  //DrawStandardPlotsPerBin(PlotTool, "cMSSM", "Mzero", "Mhalf", &h_plot);
+  DrawStandardPlotsPerBin(PlotTool, "cMSSM", "Mzero", "Mhalf", &h_plot);
 
 
   TH2F h1("h1",";m_{0} (GeV/c^{2}); m_{1/2} (GeV/c^{2}); cross section [pb]",
