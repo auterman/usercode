@@ -32,15 +32,17 @@ void PlotTools::Area(TH2*h, const std::string& x, const std::string& y, const st
 }
 
 void PlotTools::InOutFromR(TH2*h, const std::string& x, const std::string& y, const std::string& f, int param) {
-  Area(h,x,y,f);
-  Smooth(h,param);
+  TH2F*d=(TH2F*)h->Clone();
+  Area(d,x,y,f);
+  Smooth(d,param);
   for (int x = 0; x <= h->GetXaxis()->GetNbins(); ++x){
     for (int y = 0; y <= h->GetYaxis()->GetNbins(); ++y){
-      double r=h->GetBinContent(x,y);
+      double r=d->GetBinContent(x,y);
       if (r>0)
       h->SetBinContent(x,y,(r > 1.0 ? 1 : 0.01)); 
     }
   }
+  delete d;
 }
 
 void PlotTools::InOut(TH2*h, const std::string& x, const std::string& y, const std::string& f, const Compare::comparator op, const double value)
@@ -366,8 +368,9 @@ TGraph * PlotTools::GetContour(TH2*h, int ncont, int flag) {
 
 
 TGraph * PlotTools::GetContour(TH2*h, const std::string& x, const std::string& y, const std::string& func, 
-                    int ncont, int flag, int color, int style) {
+                    int ncont, int flag, int color, int style, TH2*o) {
 	InOutFromR(h, x, y, func, 3);
+	if (o) h = BinWiseOr(h,o);
 	TGraph * graph = GetContour(h, ncont, flag);
 	graph->SetLineColor(color);
 	graph->SetLineStyle(style);
@@ -401,18 +404,18 @@ void PlotTools::Print(double(*f)(const T*), double(*x1)(const T*), double(*x2)(c
 	}
 
 }
+*/
 
 TH2 * BinWiseOr(TH2*h1, TH2*h2) {
 	TH2 * res = (TH2*) h1->Clone();
 	for (int x = 0; x <= res->GetXaxis()->GetNbins(); ++x)
 		for (int y = 0; y <= res->GetYaxis()->GetNbins(); ++y)
-			if (h2->GetBinContent(x, y) > 0.5)
+			if (h2->GetBinContent(x, y) > h1->GetBinContent(x, y))
 				res->SetBinContent(x, y, h2->GetBinContent(x, y));
 	return res;
 }
 
 
-*/
 
 bool sort_TGraph::operator()(const TGraph*g1, const TGraph*g2) {
 	return g1->GetN() > g2->GetN();

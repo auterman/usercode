@@ -35,6 +35,9 @@ TGraph*   MakeBand(TGraph *g1, TGraph *g2, bool b=false);
 ///returns the official cMSSM plotting template, i.e. the background with previous limits, etc
 TCanvas*  GetLimitTemplateCanvas(std::string file,std::string key);
 
+TH2 * BinWiseOr(TH2*h1, TH2*h2);
+
+
 class PlotTools {
  public:
  
@@ -72,7 +75,7 @@ class PlotTools {
 
   ///Returns contour number 'flag' of a vector of all found contours sorted by length. 'ncont' specifies the number of differnt heights for wich contours are calculated. 'flag' can be larger than 'ncont'.
   TGraph * GetContour(TH2*,const std::string& x,const std::string& y,const std::string& f, 
-                      int ncont=20, int flag=0,int color=1, int style=1);
+                      int ncont=20, int flag=0,int color=1, int style=1, TH2* o=0);
 
   ///Delete points, for which the boolean result of the operation 'co' of 'var' with 'value' is true. 
   void Remove(const std::string& var, const Compare::comparator co, double value);

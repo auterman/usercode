@@ -6,6 +6,7 @@
 #include <sstream>
 #include <iostream>
 #include <algorithm>
+#include <cmath>
 
 
 void ReadEvent(Event& evt, ConfigFile& config)
@@ -62,8 +63,7 @@ void ReadEvent(Event& evt, ConfigFile& config)
     evt.Set( "signal_"+flag+"_theory_UP",   100.*evt.Get("signal_"+flag+"_AccPDF_UP")/signal );   
     evt.Set( "signal_"+flag+"_theory_DN",   100.*evt.Get("signal_"+flag+"_AccPDF_DN")/signal );   
     evt.Set( "signal_"+flag+"_trigger_UP",  100.*evt.Get("signal_"+flag+"_trigger_UP")/signal );  
-    evt.Set( "signal_"+flag+"_trigger_DN",  100.*evt.Get("signal_"+flag+"_trigger_DN")/signal );   
-  
+    evt.Set( "signal_"+flag+"_trigger_DN",  100.*evt.Get("signal_"+flag+"_trigger_DN")/signal );     
   }
 
 }
@@ -86,6 +86,13 @@ void CalculateVariablesOnTheFly(Event& evt)
   }
   evt.Add( Variable(evt.Get("ObsR")+evt.Get("u_signal_theory")/signal, new Info("ObsRtheory","") ) );
   evt.Add( Variable((N!=0?100.*signal/N:0), new Info("Acceptance","") ) );
+  evt.Add( Variable( signal, new Info("signal","") ) );
+  
+  double scl = evt.Get("u_signal_theory")/signal;
+  evt.Add( Variable( evt.Get("ObsR")*(1.+scl), new Info("ObsRTheoM1","") ) );
+  evt.Add( Variable( evt.Get("ObsR")*(1.-scl), new Info("ObsRTheoP1","") ) );
+  evt.Add( Variable( evt.Get("ExpR")*(1.+scl), new Info("ExpRTheoM1","") ) );
+  evt.Add( Variable( evt.Get("ExpR")*(1.-scl), new Info("ExpRTheoP1","") ) );
 }
 
 void AddGeneratorVariables(Event& evt, GeneratorMasses& p)
