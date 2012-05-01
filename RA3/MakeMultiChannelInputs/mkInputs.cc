@@ -191,7 +191,18 @@ public:
 			ofile << "# signal.qcd.contamination = " << it->qcd_contamination << "\n";
 			ofile << "# signal.ewk.contamination = " << it->ewk_contamination << "\n";
 			ofile << "# signal.contamination = " << it->qcd_contamination + it->ewk_contamination << "\n";
-                        int n_channels    = it->bins.size();
+                        ///some rough by-hand calculation of 'R' to pre-define (and check) the search range:
+			double u_signal2 =           pow(it->bins[b].u_scaleDataMC-1.,2) +
+						     pow(luminosityUncertainty -1,2)+
+      			                             pow(it->bins[b].u_jes-1.,2) +
+      			                             pow(it->bins[b].u_pdfacc-1.,2);
+			double u_back2 = pow(it->u_qcd,2)+pow(it->u_qcd_stat,2)+pow(it->u_ewk,2)+pow(it->u_ewk_stat,2)+pow(it->u_fsr,2)+pow(it->u_fsr_stat,2);			
+			double R = sqrt(it->data + u_signal2 + u_back2)/(it->signal-it->qcd_contamination-it->ewk_contamination);
+			ofile << "# R_p2sigma = " << R/0.025 << "\n";
+			ofile << "# R = "         << R/2.    << "\n";
+			ofile << "# R_m2sigma = " << R/0.975 << "\n";
+			///---
+			int n_channels    = it->bins.size();
 			int n_backgrounds = 3;
 			int n_nuisance    = 5 + n_channels*4; //systs & stats
 			double d=0,b=0,s=0,cont=0;
