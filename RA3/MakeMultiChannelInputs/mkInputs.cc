@@ -557,6 +557,7 @@ void ReadSignalAcceptance(std::string label, std::string sig_file, std::string d
     double scaleDataMC = 0.99; //scale
     p.u_jes = 1.02;             //factorial uncertainty
     p.u_scaleDataMC = 1.04;    //factorial uncertainty
+    
     //std::cout<<std::endl<<"m(gl)="<<p.gluino<<", m(sq)="<< p.squark<<std::endl;
     for (int c=0;c<n_channels;++c){
 
@@ -586,6 +587,8 @@ void ReadSignalAcceptance(std::string label, std::string sig_file, std::string d
 
       channel.u_jes = p.u_jes;
       channel.u_scaleDataMC = p.u_scaleDataMC;
+      
+      //std::cout<<c<<": s="<<channel.signal<< ", s (w/o cont)="<<channel.signal-channel.qcd_contamination-channel.ewk_contamination<<std::endl;
 
       if (channel.signal-channel.qcd_contamination-channel.ewk_contamination>0. ) {
         p.bins.push_back( channel );
@@ -653,9 +656,9 @@ void AddSMSXsec(std::string filelist) {
 	   for (std::vector<point *>::iterator it = aPoints.begin(); it != aPoints.end(); ++it){
 	  	 point * a = *it;
 	  	 if (a && !a->u_NLO){
-	  		  std::cout << "READ XSEC:" << p.xsecNLO << std::endl;
-	  			   std::cout << "sq" << a->squark << std::endl;
-	  			   std::cout << "gl" <<a->gluino << std::endl;
+	  		  //std::cout << "READ XSEC:" << p.xsecNLO << std::endl;
+	  		//	   std::cout << "sq" << a->squark << std::endl;
+	  		//	   std::cout << "gl" <<a->gluino << std::endl;
 	  	 	    // a->xsec        = p.xsec;
 	  	 	     a->xsecNLO     = p.xsecNLO;
 	  	 	     a->signal     *= luminosity*p.xsecNLO/a->totalGenerated;
@@ -675,6 +678,9 @@ void AddSMSXsec(std::string filelist) {
 	  	 	       bin->u_NLO = 1.0 + NLO_up / p.xsecNLO; //assume that 'u_NLO_up' is the absolute uncertainty in the same units as 'xsecNLO'
 		               bin->u_pdfxsec = 1.0;
 			       bin->u_pdfacc  = 1.0;
+			       
+			       //std::cout<<bin-a->bins.begin()<<": s="<<bin->signal<< ", s (w/o cont)="<<bin->signal-bin->qcd_contamination-bin->ewk_contamination<<std::endl;
+
 	  	 	     }
 	  	 	   }
 	  	 	   //else Points.Add(p); //We don't actually want x-sections for points for which we don't have event yields
@@ -788,8 +794,10 @@ void DeleteBins(point& p, unsigned bmin=0, unsigned bmax=-1){
   p.bins.erase(p.bins.begin()+bmin, p.bins.begin()+bmax);
 }
 
-point * MergeBins(const point& p, unsigned bmin=0, unsigned bmax=-1){
-  if (bmax<bmin||bmax>p.bins.size()) bmax=p.bins.size();
+point * MergeBins(const point& p, int bmin=0, int bmax=-1)
+{
+//std::cout<<"bmin="<<bmin<<", bmax="<<bmax<<", p.bins="<<p.bins.size()<<std::endl;
+  if (bmax<bmin||bmax>(int)p.bins.size()) bmax=p.bins.size();
   point * res = new point(p);
   if (p.bins.size()<=0||bmax-bmin<=0) return res;
   
@@ -803,7 +811,7 @@ point * MergeBins(const point& p, unsigned bmin=0, unsigned bmax=-1){
   res->bins[bmin].u_qcd      = (res->bins[bmin].u_qcd-1.0)	      * res->bins[bmin].bgd_qcd;      
   res->bins[bmin].u_ewk      = (res->bins[bmin].u_ewk-1.0)	      * res->bins[bmin].bgd_ewk;      
   res->bins[bmin].u_fsr      = (res->bins[bmin].u_fsr-1.0)          * res->bins[bmin].bgd_fsr;      
-  for (unsigned i=bmin+1; i<=bmax; ++i){
+  for (int i=bmin+1; i<=bmax; ++i){
     res->bins[bmin].signal +=         res->bins[i].signal;
     res->bins[bmin].bgd_qcd +=        res->bins[i].bgd_qcd;
     res->bins[bmin].bgd_ewk +=	      res->bins[i].bgd_ewk;
@@ -948,6 +956,7 @@ int main(int argc, char* argv[]) {
 	//AddPDFxsec("inputWinter11/PDFcrossBino_NeutrScan.txt");
 	//AddPDFAcceptance("inputWinter11/PDFacceptanceBino_NeutrScan.txt");
 	{
+	std::cout<<"Now merging bins"<<std::endl;
 		points MergedPoints;
 		for (std::vector<point>::iterator it = Points.Get()->begin(); it != Points.Get()->end(); ++it)
 			MergedPoints.Add(*MergeBins(*it, 6));
