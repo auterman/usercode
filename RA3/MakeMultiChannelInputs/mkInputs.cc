@@ -151,16 +151,17 @@ public:
 					<< it->chi << ".txt";
 			ofile.open(ss.str().c_str());
 			
-			double u_signal2 =   pow(it->u_NLO,2) +
-				             pow(it->u_pdfxsec ,2) +
-				             pow(it->u_pdfacc ,2) +
+			double u_signal_exp2 =pow(it->u_pdfacc ,2) +
 				             pow(it->u_sig_stat ,2) +
 				             pow(luminosityUncertainty-1,2) + //lumi-err not included since correlated with backgd
 				             pow(it->u_scaleDataMC-1 ,2) + //factorial
 					     pow(it->u_jes-1 ,2); //factorial
 
+			double u_signal_theo2 =   pow(it->u_NLO,2) +
+				             pow(it->u_pdfxsec ,2);
+
 			double u_acc = it->signal/(it->xsecNLO * it->lumi ) *
-			               sqrt( u_signal2 );
+			               sqrt( u_signal_exp2 +u_signal_theo2 );
 			ofile << "# gluino = " << it->gluino << "\n";
 			ofile << "# squark = " << it-> squark << "\n";
 			ofile << "# chi1 = " << it-> chi << "\n";
@@ -194,10 +195,12 @@ public:
 			ofile << "# signal.contamination = " << it->qcd_contamination + it->ewk_contamination << "\n";
                         ///some rough by-hand calculation of 'R' to pre-define (and check) the search range:
 			double u_back2 = pow(it->u_qcd,2)+pow(it->u_qcd_stat,2)+pow(it->u_ewk,2)+pow(it->u_ewk_stat,2)+pow(it->u_fsr,2)+pow(it->u_fsr_stat,2);			
-			double R = sqrt(it->data + u_signal2 + u_back2)/(it->signal-it->qcd_contamination-it->ewk_contamination);
-			ofile << "# R_p2sigma = " << R/0.025 << "\n";
+			double R = sqrt(it->data + u_signal_exp2*it->signal*it->signal + u_back2*(it->bgd_qcd + it->bgd_ewk + it->bgd_fsr)*(it->bgd_qcd + it->bgd_ewk + it->bgd_fsr))/(it->signal-it->qcd_contamination-it->ewk_contamination);
+			ofile << "# s = " << it->signal << "+-"<< it->signal*sqrt(u_signal_exp2) <<"\n";
+			ofile << "# b = " << (it->bgd_qcd + it->bgd_ewk + it->bgd_fsr)<< "+-"<< sqrt(u_back2)*(it->bgd_qcd + it->bgd_ewk + it->bgd_fsr)<<"\n";
 			ofile << "# R = "         << R/2.    << "\n";
-			ofile << "# R_m2sigma = " << R/0.975 << "\n";
+			ofile << "# R_m2sigma = " << R/4 << "\n";
+			ofile << "# R_p2sigma = " << R << "\n";
 			///---
 			int n_channels    = it->bins.size();
 			int n_backgrounds = 3;
@@ -287,7 +290,6 @@ public:
 			  double u_sig = 1.0 + sqrt( //pow(it->bins[b].u_NLO-1.,2) +
       			                             //pow(it->bins[b].u_pdfxsec-1.,2) +
       			                             pow(it->bins[b].u_scaleDataMC-1.,2) +
-						     pow(luminosityUncertainty -1,2)+
       			                             pow(it->bins[b].u_jes-1.,2) +
       			                             pow(it->bins[b].u_pdfacc-1.,2) );
         		  sys << ToString(u_sig,"-") // signal
@@ -397,7 +399,6 @@ public:
 			  double u_sig = 1.0 + sqrt( //pow(it->bins[b].u_NLO-1.,2) +
 			                             pow(it->bins[bin].u_sig_stat-1,2) +
       			                             //pow(it->bins[bin].u_pdfxsec-1.,2) +
-						     pow(luminosityUncertainty -1,2)+
         			                     pow(it->bins[bin].u_scaleDataMC-1.,2) +
       			                             pow(it->bins[bin].u_jes-1.,2) +
       			                             pow(it->bins[bin].u_pdfacc-1.,2) );
@@ -539,13 +540,15 @@ void ReadSignalAcceptance(std::string label, std::string sig_file, std::string d
     std::vector<double> sig_qcd = bag_of<double>(cfg->read<std::string>(ss.str()+"_bkgQCDBinned"+label));
     std::vector<double> sig_ewk = bag_of<double>(cfg->read<std::string>(ss.str()+"_bkgEWKBinned"+label));
     int n_channels = data.size();
-    if ((int)qcd.size()!=n_channels ||(int)ewk.size()!=n_channels ||(int)fsr.size()!=n_channels ||(int)sig.size()!=n_channels) {
+    if ((int)qcd.size()!=n_channels ||(int)ewk.size()!=n_channels ||(int)fsr.size()!=n_channels ||
+        (int)sig.size()!=n_channels || (int)sig_ewk.size()!=n_channels) {
       std::cerr << "ERROR: inconstitent number of channels at signalpoint "<<n-1
                 << "; data=" << data.size()
                 << "; qcd=" << qcd.size()
                 << "; ewk=" << ewk.size()
                 << "; fsr=" << fsr.size()
                 << "; sig=" << sig.size()
+		<< "; sig_ewk="<<sig_ewk.size()
 		<<std::endl;
       continue;
     }
@@ -584,7 +587,7 @@ void ReadSignalAcceptance(std::string label, std::string sig_file, std::string d
       channel.u_jes = p.u_jes;
       channel.u_scaleDataMC = p.u_scaleDataMC;
 
-      if (channel.signal>0. ) {
+      if (channel.signal-channel.qcd_contamination-channel.ewk_contamination>0. ) {
         p.bins.push_back( channel );
       
 	p.signal  += channel.signal;
@@ -603,6 +606,7 @@ void ReadSignalAcceptance(std::string label, std::string sig_file, std::string d
       }
   }
 
+  //store total uncertainties per point *relative*, e.g. u_qcd=0.10 means 10% on qcd:
   p.u_lumi = (luminosityUncertainty-1.)*luminosity;
   p.u_sig_stat  = sqrt(p.signal)/p.totalGenerated; 
   p.u_qcd       = p.u_qcd / p.bgd_qcd - 1;
@@ -661,12 +665,16 @@ void AddSMSXsec(std::string filelist) {
 	  	 	     a->u_NLO       = NLO_up / p.xsecNLO;
 	  	 	     a->u_NLO_Up    = NLO_up / p.xsecNLO;
 	  	 	     a->u_NLO_Dn    = NLO_dn / p.xsecNLO;
-	  	 	     for (std::vector<point::bin>::iterator bin=a->bins.begin(); bin!=a->bins.end(); ++bin) {
+	  		     a->u_pdfxsec   = 0;
+			     a->u_pdfacc    = 0;
+           	             for (std::vector<point::bin>::iterator bin=a->bins.begin(); bin!=a->bins.end(); ++bin) {
 	  	 	       bin->signal     *= luminosity*p.xsecNLO/a->totalGenerated;
 	  	 	       //bin->u_sig_stat *= luminosity*p.xsecNLO/a->totalGenerated;
 	  	 	       bin->qcd_contamination *= luminosity*p.xsecNLO/a->totalGenerated;
 	  	 	       bin->ewk_contamination *= luminosity*p.xsecNLO/a->totalGenerated;
 	  	 	       bin->u_NLO = 1.0 + NLO_up / p.xsecNLO; //assume that 'u_NLO_up' is the absolute uncertainty in the same units as 'xsecNLO'
+		               bin->u_pdfxsec = 1.0;
+			       bin->u_pdfacc  = 1.0;
 	  	 	     }
 	  	 	   }
 	  	 	   //else Points.Add(p); //We don't actually want x-sections for points for which we don't have event yields
@@ -830,7 +838,7 @@ point * MergeBins(const point& p, unsigned bmin=0, unsigned bmax=-1){
 }
 
 int main(int argc, char* argv[]) {
-   ////////////////Wino Limits 375
+/*   ////////////////Wino Limits 375
    //3-jets
    {
    Points.Reset();
@@ -929,7 +937,7 @@ int main(int argc, char* argv[]) {
    MergedPoints.Write("GMSB_SquarkGluino_vs_Neutralino2j/GMSB");
    MergedPoints.WriteSingleBin("GMSB_SquarkGluino_vs_NeutralinoSingleChannels2j/GMSB");
    }
-   
+*/   
    ////////////////////////////////////////////////////////////////////
    //New-stuff, i.e. official SMS and new private scans March 2012//
    ////////////////////////////////////////////////////////////////////
@@ -938,23 +946,24 @@ int main(int argc, char* argv[]) {
 	ReadSignalAcceptance("2j", "inputWinter11/signalAcceptanceT1lg_Mar30.dat", "inputWinter11/data_postApproval20120403.txt");
 	AddSMSXsec("inputWinter11/SMS_XS.dat");
 	//AddPDFxsec("inputWinter11/PDFcrossBino_NeutrScan.txt");
-	AddPDFAcceptance("inputWinter11/PDFacceptanceBino_NeutrScan.txt");
+	//AddPDFAcceptance("inputWinter11/PDFacceptanceBino_NeutrScan.txt");
 	{
 		points MergedPoints;
 		for (std::vector<point>::iterator it = Points.Get()->begin(); it != Points.Get()->end(); ++it)
 			MergedPoints.Add(*MergeBins(*it, 6));
 		std::system("mkdir GMSB_T1lg2j");
 		//std::system("mkdir GMSB_T1lgSingleChannels2j");
-		MergedPoints.Write("GMSB_T1lg2j/GMSB");
+		Points.Write("GMSB_T1lg2j/GMSB");
 		// MergedPoints.WriteSingleBin("GMSB_T1lgSingleChannels2j/GMSB");
 	}
 
+/*
 	//T1gg, 2-jet
 	Points.Reset();
 	ReadSignalAcceptance("2j", "inputWinter11/signalAcceptanceT1gg_Mar30.dat", "inputWinter11/data_postApproval20120403.txt");
 	AddSMSXsec("inputWinter11/SMS_XS.dat");
 	//AddPDFxsec("inputWinter11/PDFcrossBino_NeutrScan.txt");
-	AddPDFAcceptance("inputWinter11/PDFacceptanceBino_NeutrScan.txt");
+	//AddPDFAcceptance("inputWinter11/PDFacceptanceBino_NeutrScan.txt");
 	{
 		points MergedPoints;
 		for (std::vector<point>::iterator it = Points.Get()->begin(); it != Points.Get()->end(); ++it)
@@ -964,7 +973,7 @@ int main(int argc, char* argv[]) {
 		MergedPoints.Write("GMSB_T1gg2j/GMSB");
 		// MergedPoints.WriteSingleBin("GMSB_T1ggSingleChannels2j/GMSB");
 	}
-   
+*/   
 
    
    
