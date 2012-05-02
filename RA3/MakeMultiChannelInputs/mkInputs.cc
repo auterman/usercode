@@ -194,24 +194,40 @@ public:
 			ofile << "# signal.ewk.contamination = " << it->ewk_contamination << "\n";
 			ofile << "# signal.contamination = " << it->qcd_contamination + it->ewk_contamination << "\n";
                         ///some rough by-hand calculation of 'R' to pre-define (and check) the search range:
-			double u_back2 = pow(it->u_qcd,2)+pow(it->u_qcd_stat,2)+pow(it->u_ewk,2)+pow(it->u_ewk_stat,2)+pow(it->u_fsr,2)+pow(it->u_fsr_stat,2);			
-			double R = sqrt(it->data + u_signal_exp2*it->signal*it->signal + u_back2*(it->bgd_qcd + it->bgd_ewk + it->bgd_fsr)*(it->bgd_qcd + it->bgd_ewk + it->bgd_fsr))/(it->signal-it->qcd_contamination-it->ewk_contamination);
-			ofile << "# s = " << it->signal << "+-"<< it->signal*sqrt(u_signal_exp2) <<"\n";
-			ofile << "# b = " << (it->bgd_qcd + it->bgd_ewk + it->bgd_fsr)<< "+-"<< sqrt(u_back2)*(it->bgd_qcd + it->bgd_ewk + it->bgd_fsr)<<"\n";
-			ofile << "# R = "         << R/2.    << "\n";
-			ofile << "# R_m2sigma = " << R/4 << "\n";
-			ofile << "# R_p2sigma = " << R << "\n";
+			//double u_back2 = pow(it->u_qcd,2)+pow(it->u_qcd_stat,2)+pow(it->u_ewk,2)+pow(it->u_ewk_stat,2)+pow(it->u_fsr,2)+pow(it->u_fsr_stat,2);			
+			//double R = sqrt(it->data + u_signal_exp2*it->signal*it->signal + u_back2*(it->bgd_qcd + it->bgd_ewk + it->bgd_fsr)*(it->bgd_qcd + it->bgd_ewk + it->bgd_fsr))/(it->signal-it->qcd_contamination-it->ewk_contamination);
+			//ofile << "# s = " << it->signal << "+-"<< it->signal*sqrt(u_signal_exp2) <<"\n";
+			//ofile << "# b = " << (it->bgd_qcd + it->bgd_ewk + it->bgd_fsr)<< "+-"<< sqrt(u_back2)*(it->bgd_qcd + it->bgd_ewk + it->bgd_fsr)<<"\n";
+			//ofile << "# R = "         << R/2.    << "\n";
+			//ofile << "# R_m2sigma = " << R/8. << "\n";
+			//ofile << "# R_p2sigma = " << 2.*R << "\n";
 			///---
 			int n_channels    = it->bins.size();
 			int n_backgrounds = 3;
 			int n_nuisance    = 5 + n_channels*4; //systs & stats
-			double d=0,b=0,s=0,cont=0;
+			double d=0,b=0,s=0,cont=0,unc,R,Rmin=9999999999999;
 			for (int bin=1; bin<=n_channels; ++bin){
 			  d+=it->bins[bin-1].data;
 			  b+=it->bins[bin-1].bgd_qcd + it->bins[bin-1].bgd_ewk + it->bins[bin-1].bgd_fsr;
 			  s+=it->bins[bin-1].signal;
 			  cont+=it->bins[bin-1].qcd_contamination + it->bins[bin-1].ewk_contamination;
+			  unc=sqrt( it->bins[bin-1].data +
+      			            pow(it->bins[bin-1].u_scaleDataMC-1.,2) +
+      			            pow(it->bins[bin-1].u_jes-1.,2) +
+      			            pow(it->bins[bin-1].u_pdfacc-1.,2) +
+				    pow(it->bins[bin-1].u_lumi-1,2) +
+				    pow(it->bins[bin-1].u_qcd-1,2) +
+				    pow(it->bins[bin-1].u_ewk-1,2) +
+				    pow(it->bins[bin-1].u_fsr-1,2) +
+				    pow(it->bins[bin-1].u_sig_stat-1,2) +
+				    pow(it->bins[bin-1].u_qcd_stat-1,2) +
+				    pow(it->bins[bin-1].u_ewk_stat-1,2) +
+				    pow(it->bins[bin-1].u_fsr_stat-1,2) 
+				  );
+			  R=2.*unc/it->bins[bin-1].signal;
+			  if (R<Rmin) Rmin=R;	  
 			}
+			ofile << "# R_firstguess = " << Rmin << "\n";
 			ofile << "## data = " << d << "\n";
 			ofile << "## background = " << b << "\n";
 			ofile << "## signal = " << s << "\n";
@@ -980,7 +996,8 @@ int main(int argc, char* argv[]) {
 		// std::system("mkdir GMSB_T1ggSingleChannels2j");
 		MergedPoints.Write("GMSB_T1gg2j/GMSB");
 		// MergedPoints.WriteSingleBin("GMSB_T1ggSingleChannels2j/GMSB");
-	}   
+	}
+  
 
    
    
