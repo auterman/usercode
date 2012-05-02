@@ -846,7 +846,7 @@ point * MergeBins(const point& p, int bmin=0, int bmax=-1)
 }
 
 int main(int argc, char* argv[]) {
-/*   ////////////////Wino Limits 375
+   ////////////////Wino Limits 375
    //3-jets
    {
    Points.Reset();
@@ -945,7 +945,7 @@ int main(int argc, char* argv[]) {
    MergedPoints.Write("GMSB_SquarkGluino_vs_Neutralino2j/GMSB");
    MergedPoints.WriteSingleBin("GMSB_SquarkGluino_vs_NeutralinoSingleChannels2j/GMSB");
    }
-*/   
+
    ////////////////////////////////////////////////////////////////////
    //New-stuff, i.e. official SMS and new private scans March 2012//
    ////////////////////////////////////////////////////////////////////
@@ -966,7 +966,6 @@ int main(int argc, char* argv[]) {
 		// MergedPoints.WriteSingleBin("GMSB_T1lgSingleChannels2j/GMSB");
 	}
 
-/*
 	//T1gg, 2-jet
 	Points.Reset();
 	ReadSignalAcceptance("2j", "inputWinter11/signalAcceptanceT1gg_Mar30.dat", "inputWinter11/data_postApproval20120403.txt");
@@ -981,8 +980,7 @@ int main(int argc, char* argv[]) {
 		// std::system("mkdir GMSB_T1ggSingleChannels2j");
 		MergedPoints.Write("GMSB_T1gg2j/GMSB");
 		// MergedPoints.WriteSingleBin("GMSB_T1ggSingleChannels2j/GMSB");
-	}
-*/   
+	}   
 
    
    
