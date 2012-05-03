@@ -1,6 +1,7 @@
 #!/bin/bash
 # Christian Autermann, U Hamburg / LPC, 2011
 
+STEPS=30
 PL_STEPS=250
 EXE=combine
 MODEL="${1##*/}"
@@ -82,12 +83,13 @@ function Scan()
     CLsbArray[$n]=$CLsb
     CLsbUncArray[$n]=$CLsbUnc
     TMP=`mktemp $MODEL.XXXXXXXX`
-    echo "R = ${r[*]}" >> $TMP
-    echo "CLs = ${CLsArray[*]}" >> $TMP
-    echo "FindNextR $TMP"
-    cat $TMP
-    i=`./FindNextR $TMP`
-    rm -f $TMP
+    THISPATH=`pwd`
+    #echo "R = ${r[*]}" >> $TMP
+    #echo "CLs = ${CLsArray[*]}" >> $TMP
+    #echo "FindNextR $THISPATH/$TMP"
+    #cat $TMP
+    i=`../../FindNextR $THISPATH/$TMP`
+    #rm -f $TMP
     n=$(($n+1))
   done
   echo "$__result scanned r = ${r[*]}" >> $RESULT
@@ -102,6 +104,7 @@ function Scan()
 
 ## Start main ===============================================================================
 ##
+pwd
 #Calculate asymptotic CLs x-section limits -- just for additional information
 echo "$EXE -M Asymptotic $1 > $LOG_ASYMPTOTIC"
 $EXE -M Asymptotic $1 > $LOG_ASYMPTOTIC
@@ -142,20 +145,20 @@ echo "CLs expected m1sigma profile likelihood = $PL_EXPm1" >> $RESULT
 echo "CLs expected p1sigma profile likelihood = $PL_EXPp1" >> $RESULT
 echo "CLs expected p2sigma profile likelihood = $PL_EXPp2" >> $RESULT
 echo "" >> $RESULT
-cat $RESULT
+#cat $RESULT
 
 #---------------------------------------------------------------------------------------------
 #Here comes the clever part:
 #create the grid around the observed limit using bi-section
-StartR=`grep "# R_firstguess =" $MODEL  | cut -d '=' -f 2`
-PSEUDO_STAT=100
+StartR=`grep "# R_firstguess =" $1  | cut -d '=' -f 2`
+PSEUDO_STAT=500
 IT=1
-Scan PrelimR $StartR $IT $PSEUDO_STAT 10
+Scan PrelimR $StartR $IT $PSEUDO_STAT $STEPS
 echo "Preliminary R = $PrelimR" >> $RESULT 
-PSEUDO_STAT=100
-IT=1
-Scan FinalR $PrelimR $IT $PSEUDO_STAT 4
-echo "Final R = $FinalR" >> $RESULT
+#PSEUDO_STAT=100
+#IT=1
+#Scan FinalR $PrelimR $IT $PSEUDO_STAT 10
+#echo "Final R = $FinalR" >> $RESULT
 #----------------------------------------------------------------------------------------
 
 #calculate from grid obs and exp CLS hybrid limits

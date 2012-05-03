@@ -32,22 +32,15 @@ double StandardDeviation(double median, const std::vector<point>& p)
 
 double RandomGaussian(double mu, double sigma)
 {
-    TRandom3 rand(static_cast<unsigned int >(time(NULL)));
-
-    std::cout<<"mu="<<mu<<", sigma="<<sigma<<", rand.:"<<rand->Gaus(mu,sigma)<<std::endl;
-    std::cout<<"mu="<<mu<<", sigma="<<sigma<<", rand.:"<<rand->Gaus(mu,sigma)<<std::endl;
-    std::cout<<"mu="<<mu<<", sigma="<<sigma<<", rand.:"<<d(gen)<<std::endl;
-    std::cout<<"mu="<<mu<<", sigma="<<sigma<<", rand.:"<<d(gen)<<std::endl;
-    std::cout<<"mu="<<mu<<", sigma="<<sigma<<", rand.:"<<d(gen)<<std::endl;
-   
-    return d(gen);
+    TRandom3 rand(static_cast<unsigned int>(time(NULL)));
+    return rand.Gaus(mu, sigma );
 }
 
 double SmearBySpread(double median, const std::vector<point>& p)
 {
   if (p.size()<15.) return median;
   double sigma=StandardDeviation(median, p);
-  return RandomGaussian(median, sigma);
+  return RandomGaussian(median, sigma * 3.0*pow(0.9,p.size()));
 }
 
 double BiSection(const std::vector<point>& p)
@@ -77,6 +70,6 @@ int main(int argc, char* argv[]) {
     p.push_back( point(R[i], CLs[i]) );
   std::sort(p.begin(),p.end());  
   //cout << BiSection( p ) << endl;
-  cout << SmearBySpread( BiSection( p ), p );
+  cout << SmearBySpread( BiSection( p ), p ) << endl;
   return 0;
 }
