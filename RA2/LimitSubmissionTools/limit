@@ -100,6 +100,8 @@ function Scan()
   eval $__result="'$i'"
 }  
 
+## Start main ===============================================================================
+##
 #Calculate asymptotic CLs x-section limits -- just for additional information
 echo "$EXE -M Asymptotic $1 > $LOG_ASYMPTOTIC"
 $EXE -M Asymptotic $1 > $LOG_ASYMPTOTIC
@@ -113,7 +115,7 @@ rm -f /tmp/rstat*
 
 echo "# $MODEL" >> $RESULT
 echo "" >> $RESULT
-##grep "#" $1 | grep -v "##" |cut -b 2- >> $RESULT
+grep "#" $1 | grep -v "##" |cut -b 2- >> $RESULT
 
 echo "" >> $RESULT
 echo "CLs observed asymptotic = $OBSas" >> $RESULT
@@ -144,14 +146,15 @@ cat $RESULT
 
 #---------------------------------------------------------------------------------------------
 #Here comes the clever part:
+#create the grid around the observed limit using bi-section
 StartR=`grep "# R_firstguess =" $MODEL  | cut -d '=' -f 2`
-PSEUDO_STAT=500
+PSEUDO_STAT=100
 IT=1
-Scan PrelimR $StartR $IT $PSEUDO_STAT 20
+Scan PrelimR $StartR $IT $PSEUDO_STAT 10
 echo "Preliminary R = $PrelimR" >> $RESULT 
-PSEUDO_STAT=1000
+PSEUDO_STAT=100
 IT=1
-Scan FinalR $PrelimR $IT $PSEUDO_STAT 10
+Scan FinalR $PrelimR $IT $PSEUDO_STAT 4
 echo "Final R = $FinalR" >> $RESULT
 #----------------------------------------------------------------------------------------
 

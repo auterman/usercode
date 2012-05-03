@@ -1,5 +1,4 @@
 #!/bin/bash
-  #exec > "$TMPDIR"/stdout.txt 2>"$TMPDIR"/stderr.txt
   exec > /dev/null 2>/dev/null
   WORKDIR=AUniquePlaceholderName
   #CONFIGDIR=ConfigDirPlaceholderName
@@ -27,19 +26,17 @@
   #cp -r $RELEASEDIR .
   #RELEASEBASE=`basename $RELEASEDIR`
   cd $RELEASEDIR/src
+  ini cmssw
+  cmsenv
   #ini root530 
   cd $WORKDIR
   
   mkdir job$JOB/results
   mkdir job$JOB/log
   cd job$JOB
-  #exec > "$WORKDIR"/job"$JOB"/log/stdout.txt 2>"$WORKDIR"/job"$JOB"/log/stderr.txt
 
   pwd 
   echo "SGE_TASK_ID = $SGE_TASK_ID" 
-  ini cmssw
-  cmsenv
-  which combine
   date
   for i in `cat config/config_*` 
   do
@@ -50,14 +47,13 @@
     cp ../../$i config/$file  
     echo "calling ../../limit config/$file"  
     ../../limit config/$file
-    # > log/limit.log
   done
   du -h --max-depth=1
   date
-  rm /tmp/rstat*
+
   #cp results/* job$SGE_TASK_ID/results/.
-  #cp "$TMPDIR"/stdout.txt log/.
-  #cp "$TMPDIR"/stderr.txt log/.
+  cp "$TMPDIR"/stdout.txt log/.
+  cp "$TMPDIR"/stderr.txt log/.
   #cp -r job$SGE_TASK_ID $RESULTPATH/.
 
 ### qsub -t 1-3609 -l h_cpu=00:15:00 -l h_vmem=4000M job.sh

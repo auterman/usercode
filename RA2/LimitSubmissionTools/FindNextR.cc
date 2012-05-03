@@ -9,7 +9,9 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
-#include <stdlib.h>
+#include <ctime>
+
+#include "TRandom3.h"
 
 #include "ConfigFile.h"
 
@@ -19,6 +21,34 @@ struct point{
   double cls;
 };
 bool operator<(const point& l, const point& r){return (l.cls!=r.cls?l.cls<r.cls:l.r>r.r);}
+
+double StandardDeviation(double median, const std::vector<point>& p)
+{
+  double s=0;
+  for (std::vector<point>::const_iterator it=p.begin();it!=p.end();++it)
+    s+= pow(it->r - median,2);
+  return sqrt(s/p.size());
+}
+
+double RandomGaussian(double mu, double sigma)
+{
+    TRandom3 rand(static_cast<unsigned int >(time(NULL)));
+
+    std::cout<<"mu="<<mu<<", sigma="<<sigma<<", rand.:"<<rand->Gaus(mu,sigma)<<std::endl;
+    std::cout<<"mu="<<mu<<", sigma="<<sigma<<", rand.:"<<rand->Gaus(mu,sigma)<<std::endl;
+    std::cout<<"mu="<<mu<<", sigma="<<sigma<<", rand.:"<<d(gen)<<std::endl;
+    std::cout<<"mu="<<mu<<", sigma="<<sigma<<", rand.:"<<d(gen)<<std::endl;
+    std::cout<<"mu="<<mu<<", sigma="<<sigma<<", rand.:"<<d(gen)<<std::endl;
+   
+    return d(gen);
+}
+
+double SmearBySpread(double median, const std::vector<point>& p)
+{
+  if (p.size()<15.) return median;
+  double sigma=StandardDeviation(median, p);
+  return RandomGaussian(median, sigma);
+}
 
 double BiSection(const std::vector<point>& p)
 {
@@ -45,7 +75,8 @@ int main(int argc, char* argv[]) {
   vector<point> p;
   for (unsigned i=0;i<R.size();++i)
     p.push_back( point(R[i], CLs[i]) );
-  std::sort(p.begin(),p.end());
-  cout << BiSection( p ) << endl;
+  std::sort(p.begin(),p.end());  
+  //cout << BiSection( p ) << endl;
+  cout << SmearBySpread( BiSection( p ), p );
   return 0;
 }

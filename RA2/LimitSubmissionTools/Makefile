@@ -7,10 +7,10 @@ ROOTAUXCFLAGS=$(shell root-config --auxcflags)
 ROOTCFLAGS=$(shell root-config --cflags)
 ROOTLIBS=$(shell root-config --libs) #-lMath # -lMinuit
 CFLAGS = $(SPECIALFLAGS) -Wall $(ROOTAUXCFLAGS)
-LFLAGS = $(SPECIALFLAGS) #-lz 
+LFLAGS = $(SPECIALFLAGS) 
 
-RCXX=$(SPECIALFLAGS) -Wno-deprecated -Wall 
-RLXX=$(LFLAGS) 
+RCXX=$(SPECIALFLAGS) -Wno-deprecated -Wall $(ROOTCFLAGS) 
+RLXX=$(LFLAGS) $(ROOTLIBS) 
 
 SRC=ConfigFile.cc FindNextR.cc
 
