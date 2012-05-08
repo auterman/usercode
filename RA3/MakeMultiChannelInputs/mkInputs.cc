@@ -35,7 +35,8 @@
 //LUMI
 const double luminosity = 4618.0;
 const double luminosityUncertainty = 1.022; //updated approved lumi for 2011, 3.4.2012
-const std::string WinoScanString = "Wino"; //sub-string in signalAcceptance input file, specifying if the number of generated events has to be set manually (because of generator cuts).
+const double IsrFsrUncertaintyScale = 0.5;  //1.0=100% ISR/FSR uncertainty, 0.5=50%, 0.1=10% etc.
+const std::string WinoScanString = "Wino";  //sub-string in signalAcceptance input file, specifying if the number of generated events has to be set manually (because of generator cuts).
 const std::string T1lgScanString = "T1lg";
 const std::string T1ggScanString = "T1gg";
 
@@ -141,7 +142,7 @@ public:
 	void PrintBins() {
 		for (std::vector<point>::iterator it = p_.begin(); it != p_.end(); ++it) {
 
-			for (int bin = 1; bin <= it->bins.size(); ++bin) {
+			for (unsigned bin = 1; bin <= it->bins.size(); ++bin) {
 
 				std::cout << "bin no. " << bin - 1 << "content: " << it->bins[bin - 1].signal << std::endl;
 			}
@@ -607,7 +608,7 @@ void ReadSignalAcceptance(std::string label, std::string sig_file, std::string d
       channel.u_qcd_stat         = (channel.bgd_qcd?   1.+ u_qcd_stat[c]/channel.bgd_qcd  :0);
       channel.u_ewk              = (channel.bgd_ewk?       u_ewk[c]/channel.bgd_ewk       :0);
       channel.u_ewk_stat         = (channel.bgd_ewk?   1.+ u_ewk_stat[c]/channel.bgd_ewk  :0);
-      channel.u_fsr              = (channel.bgd_fsr?   1.+ u_fsr[c]/channel.bgd_fsr       :0);
+      channel.u_fsr              = (channel.bgd_fsr?   1.+ u_fsr[c]/channel.bgd_fsr * IsrFsrUncertaintyScale      :0);
       channel.u_fsr_stat         = (channel.bgd_fsr?   1.+ u_fsr_stat[c]/channel.bgd_fsr  :0);
 
       channel.u_jes = p.u_jes;
@@ -666,7 +667,7 @@ void AddSMSXsec(std::string filelist) {
 	std::string file;
 	point p;
 	p.lumi = luminosity;
-	double LO_dn, LO_up, NLO_up, NLO_dn;
+	double NLO_up, NLO_dn;
 	while (1) {
 	   masses_file >> p.squark >> p.gluino >>  p.xsecNLO;
 	   NLO_up=p.xsecNLO*2;
@@ -874,61 +875,61 @@ point * MergeBins(const point& p, int bmin=0, int bmax=-1)
 
 int main(int argc, char* argv[]) {
    ////////////////Wino Limits 375
-//   //3-jets
-//   {
-//   Points.Reset();
-//   ReadSignalAcceptance("","inputWinter11/signalAcceptanceWino_preARC20120208.dat", "inputWinter11/data_postApproval20120403.txt");
-//   AddXsec("inputWinter11/wino375NLOxsec2_Dec1.dat");
-//   AddPDFxsec("inputWinter11/PDFcross.txt", 375);
-//   AddPDFAcceptance("inputWinter11/PDFacceptance.txt", 375);
-//   points MergedPoints;
-//   for (std::vector<point>::iterator it=Points.Get()->begin(); it!=Points.Get()->end(); ++it)
-//      MergedPoints.Add( *MergeBins(*it, 6));
-//   std::system("mkdir GMSBWino375Neutr");
-//   std::system("mkdir GMSBWino375NeutrSingleChannels");
-//   MergedPoints.Write("GMSBWino375Neutr/GMSB");
-//   MergedPoints.WriteSingleBin("GMSBWino375NeutrSingleChannels/GMSB");
-//   }
-//
-//   {
-//   points MergedPoints;
-//   for (std::vector<point>::iterator it=Points.Get()->begin(); it!=Points.Get()->end(); ++it){
-//     DeleteBins(*it,0,2);
-//     MergedPoints.Add( *MergeBins(*it) );
-//   }
-//   std::system("mkdir GMSBWino375NeutrMerged");
-//   MergedPoints.Write("GMSBWino375NeutrMerged/GMSB");
-//   }
-//
-//   //2-jets
-//   Points.Reset();
-//   ReadSignalAcceptance("2j","inputWinter11/signalAcceptanceWino_preARC20120208.dat", "inputWinter11/data_postApproval20120403.txt");
-//   AddXsec("inputWinter11/wino375NLOxsec2_Dec1.dat");
-//   AddPDFxsec("inputWinter11/PDFcross.txt", 375);
-//   AddPDFAcceptance("inputWinter11/PDFacceptance.txt", 375);
-//   {points MergedPoints;
-//   for (std::vector<point>::iterator it=Points.Get()->begin(); it!=Points.Get()->end(); ++it)
-//      MergedPoints.Add( *MergeBins(*it, 6));
-//   std::system("mkdir GMSBWino375Neutr2j");
-//   std::system("mkdir GMSBWino375NeutrSingleChannels2j");
-//   MergedPoints.Write("GMSBWino375Neutr2j/GMSB");
-//   MergedPoints.WriteSingleBin("GMSBWino375NeutrSingleChannels2j/GMSB");
-//   }
-//   ///////////////Bino 375
-//   //3-jets
-//   Points.Reset();
-//   ReadSignalAcceptance("","inputWinter11/signalAcceptanceBino_preARC20120208.dat", "inputWinter11/data_postApproval20120403.txt");
-//   AddXsec("inputWinter11/bino375NLOxsec2_Dec1.dat");
-//   AddPDFxsec("inputWinter11/PDFcross.txt", 375);
-//   AddPDFAcceptance("inputWinter11/PDFacceptance.txt", 375);
-//   {points MergedPoints;
-//   for (std::vector<point>::iterator it=Points.Get()->begin(); it!=Points.Get()->end(); ++it)
-//      MergedPoints.Add( *MergeBins(*it, 6));
-//   std::system("mkdir GMSBBino375Neutr");
-//   std::system("mkdir GMSBBino375NeutrSingleChannels");
-//   MergedPoints.Write("GMSBBino375Neutr/GMSB");
-//   MergedPoints.WriteSingleBin("GMSBBino375NeutrSingleChannels/GMSB");
-//   }
+   //3-jets
+   {
+   Points.Reset();
+   ReadSignalAcceptance("","inputWinter11/signalAcceptanceWino_preARC20120208.dat", "inputWinter11/data_postApproval20120403.txt");
+   AddXsec("inputWinter11/wino375NLOxsec2_Dec1.dat");
+   AddPDFxsec("inputWinter11/PDFcross.txt", 375);
+   AddPDFAcceptance("inputWinter11/PDFacceptance.txt", 375);
+   points MergedPoints;
+   for (std::vector<point>::iterator it=Points.Get()->begin(); it!=Points.Get()->end(); ++it)
+      MergedPoints.Add( *MergeBins(*it, 6));
+   std::system("mkdir GMSBWino375Neutr");
+   std::system("mkdir GMSBWino375NeutrSingleChannels");
+   MergedPoints.Write("GMSBWino375Neutr/GMSB");
+   MergedPoints.WriteSingleBin("GMSBWino375NeutrSingleChannels/GMSB");
+   }
+
+   {
+   points MergedPoints;
+   for (std::vector<point>::iterator it=Points.Get()->begin(); it!=Points.Get()->end(); ++it){
+     DeleteBins(*it,0,2);
+     MergedPoints.Add( *MergeBins(*it) );
+   }
+   std::system("mkdir GMSBWino375NeutrMerged");
+   MergedPoints.Write("GMSBWino375NeutrMerged/GMSB");
+   }
+
+   //2-jets
+   Points.Reset();
+   ReadSignalAcceptance("2j","inputWinter11/signalAcceptanceWino_preARC20120208.dat", "inputWinter11/data_postApproval20120403.txt");
+   AddXsec("inputWinter11/wino375NLOxsec2_Dec1.dat");
+   AddPDFxsec("inputWinter11/PDFcross.txt", 375);
+   AddPDFAcceptance("inputWinter11/PDFacceptance.txt", 375);
+   {points MergedPoints;
+   for (std::vector<point>::iterator it=Points.Get()->begin(); it!=Points.Get()->end(); ++it)
+      MergedPoints.Add( *MergeBins(*it, 6));
+   std::system("mkdir GMSBWino375Neutr2j");
+   std::system("mkdir GMSBWino375NeutrSingleChannels2j");
+   MergedPoints.Write("GMSBWino375Neutr2j/GMSB");
+   MergedPoints.WriteSingleBin("GMSBWino375NeutrSingleChannels2j/GMSB");
+   }
+   ///////////////Bino 375
+   //3-jets
+   Points.Reset();
+   ReadSignalAcceptance("","inputWinter11/signalAcceptanceBino_preARC20120208.dat", "inputWinter11/data_postApproval20120403.txt");
+   AddXsec("inputWinter11/bino375NLOxsec2_Dec1.dat");
+   AddPDFxsec("inputWinter11/PDFcross.txt", 375);
+   AddPDFAcceptance("inputWinter11/PDFacceptance.txt", 375);
+   {points MergedPoints;
+   for (std::vector<point>::iterator it=Points.Get()->begin(); it!=Points.Get()->end(); ++it)
+      MergedPoints.Add( *MergeBins(*it, 6));
+   std::system("mkdir GMSBBino375Neutr");
+   std::system("mkdir GMSBBino375NeutrSingleChannels");
+   MergedPoints.Write("GMSBBino375Neutr/GMSB");
+   MergedPoints.WriteSingleBin("GMSBBino375NeutrSingleChannels/GMSB");
+   }
    //2-jets
    Points.Reset();
    ReadSignalAcceptance("2j","inputWinter11/signalAcceptanceBino_preARC20120208.dat", "inputWinter11/data_postApproval20120403.txt");
@@ -943,71 +944,71 @@ int main(int argc, char* argv[]) {
    MergedPoints.Write("GMSBBino375Neutr2j/GMSB");
    MergedPoints.WriteSingleBin("GMSBBino375NeutrSingleChannels2j/GMSB");
    }
-//   // Squark vs Neutralino (and Gluino vs Neutralino) ////////////////////////////
-//   //3-jets
-//   Points.Reset();
-//   ReadSignalAcceptance("","inputWinter11/signalAcceptanceBinoNeutr_preARC20120208.dat", "inputWinter11/data_postApproval20120403.txt");
-//   AddXsec("inputWinter11/binochixsec2_Dec1.dat");
-//   AddPDFxsec("inputWinter11/PDFcrossBino_NeutrScan.txt");
-//   AddPDFAcceptance("inputWinter11/PDFacceptanceBino_NeutrScan.txt");
-//   {points MergedPoints;
-//   for (std::vector<point>::iterator it=Points.Get()->begin(); it!=Points.Get()->end(); ++it)
-//      MergedPoints.Add( *MergeBins(*it, 6));
-//   std::system("mkdir GMSB_SquarkGluino_vs_Neutralino");
-//   std::system("mkdir GMSB_SquarkGluino_vs_NeutralinoSingleChannels");
-//   MergedPoints.Write("GMSB_SquarkGluino_vs_Neutralino/GMSB");
-//   MergedPoints.WriteSingleBin("GMSB_SquarkGluino_vs_NeutralinoSingleChannels/GMSB");
-//   }
-//   //2-jets
-//   Points.Reset();
-//   ReadSignalAcceptance("2j","inputWinter11/signalAcceptanceBinoNeutr_preARC20120208.dat", "inputWinter11/data_postApproval20120403.txt");
-//   AddXsec("inputWinter11/binochixsec2_Dec1.dat");
-//   AddPDFxsec("inputWinter11/PDFcrossBino_NeutrScan.txt");
-//   AddPDFAcceptance("inputWinter11/PDFacceptanceBino_NeutrScan.txt");
-//   {points MergedPoints;
-//   for (std::vector<point>::iterator it=Points.Get()->begin(); it!=Points.Get()->end(); ++it)
-//      MergedPoints.Add( *MergeBins(*it, 6));
-//   std::system("mkdir GMSB_SquarkGluino_vs_Neutralino2j");
-//   std::system("mkdir GMSB_SquarkGluino_vs_NeutralinoSingleChannels2j");
-//   MergedPoints.Write("GMSB_SquarkGluino_vs_Neutralino2j/GMSB");
-//   MergedPoints.WriteSingleBin("GMSB_SquarkGluino_vs_NeutralinoSingleChannels2j/GMSB");
-//   }
-//
-//   ////////////////////////////////////////////////////////////////////
-//   //New-stuff, i.e. official SMS and new private scans March 2012//
-//   ////////////////////////////////////////////////////////////////////
-//	//T1lg, 2-jet
-//	Points.Reset();
-//	ReadSignalAcceptance("2j", "inputWinter11/signalAcceptanceT1lg_Mar30.dat", "inputWinter11/data_postApproval20120403.txt");
-//	AddSMSXsec("inputWinter11/SMS_XS.dat");
-//	//AddPDFxsec("inputWinter11/PDFcrossBino_NeutrScan.txt");
-//	//AddPDFAcceptance("inputWinter11/PDFacceptanceBino_NeutrScan.txt");
-//	{
-//	std::cout<<"Now merging bins"<<std::endl;
-//		points MergedPoints;
-//		for (std::vector<point>::iterator it = Points.Get()->begin(); it != Points.Get()->end(); ++it)
-//			MergedPoints.Add(*MergeBins(*it, 6));
-//		std::system("mkdir GMSB_T1lg2j");
-//		//std::system("mkdir GMSB_T1lgSingleChannels2j");
-//		Points.Write("GMSB_T1lg2j/GMSB");
-//		// MergedPoints.WriteSingleBin("GMSB_T1lgSingleChannels2j/GMSB");
-//	}
-//
-//	//T1gg, 2-jet
-//	Points.Reset();
-//	ReadSignalAcceptance("2j", "inputWinter11/signalAcceptanceT1gg_Mar30.dat", "inputWinter11/data_postApproval20120403.txt");
-//	AddSMSXsec("inputWinter11/SMS_XS.dat");
-//	//AddPDFxsec("inputWinter11/PDFcrossBino_NeutrScan.txt");
-//	//AddPDFAcceptance("inputWinter11/PDFacceptanceBino_NeutrScan.txt");
-//	{
-//		points MergedPoints;
-//		for (std::vector<point>::iterator it = Points.Get()->begin(); it != Points.Get()->end(); ++it)
-//			MergedPoints.Add(*MergeBins(*it, 6));
-//		std::system("mkdir GMSB_T1gg2j");
-//		// std::system("mkdir GMSB_T1ggSingleChannels2j");
-//		MergedPoints.Write("GMSB_T1gg2j/GMSB");
-//		// MergedPoints.WriteSingleBin("GMSB_T1ggSingleChannels2j/GMSB");
-//	}
+   // Squark vs Neutralino (and Gluino vs Neutralino) ////////////////////////////
+   //3-jets
+   Points.Reset();
+   ReadSignalAcceptance("","inputWinter11/signalAcceptanceBinoNeutr_preARC20120208.dat", "inputWinter11/data_postApproval20120403.txt");
+   AddXsec("inputWinter11/binochixsec2_Dec1.dat");
+   AddPDFxsec("inputWinter11/PDFcrossBino_NeutrScan.txt");
+   AddPDFAcceptance("inputWinter11/PDFacceptanceBino_NeutrScan.txt");
+   {points MergedPoints;
+   for (std::vector<point>::iterator it=Points.Get()->begin(); it!=Points.Get()->end(); ++it)
+      MergedPoints.Add( *MergeBins(*it, 6));
+   std::system("mkdir GMSB_SquarkGluino_vs_Neutralino");
+   std::system("mkdir GMSB_SquarkGluino_vs_NeutralinoSingleChannels");
+   MergedPoints.Write("GMSB_SquarkGluino_vs_Neutralino/GMSB");
+   MergedPoints.WriteSingleBin("GMSB_SquarkGluino_vs_NeutralinoSingleChannels/GMSB");
+   }
+   //2-jets
+   Points.Reset();
+   ReadSignalAcceptance("2j","inputWinter11/signalAcceptanceBinoNeutr_preARC20120208.dat", "inputWinter11/data_postApproval20120403.txt");
+   AddXsec("inputWinter11/binochixsec2_Dec1.dat");
+   AddPDFxsec("inputWinter11/PDFcrossBino_NeutrScan.txt");
+   AddPDFAcceptance("inputWinter11/PDFacceptanceBino_NeutrScan.txt");
+   {points MergedPoints;
+   for (std::vector<point>::iterator it=Points.Get()->begin(); it!=Points.Get()->end(); ++it)
+      MergedPoints.Add( *MergeBins(*it, 6));
+   std::system("mkdir GMSB_SquarkGluino_vs_Neutralino2j");
+   std::system("mkdir GMSB_SquarkGluino_vs_NeutralinoSingleChannels2j");
+   MergedPoints.Write("GMSB_SquarkGluino_vs_Neutralino2j/GMSB");
+   MergedPoints.WriteSingleBin("GMSB_SquarkGluino_vs_NeutralinoSingleChannels2j/GMSB");
+   }
+
+   ////////////////////////////////////////////////////////////////////
+   //New-stuff, i.e. official SMS and new private scans March 2012//
+   ////////////////////////////////////////////////////////////////////
+      //T1lg, 2-jet
+      Points.Reset();
+      ReadSignalAcceptance("2j", "inputWinter11/signalAcceptanceT1lg_Mar30.dat", "inputWinter11/data_postApproval20120403.txt");
+      AddSMSXsec("inputWinter11/SMS_XS.dat");
+      //AddPDFxsec("inputWinter11/PDFcrossBino_NeutrScan.txt");
+      //AddPDFAcceptance("inputWinter11/PDFacceptanceBino_NeutrScan.txt");
+      {
+      std::cout<<"Now merging bins"<<std::endl;
+	      points MergedPoints;
+	      for (std::vector<point>::iterator it = Points.Get()->begin(); it != Points.Get()->end(); ++it)
+		      MergedPoints.Add(*MergeBins(*it, 6));
+	      std::system("mkdir GMSB_T1lg2j");
+	      //std::system("mkdir GMSB_T1lgSingleChannels2j");
+	      Points.Write("GMSB_T1lg2j/GMSB");
+	      // MergedPoints.WriteSingleBin("GMSB_T1lgSingleChannels2j/GMSB");
+      }
+
+      //T1gg, 2-jet
+      Points.Reset();
+      ReadSignalAcceptance("2j", "inputWinter11/signalAcceptanceT1gg_Mar30.dat", "inputWinter11/data_postApproval20120403.txt");
+      AddSMSXsec("inputWinter11/SMS_XS.dat");
+      //AddPDFxsec("inputWinter11/PDFcrossBino_NeutrScan.txt");
+      //AddPDFAcceptance("inputWinter11/PDFacceptanceBino_NeutrScan.txt");
+      {
+	      points MergedPoints;
+	      for (std::vector<point>::iterator it = Points.Get()->begin(); it != Points.Get()->end(); ++it)
+		      MergedPoints.Add(*MergeBins(*it, 6));
+	      std::system("mkdir GMSB_T1gg2j");
+	      // std::system("mkdir GMSB_T1ggSingleChannels2j");
+	      MergedPoints.Write("GMSB_T1gg2j/GMSB");
+	      // MergedPoints.WriteSingleBin("GMSB_T1ggSingleChannels2j/GMSB");
+      }
   
 
    
