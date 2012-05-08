@@ -990,7 +990,7 @@ int main(int argc, char* argv[]) {
 		      MergedPoints.Add(*MergeBins(*it, 6));
 	      std::system("mkdir GMSB_T1lg2j");
 	      //std::system("mkdir GMSB_T1lgSingleChannels2j");
-	      Points.Write("GMSB_T1lg2j/GMSB");
+	      MergedPoints.Write("GMSB_T1lg2j/GMSB");
 	      // MergedPoints.WriteSingleBin("GMSB_T1lgSingleChannels2j/GMSB");
       }
 
