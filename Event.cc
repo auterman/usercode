@@ -47,8 +47,8 @@ void ReadEvent(Event& evt, ConfigFile& config)
     evt.Add( ReadVariable(config, "signal_"+flag+"_contamination", "signal_contamination_"+flag, -1) ); 	       
     
     //normalize with signal:
-    double signal = evt.Get("signal_"+flag);
-    evt.Set( "signal_"+flag+"_contamination", 100.*evt.Get("signal_"+flag+"_contamination")/signal );
+    //double signal = evt.Get("signal_"+flag);
+    //evt.Set( "signal_"+flag+"_contamination", 100.*evt.Get("signal_"+flag+"_contamination")/signal );
   }
 
 }

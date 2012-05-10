@@ -251,22 +251,6 @@ void DrawExclusion(PlotTools *PlotTool, std::string flag, const std::string& x, 
    gCLsObsExcl->SetLineWidth(2);
    gCLsExpExcl->SetLineWidth(2);
 
-   Cut(gCLsExpExclm1,'y','<',260);
-   Cut(gCLsExpExclp1,'y','<',200);
-   Cut(gCLsExpExcl,'y','<',240);
-   Cut(gCLsObsExcl,'y','<',260);
-   Cut(gCLsExpExcl,'x','>',2970);
-   Cut(gCLsObsExcl,'x','>',2970);
-   Cut(gCLsExpExclp1,'x','>',2780);
-
-   Cut(gCLsExpTheom1,'y','<',240);
-   Cut(gCLsObsTheom1,'y','<',260);
-   Cut(gCLsExpTheom1,'x','>',2970);
-   Cut(gCLsObsTheom1,'x','>',2970);
-   Cut(gCLsExpTheop1,'y','<',240);
-   Cut(gCLsObsTheop1,'y','<',260);
-   Cut(gCLsExpTheop1,'x','>',2970);
-   Cut(gCLsObsTheop1,'x','>',2970);
 
    Smooth(gCLsObsExcl,     30);
    Smooth(gCLsExpExcl,     30);
@@ -284,11 +268,7 @@ void DrawExclusion(PlotTools *PlotTool, std::string flag, const std::string& x, 
    hplot->GetYaxis()->SetTitleOffset(1.55);
    hplot->GetXaxis()->SetTitleOffset(1.1);
    //Drawing the contours
-   TGraph * RA2_36pb = RA2Observed_36pb();
-   TGraph * RA2_1fb = RA2Observed_1fb();
-   TGraph * Atlas = Atlas0l24j_1fb();
-   RA2_36pb->Draw("l");
-   Atlas->Draw("l");
+   hplot->Draw("h");
    gCLs1Sigma->Draw("f");
    gCLsObsExcl->Draw("l");
    gCLsExpExcl->Draw("l");
@@ -313,16 +293,7 @@ void DrawExclusion(PlotTools *PlotTool, std::string flag, const std::string& x, 
    legExp->SetLineWidth(gCLsExpExcl->GetLineWidth());
    leg->AddEntry(legExp, "Exp. limit #pm1#sigma exp.", "lf");
    //leg->AddEntry(gCLsExpTheop1, "Exp. limit #pm1#sigma signal theory", "l");
-   leg->AddEntry(Atlas, "Atlas, 1.04 fb^{-1}", "l");
-   leg->AddEntry(RA2_36pb, "CMS, 36 pb^{-1}", "l");
    leg->Draw();
-   TMarker lm5(230,360,29);
-   lm5.SetMarkerColor(14);
-   lm5.Draw("same");
-   TLatex tex(245,365,"#font[42]{LM5}");
-   tex.SetTextColor(12);
-   tex.SetTextSize(0.03);
-   tex.Draw();
 
    gPad->RedrawAxis();
    string nameExcl = "results/"+ flag + "_"+x+"_"+y+"_Exclusion_";
@@ -339,7 +310,6 @@ void DrawExclusion(PlotTools *PlotTool, std::string flag, const std::string& x, 
 
    ///------------------------------------------------------------------------------------
    /// same, but preliminary:
-   RA2_36pb->Draw("l");
    gCLs1Sigma->Draw("f");
    gCLsObsExcl->Draw("l");
    gCLsExpExcl->Draw("l");
@@ -349,8 +319,6 @@ void DrawExclusion(PlotTools *PlotTool, std::string flag, const std::string& x, 
    gCLsObsTheop1->Draw("l");
    leg->SetHeader("#bf{CMS preliminary, 4.62 fb^{-1}, #sqrt{s} = 7 TeV}");
    leg->Draw();
-   lm5.Draw("same");
-   tex.Draw();
    gPad->RedrawAxis();
    nameExcl = "results/"+ flag + "_"+x+"_"+y+"_Exclusion_prelim";
    if (plotPrelim) c1->SaveAs((nameExcl + ".pdf").c_str());
@@ -434,6 +402,24 @@ void AddEvents(PlotTools*& plotTools, std::string filename, std::string Generato
   delete additionalEvents;
 }
 
+void GlSq(const std::string& flag, const std::string& file)  {
+  //Bino gl-sq //////////////////////////////////////////////////////////////////////////////
+    PlotTools * PlotTool;
+    GetPlotTools(PlotTool, file);
+
+    TH2F h_glsq("h",               ";#tilde{g} [GeV]; #tilde{q} [GeV]; cross section [pb]", 21 ,360, 2040, 21, 360, 2040);
+    TH2F h_glsq_exclusion("h_excl",";#tilde{g} [GeV]; #tilde{q} [GeV]; cross section [pb]", 21 ,360, 2040, 21, 360, 2040);
+
+    //PlotTool->Remove("ObsR", Compare::less, 0.000001);
+    //PlotTool->FillEmptyPointsByInterpolation("gluino", "squark");
+
+    DrawStandardPlots(      PlotTool, flag, "gluino", "squark", &h_glsq);
+    //DrawStandardPlotsPerBin(PlotTool, "GMSB", "gluino", "squark", &h_plot);
+    DrawStandardLimitPlots(  PlotTool, flag, "gluino", "squark", &h_glsq);
+    DrawExclusion(PlotTool,flag,"gluino", "squark",&h_glsq,&h_glsq_exclusion); //removes points, which have no limits and fills the gaps by interpolation
+}
+
+
 int plot(int argc, char** argv) {
   util::StyleSettings::paperNoTitle();
   gStyle->SetPadTopMargin(0.1);
@@ -444,22 +430,8 @@ int plot(int argc, char** argv) {
   c1 = c_square;
   c1->cd();
 
-  {
-  //Bino gl-sq //////////////////////////////////////////////////////////////////////////////
-    PlotTools * PlotTool;
-    GetPlotTools(PlotTool, "2012-05-08-22-30-GMSBBino375Neutr2j/filelist.txt");
-
-    TH2F h_glsq("h",               ";#tilde{g} [GeV]; #tilde{q} [GeV]; cross section [pb]", 21 ,360, 2040, 21, 360, 2040);
-    TH2F h_glsq_exclusion("h_excl",";#tilde{g} [GeV]; #tilde{q} [GeV]; cross section [pb]", 21 ,360, 2040, 21, 360, 2040);
-
-    //PlotTool->Remove("ObsR", Compare::less, 0.000001);
-    //PlotTool->FillEmptyPointsByInterpolation("gluino", "squark");
-
-    DrawStandardPlots(      PlotTool, "GMSB", "gluino", "squark", &h_glsq);
-    //DrawStandardPlotsPerBin(PlotTool, "GMSB", "gluino", "squark", &h_plot);
-    DrawStandardLimitPlots(  PlotTool, "GMSB", "gluino", "squark", &h_glsq);
-    DrawExclusion(PlotTool,"GMSB","gluino", "squark",&h_glsq,&h_glsq_exclusion); //removes points, which have no limits and fills the gaps by interpolation
-  }
+  GlSq("GMSBWino", "2012-05-09-22-24-GMSBWino375Neutr2j/filelist.txt");
+  GlSq("GMSBBino", "2012-05-09-21-44-GMSBBino375Neutr2j/filelist.txt");
 
 }
 
