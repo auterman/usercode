@@ -407,8 +407,8 @@ void GlSq(const std::string& flag, const std::string& file)  {
     PlotTools * PlotTool;
     GetPlotTools(PlotTool, file);
 
-    TH2F h_glsq("h",               ";#tilde{g} [GeV]; #tilde{q} [GeV]; cross section [pb]", 21 ,360, 2040, 21, 360, 2040);
-    TH2F h_glsq_exclusion("h_excl",";#tilde{g} [GeV]; #tilde{q} [GeV]; cross section [pb]", 21 ,360, 2040, 21, 360, 2040);
+    TH2F h_glsq("h",               ";#tilde{g} [GeV]; #tilde{q} [GeV]; cross section [pb]", 20 ,360, 2040, 20, 360, 2040);
+    TH2F h_glsq_exclusion("h_excl",";#tilde{g} [GeV]; #tilde{q} [GeV]; cross section [pb]", 20 ,360, 2040, 20, 360, 2040);
 
     //PlotTool->Remove("ObsR", Compare::less, 0.000001);
     //PlotTool->FillEmptyPointsByInterpolation("gluino", "squark");
@@ -417,6 +417,23 @@ void GlSq(const std::string& flag, const std::string& file)  {
     //DrawStandardPlotsPerBin(PlotTool, "GMSB", "gluino", "squark", &h_plot);
     DrawStandardLimitPlots(  PlotTool, flag, "gluino", "squark", &h_glsq);
     DrawExclusion(PlotTool,flag,"gluino", "squark",&h_glsq,&h_glsq_exclusion); //removes points, which have no limits and fills the gaps by interpolation
+}
+
+void PartinoGaugino(const std::string& flag, const std::string& file)  {
+  //Bino gl-sq //////////////////////////////////////////////////////////////////////////////
+    PlotTools * PlotTool;
+    GetPlotTools(PlotTool, file);
+
+    TH2F h_chigl("h_chigl",               ";#tilde{#chi}^{0}_{1} [GeV]; #tilde{g} [GeV]; cross section [pb]", 10 ,100, 1100, 22, 200, 2040);
+    TH2F h_chigl_exclusion("h_chigl_excl",";#tilde{#chi}^{0}_{1} [GeV]; #tilde{g} [GeV]; cross section [pb]", 10 ,100, 1100, 22, 200, 2040);
+
+    //PlotTool->Remove("ObsR", Compare::less, 0.000001);
+    //PlotTool->FillEmptyPointsByInterpolation("gluino", "squark");
+
+    DrawStandardPlots(      PlotTool, flag, "chi1", "gluino", &h_chigl);
+    //DrawStandardPlotsPerBin(PlotTool, "GMSB", "gluino", "squark", &h_plot);
+    DrawStandardLimitPlots(  PlotTool, flag, "chi1", "gluino", &h_chigl);
+    DrawExclusion(PlotTool,flag,"chi1", "gluino",&h_chigl,&h_chigl_exclusion); //removes points, which have no limits and fills the gaps by interpolation
 }
 
 
@@ -432,6 +449,8 @@ int plot(int argc, char** argv) {
 
   GlSq("GMSBWino", "2012-05-09-22-24-GMSBWino375Neutr2j/filelist.txt");
   GlSq("GMSBBino", "2012-05-09-21-44-GMSBBino375Neutr2j/filelist.txt");
+  
+  PartinoGaugino("GMSB_Chi1Gl", "2012-05-09-22-33-GMSB_SquarkGluino_vs_Neutralino2j/filelist.txt");
 
 }
 
