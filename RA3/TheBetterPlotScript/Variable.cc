@@ -1,6 +1,8 @@
 #include "variable.h"
 #include "ConfigFile.h"
 
+//private look-up table for the "static" event infos
+static std::map<std::string,Info*> info_map;
 
 void Info::Fill(Variable& v, ConfigFile& c)
 {
@@ -13,13 +15,27 @@ void Info::Fill(Variable& v, ConfigFile& c)
 Variable ReadVariable(ConfigFile& c, const std::string& name, const std::string& name_in_datacard)
 {
   Variable var;
-  Info(name, name_in_datacard).Fill(var, c);
+  Info * info;
+  if (info_map.find(name)!=info_map.end())
+    info = info_map[name];
+  else {
+    info = new Info(name, name_in_datacard);
+    info_map[name] = info;
+  }  
+  info->Fill(var, c);
   return var;
 }
 
 Variable ReadVariable(ConfigFile& c, const std::string& name, const std::string& name_in_datacard, const double default_value)
 {
   Variable var;
-  Info(name, name_in_datacard, default_value).Fill(var, c);
+  Info * info;
+  if (info_map.find(name)!=info_map.end())
+    info = info_map[name];
+  else {
+    info = new Info(name, name_in_datacard, default_value);
+    info_map[name] = info;
+  }  
+  info->Fill(var, c);
   return var;
 }
