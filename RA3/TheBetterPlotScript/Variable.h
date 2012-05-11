@@ -26,20 +26,23 @@ class Variable{
 class Info{
  public:
    Info(const std::string& name, const std::string& name_in_datacard):
-        name(name),name_in_datacard(name_in_datacard),default_value(0),use_default(false){}
+        name(name),name_in_datacard(name_in_datacard),default_value(0),use_default(false),label_(""){}
    Info(const std::string& name, const std::string& name_in_datacard, double default_value):
-        name(name),name_in_datacard(name_in_datacard),default_value(default_value),use_default(true){}
+        name(name),name_in_datacard(name_in_datacard),default_value(default_value),use_default(true),label_(""){}
    const std::string name;
    const std::string name_in_datacard;
    const double default_value;
    const bool use_default;
    
    void Fill(Variable& v, ConfigFile& c);
+   std::string GetLabel(){return label_;}
+   void SetLabel(std::string l){label_=l;}
+ private:
+   std::string label_;  
 };
 
-
+Info* GetInfo(const std::string&);
 Variable ReadVariable(ConfigFile& c, const std::string& name, const std::string& name_in_datacard);
-
 Variable ReadVariable(ConfigFile& c, const std::string& name, const std::string& name_in_datacard, const double default_value);
 
 #endif

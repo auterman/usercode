@@ -39,3 +39,9 @@ Variable ReadVariable(ConfigFile& c, const std::string& name, const std::string&
   info->Fill(var, c);
   return var;
 }
+
+Info* GetInfo(const std::string& var)
+{
+  return info_map[var];
+}
+
