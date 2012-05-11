@@ -138,6 +138,31 @@ void PlotTools::FillEmptyPointsByInterpolation1D(const std::string& x, const std
 
 
 
+TH2 * PlotTools::GetHist(const std::string& x, const std::string& y)
+{
+  Fill X(x);
+  Fill Y(y);
+  double gridy=9999, miny=9999, maxy=0, gridx=9999, minx=9999, maxx=0;
+  for (Events::const_iterator it=scan_->begin(); it!=scan_->end(); ++it){
+    if (X(*it)<minx) minx=X(*it);
+    if (X(*it)>maxx) maxx=X(*it);
+    if (Y(*it)<miny) miny=Y(*it);
+    if (Y(*it)>maxy) maxy=Y(*it);
+    for (Events::const_iterator zt=it; zt!=scan_->end(); ++zt){
+      if ( fabs(X(*it) - X(*zt)) < gridx && fabs(Y(*it)-Y(*zt))<0.9 && fabs(X(*it)-X(*zt))>0.9 ) 
+        gridx = fabs(X(*it) - X(*zt));
+      if ( fabs(Y(*it) - Y(*zt)) < gridy && fabs(X(*it)-X(*zt))<0.9 && fabs(Y(*it)-Y(*zt))>0.9 ) 
+        gridy = fabs(Y(*it) - Y(*zt));
+    }
+  } 
+  int binsx=(maxx-minx)/gridx;
+  int binsy=(maxy-miny)/gridy;
+  std::string titel = ";"+GetInfo(x)->GetLabel()+";"+GetInfo(y)->GetLabel();
+  std::stringstream name;
+  name << ++plotindex_ << "_" << GetInfo(x)->GetLabel()<<"_"<<GetInfo(y)->GetLabel();
+  TH2F*h = new TH2F(name.str().c_str(),titel.c_str(),binsx,minx,maxx,binsy,miny,maxy);
+  return h;
+}
 
 
 void PlotTools::FillEmptyPointsByInterpolation(const std::string& x, const std::string& y)
@@ -654,6 +679,38 @@ TCanvas * GetLimitTemplateCanvas(std::string file,std::string key)
   TFile f(file.c_str());
   return (TCanvas*)f.Get(key.c_str());
 }
+
+void SetZRange(TH2 * h) {
+    //cout<<"Find optimal z range..."<<endl;
+    double maxValue = 0, minValue = 0;
+
+    maxValue = h->GetBinContent(h->GetMaximumBin());
+    minValue = h->GetBinContent(h->GetMinimumBin());
+    if (minValue == 0) {
+        minValue = 9999;
+        for (int x = 1; x <= h->GetNbinsX() + 1; x++) {
+            for (int y = 1; y <= h->GetNbinsY() + 1; y++) {
+                //cout<<"x:"<<x<<endl;
+                //cout<<"y:"<<y<<endl;
+                double bincontent = h->GetBinContent(x, y);
+                //cout<<"bincontent:"<<bincontent<<endl;
+
+                if (minValue > bincontent && bincontent > 0) {
+
+                    minValue = bincontent;
+                }
+            }
+        }
+
+    }
+    minValue = minValue * 0.9;
+    maxValue = maxValue * 1.1;
+    //    cout<<"maximum value:"<<maxValue<<endl;
+    //    cout<<"minimum value:"<<minValue<<endl;
+    h->GetZaxis()->SetRangeUser(minValue, maxValue);
+
+}
+
 
 TGraph* RA2Observed_36pb(){
    TGraph *graph = new TGraph(129);

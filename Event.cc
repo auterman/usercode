@@ -19,6 +19,7 @@ void ReadEvent(Event& evt, ConfigFile& config)
   evt.Add( ReadVariable(config, "chi1",        "chi1" ) );
   evt.Add( ReadVariable(config, "Xsection",    "Xsection.NLO" ) );
   evt.Add( ReadVariable(config, "Luminosity",  "Luminosity" ) );
+  evt.Add( ReadVariable(config, "signal",      "signal" ) );
 
   evt.Add( ReadVariable(config, "ObsRasym",    "CLs observed asymptotic", -9999999 ) );
   evt.Add( ReadVariable(config, "ExpRasym",    "CLs expected asymptotic", -9999999 ) );
@@ -58,6 +59,7 @@ void CalculateVariablesOnTheFly(Event& evt)
   evt.Add( Variable(0, new Info("ObsRtheoryM1","") ) );
   evt.Add( Variable(evt.Get("ObsR")*evt.Get("Xsection"), new Info("ObsXsecLimit","") ) );
   evt.Add( Variable(evt.Get("ExpR")*evt.Get("Xsection"), new Info("ExpXsecLimit","") ) );
+  evt.Add( Variable(evt.Get("signal")/(evt.Get("Xsection")*evt.Get("Luminosity")), new Info("Acceptance","") ) );
 
   
   double scl = sqrt(pow(evt.Get("u_signal_scale"),2)+pow(evt.Get("u_signal_pdf"),2));

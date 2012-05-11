@@ -37,6 +37,8 @@ TCanvas*  GetLimitTemplateCanvas(std::string file,std::string key);
 
 TH2 * BinWiseOr(TH2*h1, TH2*h2);
 
+void SetZRange(TH2 * h);
+
 
 class PlotTools {
  public:
@@ -92,11 +94,9 @@ class PlotTools {
              TGraph*, double p=10.);
   void Print(double(*x)(const T*), double(*x2)(const T*), double(*y)(const T*), double(*x3)(const T*), double(*y2)(const T*),
              TGraph*, double p=10.);
-  
-  TH2 * BinWiseOr(TH2*, TH2*);
-    
-  TH2 * GetHist(double(*x)(const T*), double(*y)(const T*));
 */
+    
+  TH2 * GetHist(const std::string& x, const std::string& y);
   
   ///add (more) scan points
   void addEvents(Events*evts){scan_->insert(scan_->end(),evts->begin(),evts->end());}

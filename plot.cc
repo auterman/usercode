@@ -25,8 +25,6 @@
 #include <stdio.h>
 
 #include "StyleSettings.h"
-#include "PlotTools.h"
-#include "GeneratorMasses.h"
 
 const static bool plotPNG = false;
 const static bool plotC   = false;
@@ -37,11 +35,12 @@ void DrawPlot2D(PlotTools *PlotTool, TCanvas*canvas, TH2* h, const std::string& 
                 const std::string& ztitel, double zmin=-999, double zmax=-999 )
 {
    TH2F *plot2D = (TH2F*)h->Clone();
-   if (zmin!=-999) plot2D->SetMinimum(zmin);
-   if (zmax!=-999) plot2D->SetMaximum(zmax);
    plot2D->GetZaxis()->SetTitle(ztitel.c_str());
    PlotTool->Area(plot2D, x, y, var);
    plot2D->GetZaxis()->SetTitleOffset(1.5);
+   if (zmin!=-999) plot2D->SetMinimum(zmin);
+   if (zmax!=-999) plot2D->SetMaximum(zmax);
+   if (zmin==-999&&zmax==-999) SetZRange(plot2D);
    plot2D->Draw("colz"); 
    double tx=400;
    double ty=1.045*(plot2D->GetYaxis()->GetXmax()-plot2D->GetYaxis()->GetXmin())+plot2D->GetYaxis()->GetXmin();  
@@ -118,11 +117,11 @@ void DrawStandardPlots(PlotTools *pt, const std::string& flag, const std::string
    
    //Log z-scale
    c1->SetLogz(1);
-   DrawPlot2D(pt,c1,h,flag,x,y,"Xsection",          "NLO cross section [pb]", 0.0001, 100.);
+   DrawPlot2D(pt,c1,h,flag,x,y,"Xsection",          "NLO cross section [pb]");
 
    //Linear z-scale
    c1->SetLogz(0);
-   DrawPlot2D(pt,c1,h,flag,x,y,"Acceptance",        "Acceptance", 0.0, 30.);
+   DrawPlot2D(pt,c1,h,flag,x,y,"Acceptance",        "Acceptance");
 
    //1D Histograms
    DrawHist1D(pt,c1,flag,x,y,"SignalStatUnc",	  "Rel. Signal Statistical uncertainty", 20);
@@ -131,10 +130,10 @@ void DrawStandardPlots(PlotTools *pt, const std::string& flag, const std::string
    DrawHist1D(pt,c1,flag,x,y,"SignalPDFXsecUnc",  "Rel. Signal PDF cross-section uncertainty", 20);
    DrawHist1D(pt,c1,flag,x,y,"SignalScaleUnc",    "Rel. Signal Scale uncertainty", 20);
 
-   DrawHist1D(pt,c1,flag,x,y,"ObsRmM2", "ObsR - ExpR-2sigma", 20);
-   DrawHist1D(pt,c1,flag,x,y,"ObsRmP2", "ObsR - ExpR+2sigma", 20);
-   DrawHist1D(pt,c1,flag,x,y,"ObsRdM2", "ObsR / ExpR-2sigma", 20);
-   DrawHist1D(pt,c1,flag,x,y,"ObsRdP2", "ObsR / ExpR+2sigma", 20);
+   //DrawHist1D(pt,c1,flag,x,y,"ObsRmM2", "ObsR - ExpR-2sigma", 20);
+   //DrawHist1D(pt,c1,flag,x,y,"ObsRmP2", "ObsR - ExpR+2sigma", 20);
+   //DrawHist1D(pt,c1,flag,x,y,"ObsRdM2", "ObsR / ExpR-2sigma", 20);
+   //DrawHist1D(pt,c1,flag,x,y,"ObsRdP2", "ObsR / ExpR+2sigma", 20);
 }
 
 void DrawStandardLimitPlots(PlotTools *pt, const std::string& flag, const std::string& x, const std::string& y, TH2*h)
@@ -144,6 +143,7 @@ void DrawStandardLimitPlots(PlotTools *pt, const std::string& flag, const std::s
    
    //Log z-scale
    c1->SetLogz(1);
+   //DrawPlot2D(pt,c1,h,flag+"_FixedBinning",x,y,"ObsXsecLimit",      "Observed cross section limit [pb]",0.001,0.02);
    DrawPlot2D(pt,c1,h,flag,x,y,"ObsXsecLimit",      "Observed cross section limit [pb]");
    DrawPlot2D(pt,c1,h,flag,x,y,"ExpXsecLimit",      "Expected cross section limit [pb]");
    DrawPlot2D(pt,c1,h,flag,x,y,"ObsNsignalLimit",   "Observed limit on number signal events");
@@ -372,7 +372,7 @@ void GetPlotTools(PlotTools*& plotTools, std::string filename, std::string Gener
   plotTools->Remove("ObsR", Compare::less, 0.0);
 
 
-  plotTools->FillEmptyPointsByInterpolation("gluino", "squark");
+  //plotTools->FillEmptyPointsByInterpolation("gluino", "squark");
 
 
   //Make grid in Mzero, Mhalf finer by factors of 2 by linear interpolation
@@ -402,21 +402,32 @@ void AddEvents(PlotTools*& plotTools, std::string filename, std::string Generato
   delete additionalEvents;
 }
 
-void GlSq(const std::string& flag, const std::string& file)  {
+void DoPlotsFor(const std::string& x, const std::string& y, const std::string& flag, const std::string& file, TH2*plot_range=0, TH2*plot_excl=0)  {
+    PlotTools * PlotTool;
+    GetPlotTools(PlotTool, file);
+    GetInfo("squark")->SetLabel("m(#tilde{q}) [GeV]");
+    GetInfo("gluino")->SetLabel("m(#tilde{g}) [GeV]");
+    GetInfo("chi1")->SetLabel("m(#tilde{#chi}^{0}_{1}) [GeV]");
+    if (!plot_range) plot_range = PlotTool->GetHist(x,y);
+    if (!plot_excl)  plot_excl = plot_range;
+    DrawStandardPlots(PlotTool, flag, x,y, plot_range);
+    //DrawStandardPlotsPerBin(PlotTool, "GMSB", x,y, &plot_range);
+    DrawStandardLimitPlots(PlotTool, flag, x,y, plot_range);
+    DrawExclusion(PlotTool,flag,x,y,plot_range,plot_excl); //removes points, which have no limits and fills the gaps by interpolation
+}
+
+void SqGl(const std::string& flag, const std::string& file)  {
   //Bino gl-sq //////////////////////////////////////////////////////////////////////////////
     PlotTools * PlotTool;
     GetPlotTools(PlotTool, file);
 
-    TH2F h_glsq("h",               ";#tilde{g} [GeV]; #tilde{q} [GeV]; cross section [pb]", 20 ,360, 2040, 20, 360, 2040);
-    TH2F h_glsq_exclusion("h_excl",";#tilde{g} [GeV]; #tilde{q} [GeV]; cross section [pb]", 20 ,360, 2040, 20, 360, 2040);
+    TH2F h_glsq("h",               ";m(#tilde{q}) [GeV]; m(#tilde{g}) [GeV]; cross section [pb]", 21 ,360, 2040, 21, 360, 2040);
+    TH2F h_glsq_exclusion("h_excl",";m(#tilde{q}) [GeV]; m(#tilde{g}) [GeV]; cross section [pb]", 21 ,360, 2040, 21, 360, 2040);
 
-    //PlotTool->Remove("ObsR", Compare::less, 0.000001);
-    //PlotTool->FillEmptyPointsByInterpolation("gluino", "squark");
-
-    DrawStandardPlots(      PlotTool, flag, "gluino", "squark", &h_glsq);
-    //DrawStandardPlotsPerBin(PlotTool, "GMSB", "gluino", "squark", &h_plot);
-    DrawStandardLimitPlots(  PlotTool, flag, "gluino", "squark", &h_glsq);
-    DrawExclusion(PlotTool,flag,"gluino", "squark",&h_glsq,&h_glsq_exclusion); //removes points, which have no limits and fills the gaps by interpolation
+    DrawStandardPlots(      PlotTool, flag, "squark", "gluino", &h_glsq);
+    //DrawStandardPlotsPerBin(PlotTool, "GMSB", "squark", "gluino", &h_plot);
+    DrawStandardLimitPlots(  PlotTool, flag, "squark", "gluino", &h_glsq);
+    DrawExclusion(PlotTool,flag,"squark","gluino", &h_glsq,&h_glsq_exclusion); //removes points, which have no limits and fills the gaps by interpolation
 }
 
 void PartinoGaugino(const std::string& flag, const std::string& file)  {
@@ -424,16 +435,32 @@ void PartinoGaugino(const std::string& flag, const std::string& file)  {
     PlotTools * PlotTool;
     GetPlotTools(PlotTool, file);
 
-    TH2F h_chigl("h_chigl",               ";#tilde{#chi}^{0}_{1} [GeV]; #tilde{g} [GeV]; cross section [pb]", 10 ,100, 1100, 22, 200, 2040);
-    TH2F h_chigl_exclusion("h_chigl_excl",";#tilde{#chi}^{0}_{1} [GeV]; #tilde{g} [GeV]; cross section [pb]", 10 ,100, 1100, 22, 200, 2040);
-
-    //PlotTool->Remove("ObsR", Compare::less, 0.000001);
-    //PlotTool->FillEmptyPointsByInterpolation("gluino", "squark");
+    TH2F h_chigl("h_chigl",               ";#tilde{#chi}^{0}_{1} [GeV]; #tilde{g} [GeV]; cross section [pb]", 11 ,100, 1100, 23, 200, 2040);
+    TH2F h_chigl_exclusion("h_chigl_excl",";#tilde{#chi}^{0}_{1} [GeV]; #tilde{g} [GeV]; cross section [pb]", 11 ,100, 1100, 23, 200, 2040);
 
     DrawStandardPlots(      PlotTool, flag, "chi1", "gluino", &h_chigl);
     //DrawStandardPlotsPerBin(PlotTool, "GMSB", "gluino", "squark", &h_plot);
     DrawStandardLimitPlots(  PlotTool, flag, "chi1", "gluino", &h_chigl);
     DrawExclusion(PlotTool,flag,"chi1", "gluino",&h_chigl,&h_chigl_exclusion); //removes points, which have no limits and fills the gaps by interpolation
+}
+
+void T1(const std::string& flag, const std::string& file)  {
+  //Bino gl-sq //////////////////////////////////////////////////////////////////////////////
+    PlotTools * PlotTool;
+    GetPlotTools(PlotTool, file);
+
+    TH2F h_chigl("h_chigl",               ";#tilde{#chi}^{0}_{1} [GeV]; #tilde{g} [GeV]; cross section [pb]", 76, 87.5, 1987.5, 65 ,387.5, 2012.5);
+    TH2F h_chigl_exclusion("h_chigl_excl",";#tilde{#chi}^{0}_{1} [GeV]; #tilde{g} [GeV]; cross section [pb]", 76, 87.5, 1987.5, 65 ,387.5, 2012.5);
+
+    DrawStandardPlots(      PlotTool, flag, "chi1", "gluino", &h_chigl);
+    //DrawStandardPlotsPerBin(PlotTool, "GMSB", "gluino", "squark", &h_plot);
+    DrawStandardLimitPlots(  PlotTool, flag, "chi1", "gluino", &h_chigl);
+    DrawExclusion(PlotTool,flag,"chi1", "gluino",&h_chigl,&h_chigl_exclusion); //removes points, which have no limits and fills the gaps by interpolation
+}
+
+void SingleChannels(const std::string& flag, const std::string& file)
+{
+
 }
 
 
@@ -447,10 +474,17 @@ int plot(int argc, char** argv) {
   c1 = c_square;
   c1->cd();
 
-  GlSq("GMSBWino", "2012-05-09-22-24-GMSBWino375Neutr2j/filelist.txt");
-  GlSq("GMSBBino", "2012-05-09-21-44-GMSBBino375Neutr2j/filelist.txt");
-  
-  PartinoGaugino("GMSB_Chi1Gl", "2012-05-09-22-33-GMSB_SquarkGluino_vs_Neutralino2j/filelist.txt");
+  DoPlotsFor("squark","gluino","GMSB_Wino2j","2012-05-09-22-24-GMSBWino375Neutr2j/filelist.txt");
+  DoPlotsFor("squark","gluino","GMSB_Bino2j","2012-05-09-21-44-GMSBBino375Neutr2j/filelist.txt");
+  DoPlotsFor("chi1",  "gluino","GMSB_Bino2j","2012-05-09-22-33-GMSB_SquarkGluino_vs_Neutralino2j/filelist.txt");
+  DoPlotsFor("chi1",  "gluino","T1gg2j",     "2012-05-10-19-10-GMSB_T1lg2j/filelist.txt");
+  DoPlotsFor("chi1",  "gluino","T1lg2j",     "2012-05-10-19-10-GMSB_T1lg2j/filelist.txt");
+  //SqGl("GMSB_Bino2j", "2012-05-09-21-44-GMSBBino375Neutr2j/filelist.txt");
+  //PartinoGaugino("GMSB_Bino2j", "2012-05-09-22-33-GMSB_SquarkGluino_vs_Neutralino2j/filelist.txt");
+  //T1("T1gg2j", "2012-05-10-19-10-GMSB_T1lg2j/filelist.txt");
+  //T1("T1lg2j", "2012-05-10-19-10-GMSB_T1lg2j/filelist.txt");
+  SingleChannels("GMSB_SingleChannels_Bino2j", "2012-05-11-21-38-GMSBBino375NeutrSingleChannels2j");
+  SingleChannels("GMSB_SingleChannels_Wino2j", "2012-05-11-21-38-GMSBWino375NeutrSingleChannels2j");
 
 }
 
