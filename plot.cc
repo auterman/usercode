@@ -194,23 +194,15 @@ void DrawStandardPlotsPerBin(PlotTools *pt, const std::string& flag, const std::
    
 }
 
-void DrawExclusion(PlotTools *PlotTool, std::string flag, const std::string& x, const std::string& y, 
-                   TH1*hp, TH1*h)
+void InOutPlot(PlotTools *PlotTool, std::string flag, const std::string& x, const std::string& y, const std::string& R, TH2*h)
 {
-   //Require an observed CLs limit:
-   PlotTool->Remove("ObsR", Compare::less, 0.0);
-   PlotTool->FillEmptyPointsByInterpolation1D(x, y);
- 
-   //Xsection
-   {TH2F *hxsec = (TH2F*)h->Clone();
-   hxsec->GetZaxis()->SetTitle("Observed in/out");
-   PlotTool->InOutFromR(hxsec, x, y, "ObsR", 3);
-   FillEmptyPoints(hxsec,0.5);
-   hxsec->GetZaxis()->SetTitleOffset(1.5);
-   hxsec->SetMinimum(-0);hxsec->SetMaximum(1.);
-   std::vector<TGraph*> contours = GetContours(hxsec, 3);
+   PlotTool->InOutFromR(h, x, y, R, 3);
+   FillEmptyPoints(h,0.5);
+   h->GetZaxis()->SetTitleOffset(1.5);
+   h->SetMinimum(-0);h->SetMaximum(1.);
+   std::vector<TGraph*> contours = GetContours(h, 3);
    /// :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-   hxsec->Draw("colz");
+   h->Draw("colz");
    int col = kBlue - 10;
    for (std::vector<TGraph*>::iterator cont = contours.begin(); cont != contours.end(); ++cont) {
    	   if (!*cont) continue;
@@ -227,9 +219,23 @@ void DrawExclusion(PlotTools *PlotTool, std::string flag, const std::string& x, 
    	   if (cont-contours.begin()>13) break;
    }
    //drawCmsPrel(PlotTool->SingleValue(Luminosity), METCut);
-   string nameXsPlot = "results/" + flag + "_"+x+"_"+y+"_ObservedInOut";
+   string nameXsPlot = "results/" + flag + "_"+x+"_"+y+"_"+R+"InOut";
    c1->SaveAs((nameXsPlot + ".pdf").c_str());
    if (plotPNG) c1->SaveAs((nameXsPlot + ".png").c_str());
+
+}
+
+void DrawExclusion(PlotTools *PlotTool, std::string flag, const std::string& x, const std::string& y, 
+                   TH1*hp, TH1*h)
+{
+   //Require an observed CLs limit:
+   PlotTool->Remove("ObsR", Compare::less, 0.0);
+   PlotTool->FillEmptyPointsByInterpolation1D(x, y);
+ 
+   //In/Out Plot
+   {TH2F *hplot = (TH2F*)h->Clone();
+    hplot->GetZaxis()->SetTitle("Observed in/out");
+    InOutPlot(PlotTool,flag,x,y,"ObsR",hplot);
    }
 
    {//Exclusion Contours
@@ -416,51 +422,74 @@ void DoPlotsFor(const std::string& x, const std::string& y, const std::string& f
     DrawExclusion(PlotTool,flag,x,y,plot_range,plot_excl); //removes points, which have no limits and fills the gaps by interpolation
 }
 
-void SqGl(const std::string& flag, const std::string& file)  {
-  //Bino gl-sq //////////////////////////////////////////////////////////////////////////////
-    PlotTools * PlotTool;
-    GetPlotTools(PlotTool, file);
-
-    TH2F h_glsq("h",               ";m(#tilde{q}) [GeV]; m(#tilde{g}) [GeV]; cross section [pb]", 21 ,360, 2040, 21, 360, 2040);
-    TH2F h_glsq_exclusion("h_excl",";m(#tilde{q}) [GeV]; m(#tilde{g}) [GeV]; cross section [pb]", 21 ,360, 2040, 21, 360, 2040);
-
-    DrawStandardPlots(      PlotTool, flag, "squark", "gluino", &h_glsq);
-    //DrawStandardPlotsPerBin(PlotTool, "GMSB", "squark", "gluino", &h_plot);
-    DrawStandardLimitPlots(  PlotTool, flag, "squark", "gluino", &h_glsq);
-    DrawExclusion(PlotTool,flag,"squark","gluino", &h_glsq,&h_glsq_exclusion); //removes points, which have no limits and fills the gaps by interpolation
-}
-
-void PartinoGaugino(const std::string& flag, const std::string& file)  {
-  //Bino gl-sq //////////////////////////////////////////////////////////////////////////////
-    PlotTools * PlotTool;
-    GetPlotTools(PlotTool, file);
-
-    TH2F h_chigl("h_chigl",               ";#tilde{#chi}^{0}_{1} [GeV]; #tilde{g} [GeV]; cross section [pb]", 11 ,100, 1100, 23, 200, 2040);
-    TH2F h_chigl_exclusion("h_chigl_excl",";#tilde{#chi}^{0}_{1} [GeV]; #tilde{g} [GeV]; cross section [pb]", 11 ,100, 1100, 23, 200, 2040);
-
-    DrawStandardPlots(      PlotTool, flag, "chi1", "gluino", &h_chigl);
-    //DrawStandardPlotsPerBin(PlotTool, "GMSB", "gluino", "squark", &h_plot);
-    DrawStandardLimitPlots(  PlotTool, flag, "chi1", "gluino", &h_chigl);
-    DrawExclusion(PlotTool,flag,"chi1", "gluino",&h_chigl,&h_chigl_exclusion); //removes points, which have no limits and fills the gaps by interpolation
-}
-
-void T1(const std::string& flag, const std::string& file)  {
-  //Bino gl-sq //////////////////////////////////////////////////////////////////////////////
-    PlotTools * PlotTool;
-    GetPlotTools(PlotTool, file);
-
-    TH2F h_chigl("h_chigl",               ";#tilde{#chi}^{0}_{1} [GeV]; #tilde{g} [GeV]; cross section [pb]", 76, 87.5, 1987.5, 65 ,387.5, 2012.5);
-    TH2F h_chigl_exclusion("h_chigl_excl",";#tilde{#chi}^{0}_{1} [GeV]; #tilde{g} [GeV]; cross section [pb]", 76, 87.5, 1987.5, 65 ,387.5, 2012.5);
-
-    DrawStandardPlots(      PlotTool, flag, "chi1", "gluino", &h_chigl);
-    //DrawStandardPlotsPerBin(PlotTool, "GMSB", "gluino", "squark", &h_plot);
-    DrawStandardLimitPlots(  PlotTool, flag, "chi1", "gluino", &h_chigl);
-    DrawExclusion(PlotTool,flag,"chi1", "gluino",&h_chigl,&h_chigl_exclusion); //removes points, which have no limits and fills the gaps by interpolation
-}
-
-void SingleChannels(const std::string& flag, const std::string& file)
+void PlotAll(std::vector<LimitGraphs*>& lg, const std::string& flag, const std::string& limit, TH2*h=0)
 {
+  if (!h) h = (TH2F*)lg.front()->GetHist()->Clone();
+  h->Draw();
+  TLegend* leg = new TLegend(0.55,0.52,0.88,0.83,NULL,"brNDC");
+  leg->SetFillColor(0);leg->SetShadowColor(0);
+  leg->SetTextFont(42);leg->SetTextSize(0.025);leg->SetBorderSize(1);
+  leg->SetHeader("CMS, L_{int} = 4.7 fb^{-1}, #sqrt{s} = 7 TeV");
+  for (std::vector<LimitGraphs*>::iterator it=lg.begin();it!=lg.end();++it) {
+    TGraph * g = (*it)->Limit(limit);
+    g->Draw("l");
+    leg->AddEntry(g,(*it)->Name().c_str(),"l");
+  }
+  leg->Draw();
+  gPad->RedrawAxis();
+  c1->SaveAs(("results/"+flag +"_"+limit+".pdf").c_str());
+  if (plotPNG) c1->SaveAs(("results/"+flag+limit+".png").c_str());
+}
 
+
+void MultipleChannels(const std::string& x, const std::string& y, const std::string& flag, const std::string& dir, TH2*plot_range=0)  
+{
+  //read all channels
+  std::vector<LimitGraphs*> lg;  
+  lg.push_back(new LimitGraphs(dir+"/filelist.txt",    "", 1, x, y, "combined", 15, 1, 2, 1, 0, 0, plot_range) );
+  lg.push_back(new LimitGraphs(dir+"/filelist_ch0.txt","", 1, x, y, "Bin 0",    15, 2, 0, 0, 0, 0, plot_range) );
+  lg.push_back(new LimitGraphs(dir+"/filelist_ch1.txt","", 1, x, y, "Bin 1",    15, 3, 0, 0, 0, 0, plot_range) );
+  lg.push_back(new LimitGraphs(dir+"/filelist_ch2.txt","", 1, x, y, "Bin 2",    15, 4, 0, 0, 0, 0, plot_range) );
+  lg.push_back(new LimitGraphs(dir+"/filelist_ch3.txt","", 1, x, y, "Bin 3",    15, 5, 0, 0, 0, 0, plot_range) );
+  lg.push_back(new LimitGraphs(dir+"/filelist_ch4.txt","", 1, x, y, "Bin 4",    15, 6, 2, 0, 0, 0, plot_range) );
+  lg.push_back(new LimitGraphs(dir+"/filelist_ch5.txt","", 1, x, y, "Bin 5",    15, 7, 2, 0, 0, 0, plot_range) );
+
+  //define plot range and labels
+  GetInfo("squark")->SetLabel("m(#tilde{q}) [GeV]");
+  GetInfo("gluino")->SetLabel("m(#tilde{g}) [GeV]");
+  GetInfo("chi1"  )->SetLabel("m(#tilde{#chi}^{0}_{1}) [GeV]");
+  if (!plot_range) plot_range = (TH2F*)lg.front()->GetHist()->Clone();
+  plot_range->GetXaxis()->SetTitle(GetInfo(x)->GetLabel().c_str());
+  plot_range->GetYaxis()->SetTitle(GetInfo(y)->GetLabel().c_str());
+
+  //plotting
+  PlotAll(lg,flag,x+"_"+y+"_allObsAsym",plot_range);
+  PlotAll(lg,flag,x+"_"+y+"_allExpAsym",plot_range);
+  c1->SetRightMargin(0.2);
+
+  for (std::vector<LimitGraphs*>::iterator it=lg.begin();it!=lg.end();++it) {
+      std::string l=flag+"_"+(*it)->Name();
+      std::replace(l.begin(),l.end(),' ','_');
+      c1->SetLogz(0);
+      DrawPlot2D((*it)->GetPlot(),c1,(*it)->GetHist(),l,x,y,"Acceptance",        "Acceptance");
+      c1->SetLogz(1);
+      DrawPlot2D((*it)->GetPlot(),c1,(*it)->GetHist(),l,x,y,"ObsXsecLimitasym", "Observed asympt. cross section limit [pb]");
+      DrawPlot2D((*it)->GetPlot(),c1,(*it)->GetHist(),l,x,y,"ExpXsecLimitasym", "Expected asympt. cross section limit [pb]");
+      DrawPlot2D((*it)->GetPlot(),c1,(*it)->GetHist(),l,x,y,"ObsRasym", "Asymptotic Observed R ");
+      //In/Out plot 
+      {
+      TH2F *hplot = (TH2F*)(*it)->GetHist()->Clone();
+      hplot->GetZaxis()->SetTitle("Observed in/out");
+      InOutPlot((*it)->GetPlot(),l,x,y,"ObsRasym",hplot);
+      delete hplot;
+      }
+      {
+      TH2F *hplot = (TH2F*)(*it)->GetHist()->Clone();
+      hplot->GetZaxis()->SetTitle("Expected in/out");
+      InOutPlot((*it)->GetPlot(),l,x,y,"ExpRasym",hplot);
+      delete hplot;
+      }
+  }
 }
 
 
@@ -479,15 +508,11 @@ int plot(int argc, char** argv) {
   DoPlotsFor("chi1",  "gluino","GMSB_Bino2j","2012-05-09-22-33-GMSB_SquarkGluino_vs_Neutralino2j/filelist.txt");
   DoPlotsFor("chi1",  "gluino","T1gg2j",     "2012-05-10-19-10-GMSB_T1lg2j/filelist.txt");
   DoPlotsFor("chi1",  "gluino","T1lg2j",     "2012-05-10-19-10-GMSB_T1lg2j/filelist.txt");
-  //SqGl("GMSB_Bino2j", "2012-05-09-21-44-GMSBBino375Neutr2j/filelist.txt");
-  //PartinoGaugino("GMSB_Bino2j", "2012-05-09-22-33-GMSB_SquarkGluino_vs_Neutralino2j/filelist.txt");
-  //T1("T1gg2j", "2012-05-10-19-10-GMSB_T1lg2j/filelist.txt");
-  //T1("T1lg2j", "2012-05-10-19-10-GMSB_T1lg2j/filelist.txt");
-  SingleChannels("GMSB_SingleChannels_Bino2j", "2012-05-11-21-38-GMSBBino375NeutrSingleChannels2j");
-  SingleChannels("GMSB_SingleChannels_Wino2j", "2012-05-11-21-38-GMSBWino375NeutrSingleChannels2j");
+  MultipleChannels("squark","gluino","GMSB_SingleChannels_Bino2j", "2012-05-11-21-38-GMSBBino375NeutrSingleChannels2j" );
+  MultipleChannels("squark","gluino","GMSB_SingleChannels_Wino2j", "2012-05-11-21-38-GMSBWino375NeutrSingleChannels2j");
 
 }
 
 int main(int argc, char** argv) {
-	return plot(argc, argv);
+  return plot(argc, argv);
 }

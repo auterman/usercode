@@ -59,6 +59,8 @@ void CalculateVariablesOnTheFly(Event& evt)
   evt.Add( Variable(0, new Info("ObsRtheoryM1","") ) );
   evt.Add( Variable(evt.Get("ObsR")*evt.Get("Xsection"), new Info("ObsXsecLimit","") ) );
   evt.Add( Variable(evt.Get("ExpR")*evt.Get("Xsection"), new Info("ExpXsecLimit","") ) );
+  evt.Add( Variable(evt.Get("ObsRasym")*evt.Get("Xsection"), new Info("ObsXsecLimitasym","") ) );
+  evt.Add( Variable(evt.Get("ExpRasym")*evt.Get("Xsection"), new Info("ExpXsecLimitasym","") ) );
   evt.Add( Variable(evt.Get("signal")/(evt.Get("Xsection")*evt.Get("Luminosity")), new Info("Acceptance","") ) );
 
   
