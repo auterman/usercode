@@ -16,6 +16,10 @@
 /*
  * COMMENTS on used datasets, scans, etc.
  *
+ * file: inputWinter11/data_Full2011.txt
+ * * contains data event yields as used for the approval & ullas thesis (V20bt/bv/bw)
+ * * but lumi is scaled to 4.618/fb for FSR/ISR AND FSR/ISR uncert. is lowered to 50%
+ *
  * file: inputWinter11/data_postApproval20120403.txt
  * * contains data event yields as used for the approval & ullas thesis (V20bt/bv/bw)
  * * but lumi is scaled to 4.618/fb for FSR/ISR
@@ -35,7 +39,7 @@
 //LUMI
 const double luminosity = 4618.0;
 const double luminosityUncertainty = 1.022; //updated approved lumi for 2011, 3.4.2012
-const double IsrFsrUncertaintyScale = 0.5;  //1.0=100% ISR/FSR uncertainty, 0.5=50%, 0.1=10% etc.
+
 const std::string WinoScanString = "Wino";  //sub-string in signalAcceptance input file, specifying if the number of generated events has to be set manually (because of generator cuts).
 const std::string T1lgScanString = "T1lg";
 const std::string T1ggScanString = "T1gg";
@@ -608,7 +612,7 @@ void ReadSignalAcceptance(std::string label, std::string sig_file, std::string d
       channel.u_qcd_stat         = (channel.bgd_qcd?   1.+ u_qcd_stat[c]/channel.bgd_qcd  :0);
       channel.u_ewk              = (channel.bgd_ewk?       u_ewk[c]/channel.bgd_ewk       :0);
       channel.u_ewk_stat         = (channel.bgd_ewk?   1.+ u_ewk_stat[c]/channel.bgd_ewk  :0);
-      channel.u_fsr              = (channel.bgd_fsr?   1.+ u_fsr[c]/channel.bgd_fsr * IsrFsrUncertaintyScale      :0);
+      channel.u_fsr              = (channel.bgd_fsr?   1.+ u_fsr[c]/channel.bgd_fsr:0);
       channel.u_fsr_stat         = (channel.bgd_fsr?   1.+ u_fsr_stat[c]/channel.bgd_fsr  :0);
 
       channel.u_jes = p.u_jes;
@@ -878,7 +882,7 @@ int main(int argc, char* argv[]) {
    //3-jets
    {
    Points.Reset();
-   ReadSignalAcceptance("","inputWinter11/signalAcceptanceWino_preARC20120208.dat", "inputWinter11/data_postApproval20120403.txt");
+   ReadSignalAcceptance("","inputWinter11/signalAcceptanceWino_preARC20120208.dat", "inputWinter11/data_Full2011.txt");
    AddXsec("inputWinter11/wino375NLOxsec2_Dec1.dat");
    AddPDFxsec("inputWinter11/PDFcross.txt", 375);
    AddPDFAcceptance("inputWinter11/PDFacceptance.txt", 375);
@@ -903,7 +907,7 @@ int main(int argc, char* argv[]) {
 
    //2-jets
    Points.Reset();
-   ReadSignalAcceptance("2j","inputWinter11/signalAcceptanceWino_preARC20120208.dat", "inputWinter11/data_postApproval20120403.txt");
+   ReadSignalAcceptance("2j","inputWinter11/signalAcceptanceWino_preARC20120208.dat", "inputWinter11/data_Full2011.txt");
    AddXsec("inputWinter11/wino375NLOxsec2_Dec1.dat");
    AddPDFxsec("inputWinter11/PDFcross.txt", 375);
    AddPDFAcceptance("inputWinter11/PDFacceptance.txt", 375);
@@ -918,7 +922,7 @@ int main(int argc, char* argv[]) {
    ///////////////Bino 375
    //3-jets
    Points.Reset();
-   ReadSignalAcceptance("","inputWinter11/signalAcceptanceBino_preARC20120208.dat", "inputWinter11/data_postApproval20120403.txt");
+   ReadSignalAcceptance("","inputWinter11/signalAcceptanceBino_preARC20120208.dat", "inputWinter11/data_Full2011.txt");
    AddXsec("inputWinter11/bino375NLOxsec2_Dec1.dat");
    AddPDFxsec("inputWinter11/PDFcross.txt", 375);
    AddPDFAcceptance("inputWinter11/PDFacceptance.txt", 375);
@@ -932,7 +936,7 @@ int main(int argc, char* argv[]) {
    }
    //2-jets
    Points.Reset();
-   ReadSignalAcceptance("2j","inputWinter11/signalAcceptanceBino_preARC20120208.dat", "inputWinter11/data_postApproval20120403.txt");
+   ReadSignalAcceptance("2j","inputWinter11/signalAcceptanceBino_preARC20120208.dat", "inputWinter11/data_Full2011.txt");
    AddXsec("inputWinter11/bino375NLOxsec2_Dec1.dat");
    AddPDFxsec("inputWinter11/PDFcross.txt", 375);
    AddPDFAcceptance("inputWinter11/PDFacceptance.txt", 375);
@@ -947,7 +951,7 @@ int main(int argc, char* argv[]) {
    // Squark vs Neutralino (and Gluino vs Neutralino) ////////////////////////////
    //3-jets
    Points.Reset();
-   ReadSignalAcceptance("","inputWinter11/signalAcceptanceBinoNeutr_preARC20120208.dat", "inputWinter11/data_postApproval20120403.txt");
+   ReadSignalAcceptance("","inputWinter11/signalAcceptanceBinoNeutr_preARC20120208.dat", "inputWinter11/data_Full2011.txt");
    AddXsec("inputWinter11/binochixsec2_Dec1.dat");
    AddPDFxsec("inputWinter11/PDFcrossBino_NeutrScan.txt");
    AddPDFAcceptance("inputWinter11/PDFacceptanceBino_NeutrScan.txt");
@@ -961,7 +965,7 @@ int main(int argc, char* argv[]) {
    }
    //2-jets
    Points.Reset();
-   ReadSignalAcceptance("2j","inputWinter11/signalAcceptanceBinoNeutr_preARC20120208.dat", "inputWinter11/data_postApproval20120403.txt");
+   ReadSignalAcceptance("2j","inputWinter11/signalAcceptanceBinoNeutr_preARC20120208.dat", "inputWinter11/data_Full2011.txt");
    AddXsec("inputWinter11/binochixsec2_Dec1.dat");
    AddPDFxsec("inputWinter11/PDFcrossBino_NeutrScan.txt");
    AddPDFAcceptance("inputWinter11/PDFacceptanceBino_NeutrScan.txt");
@@ -979,7 +983,7 @@ int main(int argc, char* argv[]) {
    ////////////////////////////////////////////////////////////////////
       //T1lg, 2-jet
       Points.Reset();
-      ReadSignalAcceptance("2j", "inputWinter11/signalAcceptanceT1lg_Mar30.dat", "inputWinter11/data_postApproval20120403.txt");
+      ReadSignalAcceptance("2j", "inputWinter11/signalAcceptanceT1lg_Mar30.dat", "inputWinter11/data_Full2011.txt");
       AddSMSXsec("inputWinter11/SMS_XS.dat");
       //AddPDFxsec("inputWinter11/PDFcrossBino_NeutrScan.txt");
       //AddPDFAcceptance("inputWinter11/PDFacceptanceBino_NeutrScan.txt");
@@ -996,7 +1000,7 @@ int main(int argc, char* argv[]) {
 
       //T1gg, 2-jet
       Points.Reset();
-      ReadSignalAcceptance("2j", "inputWinter11/signalAcceptanceT1gg_Mar30.dat", "inputWinter11/data_postApproval20120403.txt");
+      ReadSignalAcceptance("2j", "inputWinter11/signalAcceptanceT1gg_Mar30.dat", "inputWinter11/data_Full2011.txt");
       AddSMSXsec("inputWinter11/SMS_XS.dat");
       //AddPDFxsec("inputWinter11/PDFcrossBino_NeutrScan.txt");
       //AddPDFAcceptance("inputWinter11/PDFacceptanceBino_NeutrScan.txt");
