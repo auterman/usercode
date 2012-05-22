@@ -219,26 +219,25 @@ public:
 			int n_channels    = it->bins.size();
 			int n_backgrounds = 3;
 			int n_nuisance    = 5 + n_channels*4; //systs & stats
-			double d=0,b=0,s=0,cont=0,unc,R,Rmin=9999999999999;
+			double d=0,b=0,s=0,cont=0,R,Rmin=9999999999999;
 			for (int bin=1; bin<=n_channels; ++bin){
 			  d+=it->bins[bin-1].data;
 			  b+=it->bins[bin-1].bgd_qcd + it->bins[bin-1].bgd_ewk + it->bins[bin-1].bgd_fsr;
 			  s+=it->bins[bin-1].signal;
 			  cont+=it->bins[bin-1].qcd_contamination + it->bins[bin-1].ewk_contamination;
-			  unc=sqrt( it->bins[bin-1].data +
-      			            pow(it->bins[bin-1].u_scaleDataMC-1.,2) +
-      			            pow(it->bins[bin-1].u_jes-1.,2) +
-      			            pow(it->bins[bin-1].u_pdfacc-1.,2) +
-				    pow(it->bins[bin-1].u_lumi-1,2) +
-				    pow(it->bins[bin-1].u_qcd-1,2) +
-				    pow(it->bins[bin-1].u_ewk-1,2) +
-				    pow(it->bins[bin-1].u_fsr-1,2) +
-				    pow(it->bins[bin-1].u_sig_stat-1,2) +
-				    pow(it->bins[bin-1].u_qcd_stat-1,2) +
-				    pow(it->bins[bin-1].u_ewk_stat-1,2) +
-				    pow(it->bins[bin-1].u_fsr_stat-1,2) 
-				  );
-			  R=2.*unc/it->bins[bin-1].signal;
+			  double unc2= it->bins[bin-1].data;
+      			  if (it->bins[bin-1].u_scaleDataMC) unc2 += pow(it->bins[bin-1].u_scaleDataMC-1.,2);
+      			  if (it->bins[bin-1].u_jes)      unc2 += pow(it->bins[bin-1].u_jes-1.,2);
+      			  if (it->bins[bin-1].u_pdfacc)   unc2 += pow(it->bins[bin-1].u_pdfacc-1.,2);
+			  if (it->bins[bin-1].u_lumi)     unc2 += pow(it->bins[bin-1].u_lumi-1,2);
+			  if (it->bins[bin-1].u_qcd)      unc2 += pow(it->bins[bin-1].u_qcd-1,2);
+			  if (it->bins[bin-1].u_ewk)      unc2 += pow(it->bins[bin-1].u_ewk-1,2);
+			  if (it->bins[bin-1].u_fsr)      unc2 += pow(it->bins[bin-1].u_fsr-1,2);
+			  if (it->bins[bin-1].u_sig_stat) unc2 += pow(it->bins[bin-1].u_sig_stat-1,2);
+			  if (it->bins[bin-1].u_qcd_stat) unc2 += pow(it->bins[bin-1].u_qcd_stat-1,2);
+			  if (it->bins[bin-1].u_ewk_stat) unc2 += pow(it->bins[bin-1].u_ewk_stat-1,2);
+			  if (it->bins[bin-1].u_fsr_stat) unc2 += pow(it->bins[bin-1].u_fsr_stat-1,2);
+			  R=2.*sqrt(unc2)/it->bins[bin-1].signal;
 			  if (R<Rmin) Rmin=R;	  
 			}
 			ofile << "# R_firstguess = " << Rmin << "\n";
@@ -671,14 +670,18 @@ void AddSMSXsec(std::string filelist) {
 	std::string file;
 	point p;
 	p.lumi = luminosity;
-	double NLO_up, NLO_dn;
+	p.squark = 0; //eigentlich 1E09, aber 'GetPointsWithSameMass' checked 0..
+	p.u_pdfxsec = 0;
+	p.u_pdfacc = 0;
+	double xsecNLO_Up, xsecNLO_Dn;
 	while (1) {
-	   masses_file >> p.squark >> p.gluino >>  p.xsecNLO;
-	   NLO_up=p.xsecNLO*2;
-	   NLO_dn=p.xsecNLO/2;
+	   masses_file >> p.gluino >> p.xsecNLO >> xsecNLO_Up >> xsecNLO_Dn;
+	   
+	   p.u_NLO_Up = (p.xsecNLO==0?0:xsecNLO_Up/p.xsecNLO);
+	   p.u_NLO_Dn = (p.xsecNLO==0?0:xsecNLO_Dn/p.xsecNLO);
+	   p.u_NLO    =  p.u_NLO_Up;
+	      
 	   if (!masses_file.good()) break;
-
-
 
 	   std::vector<point *> aPoints;
 	   aPoints = Points.GetPointsWithSameMass(p.gluino, p.squark);
@@ -695,17 +698,17 @@ void AddSMSXsec(std::string filelist) {
 	  	 	     //a->u_sig_stat *= luminosity*p.xsecNLO/a->totalGenerated;
 	  	 	     a->qcd_contamination  *= luminosity*p.xsecNLO/a->totalGenerated;
 	  	 	     a->ewk_contamination  *= luminosity*p.xsecNLO/a->totalGenerated;
-	  	 	     a->u_NLO       = NLO_up / p.xsecNLO;
-	  	 	     a->u_NLO_Up    = NLO_up / p.xsecNLO;
-	  	 	     a->u_NLO_Dn    = NLO_dn / p.xsecNLO;
-	  		     a->u_pdfxsec   = 0;
-			     a->u_pdfacc    = 0;
+	  	 	     a->u_NLO       = p.u_NLO;
+	  	 	     a->u_NLO_Up    = p.u_NLO_Up;
+	  	 	     a->u_NLO_Dn    = p.u_NLO_Dn;
+	  		     a->u_pdfxsec   = p.u_pdfxsec;
+			     a->u_pdfacc    = p.u_pdfacc;
            	             for (std::vector<point::bin>::iterator bin=a->bins.begin(); bin!=a->bins.end(); ++bin) {
 	  	 	       bin->signal     *= luminosity*p.xsecNLO/a->totalGenerated;
 	  	 	       //bin->u_sig_stat *= luminosity*p.xsecNLO/a->totalGenerated;
 	  	 	       bin->qcd_contamination *= luminosity*p.xsecNLO/a->totalGenerated;
 	  	 	       bin->ewk_contamination *= luminosity*p.xsecNLO/a->totalGenerated;
-	  	 	       bin->u_NLO = 1.0 + NLO_up / p.xsecNLO; //assume that 'u_NLO_up' is the absolute uncertainty in the same units as 'xsecNLO'
+	  	 	       bin->u_NLO = 1.0; //not considered for limit calculation
 		               bin->u_pdfxsec = 1.0;
 			       bin->u_pdfacc  = 1.0;
 			       
@@ -984,7 +987,7 @@ int main(int argc, char* argv[]) {
       //T1lg, 2-jet
       Points.Reset();
       ReadSignalAcceptance("2j", "inputWinter11/signalAcceptanceT1lg_Mar30.dat", "inputWinter11/data_Full2011.txt");
-      AddSMSXsec("inputWinter11/SMS_XS.dat");
+      AddSMSXsec("inputWinter11/T1XsecUnc.txt");
       //AddPDFxsec("inputWinter11/PDFcrossBino_NeutrScan.txt");
       //AddPDFAcceptance("inputWinter11/PDFacceptanceBino_NeutrScan.txt");
       {
@@ -1001,7 +1004,7 @@ int main(int argc, char* argv[]) {
       //T1gg, 2-jet
       Points.Reset();
       ReadSignalAcceptance("2j", "inputWinter11/signalAcceptanceT1gg_Mar30.dat", "inputWinter11/data_Full2011.txt");
-      AddSMSXsec("inputWinter11/SMS_XS.dat");
+      AddSMSXsec("inputWinter11/T1XsecUnc.txt");
       //AddPDFxsec("inputWinter11/PDFcrossBino_NeutrScan.txt");
       //AddPDFAcceptance("inputWinter11/PDFacceptanceBino_NeutrScan.txt");
       {
