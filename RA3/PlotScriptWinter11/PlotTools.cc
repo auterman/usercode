@@ -94,10 +94,37 @@ double PlotTools<T>::LimitValue(double(*x)(const T*), double(*y)(const T*), TGra
 	return resultYValue;
 }
 
+
+void ComputeRange(TGraph * graph,Double_t &xmin, Double_t &ymin, Double_t &xmax, Double_t &ymax,bool rejectXGreaterY=false)
+{
+   // Compute the x/y range of the points in this graph
+   if (graph->GetN() <= 0) {
+      xmin = xmax = ymin = ymax = 0;
+      return;
+   }
+   if(rejectXGreaterY)std::cout<<"!!!!!!!!!!!neutralino!!!!!!!!!!!!!!!!!!!!!!!!! :"<<rejectXGreaterY<<std::endl;
+   Double_t*	fX=graph->GetX();
+   Double_t*	fY=graph->GetY();
+   xmin = xmax = -1;
+   ymin = ymax = -1;
+   for (Int_t i = 1; i < graph->GetN(); i++) {
+  	 if(!rejectXGreaterY || fX[i]<=fY[i])
+  		{
+  		std::cout<<"!!!!!!!!!!!fX:"<<fX[i]<<std::endl;
+  		std::cout<<"!!!!!!!!!!!fY:"<<fY[i]<<std::endl;
+
+      if (xmin==-1 || fX[i] < xmin) xmin = fX[i];
+      if (xmax==-1 || fX[i] > xmax) xmax = fX[i];
+      if (ymin==-1 || fY[i] < ymin) ymin = fY[i];
+      if (ymax==-1 || fY[i] > ymax) ymax = fY[i];
+  		 }
+   }
+}
+
 template<class T>
-std::pair<double,double> PlotTools<T>::MinLimitValues( double(*x)(const T*),double(*y)(const T*),TGraph* limit) {
+std::pair<double,double> PlotTools<T>::MinLimitValues( double(*x)(const T*),double(*y)(const T*),TGraph* limit,bool rejectXGreaterY) {
   Double_t xmin,xmax,ymin,ymax;
-  limit->ComputeRange(xmin,ymin,xmax,ymax);
+  ComputeRange(limit,xmin,ymin,xmax,ymax,rejectXGreaterY);
   double minx=xmin;
   double miny=ymin;
   double minLimitx=0;
@@ -116,15 +143,16 @@ std::pair<double,double> PlotTools<T>::MinLimitValues( double(*x)(const T*),doub
 }
 
 template<class T>
-std::pair<double,double> PlotTools<T>::MaxLimitValues( double(*x)(const T*),double(*y)(const T*),TGraph* limit) {
+std::pair<double,double> PlotTools<T>::MaxLimitValues( double(*x)(const T*),double(*y)(const T*),TGraph* limit,bool rejectXGreaterY) {
   Double_t xmin,xmax,ymin,ymax;
-  limit->ComputeRange(xmin,ymin,xmax,ymax);
+  ComputeRange(limit,xmin,ymin,xmax,ymax,rejectXGreaterY);
   double maxx=xmax;
   double maxy=ymax;
   double maxLimitx=0;
   double maxLimity=0;
-//  cout<<"range x:"<<minx<<" - "<<xmax<<endl;
-//  cout<<"range y:"<<miny<<" - "<<ymax<<endl;
+  //std::cout<<"!!!!!!!!!!!range x:"<<xmin<<" - "<<xmax<<std::endl;
+  //std::cout<<"!!!!!!!!!!!range y:"<<ymin<<" - "<<ymax<<std::endl;
+  //std::cout<<"!!!!!!!!!!!neutralino? :"<<rejectXGreaterY<<std::endl;
   for (typename std::vector<T*>::const_iterator it = _scan->begin(); it != _scan->end(); ++it) {
 		if (x(*it) >= maxLimitx && x(*it) <= maxx) {
 			maxLimitx = x(*it);
@@ -133,6 +161,8 @@ std::pair<double,double> PlotTools<T>::MaxLimitValues( double(*x)(const T*),doub
 			maxLimity = y(*it);
 		}
 	}
+ // std::cout<<"!!!!!!!!!!!range x:"<<maxLimitx<<std::endl;
+  //std::cout<<"!!!!!!!!!!!range y:"<<maxLimity<<std::endl;
     std::pair<double,double> res(maxLimitx,maxLimity);
 	return res;
 }
@@ -167,7 +197,7 @@ void fillXSLimitAboveForInvalidResultPoints(TH2*h,TH2*hAcc){
 bool isExcludedAbove(TH2*h, int x, int minyexcl) {
 
 	// std::cout<<"is excluded? x="<<x<<" y="<<minyexcl<<std::endl;
-	for (int y = minyexcl; y <= h->GetYaxis()->GetNbins(); ++y) {
+	for (int y = minyexcl; y <= h->GetYaxis()->GetNbins()/2; ++y) {
 //
 		if (h->GetBinContent(x, y) != 1){
 			//std::cout<<"YES!! x="<<x<<" y="<<y<<std::endl;
@@ -258,7 +288,7 @@ void FillOverflowRowToImprovePlotting(TH2*h) {
 }
 
 void RejectHighExcludedPointsPerHand(TH2*h) {
-	for (int x = 60; x <=  h->GetXaxis()->GetNbins(); ++x){
+	for (int x = 0; x <=  h->GetXaxis()->GetNbins(); ++x){
 		for (int y = 50; y <=  h->GetYaxis()->GetNbins(); ++y){
 
 				h->SetBinContent(x, y, 1);
@@ -349,7 +379,7 @@ std::vector<TGraph*> PlotTools<T>::GetContours(TH2*h, int ncont,bool excludeBelo
 	 FillEmptyPointsForNeutralinoScan(plot);
 	}
 	if(isAsymptoticLimit){
-	  //RejectHighExcludedPointsPerHand(plot);
+	 // RejectHighExcludedPointsPerHand(plot);
 	  //FillEmptyPointsForNeutralinoScan(plot);
 	  FillEmptyPointsForLowMassPoints(plot);
 	}
@@ -614,7 +644,7 @@ std::string getStringFromInt(int i) {
 	//---------
 }
 void drawCmsPrelInCanvas(double intLumi) {
-	TLatex* lat = new TLatex(0.46, 0.84, "CMS Preliminary");
+	TLatex* lat = new TLatex(0.46, 0.84, "CMS");
 	lat->SetNDC(true);
 	lat->SetTextSize(0.04);
 	lat->Draw("same");
@@ -685,7 +715,7 @@ void drawCmsPrel(double intLumi, std::string METCut, int noJets, bool isBestjet,
 		if(drawCMS){
 		 as.SetTextSize(20);
 		 //as.DrawLatex(0.0, 0.905, "CMS preliminary");
-		 as.DrawLatex(0.20, 0.905, "CMS preliminary");
+		 as.DrawLatex(0.20, 0.905, "CMS");
 		 as.SetTextSize(20);
 		 //as.DrawLatex(0.0, 0.93, "preliminary");
 		}

@@ -33,8 +33,8 @@ class PlotTools {
   double SingleValue( double(*func)(const T*) );
   double SingleValue(double(*func)(const T*),double(*x)(const T*), double(*y)(const T*),double xValue, double yValue);
   double LimitValue( double(*x)(const T*),double(*y)(const T*),TGraph* limit,double xValue);
-  std::pair<double,double> MinLimitValues( double(*x)(const T*),double(*y)(const T*),TGraph* limit);
-  std::pair<double,double> MaxLimitValues( double(*x)(const T*),double(*y)(const T*),TGraph* limit);
+  std::pair<double,double> MinLimitValues( double(*x)(const T*),double(*y)(const T*),TGraph* limit,bool rejectXGreaterY=false);
+  std::pair<double,double> MaxLimitValues( double(*x)(const T*),double(*y)(const T*),TGraph* limit,bool rejectXGreaterY=false);
   double roundDouble(double xin = 0, int n = 2) ;
   void Graph(  TGraph*g, double(*x)(const T*), double(*y)(const T*), double ymin=-999. );
   
