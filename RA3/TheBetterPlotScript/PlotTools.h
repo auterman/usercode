@@ -24,7 +24,7 @@ std::vector<TGraph *> GetContours(TH2*, int ncont=20);
 void      Cut(TGraph * &g, const char f, const char c, double cut);
 
 ///The graph 'g' is smoothed. 'n' determines the number of points used for the Gaussian average
-void      Smooth(TGraph * g, int n=3);
+void      Smooth(TGraph * g, int n=3, int flag=0);
 
 ///The 2D hsitogram 'g' is smoothed. 'n' determines the number of bins (radius) used for the Gaussian average
 void      Smooth(TH2 * g, int n=3);

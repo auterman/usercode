@@ -4,6 +4,8 @@
 #include "PlotTools.h"
 #include "GeneratorMasses.h"
 
+#include "TLatex.h"
+
 #include <string>
 #include <vector>
 
@@ -68,5 +70,6 @@ class LimitGraphs{
   std::string name_;
   PlotTools * PlotTool;
 };
+
 
 #endif
