@@ -1,4 +1,4 @@
-// $Id: StyleSettings.h,v 1.1 2012/04/16 09:18:59 auterman Exp $
+// $Id: StyleSettings.h,v 1.1 2012/05/09 15:43:16 auterman Exp $
 
 #ifndef STYLE_SETTINGS_H
 #define STYLE_SETTINGS_H
@@ -7,16 +7,177 @@
 
 #include "TString.h"
 #include "TStyle.h"
+#include "TLatex.h"
+#include "TGraph.h"
 
 
 
+struct style{
+  std::string LegendTitel;
+  float LegendMinX, LegendMaxX, LegendMinY, LegendMaxY;
+  TLatex * cms, *cmsprelim, *lumi, *excluded;
+  int smooth_flag;
+  int smooth_points;
+  void (*coverUp)();
+};
+
+void DrawNeutrNNLSP() {
+	TGraph*gluinoNLSP = new TGraph(0);
+	gluinoNLSP->SetPoint(0, 50, 50);
+	gluinoNLSP->SetPoint(1, 3000, 3000);
+	gluinoNLSP->SetPoint(2, 3000, 50);
+	gluinoNLSP->SetPoint(3, 50, 50);
+	gluinoNLSP->SetFillColor(kGray);
+	gluinoNLSP->Draw("f");
+
+	TLatex tex;
+	tex.SetTextSize(0.03);
+	tex.SetTextFont(62);
+	tex.SetNDC(true);
+	tex.DrawLatex(0.6, 0.25, "#tilde{g} NLSP");
+	gPad->RedrawAxis();
+}
+
+style* GetSqGlBinoStyle(){
+  style * s = new style();
+  s->LegendTitel = "#splitline{GGM bino-like #tilde{#chi}^{0}}{m_{#tilde{#chi}^{0}} = 375 GeV}";
+  s->LegendMinX=0.26;
+  s->LegendMaxX=0.5;
+  s->LegendMinY=0.26;
+  s->LegendMaxY=0.5;
+  s->lumi = new TLatex(0.58, 0.901, "4.6fb^{  -1}  #sqrt{s} = 7 TeV   #geq1#gamma, #geq2 jets");
+  s->lumi->SetNDC(true);
+  s->lumi->SetTextColor(12);
+  s->lumi->SetTextFont(43);
+  s->lumi->SetTextSize(20);
+  s->cms = new TLatex(0.21, 0.901, "#bf{CMS}");
+  s->cms->SetNDC(true);
+  s->cms->SetTextColor(12);
+  s->cms->SetTextFont(43);
+  s->cms->SetTextSize(20);
+  s->cmsprelim = new TLatex(0.21, 0.901, "#bf{CMS preliminary}");
+  s->cmsprelim->SetNDC(true);
+  s->cmsprelim->SetTextColor(12);
+  s->cmsprelim->SetTextFont(43);
+  s->cmsprelim->SetTextSize(20);
+  s->excluded = new TLatex(0.3, 0.7, "excluded");
+  s->excluded->SetNDC(true);
+  s->excluded->SetTextColor(12);
+  s->excluded->SetTextFont(43);
+  s->excluded->SetTextSize(20);
+  s->smooth_flag=0;
+  s->smooth_points=25;
+  s->coverUp=0;
+  
+  return s;
+}
+
+style* GetSqGlWinoStyle(){
+  style * s = new style();
+  s->LegendTitel = "#splitline{GGM wino-like #tilde{#chi}^{0}}{m_{#tilde{#chi}^{0}} = 375 GeV}";
+  s->LegendMinX=0.5;
+  s->LegendMaxX=0.85;
+  s->LegendMinY=0.5;
+  s->LegendMaxY=0.85;
+  s->lumi = new TLatex(0.58, 0.901, "4.6fb^{  -1}  #sqrt{s} = 7 TeV   #geq1#gamma, #geq2 jets");
+  s->lumi->SetNDC(true);
+  s->lumi->SetTextColor(12);
+  s->lumi->SetTextFont(43);
+  s->lumi->SetTextSize(20);
+  s->cms = new TLatex(0.21, 0.901, "#bf{CMS}");
+  s->cms->SetNDC(true);
+  s->cms->SetTextColor(12);
+  s->cms->SetTextFont(43);
+  s->cms->SetTextSize(20);
+  s->cmsprelim = new TLatex(0.2, 0.901, "#bf{CMS preliminary}");
+  s->cmsprelim->SetNDC(true);
+  s->cmsprelim->SetTextColor(12);
+  s->cmsprelim->SetTextFont(43);
+  s->cmsprelim->SetTextSize(20);
+  s->excluded = new TLatex(0.3, 0.3, "excluded");
+  s->excluded->SetNDC(true);
+  s->excluded->SetTextColor(12);
+  s->excluded->SetTextFont(43);
+  s->excluded->SetTextSize(25);
+  s->smooth_flag=0;
+  s->smooth_points=25;
+  s->coverUp=0;
+  
+  return s;
+}
+
+style* GetGlChiPlotStyle(std::string neutralinotype, std::string squarkmass){
+  style * s = new style();
+  s->LegendTitel = "#splitline{GGM " + neutralinotype + "-like #tilde{#chi}^{0}}{m_{#tilde{q}} = "+squarkmass+" GeV}";
+  s->LegendMinX=0.46;
+  s->LegendMinY=0.64;
+  s->LegendMaxX=0.84;
+  s->LegendMaxY=0.84;
+  s->lumi = new TLatex(0.58, 0.901, "4.6fb^{  -1}  #sqrt{s} = 7 TeV   #geq1#gamma, #geq2 jets");
+  s->lumi->SetNDC(true);
+  s->lumi->SetTextColor(12);
+  s->lumi->SetTextFont(43);
+  s->lumi->SetTextSize(20);
+  s->cms = new TLatex(0.21, 0.901, "#bf{CMS}");
+  s->cms->SetNDC(true);
+  s->cms->SetTextColor(12);
+  s->cms->SetTextFont(43);
+  s->cms->SetTextSize(20);
+  s->cmsprelim = new TLatex(0.21, 0.901, "#bf{CMS preliminary}");
+  s->cmsprelim->SetNDC(true);
+  s->cmsprelim->SetTextColor(12);
+  s->cmsprelim->SetTextFont(43);
+  s->cmsprelim->SetTextSize(20);
+  s->excluded = new TLatex(0.3, 0.4, "excluded");
+  s->excluded->SetNDC(true);
+  s->excluded->SetTextColor(12);
+  s->excluded->SetTextFont(43);
+  s->excluded->SetTextSize(20);
+  s->smooth_flag=2;
+  s->smooth_points=15;
+  s->coverUp=DrawNeutrNNLSP;
+
+  return s;
+}
+
+style* GetSMSPlotStyle(std::string title){
+  style * s = new style();
+  s->LegendTitel = "SMS "+title;
+  s->LegendMinX=0.46;
+  s->LegendMinY=0.69;
+  s->LegendMaxX=0.84;
+  s->LegendMaxY=0.84;
+  s->lumi = new TLatex(0.58, 0.901, "4.6fb^{  -1}  #sqrt{s} = 7 TeV   #geq1#gamma, #geq2 jets");
+  s->lumi->SetNDC(true);
+  s->lumi->SetTextColor(12);
+  s->lumi->SetTextFont(43);
+  s->lumi->SetTextSize(20);
+  s->cms = new TLatex(0.21, 0.901, "#bf{CMS}");
+  s->cms->SetNDC(true);
+  s->cms->SetTextColor(12);
+  s->cms->SetTextFont(43);
+  s->cms->SetTextSize(20);
+  s->cmsprelim = new TLatex(0.21, 0.901, "#bf{CMS preliminary}");
+  s->cmsprelim->SetNDC(true);
+  s->cmsprelim->SetTextColor(12);
+  s->cmsprelim->SetTextFont(43);
+  s->cmsprelim->SetTextSize(20);
+  s->excluded=0;
+  s->smooth_flag=2;
+  s->smooth_points=15;
+  s->coverUp=DrawNeutrNNLSP;
+
+  return s;
+}
+  
+  
 namespace util {
 
   //!  Encapsulates different pad and histogram styles
   //!
   //!  \author   Matthias Schroeder (www.desy.de/~matsch)
   //!  \date     2010/03/09
-  //!  $Id: StyleSettings.h,v 1.1 2012/04/16 09:18:59 auterman Exp $
+  //!  $Id: StyleSettings.h,v 1.1 2012/05/09 15:43:16 auterman Exp $
   // -------------------------------------------------------------------------------------
   class StyleSettings {
   public:

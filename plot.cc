@@ -27,7 +27,8 @@
 #include "StyleSettings.h"
 
 const static bool plotPNG = false;
-const static bool plotC   = false;
+const static bool plotC   = true;
+const static bool plotROOT = true;
 const static bool plotPrelim = false;
 TCanvas * c1 = 0;
 
@@ -50,6 +51,7 @@ void DrawPlot2D(PlotTools *PlotTool, TCanvas*canvas, TH2* h, const std::string& 
    string namePlot = "results/" + flag + "_"+x+"_"+y+"_"+var;
    if (plotPrelim) canvas->SaveAs((namePlot + "_prelim.pdf").c_str());
    if (plotPNG && plotPrelim) canvas->SaveAs((namePlot + "_prelim.png").c_str());
+   if (plotC   && plotPrelim) canvas->SaveAs((namePlot + "_prelim.C").c_str());
    //
    plot2D->Draw("colz"); 
    TLatex tex2(tx,ty,"#font[42]{CMS, 4.62 fb^{-1}, #sqrt{s} = 7 TeV}");
@@ -57,6 +59,7 @@ void DrawPlot2D(PlotTools *PlotTool, TCanvas*canvas, TH2* h, const std::string& 
    tex2.Draw();
    canvas->SaveAs((namePlot + ".pdf").c_str());
    if (plotPNG) canvas->SaveAs((namePlot + ".png").c_str());
+   if (plotC)   canvas->SaveAs((namePlot + ".C").c_str());
 }
  
 void DrawHist1D(PlotTools *PlotTool, TCanvas*canvas, const std::string& flag, const string& x, const std::string& y, const std::string& var, 
@@ -113,7 +116,14 @@ void DrawStandardUncertaintyPlots(PlotTools *pt, const std::string& flag, const 
 
 void DrawStandardPlots(PlotTools *pt, const std::string& flag, const std::string& x, const std::string& y, TH2*h)
 {
-   c1->SetRightMargin(0.18);
+   gStyle->SetPadRightMargin(0.2);
+   gStyle->SetPadLeftMargin(0.2);
+   gStyle->SetTitleOffset(1.3, "xyz");
+   gStyle->SetTitleOffset(1.9, "y");
+   gStyle->SetNdivisions(505);
+   gStyle->SetTitleFont(43, "xyz");
+   gStyle->SetTitleSize(32, "xyz");
+   c1->UseCurrentStyle();
    
    //Log z-scale
    c1->SetLogz(1);
@@ -138,8 +148,14 @@ void DrawStandardPlots(PlotTools *pt, const std::string& flag, const std::string
 
 void DrawStandardLimitPlots(PlotTools *pt, const std::string& flag, const std::string& x, const std::string& y, TH2*h)
 {
-
-   c1->SetRightMargin(0.18);
+   gStyle->SetPadRightMargin(0.2);
+   gStyle->SetPadLeftMargin(0.2);
+   gStyle->SetTitleOffset(1.3, "xyz");
+   gStyle->SetTitleOffset(1.9, "y");
+   gStyle->SetNdivisions(505);
+   gStyle->SetTitleFont(43, "xyz");
+   gStyle->SetTitleSize(32, "xyz");
+   c1->UseCurrentStyle();
    
    //Log z-scale
    c1->SetLogz(1);
@@ -227,7 +243,7 @@ void InOutPlot(PlotTools *PlotTool, std::string flag, const std::string& x, cons
 }
 
 void DrawExclusion(PlotTools *PlotTool, std::string flag, const std::string& x, const std::string& y, 
-                   TH1*hp, TH1*h)
+                   TH1*hp, TH1*h, style*s)
 {
    //Require an observed CLs limit:
    //PlotTool->Remove("ObsR", Compare::less, 0.0);
@@ -260,34 +276,42 @@ void DrawExclusion(PlotTools *PlotTool, std::string flag, const std::string& x, 
    }
 
    {//Exclusion Contours
+   gStyle->SetPadRightMargin(0.08);
+   gStyle->SetPadLeftMargin(0.2);
+   gStyle->SetTitleOffset(1.3, "xyz");
+   gStyle->SetTitleOffset(1.9, "y");
+   gStyle->SetNdivisions(505);
+   gStyle->SetTitleFont(43, "xyz");
+   gStyle->SetTitleSize(32, "xyz");
+   c1->UseCurrentStyle();
    c1->SetLogz(0);
-   c1->SetRightMargin(0.08);
    c1->SetTopMargin(0.11);
    TH2F *hs = (TH2F*)h->Clone();
    TH2F *hplot = (TH2F*)hp->Clone();
+   hplot->GetYaxis()->SetTitleOffset(1.3);
    hs->GetZaxis()->SetTitle("");
 
-   TGraph * gCLsObsExcl     = PlotTool->GetContour(hs, x, y, "ObsR", 3, 0, 1, 1);
-   TGraph * gCLsExpExcl     = PlotTool->GetContour(hs, x, y, "ExpR", 3, 0, 1, 2);
-   TGraph * gCLsExpExclm1   = PlotTool->GetContour(hs, x, y, "ExpRM1", 3, 0, 5, 2);
-   TGraph * gCLsExpExclp1   = PlotTool->GetContour(hs, x, y, "ExpRP1", 3, 0, 5, 2);
-   TGraph * gCLsObsTheom1   = PlotTool->GetContour(hs, x, y, "ObsRTheoM1", 3, 0, 1, 4);
-   TGraph * gCLsObsTheop1   = PlotTool->GetContour(hs, x, y, "ObsRTheoP1", 3, 0, 1, 4);
+   TGraph * gCLsObsExcl     = PlotTool->GetContour(hs, x, y, "ObsR", 3, 0, kBlue, 1);
+   TGraph * gCLsExpExcl     = PlotTool->GetContour(hs, x, y, "ExpR", 3, 0, kOrange - 3, 9);
+   TGraph * gCLsExpExclm1   = PlotTool->GetContour(hs, x, y, "ExpRM1", 3, 0, kOrange - 3, 1);
+   TGraph * gCLsExpExclp1   = PlotTool->GetContour(hs, x, y, "ExpRP1", 3, 0, kOrange - 3, 1);
+   TGraph * gCLsObsTheom1   = PlotTool->GetContour(hs, x, y, "ObsRTheoM1", 3, 0, kOrange + 9, 3);
+   TGraph * gCLsObsTheop1   = PlotTool->GetContour(hs, x, y, "ObsRTheoP1", 3, 0, kOrange + 9, 3);
    TGraph * gCLsExpTheom1   = PlotTool->GetContour(hs, x, y, "ExpRTheoM1", 3, 0, 1, 3);
    TGraph * gCLsExpTheop1   = PlotTool->GetContour(hs, x, y, "ExpRTheoP1", 3, 0, 1, 3);
-   gCLsObsExcl->SetLineWidth(2);
-   gCLsExpExcl->SetLineWidth(2);
+   gCLsObsExcl->SetLineWidth(3);
+   gCLsExpExcl->SetLineWidth(3);
+   
 
+   Smooth(gCLsObsExcl,     s->smooth_points, s->smooth_flag);
+   Smooth(gCLsExpExcl,     s->smooth_points, s->smooth_flag);
+   Smooth(gCLsExpExclm1,   s->smooth_points, s->smooth_flag);
+   Smooth(gCLsExpExclp1,   s->smooth_points, s->smooth_flag);
 
-   Smooth(gCLsObsExcl,     15);
-   Smooth(gCLsExpExcl,     15);
-   Smooth(gCLsExpExclm1,   15);
-   Smooth(gCLsExpExclp1,   15);
-
-   Smooth(gCLsObsTheom1,     15);
-   Smooth(gCLsExpTheom1,     15);
-   Smooth(gCLsObsTheop1,     15);
-   Smooth(gCLsExpTheop1,     15);
+   Smooth(gCLsObsTheom1,     s->smooth_points, s->smooth_flag);
+   Smooth(gCLsExpTheom1,     s->smooth_points, s->smooth_flag);
+   Smooth(gCLsObsTheop1,     s->smooth_points, s->smooth_flag);
+   Smooth(gCLsExpTheop1,     s->smooth_points, s->smooth_flag);
 
    TGraph * gCLs1Sigma = MakeBand(gCLsExpExclm1, gCLsExpExclp1);
    gCLs1Sigma->SetFillStyle(3001);
@@ -305,13 +329,16 @@ void DrawExclusion(PlotTools *PlotTool, std::string flag, const std::string& x, 
    gCLsObsTheop1->Draw("l");
 
    //Legends
-   TLegend * leg = new TLegend(0.35, 0.6, 0.7, 0.8);
+   TLegend* leg = new TLegend(s->LegendMinX,  s->LegendMinY, s->LegendMaxX,s->LegendMaxY);
+   TH1F * legdummy = 0;
+   //leg->AddEntry(legdummy,  ("m_{#tilde{#chi}^{0}} = "+neutralinomass+" [GeV]").c_str(), "l");
    leg->SetBorderSize(0);
-   leg->SetFillColor(0);
-   //leg->SetFillStyle(4000);
-   leg->SetTextSize(0.035);
+   leg->SetLineColor(0);
+   leg->SetFillColor(10);
+   leg->SetFillStyle(1001);
    leg->SetTextFont(42);
-   leg->SetHeader("#bf{CMS, 4.62 fb^{-1}, #sqrt{s} = 7 TeV}");
+   leg->SetTextSize(0.03);
+   leg->SetHeader(s->LegendTitel.c_str());
    leg->AddEntry(gCLsObsExcl, "Obs. limit", "l");
    leg->AddEntry(gCLsObsTheop1, "Obs. limit #pm1#sigma signal theory", "l");
    TH1F* legExp = (TH1F*)gCLs1Sigma->Clone();
@@ -321,11 +348,16 @@ void DrawExclusion(PlotTools *PlotTool, std::string flag, const std::string& x, 
    leg->AddEntry(legExp, "Exp. limit #pm1#sigma exp.", "lf");
    //leg->AddEntry(gCLsExpTheop1, "Exp. limit #pm1#sigma signal theory", "l");
    leg->Draw();
+   s->lumi->Draw();
+   s->cms->Draw();
+   if (s->excluded) s->excluded->Draw();
+   if (s->coverUp) s->coverUp();   
 
    gPad->RedrawAxis();
    string nameExcl = "results/"+ flag + "_"+x+"_"+y+"_Exclusion_";
    c1->SaveAs((nameExcl + ".pdf").c_str());
    if (plotPNG) c1->SaveAs((nameExcl + ".png").c_str());
+   if (plotROOT) c1->SaveAs((nameExcl + "canvas.C").c_str());
    if (plotC  ) {
      h->GetZaxis()->SetTitle("");
      h->Draw("h");
@@ -346,6 +378,9 @@ void DrawExclusion(PlotTools *PlotTool, std::string flag, const std::string& x, 
    gCLsObsTheop1->Draw("l");
    leg->SetHeader("#bf{CMS preliminary, 4.62 fb^{-1}, #sqrt{s} = 7 TeV}");
    leg->Draw();
+   s->lumi->Draw();
+   s->cmsprelim->Draw();
+   if (s->coverUp) s->coverUp();   
    gPad->RedrawAxis();
    nameExcl = "results/"+ flag + "_"+x+"_"+y+"_Exclusion_prelim";
    if (plotPrelim) c1->SaveAs((nameExcl + ".pdf").c_str());
@@ -373,6 +408,9 @@ void DrawExclusion(PlotTools *PlotTool, std::string flag, const std::string& x, 
    leg->AddEntry(legExp, "Expected #pm 1#sigma exp. unc.", "lf");
    leg->Draw();
    }
+   s->lumi->Draw();
+   s->cms->Draw();
+   if (s->coverUp) s->coverUp();   
    gPad->RedrawAxis();
    nameExcl = "results/" + flag + "_"+x+"_"+y+"_Exclusion_woObsBand";
    c1->SaveAs((nameExcl + ".pdf").c_str());
@@ -430,9 +468,9 @@ void AddEvents(PlotTools*& plotTools, std::string filename, std::string Generato
   delete additionalEvents;
 }
 
-void DoPlotsFor(const std::string& x, const std::string& y, const std::string& flag, const std::string& file, TH2*plot_range=0, TH2*plot_excl=0)  {
+void DoPlotsFor(const std::string& x, const std::string& y, const std::string& flag, const std::string& file, style*s, int factor=0, TH2*plot_range=0, TH2*plot_excl=0)  {
     PlotTools * PlotTool;
-    GetPlotTools(PlotTool, file, x, y);
+    GetPlotTools(PlotTool, file, x, y, "", factor);
     GetInfo("squark")->SetLabel("m(#tilde{q}) [GeV]");
     GetInfo("gluino")->SetLabel("m(#tilde{g}) [GeV]");
     GetInfo("chi1")->SetLabel("m(#tilde{#chi}^{0}_{1}) [GeV]");
@@ -441,7 +479,7 @@ void DoPlotsFor(const std::string& x, const std::string& y, const std::string& f
     DrawStandardPlots(PlotTool, flag, x,y, plot_range);
     //DrawStandardPlotsPerBin(PlotTool, "GMSB", x,y, &plot_range);
     DrawStandardLimitPlots(PlotTool, flag, x,y, plot_range);
-    DrawExclusion(PlotTool,flag,x,y,plot_range,plot_excl); //removes points, which have no limits and fills the gaps by interpolation
+    DrawExclusion(PlotTool,flag,x,y,plot_range,plot_excl,s); //removes points, which have no limits and fills the gaps by interpolation
 }
 
 void PlotAll(std::vector<LimitGraphs*>& lg, const std::string& flag, const std::string& limit, TH2*h=0)
@@ -525,11 +563,11 @@ int plot(int argc, char** argv) {
   c1 = c_square;
   c1->cd();
 
-  DoPlotsFor("squark","gluino","GMSB_Wino2j","2012-05-09-22-24-GMSBWino375Neutr2j/filelist.txt");
-  DoPlotsFor("squark","gluino","GMSB_Bino2j","2012-05-09-21-44-GMSBBino375Neutr2j/filelist.txt");
-  DoPlotsFor("chi1",  "gluino","GMSB_Bino2j","2012-05-09-22-33-GMSB_SquarkGluino_vs_Neutralino2j/filelist.txt");
-  DoPlotsFor("chi1",  "gluino","T1gg2j",     "2012-05-22-21-38-GMSB_T1gg2j/filelist.txt");
-  DoPlotsFor("chi1",  "gluino","T1lg2j",     "2012-05-22-21-45-GMSB_T1lg2j/filelist.txt");
+  DoPlotsFor("squark","gluino","GMSB_Wino2j","2012-05-09-22-24-GMSBWino375Neutr2j/filelist.txt",GetSqGlWinoStyle(),4);
+  DoPlotsFor("squark","gluino","GMSB_Bino2j","2012-05-09-21-44-GMSBBino375Neutr2j/filelist.txt",GetSqGlBinoStyle(),4);
+  DoPlotsFor("chi1",  "gluino","GMSB_Bino2j","2012-05-09-22-33-GMSB_SquarkGluino_vs_Neutralino2j/filelist.txt",GetGlChiPlotStyle("bino","2500"),4);
+  DoPlotsFor("chi1",  "gluino","T1gg2j",     "2012-05-22-21-38-GMSB_T1gg2j/filelist.txt",GetSMSPlotStyle("#gamma#gamma"),2);
+  DoPlotsFor("chi1",  "gluino","T1lg2j",     "2012-05-22-21-45-GMSB_T1lg2j/filelist.txt",GetSMSPlotStyle("#gamma+X"),2);
   //MultipleChannels("squark","gluino","GMSB_SingleChannels_Bino2j", "2012-05-11-21-38-GMSBBino375NeutrSingleChannels2j");
   //MultipleChannels("squark","gluino","GMSB_SingleChannels_Wino2j", "2012-05-11-21-38-GMSBWino375NeutrSingleChannels2j");
 

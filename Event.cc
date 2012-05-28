@@ -17,6 +17,7 @@ void ReadEvent(Event& evt, ConfigFile& config)
   evt.Add( ReadVariable(config, "gluino",      "gluino" ) );
   evt.Add( ReadVariable(config, "squark",      "squark" ) );
   evt.Add( ReadVariable(config, "chi1",        "chi1" ) );
+  evt.Add( ReadVariable(config, "cha1",        "cha1", -1 ) );
   evt.Add( ReadVariable(config, "Xsection",    "Xsection.NLO" ) );
   evt.Add( ReadVariable(config, "Luminosity",  "Luminosity" ) );
   evt.Add( ReadVariable(config, "signal",      "signal" ) );
@@ -63,8 +64,13 @@ void CalculateVariablesOnTheFly(Event& evt)
   evt.Add( Variable(evt.Get("ExpRasym")*evt.Get("Xsection"), new Info("ExpXsecLimitasym","") ) );
   evt.Add( Variable(100.*evt.Get("signal")/(evt.Get("Xsection")*evt.Get("Luminosity")), new Info("Acceptance","") ) );
 
-  
-  double scl = sqrt(pow(evt.Get("u_signal_scale"),2)+pow(evt.Get("u_signal_pdf"),2));
+  double NLO = evt.Get("u_signal_scale");
+  double PDF = evt.Get("u_signal_pdf");
+  if (NLO>1) NLO-=1.0;
+  if (PDF>1) PDF-=1.0;
+  double scl = sqrt(pow(NLO,2)+pow(PDF,2));
+  //std::cout <<"sq: "<<evt.Get("squark") <<", gl: "<<evt.Get("gluino") <<", chi1: "<<evt.Get("chi1") <<", cha1: "<<evt.Get("cha1")
+  //          <<"; NLO="<<NLO<<", PDF="<<PDF<<std::endl;
   evt.Add( Variable( evt.Get("ObsR")*(1.+scl), new Info("ObsRTheoM1","") ) );
   evt.Add( Variable( evt.Get("ObsR")*(1.-scl), new Info("ObsRTheoP1","") ) );
   evt.Add( Variable( evt.Get("ExpR")*(1.+scl), new Info("ExpRTheoM1","") ) );
