@@ -57,7 +57,8 @@ struct point {
 	//general stuff, independent from selection
 	double gluino;
 	double squark;
-	double chi;
+	double chi; //bino
+	double cha; //wino
 	double xsec;
 	double xsecNLO;
 	double lumi;
@@ -118,9 +119,9 @@ struct point {
 
 class points {
 public:
-	point* Get(double gl, double sq, double chi) {
+	point* Get(double gl, double sq, double chi, double cha=0) {
 		for (std::vector<point>::iterator it = p_.begin(); it != p_.end(); ++it)
-			if (it->gluino == gl && it->squark == sq && it->chi == chi)
+			if ((gl==5000||it->gluino == gl) && (sq==5000||it->squark == sq) && it->chi == chi && (cha==0 || it->cha == cha))
 				return &(*it);
 		return 0;
 	}
@@ -162,7 +163,7 @@ public:
 			ofstream ofile;
 			stringstream ss;
 			ss << dir << "_" << it->squark << "_" << it->gluino << "_"
-					<< it->chi << ".txt";
+					<< it->chi << "_"<<it->cha<<".txt";
 			ofile.open(ss.str().c_str());
 			
 			double u_signal_exp2 =pow(it->u_pdfacc ,2) +
@@ -179,14 +180,15 @@ public:
 			ofile << "# gluino = " << it->gluino << "\n";
 			ofile << "# squark = " << it-> squark << "\n";
 			ofile << "# chi1 = " << it-> chi << "\n";
+			ofile << "# cha1 = " << it-> cha << "\n";
 			ofile << "# Xsection.LO = " << it-> xsec << "\n";
 			ofile << "# Xsection.NLO = " << it-> xsecNLO << "\n";
 			ofile << "# Luminosity = " << it-> lumi << "\n";
-			ofile << "# signal.scale.uncertainty = " << it->u_NLO << "\n";
-			ofile << "# signal.scale.uncertainty.UP = " << it->u_NLO_Up << "\n";
-			ofile << "# signal.scale.uncertainty.DN = " << it->u_NLO_Dn << "\n";
-			ofile << "# signal.PDF.uncertainty = " << it->u_pdfxsec << "\n";
-			ofile << "# signal.PDFacc.uncertainty = " << it-> u_pdfacc << "\n";
+			ofile << "# signal.scale.uncertainty = " << it->u_NLO << "   #(factorial)\n";
+			ofile << "# signal.scale.uncertainty.UP = " << it->u_NLO_Up << "   #(factorial)\n";
+			ofile << "# signal.scale.uncertainty.DN = " << it->u_NLO_Dn << "   #(factorial)\n";
+			ofile << "# signal.PDF.uncertainty = " << it->u_pdfxsec << "   #(factorial)\n";
+			ofile << "# signal.PDFacc.uncertainty = " << it-> u_pdfacc << "   #(factorial)\n";
 			ofile << "# signal.ngen = " << it->totalGenerated << "\n";
 			ofile << "# signal.acceptance = " << it->signal/(it->xsecNLO * it->lumi ) << "\n";
 			ofile << "# signal.acceptance.uncertainty = " << u_acc << "\n";
@@ -538,8 +540,11 @@ void ReadSignalAcceptance(std::string label, std::string sig_file, std::string d
     ss << "signalpoint" << n++;
     p.gluino = cfg->read<double>(ss.str()+"_gluino",-1.);
     p.squark = cfg->read<double>(ss.str()+"_squark",-1.);
-    p.chi    = cfg->read<double>(ss.str()+"_NLSP",-1.);
-    if (p.gluino== -1.||p.squark== -1.||p.chi== -1.) break;
+    p.chi    = cfg->read<double>(ss.str()+"_NLSP",-1.);    
+    //In the Wino-Bino scans the names are different:
+    p.chi    = cfg->read<double>(ss.str()+"_bino",p.chi);
+    p.cha    = cfg->read<double>(ss.str()+"_wino",0);
+    if (p.chi== -1.) break;
 
     p.totalGenerated = cfg->read<int>(ss.str()+"_totalGenEvents",-1);
     //override the totalGenEvents number in case of the neutralino scan (because of generator cuts):
@@ -587,7 +592,8 @@ void ReadSignalAcceptance(std::string label, std::string sig_file, std::string d
     p.u_jes = 1.02;             //factorial uncertainty
     p.u_scaleDataMC = 1.04;    //factorial uncertainty
     
-    //std::cout<<std::endl<<"m(gl)="<<p.gluino<<", m(sq)="<< p.squark<<std::endl;
+    //std::cout<<std::endl<<"m(gl)="<<p.gluino<<", m(sq)="<< p.squark
+    //         <<", m(bino)="<<p.chi<<", m(wino)="<< p.cha<<std::endl;
     for (int c=0;c<n_channels;++c){
 
       point::bin channel;
@@ -769,6 +775,55 @@ void AddXsec(std::string filelist) {
 
 }
 
+void Add_WB_NewXsec(std::string filelist) {
+	std::cout << "READ Wino/Bino new XS---------file:" << filelist << std::endl;
+	std::ifstream masses_file;
+	masses_file.open(filelist.c_str());
+	std::string file;
+	point p;
+	p.lumi = luminosity;
+	double LO_dn, LO_up, NLO_up, NLO_dn;
+	while (1) {
+	   //$nevents, $msquark, $mgluino, $mbino, $mwwino, $loxsec,$lohierr,$loloerr,$nloxsec,$nlohierr,$nloloerr); 
+	   masses_file >> p. totalGenerated >> p.squark >> p.gluino >> p.chi >> p.cha >> p.xsec >> LO_up >> LO_dn 
+	               >> p.xsecNLO >> NLO_up >> NLO_dn;
+	   if (!masses_file.good()) break;
+	   
+	   //std::cout << "READ XSEC:" << p.xsecNLO << std::endl;
+	   //std::cout << "sq" << p.squark << std::endl;
+	   //std::cout << "gl" << p.gluino << std::endl;
+	   //std::cout << "bino= " << p.chi << std::endl;
+	   //std::cout << "wino= " << p.cha << std::endl;
+	   
+	   point * a = 0;
+	   a = Points.Get(p.gluino, p.squark, p.chi, p.cha);
+	   if (a && !a->u_NLO){
+  	     std::cout << "found a= " << a->squark << std::endl;
+	     a->squark      = p.squark;
+	     a->gluino      = p.gluino;
+	     a->xsec        = p.xsec;
+	     a->xsecNLO     = p.xsecNLO;
+	     a->signal     *= luminosity*p.xsecNLO/p.totalGenerated;
+	     //a->u_sig_stat *= luminosity*p.xsecNLO/p.totalGenerated;
+	     a->qcd_contamination  *= luminosity*p.xsecNLO/p.totalGenerated;
+	     a->ewk_contamination  *= luminosity*p.xsecNLO/p.totalGenerated;
+	     a->u_NLO       = NLO_up / p.xsecNLO;
+	     a->u_NLO_Up    = NLO_up / p.xsecNLO;
+	     a->u_NLO_Dn    = NLO_dn / p.xsecNLO;
+	     for (std::vector<point::bin>::iterator bin=a->bins.begin(); bin!=a->bins.end(); ++bin) {
+	       bin->signal     *= luminosity*p.xsecNLO/p.totalGenerated;
+	       //bin->u_sig_stat *= luminosity*p.xsecNLO/p.totalGenerated;
+	       bin->qcd_contamination *= luminosity*p.xsecNLO/p.totalGenerated;
+	       bin->ewk_contamination *= luminosity*p.xsecNLO/p.totalGenerated;
+	       bin->u_NLO = 1.0 + NLO_up / p.xsecNLO; //assume that 'u_NLO_up' is the absolute uncertainty in the same units as 'xsecNLO'
+	     }  
+	   }
+	   //else Points.Add(p); //We don't actually want x-sections for points for which we don't have event yields
+
+	}
+
+}
+
 void AddPDFxsec(const std::string filelist, double neutralinomass=0) {
 	std::ifstream masses_file;
 	masses_file.open(filelist.c_str());
@@ -881,7 +936,9 @@ point * MergeBins(const point& p, int bmin=0, int bmax=-1)
 }
 
 int main(int argc, char* argv[]) {
-   ////////////////Wino Limits 375
+/*
+   //////////////// squark vs gluino /////////////////////////////////////////////////////////////////////////////////
+   ////////////////Wino Limits 375 ///////////////////////////////////////////////////////////////////////////////////
    //3-jets
    {
    Points.Reset();
@@ -922,7 +979,8 @@ int main(int argc, char* argv[]) {
    MergedPoints.Write("GMSBWino375Neutr2j/GMSB");
    MergedPoints.WriteSingleBin("GMSBWino375NeutrSingleChannels2j/GMSB");
    }
-   ///////////////Bino 375
+   //////////////// squark vs gluino /////////////////////////////////////////////////////////////////////////////////
+   ///////////////Bino 375 ////////////////////////////////////////////////////////////////////////////////////////////
    //3-jets
    Points.Reset();
    ReadSignalAcceptance("","inputWinter11/signalAcceptanceBino_preARC20120208.dat", "inputWinter11/data_Full2011.txt");
@@ -951,7 +1009,8 @@ int main(int argc, char* argv[]) {
    MergedPoints.Write("GMSBBino375Neutr2j/GMSB");
    MergedPoints.WriteSingleBin("GMSBBino375NeutrSingleChannels2j/GMSB");
    }
-   // Squark vs Neutralino (and Gluino vs Neutralino) ////////////////////////////
+   // Gluino vs Neutralino //////////////////////////////////////////////////////////////////////////////////////////////
+   //////////////// bino                /////////////////////////////////////////////////////////////////////////////////
    //3-jets
    Points.Reset();
    ReadSignalAcceptance("","inputWinter11/signalAcceptanceBinoNeutr_preARC20120208.dat", "inputWinter11/data_Full2011.txt");
@@ -1017,8 +1076,22 @@ int main(int argc, char* argv[]) {
 	      // MergedPoints.WriteSingleBin("GMSB_T1ggSingleChannels2j/GMSB");
       }
   
-
-   
+*/
+   //New Paper 2012 Scan: ///////// Bin --- Wino /////////////////////////////////////////////////////////////////////// 
+   //2-jets
+   Points.Reset();
+   ReadSignalAcceptance("2j","inputWinter11/signalAcceptanceBinoWinoWinter11.dat", "inputWinter11/data_Full2011.txt");
+   Add_WB_NewXsec("inputWinter11/Spectra_WB.xsec");
+   //AddPDFxsec("inputWinter11/PDFcross.txt", 375);
+   //AddPDFAcceptance("inputWinter11/PDFacceptance.txt", 375);
+   {points MergedPoints;
+   for (std::vector<point>::iterator it=Points.Get()->begin(); it!=Points.Get()->end(); ++it)
+      MergedPoints.Add( *MergeBins(*it, 6));
+   std::system("mkdir GMSB_WinoBino_2j");
+   std::system("mkdir GMSB_WinoBino_SingleChannels2j");
+   MergedPoints.Write("GMSB_WinoBino_2j/GMSB");
+   MergedPoints.WriteSingleBin("GMSB_WinoBino_SingleChannels2j/GMSB");
+   }
    
    
    
