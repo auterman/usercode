@@ -121,7 +121,7 @@ void DrawStandardPlots(PlotTools *pt, const std::string& flag, const std::string
 
    //Linear z-scale
    c1->SetLogz(0);
-   DrawPlot2D(pt,c1,h,flag,x,y,"Acceptance",        "Acceptance");
+   DrawPlot2D(pt,c1,h,flag,x,y,"Acceptance",        "Acceptance [%]");
 
    //1D Histograms
    DrawHist1D(pt,c1,flag,x,y,"SignalStatUnc",	  "Rel. Signal Statistical uncertainty", 20);
@@ -146,15 +146,16 @@ void DrawStandardLimitPlots(PlotTools *pt, const std::string& flag, const std::s
    //DrawPlot2D(pt,c1,h,flag+"_FixedBinning",x,y,"ObsXsecLimit",      "Observed cross section limit [pb]",0.001,0.02);
    DrawPlot2D(pt,c1,h,flag,x,y,"ObsXsecLimit",      "Observed cross section limit [pb]");
    DrawPlot2D(pt,c1,h,flag,x,y,"ExpXsecLimit",      "Expected cross section limit [pb]");
-   DrawPlot2D(pt,c1,h,flag,x,y,"ObsNsignalLimit",   "Observed limit on number signal events");
-   DrawPlot2D(pt,c1,h,flag,x,y,"ExpNsignalLimit",   "Expected limit on number signal events");
-   DrawPlot2D(pt,c1,h,flag,x,y,"ObsAsympXsecLimit", "Observed asympt. cross section limit [pb]");
-   DrawPlot2D(pt,c1,h,flag,x,y,"ExpAsympXsecLimit", "Expected asympt. cross section limit [pb]");
+   //DrawPlot2D(pt,c1,h,flag,x,y,"ObsNsignalLimit",   "Observed limit on number signal events");
+   //DrawPlot2D(pt,c1,h,flag,x,y,"ExpNsignalLimit",   "Expected limit on number signal events");
+   DrawPlot2D(pt,c1,h,flag,x,y,"ObsXsecLimitasym",  "Observed asympt. cross section limit [pb]");
+   DrawPlot2D(pt,c1,h,flag,x,y,"ExpXsecLimitasym",  "Expected asympt. cross section limit [pb]");
 
    //Linear z-scale
    c1->SetLogz(0);
-   DrawPlot2D(pt,c1,h,flag,x,y,"ObsR",              "Observed R", 0.0, 2.);
-   DrawPlot2D(pt,c1,h,flag,x,y,"ObsDivExp",         "Observed / Expected", 0.0, 2.);
+   DrawPlot2D(pt,c1,h,flag,x,y,"ObsR",              "Observed R", 0.5, 2.);
+   DrawPlot2D(pt,c1,h,flag,x,y,"ExpR",              "Expected R", 0.5, 2.);
+   //DrawPlot2D(pt,c1,h,flag,x,y,"ObsDivExp",         "Observed / Expected", 0.0, 2.);
 }
 
 
@@ -219,7 +220,7 @@ void InOutPlot(PlotTools *PlotTool, std::string flag, const std::string& x, cons
    	   if (cont-contours.begin()>13) break;
    }
    //drawCmsPrel(PlotTool->SingleValue(Luminosity), METCut);
-   string nameXsPlot = "results/" + flag + "_"+x+"_"+y+"_"+R+"InOut";
+   string nameXsPlot = "results/" + flag + "_"+x+"_"+y+"_"+"InOut"+R;
    c1->SaveAs((nameXsPlot + ".pdf").c_str());
    if (plotPNG) c1->SaveAs((nameXsPlot + ".png").c_str());
 
@@ -229,13 +230,33 @@ void DrawExclusion(PlotTools *PlotTool, std::string flag, const std::string& x, 
                    TH1*hp, TH1*h)
 {
    //Require an observed CLs limit:
-   PlotTool->Remove("ObsR", Compare::less, 0.0);
-   PlotTool->FillEmptyPointsByInterpolation1D(x, y);
+   //PlotTool->Remove("ObsR", Compare::less, 0.0);
+   //PlotTool->FillEmptyPointsByInterpolation1D(x, y);
  
    //In/Out Plot
    {TH2F *hplot = (TH2F*)h->Clone();
     hplot->GetZaxis()->SetTitle("Observed in/out");
     InOutPlot(PlotTool,flag,x,y,"ObsR",hplot);
+   }{ 
+    TH2F *hplot = (TH2F*)h->Clone();
+    hplot->GetZaxis()->SetTitle("Expected in/out");
+    InOutPlot(PlotTool,flag,x,y,"ExpR",hplot);
+   }{ 
+    TH2F *hplot = (TH2F*)h->Clone();
+    hplot->GetZaxis()->SetTitle("Expected -1 #sigma_{experimental} in/out");
+    InOutPlot(PlotTool,flag,x,y,"ExpRM1",hplot);
+   }{ 
+    TH2F *hplot = (TH2F*)h->Clone();
+    hplot->GetZaxis()->SetTitle("Expected +1 #sigma_{experimental} in/out");
+    InOutPlot(PlotTool,flag,x,y,"ExpRP1",hplot);
+   }{ 
+    TH2F *hplot = (TH2F*)h->Clone();
+    hplot->GetZaxis()->SetTitle("Observed -1 #sigma_{theory} in/out");
+    InOutPlot(PlotTool,flag,x,y,"ObsRTheoM1",hplot);
+   }{ 
+    TH2F *hplot = (TH2F*)h->Clone();
+    hplot->GetZaxis()->SetTitle("Observed +1 #sigma_{theory} in/out");
+    InOutPlot(PlotTool,flag,x,y,"ObsRTheoP1",hplot);
    }
 
    {//Exclusion Contours
@@ -258,15 +279,15 @@ void DrawExclusion(PlotTools *PlotTool, std::string flag, const std::string& x, 
    gCLsExpExcl->SetLineWidth(2);
 
 
-   Smooth(gCLsObsExcl,     30);
-   Smooth(gCLsExpExcl,     30);
-   Smooth(gCLsExpExclm1,   30);
-   Smooth(gCLsExpExclp1,   30);
+   Smooth(gCLsObsExcl,     15);
+   Smooth(gCLsExpExcl,     15);
+   Smooth(gCLsExpExclm1,   15);
+   Smooth(gCLsExpExclp1,   15);
 
-   Smooth(gCLsObsTheom1,     30);
-   Smooth(gCLsExpTheom1,     30);
-   Smooth(gCLsObsTheop1,     30);
-   Smooth(gCLsExpTheop1,     30);
+   Smooth(gCLsObsTheom1,     15);
+   Smooth(gCLsExpTheom1,     15);
+   Smooth(gCLsObsTheop1,     15);
+   Smooth(gCLsExpTheop1,     15);
 
    TGraph * gCLs1Sigma = MakeBand(gCLsExpExclm1, gCLsExpExclp1);
    gCLs1Sigma->SetFillStyle(3001);
@@ -366,7 +387,7 @@ void DrawExclusion(PlotTools *PlotTool, std::string flag, const std::string& x, 
 
 
 
-void GetPlotTools(PlotTools*& plotTools, std::string filename, std::string GeneratorFile, unsigned factor)
+void GetPlotTools(PlotTools*& plotTools, std::string filename, const std::string& x, const std::string& y, std::string GeneratorFile, unsigned factor)
 {
   Events * events = new Events();
   ReadEvents(*events, filename);
@@ -376,14 +397,15 @@ void GetPlotTools(PlotTools*& plotTools, std::string filename, std::string Gener
 
   //Require an observed CLs limit:
   plotTools->Remove("ObsR", Compare::less, 0.0);
+  plotTools->Remove("Xsection", Compare::less, 0.0);
 
-
-  //plotTools->FillEmptyPointsByInterpolation("gluino", "squark");
+  //Fill the holes by 2D interpolation in gl-sq
+  plotTools->FillEmptyPointsByInterpolation(x, y);
 
 
   //Make grid in Mzero, Mhalf finer by factors of 2 by linear interpolation
   for (int i=2; i<=factor; i*=2)
-    plotTools->ExpandGrid("gluino", "squark");
+    plotTools->ExpandGrid(x, y);
   // New 'pseudo' points are added, therefore the binning of all plots has to be made finer by a factor
   // of 2 in x and y for each "ExpandGrid
   
@@ -410,7 +432,7 @@ void AddEvents(PlotTools*& plotTools, std::string filename, std::string Generato
 
 void DoPlotsFor(const std::string& x, const std::string& y, const std::string& flag, const std::string& file, TH2*plot_range=0, TH2*plot_excl=0)  {
     PlotTools * PlotTool;
-    GetPlotTools(PlotTool, file);
+    GetPlotTools(PlotTool, file, x, y);
     GetInfo("squark")->SetLabel("m(#tilde{q}) [GeV]");
     GetInfo("gluino")->SetLabel("m(#tilde{g}) [GeV]");
     GetInfo("chi1")->SetLabel("m(#tilde{#chi}^{0}_{1}) [GeV]");
@@ -506,10 +528,10 @@ int plot(int argc, char** argv) {
   DoPlotsFor("squark","gluino","GMSB_Wino2j","2012-05-09-22-24-GMSBWino375Neutr2j/filelist.txt");
   DoPlotsFor("squark","gluino","GMSB_Bino2j","2012-05-09-21-44-GMSBBino375Neutr2j/filelist.txt");
   DoPlotsFor("chi1",  "gluino","GMSB_Bino2j","2012-05-09-22-33-GMSB_SquarkGluino_vs_Neutralino2j/filelist.txt");
-  DoPlotsFor("chi1",  "gluino","T1gg2j",     "2012-05-10-19-10-GMSB_T1lg2j/filelist.txt");
-  DoPlotsFor("chi1",  "gluino","T1lg2j",     "2012-05-10-19-10-GMSB_T1lg2j/filelist.txt");
-  MultipleChannels("squark","gluino","GMSB_SingleChannels_Bino2j", "2012-05-11-21-38-GMSBBino375NeutrSingleChannels2j" );
-  MultipleChannels("squark","gluino","GMSB_SingleChannels_Wino2j", "2012-05-11-21-38-GMSBWino375NeutrSingleChannels2j");
+  DoPlotsFor("chi1",  "gluino","T1gg2j",     "2012-05-22-21-38-GMSB_T1gg2j/filelist.txt");
+  DoPlotsFor("chi1",  "gluino","T1lg2j",     "2012-05-22-21-45-GMSB_T1lg2j/filelist.txt");
+  //MultipleChannels("squark","gluino","GMSB_SingleChannels_Bino2j", "2012-05-11-21-38-GMSBBino375NeutrSingleChannels2j");
+  //MultipleChannels("squark","gluino","GMSB_SingleChannels_Wino2j", "2012-05-11-21-38-GMSBWino375NeutrSingleChannels2j");
 
 }
 

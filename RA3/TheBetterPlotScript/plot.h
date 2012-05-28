@@ -8,7 +8,7 @@
 #include <vector>
 
 
-void GetPlotTools(PlotTools*& plotTools, std::string filename, std::string GeneratorFile="", unsigned factor=0);
+void GetPlotTools(PlotTools*& plotTools, std::string filename, const std::string& x, const std::string& y, std::string GeneratorFile="", unsigned factor=0);
 void AddEvents(PlotTools*& plotTools, std::string filename, std::string GeneratorFile="");
 
 class LimitGraphs{

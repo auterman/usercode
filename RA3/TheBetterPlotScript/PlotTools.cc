@@ -174,7 +174,7 @@ void PlotTools::FillEmptyPointsByInterpolation(const std::string& x, const std::
   Events newpoints;
   //first find out where to expect points
   //std::cout<< "start: TheLimits::FillEmptyPointsByInterpolation()" <<std::endl;
-/*
+
   double gridy=9999, miny=9999, maxy=0, gridx=9999, minx=9999, maxx=0;
   for (Events::const_iterator it=scan_->begin(); it!=scan_->end(); ++it){
     if (X(*it)<minx) minx=X(*it);
@@ -189,9 +189,10 @@ void PlotTools::FillEmptyPointsByInterpolation(const std::string& x, const std::
     }
   } 
   //Now, interpolate
-  std::cout<<minx<<"  "<<maxx<<"  "<<gridx<<"  "<<miny<<"  "<<maxy<<"  "<<gridy<<"  "<<std::endl;
-*/
-  double gridx=20, gridy=20;
+  std::cout<<"   --X-binning:: "<<minx<<" to "<<maxx<<", in "<<gridx
+           << "; --Y-binning:: "<<miny<<" to "<<maxy<<", in "<<gridy<<"  "<<std::endl;
+
+  //double gridx=20, gridy=20;
   for (Events::const_iterator it=scan_->begin(); it!=scan_->end(); ++it){
     //find next right neighbor in x for it:
     Events::const_iterator nextx=scan_->end();
@@ -225,7 +226,7 @@ void PlotTools::FillEmptyPointsByInterpolation(const std::string& x, const std::
 	   if (dmin==gridy && dmax==gridy) break;	
 	 }
 	 double disty=dmin+dmax;
-	 double bias_xy=3;
+	 double bias_xy=1;
 	 double totdist = distx+disty*bias_xy;
 	 
 	 //if (maxy!=scan_->end()) std::cout << "             MaxY:"<<X(*maxy)<<"/"<<Y(*maxy)<<" ("<<(dmin/disty) * distx/totdist <<")"<<std::endl;
@@ -241,8 +242,7 @@ void PlotTools::FillEmptyPointsByInterpolation(const std::string& x, const std::
 		                       (*it   * ((1.-r   /distx) * disty*bias_xy/totdist)) + (*nextx * ((r/distx) * disty*bias_xy/totdist)) +
 	                               (*miny * (dmax/disty * distx/totdist)) + (*maxy  * ((dmin/disty) * distx/totdist))
 	                           ) ) );
-	   //std::cout << "----------------------\n"
-	   //          <<"added point >> "<<X(newpoints.back())<<"/"<<Y(newpoints.back())<<std::endl;
+	   //std::cout <<"added point >> "<<X(newpoints.back())<<"/"<<Y(newpoints.back())<<std::endl;
 	 	 
 	   
 	 }			   
