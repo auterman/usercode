@@ -1,4 +1,4 @@
-#include "event.h"
+#include "Event.h"
 #include "ConfigFile.h"
 #include "GeneratorMasses.h"
 
@@ -20,7 +20,7 @@ void ReadEvent(Event& evt, ConfigFile& config)
   evt.Add( ReadVariable(config, "cha1",        "cha1", -1 ) );
   evt.Add( ReadVariable(config, "Xsection",    "Xsection.NLO" ) );
   evt.Add( ReadVariable(config, "Luminosity",  "Luminosity" ) );
-  evt.Add( ReadVariable(config, "signal",      "signal" ) );
+//  evt.Add( ReadVariable(config, "signal",      "signal" ) );
 
   evt.Add( ReadVariable(config, "ObsRasym",    "CLs observed asymptotic", -9999999 ) );
   evt.Add( ReadVariable(config, "ExpRasym",    "CLs expected asymptotic", -9999999 ) );

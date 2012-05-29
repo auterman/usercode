@@ -161,6 +161,7 @@ TH2 * PlotTools::GetHist(const std::string& x, const std::string& y)
   std::stringstream name;
   name << ++plotindex_ << "_" << GetInfo(x)->GetLabel()<<"_"<<GetInfo(y)->GetLabel();
   TH2F*h = new TH2F(name.str().c_str(),titel.c_str(),binsx,minx,maxx,binsy,miny,maxy);
+  std::cout<<"...using binning "<<binsx<<", "<<minx<<", "<<maxx<<", "<<binsy<<", "<<miny<<", "<<maxy<<std::endl;
   return h;
 }
 
