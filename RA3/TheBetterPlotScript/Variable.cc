@@ -1,4 +1,4 @@
-#include "variable.h"
+#include "Variable.h"
 #include "ConfigFile.h"
 
 //private look-up table for the "static" event infos

@@ -13,7 +13,7 @@ LFLAGS = $(SPECIALFLAGS) -lz
 RCXX=$(CFLAGS) $(ROOTCFLAGS)
 RLXX=$(LFLAGS) $(ROOTLIBS)
 
-SRC=event.cc variable.cc ConfigFile.cc GeneratorMasses.cc PlotTools.cc
+SRC=Event.cc Variable.cc ConfigFile.cc GeneratorMasses.cc PlotTools.cc
 
 %.o: %.cc
 		$(C) $(RCXX) -c $<
@@ -24,11 +24,11 @@ all: plot
 ConfigFile.o: ConfigFile.cc ConfigFile.h
 		$(C) $(RCXX) -c ConfigFile.cc 
 
-event.o: event.cc event.h
-		$(C) $(RCXX) -c event.cc 
+Event.o: Event.cc Event.h
+		$(C) $(RCXX) -c Event.cc 
 
-variable.o: variable.cc variable.h
-		$(C) $(RCXX) -c variable.cc 
+Variable.o: Variable.cc Variable.h
+		$(C) $(RCXX) -c Variable.cc 
 
 GeneratorMasses.o: GeneratorMasses.cc GeneratorMasses.h
 		$(C) $(RCXX) -c GeneratorMasses.cc 

@@ -288,15 +288,14 @@ void DrawExclusion(PlotTools *PlotTool, std::string flag, const std::string& x, 
    c1->SetTopMargin(0.11);
    TH2F *hs = (TH2F*)h->Clone();
    TH2F *hplot = (TH2F*)hp->Clone();
-   hplot->GetYaxis()->SetTitleOffset(1.3);
    hs->GetZaxis()->SetTitle("");
 
    TGraph * gCLsObsExcl     = PlotTool->GetContour(hs, x, y, "ObsR", 3, 0, kBlue, 1);
    TGraph * gCLsExpExcl     = PlotTool->GetContour(hs, x, y, "ExpR", 3, 0, kOrange - 3, 9);
    TGraph * gCLsExpExclm1   = PlotTool->GetContour(hs, x, y, "ExpRM1", 3, 0, kOrange - 3, 1);
    TGraph * gCLsExpExclp1   = PlotTool->GetContour(hs, x, y, "ExpRP1", 3, 0, kOrange - 3, 1);
-   TGraph * gCLsObsTheom1   = PlotTool->GetContour(hs, x, y, "ObsRTheoM1", 3, 0, kOrange + 9, 3);
-   TGraph * gCLsObsTheop1   = PlotTool->GetContour(hs, x, y, "ObsRTheoP1", 3, 0, kOrange + 9, 3);
+   TGraph * gCLsObsTheom1   = PlotTool->GetContour(hs, x, y, "ObsRTheoM1", 3, 0, kBlue, 3);
+   TGraph * gCLsObsTheop1   = PlotTool->GetContour(hs, x, y, "ObsRTheoP1", 3, 0, kBlue, 3);
    TGraph * gCLsExpTheom1   = PlotTool->GetContour(hs, x, y, "ExpRTheoM1", 3, 0, 1, 3);
    TGraph * gCLsExpTheop1   = PlotTool->GetContour(hs, x, y, "ExpRTheoP1", 3, 0, 1, 3);
    gCLsObsExcl->SetLineWidth(3);
@@ -316,7 +315,7 @@ void DrawExclusion(PlotTools *PlotTool, std::string flag, const std::string& x, 
    TGraph * gCLs1Sigma = MakeBand(gCLsExpExclm1, gCLsExpExclp1);
    gCLs1Sigma->SetFillStyle(3001);
    gCLs1Sigma->SetFillColor(5);
-   hplot->GetYaxis()->SetTitleOffset(1.55);
+   hplot->GetYaxis()->SetTitleOffset(1.65);
    hplot->GetXaxis()->SetTitleOffset(1.1);
    //Drawing the contours
    hplot->Draw("h");
@@ -563,14 +562,16 @@ int plot(int argc, char** argv) {
   c1 = c_square;
   c1->cd();
 
-  DoPlotsFor("squark","gluino","GMSB_Wino2j","2012-05-09-22-24-GMSBWino375Neutr2j/filelist.txt",GetSqGlWinoStyle(),4);
-  DoPlotsFor("squark","gluino","GMSB_Bino2j","2012-05-09-21-44-GMSBBino375Neutr2j/filelist.txt",GetSqGlBinoStyle(),4);
-  DoPlotsFor("chi1",  "gluino","GMSB_Bino2j","2012-05-09-22-33-GMSB_SquarkGluino_vs_Neutralino2j/filelist.txt",GetGlChiPlotStyle("bino","2500"),4);
-  DoPlotsFor("chi1",  "gluino","T1gg2j",     "2012-05-22-21-38-GMSB_T1gg2j/filelist.txt",GetSMSPlotStyle("#gamma#gamma"),2);
-  DoPlotsFor("chi1",  "gluino","T1lg2j",     "2012-05-22-21-45-GMSB_T1lg2j/filelist.txt",GetSMSPlotStyle("#gamma+X"),2);
+//  DoPlotsFor("squark","gluino","GMSB_Wino2j","2012-05-09-22-24-GMSBWino375Neutr2j/filelist.txt",GetSqGlWinoStyle(),4);
+//  DoPlotsFor("squark","gluino","GMSB_Bino2j","2012-05-09-21-44-GMSBBino375Neutr2j/filelist.txt",GetSqGlBinoStyle(),4);
+//  DoPlotsFor("chi1",  "gluino","GMSB_Bino2j","2012-05-09-22-33-GMSB_SquarkGluino_vs_Neutralino2j/filelist.txt",GetGlChiPlotStyle("bino","2500"),4);
+//  DoPlotsFor("chi1",  "gluino","T1gg2j",     "2012-05-22-21-38-GMSB_T1gg2j/filelist.txt",GetSMST1ggStyle(),2);
+//  DoPlotsFor("chi1",  "gluino","T1lg2j",     "2012-05-22-21-45-GMSB_T1lg2j/filelist.txt",GetSMST1lgStyle(),2);
   //MultipleChannels("squark","gluino","GMSB_SingleChannels_Bino2j", "2012-05-11-21-38-GMSBBino375NeutrSingleChannels2j");
   //MultipleChannels("squark","gluino","GMSB_SingleChannels_Wino2j", "2012-05-11-21-38-GMSBWino375NeutrSingleChannels2j");
 
+  DoPlotsFor("chi1",  "gluino","T1gg2j",     "Dongwook/filelist.txt",GetSMST1ggStyle(),1);
+  
 }
 
 int main(int argc, char** argv) {

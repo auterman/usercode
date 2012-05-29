@@ -1,4 +1,4 @@
-// $Id: StyleSettings.h,v 1.1 2012/05/09 15:43:16 auterman Exp $
+// $Id: StyleSettings.h,v 1.2 2012/05/28 22:55:12 auterman Exp $
 
 #ifndef STYLE_SETTINGS_H
 #define STYLE_SETTINGS_H
@@ -38,13 +38,39 @@ void DrawNeutrNNLSP() {
 	gPad->RedrawAxis();
 }
 
-style* GetSqGlBinoStyle(){
+void DrawNeutrNNLSPandDiagonalCut() {
+	TGraph*cover = new TGraph(0);
+	cover->SetPoint(0, 200,  500);
+	cover->SetPoint(1, 950, 1000);
+	cover->SetPoint(2, 1000, 1000);
+	cover->SetPoint(3,    0,    0);
+	cover->SetFillColor(kWhite);
+	//cover->SetLineColor(kBlack);
+	cover->Draw("f");
+
+	TGraph*gluinoNLSP = new TGraph(0);
+	gluinoNLSP->SetPoint(0, 50, 50);
+	gluinoNLSP->SetPoint(1, 3000, 3000);
+	gluinoNLSP->SetPoint(2, 3000, 50);
+	gluinoNLSP->SetPoint(3, 50, 50);
+	gluinoNLSP->SetFillColor(kGray);
+	gluinoNLSP->Draw("f");
+
+	TLatex tex;
+	tex.SetTextSize(0.03);
+	tex.SetTextFont(62);
+	tex.SetNDC(true);
+	tex.DrawLatex(0.6, 0.25, "#tilde{g} NLSP");
+	gPad->RedrawAxis();
+}
+
+style* GetSqGlBinoStyle(){ /// Sq-Gl Bino /// ---------------------------------------------------------------------
   style * s = new style();
   s->LegendTitel = "#splitline{GGM bino-like #tilde{#chi}^{0}}{m_{#tilde{#chi}^{0}} = 375 GeV}";
   s->LegendMinX=0.26;
-  s->LegendMaxX=0.5;
+  s->LegendMaxX=0.61;
   s->LegendMinY=0.26;
-  s->LegendMaxY=0.5;
+  s->LegendMaxY=0.45;
   s->lumi = new TLatex(0.58, 0.901, "4.6fb^{  -1}  #sqrt{s} = 7 TeV   #geq1#gamma, #geq2 jets");
   s->lumi->SetNDC(true);
   s->lumi->SetTextColor(12);
@@ -72,12 +98,12 @@ style* GetSqGlBinoStyle(){
   return s;
 }
 
-style* GetSqGlWinoStyle(){
+style* GetSqGlWinoStyle(){ /// Sq-Gl Wino /// ---------------------------------------------------------------------
   style * s = new style();
   s->LegendTitel = "#splitline{GGM wino-like #tilde{#chi}^{0}}{m_{#tilde{#chi}^{0}} = 375 GeV}";
-  s->LegendMinX=0.5;
-  s->LegendMaxX=0.85;
-  s->LegendMinY=0.5;
+  s->LegendMinX=0.47;
+  s->LegendMaxX=0.82;
+  s->LegendMinY=0.64;
   s->LegendMaxY=0.85;
   s->lumi = new TLatex(0.58, 0.901, "4.6fb^{  -1}  #sqrt{s} = 7 TeV   #geq1#gamma, #geq2 jets");
   s->lumi->SetNDC(true);
@@ -106,7 +132,7 @@ style* GetSqGlWinoStyle(){
   return s;
 }
 
-style* GetGlChiPlotStyle(std::string neutralinotype, std::string squarkmass){
+style* GetGlChiPlotStyle(std::string neutralinotype, std::string squarkmass){ /// Gl - Chi   Bino /// ---------------
   style * s = new style();
   s->LegendTitel = "#splitline{GGM " + neutralinotype + "-like #tilde{#chi}^{0}}{m_{#tilde{q}} = "+squarkmass+" GeV}";
   s->LegendMinX=0.46;
@@ -135,17 +161,17 @@ style* GetGlChiPlotStyle(std::string neutralinotype, std::string squarkmass){
   s->excluded->SetTextSize(20);
   s->smooth_flag=2;
   s->smooth_points=15;
-  s->coverUp=DrawNeutrNNLSP;
+  s->coverUp=DrawNeutrNNLSPandDiagonalCut;
 
   return s;
 }
 
-style* GetSMSPlotStyle(std::string title){
+style* GetSMST1ggStyle(){ /// SMS T1 gg /// -------------------------------------------------------
   style * s = new style();
-  s->LegendTitel = "SMS "+title;
-  s->LegendMinX=0.46;
+  s->LegendTitel = "SMS #gamma#gamma";
+  s->LegendMinX=0.31;
   s->LegendMinY=0.69;
-  s->LegendMaxX=0.84;
+  s->LegendMaxX=0.69;
   s->LegendMaxY=0.84;
   s->lumi = new TLatex(0.58, 0.901, "4.6fb^{  -1}  #sqrt{s} = 7 TeV   #geq1#gamma, #geq2 jets");
   s->lumi->SetNDC(true);
@@ -164,7 +190,37 @@ style* GetSMSPlotStyle(std::string title){
   s->cmsprelim->SetTextSize(20);
   s->excluded=0;
   s->smooth_flag=2;
-  s->smooth_points=15;
+  s->smooth_points=30;
+  s->coverUp=DrawNeutrNNLSP;
+
+  return s;
+}
+  
+style* GetSMST1lgStyle(){ /// SMS T1 lg /// -------------------------------------------------------
+  style * s = new style();
+  s->LegendTitel = "SMS #gamma + X";
+  s->LegendMinX=0.31;
+  s->LegendMinY=0.69;
+  s->LegendMaxX=0.69;
+  s->LegendMaxY=0.84;
+  s->lumi = new TLatex(0.58, 0.901, "4.6fb^{  -1}  #sqrt{s} = 7 TeV   #geq1#gamma, #geq2 jets");
+  s->lumi->SetNDC(true);
+  s->lumi->SetTextColor(12);
+  s->lumi->SetTextFont(43);
+  s->lumi->SetTextSize(20);
+  s->cms = new TLatex(0.21, 0.901, "#bf{CMS}");
+  s->cms->SetNDC(true);
+  s->cms->SetTextColor(12);
+  s->cms->SetTextFont(43);
+  s->cms->SetTextSize(20);
+  s->cmsprelim = new TLatex(0.21, 0.901, "#bf{CMS preliminary}");
+  s->cmsprelim->SetNDC(true);
+  s->cmsprelim->SetTextColor(12);
+  s->cmsprelim->SetTextFont(43);
+  s->cmsprelim->SetTextSize(20);
+  s->excluded=0;
+  s->smooth_flag=2;
+  s->smooth_points=50;
   s->coverUp=DrawNeutrNNLSP;
 
   return s;
@@ -177,7 +233,7 @@ namespace util {
   //!
   //!  \author   Matthias Schroeder (www.desy.de/~matsch)
   //!  \date     2010/03/09
-  //!  $Id: StyleSettings.h,v 1.1 2012/05/09 15:43:16 auterman Exp $
+  //!  $Id: StyleSettings.h,v 1.2 2012/05/28 22:55:12 auterman Exp $
   // -------------------------------------------------------------------------------------
   class StyleSettings {
   public:
