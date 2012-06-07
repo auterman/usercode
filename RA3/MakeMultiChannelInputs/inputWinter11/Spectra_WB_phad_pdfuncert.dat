@@ -1,21 +1,3 @@
-  *******************************************
-  *                                         *
-  *        W E L C O M E  to  R O O T       *
-  *                                         *
-  *   Version   5.30/01     8 August 2011   *
-  *                                         *
-  *  You are welcome to visit our Web site  *
-  *          http://root.cern.ch            *
-  *                                         *
-  *******************************************
-
-ROOT 5.30/01 (tags/v5-30-01@40633, Aug 18 2011, 16:46:17 on macosx64)
-
-CINT/ROOT C/C++ Interpreter version 5.18.00, July 2, 2010
-Type ? for help. Commands must be C++ statements.
-Enclose multiple statements between { }.
-
-Processing newenvelopecontourplot.C...
 10000  5000  5000  5  115  2.557000  1.768000
 10000  5000  5000  5  140  3.252000  1.717000
 10000  5000  5000  5  165  4.191000  2.575000

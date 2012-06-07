@@ -121,7 +121,7 @@ class points {
 public:
 	point* Get(double gl, double sq, double chi, double cha=0) {
 		for (std::vector<point>::iterator it = p_.begin(); it != p_.end(); ++it)
-			if ((gl==5000||it->gluino == gl) && (sq==5000||it->squark == sq) && it->chi == chi && (cha==0 || it->cha == cha))
+			if ((gl==5000||gl==-1||it->gluino == gl) && (sq==5000||sq==-1||it->squark == sq) && it->chi == chi && (cha==0 || it->cha == cha))
 				return &(*it);
 		return 0;
 	}
@@ -184,11 +184,11 @@ public:
 			ofile << "# Xsection.LO = " << it-> xsec << "\n";
 			ofile << "# Xsection.NLO = " << it-> xsecNLO << "\n";
 			ofile << "# Luminosity = " << it-> lumi << "\n";
-			ofile << "# signal.scale.uncertainty = " << it->u_NLO << "   #(factorial)\n";
-			ofile << "# signal.scale.uncertainty.UP = " << it->u_NLO_Up << "   #(factorial)\n";
-			ofile << "# signal.scale.uncertainty.DN = " << it->u_NLO_Dn << "   #(factorial)\n";
-			ofile << "# signal.PDF.uncertainty = " << it->u_pdfxsec << "   #(factorial)\n";
-			ofile << "# signal.PDFacc.uncertainty = " << it-> u_pdfacc << "   #(factorial)\n";
+			ofile << "# signal.scale.uncertainty = " << it->u_NLO << "   #(relative)\n";
+			ofile << "# signal.scale.uncertainty.UP = " << it->u_NLO_Up << "   #(relative)\n";
+			ofile << "# signal.scale.uncertainty.DN = " << it->u_NLO_Dn << "   #(relative)\n";
+			ofile << "# signal.PDF.uncertainty = " << it->u_pdfxsec << "   #(relative)\n";
+			ofile << "# signal.PDFacc.uncertainty = " << it-> u_pdfacc << "   #(relative)\n";
 			ofile << "# signal.ngen = " << it->totalGenerated << "\n";
 			ofile << "# signal.acceptance = " << it->signal/(it->xsecNLO * it->lumi ) << "\n";
 			ofile << "# signal.acceptance.uncertainty = " << u_acc << "\n";
@@ -541,9 +541,9 @@ void ReadSignalAcceptance(std::string label, std::string sig_file, std::string d
     p.gluino = cfg->read<double>(ss.str()+"_gluino",-1.);
     p.squark = cfg->read<double>(ss.str()+"_squark",-1.);
     p.chi    = cfg->read<double>(ss.str()+"_NLSP",-1.);    
-    //In the Wino-Bino scans the names are different:
-    p.chi    = cfg->read<double>(ss.str()+"_bino",p.chi);
-    p.cha    = cfg->read<double>(ss.str()+"_wino",0);
+    //In the Wino-Bino scans the names are different AND SWITCHED:
+    p.chi    = cfg->read<double>(ss.str()+"_wino",p.chi); //The 'bino' mass in this scan is saved as 'wino'!!
+    p.cha    = cfg->read<double>(ss.str()+"_bino",0);     // s.o.
     if (p.chi== -1.) break;
 
     p.totalGenerated = cfg->read<int>(ss.str()+"_totalGenEvents",-1);
@@ -810,6 +810,7 @@ void Add_WB_NewXsec(std::string filelist) {
 	     a->u_NLO       = NLO_up / p.xsecNLO;
 	     a->u_NLO_Up    = NLO_up / p.xsecNLO;
 	     a->u_NLO_Dn    = NLO_dn / p.xsecNLO;
+	     a->totalGenerated = p.totalGenerated;
 	     for (std::vector<point::bin>::iterator bin=a->bins.begin(); bin!=a->bins.end(); ++bin) {
 	       bin->signal     *= luminosity*p.xsecNLO/p.totalGenerated;
 	       //bin->u_sig_stat *= luminosity*p.xsecNLO/p.totalGenerated;
@@ -822,6 +823,29 @@ void Add_WB_NewXsec(std::string filelist) {
 
 	}
 
+}
+
+void AddPDFs(const std::string filelist) {
+	std::ifstream masses_file;
+	masses_file.open(filelist.c_str());
+	std::string file;
+	point p;
+	double u_pdfxsec, u_pdfacc;
+	while (1) {
+	        //nevents,mgluino,msquark,mbino,mwino,xsecpdferrs,acceppdferrs
+                masses_file >> p.totalGenerated >> p.gluino >> p.squark >> p.chi >> p.cha >> u_pdfxsec >> u_pdfacc;
+		if (!masses_file.good())	break;
+		point * a = Points.Get(p.gluino, p.squark, p.chi, p.cha);
+		if (a) {
+		  a->u_pdfxsec = 0.01 * u_pdfxsec; //relative per point(!) 
+		  a->u_pdfacc  = 0.01 * u_pdfacc;
+	          for (std::vector<point::bin>::iterator bin=a->bins.begin(); bin!=a->bins.end(); ++bin) {
+		    bin->u_pdfxsec = 1.0 + 0.01 * u_pdfxsec; //factorial per bin(!)
+		    bin->u_pdfacc  = 1.0 + 0.01 * u_pdfacc; 
+		  }  
+                }
+	}
+	masses_file.close();
 }
 
 void AddPDFxsec(const std::string filelist, double neutralinomass=0) {
@@ -1082,8 +1106,7 @@ int main(int argc, char* argv[]) {
    Points.Reset();
    ReadSignalAcceptance("2j","inputWinter11/signalAcceptanceBinoWinoWinter11.dat", "inputWinter11/data_Full2011.txt");
    Add_WB_NewXsec("inputWinter11/Spectra_WB.xsec");
-   //AddPDFxsec("inputWinter11/PDFcross.txt", 375);
-   //AddPDFAcceptance("inputWinter11/PDFacceptance.txt", 375);
+   AddPDFs("inputWinter11/Spectra_WB_phad_pdfuncert.dat");
    {points MergedPoints;
    for (std::vector<point>::iterator it=Points.Get()->begin(); it!=Points.Get()->end(); ++it)
       MergedPoints.Add( *MergeBins(*it, 6));
