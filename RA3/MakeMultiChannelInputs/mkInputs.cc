@@ -798,25 +798,25 @@ void Add_WB_NewXsec(std::string filelist) {
 	   point * a = 0;
 	   a = Points.Get(p.gluino, p.squark, p.chi, p.cha);
 	   if (a && !a->u_NLO){
-  	     std::cout << "found a= " << a->squark << std::endl;
+  	     //std::cout << "found a= " << a->squark << std::endl;
 	     a->squark      = p.squark;
 	     a->gluino      = p.gluino;
 	     a->xsec        = p.xsec;
-	     a->xsecNLO     = p.xsecNLO;
+	     a->xsecNLO     = fabs( p.xsecNLO );
 	     a->signal     *= luminosity*p.xsecNLO/p.totalGenerated;
 	     //a->u_sig_stat *= luminosity*p.xsecNLO/p.totalGenerated;
 	     a->qcd_contamination  *= luminosity*p.xsecNLO/p.totalGenerated;
 	     a->ewk_contamination  *= luminosity*p.xsecNLO/p.totalGenerated;
-	     a->u_NLO       = NLO_up / p.xsecNLO;
-	     a->u_NLO_Up    = NLO_up / p.xsecNLO;
-	     a->u_NLO_Dn    = NLO_dn / p.xsecNLO;
+	     a->u_NLO       = fabs( NLO_up / p.xsecNLO );
+	     a->u_NLO_Up    = fabs( NLO_up / p.xsecNLO );
+	     a->u_NLO_Dn    = fabs( NLO_dn / p.xsecNLO );
 	     a->totalGenerated = p.totalGenerated;
 	     for (std::vector<point::bin>::iterator bin=a->bins.begin(); bin!=a->bins.end(); ++bin) {
 	       bin->signal     *= luminosity*p.xsecNLO/p.totalGenerated;
 	       //bin->u_sig_stat *= luminosity*p.xsecNLO/p.totalGenerated;
 	       bin->qcd_contamination *= luminosity*p.xsecNLO/p.totalGenerated;
 	       bin->ewk_contamination *= luminosity*p.xsecNLO/p.totalGenerated;
-	       bin->u_NLO = 1.0 + NLO_up / p.xsecNLO; //assume that 'u_NLO_up' is the absolute uncertainty in the same units as 'xsecNLO'
+	       bin->u_NLO = 1.0 + fabs( NLO_up / p.xsecNLO ); //assume that 'u_NLO_up' is the absolute uncertainty in the same units as 'xsecNLO'
 	     }  
 	   }
 	   //else Points.Add(p); //We don't actually want x-sections for points for which we don't have event yields
