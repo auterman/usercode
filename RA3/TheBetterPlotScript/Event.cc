@@ -20,7 +20,9 @@ void ReadEvent(Event& evt, ConfigFile& config)
   evt.Add( ReadVariable(config, "cha1",        "cha1", -1 ) );
   evt.Add( ReadVariable(config, "Xsection",    "Xsection.NLO" ) );
   evt.Add( ReadVariable(config, "Luminosity",  "Luminosity" ) );
-//  evt.Add( ReadVariable(config, "signal",      "signal" ) );
+  evt.Add( ReadVariable(config, "signal",      "signal" ) );
+  evt.Add( ReadVariable(config, "contamination","signal.contamination" ) );
+  evt.Add( ReadVariable(config, "Acceptance",  "signal.acceptance" ) );
 
   evt.Add( ReadVariable(config, "ObsRasym",    "CLs observed asymptotic", -9999999 ) );
   evt.Add( ReadVariable(config, "ExpRasym",    "CLs expected asymptotic", -9999999 ) );
@@ -62,7 +64,9 @@ void CalculateVariablesOnTheFly(Event& evt)
   evt.Add( Variable(evt.Get("ExpR")*evt.Get("Xsection"), new Info("ExpXsecLimit","") ) );
   evt.Add( Variable(evt.Get("ObsRasym")*evt.Get("Xsection"), new Info("ObsXsecLimitasym","") ) );
   evt.Add( Variable(evt.Get("ExpRasym")*evt.Get("Xsection"), new Info("ExpXsecLimitasym","") ) );
-  evt.Add( Variable(100.*evt.Get("signal")/(evt.Get("Xsection")*evt.Get("Luminosity")), new Info("Acceptance","") ) );
+  evt.Add( Variable(100*evt.Get("Acceptance"), new Info("AcceptancePercent","") ) );
+  evt.Add( Variable(100.*(evt.Get("signal")-evt.Get("contamination"))/(evt.Get("Xsection")*evt.Get("Luminosity")), 
+           new Info("AcceptanceCorrected","") ) );
 
   double NLO = evt.Get("u_signal_scale");
   double PDF = evt.Get("u_signal_pdf");
