@@ -39,7 +39,7 @@ PlotTools.o: PlotTools.cc PlotTools.h
 TheLimits.o: TheLimits.cc TheLimits.h
 		$(C) $(RCXX) -c TheLimits.cc 
 
-plot.o: plot.cc plot.h StyleSettings.h 
+plot.o: plot.cc plot.h StyleSettings.h StyleSettings_SinglePhoton7TeV.h 
 		$(C) $(RCXX) -c plot.cc 
 
 plot: $(SRC:.cc=.o) plot.o 

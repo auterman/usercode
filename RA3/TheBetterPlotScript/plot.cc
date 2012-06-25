@@ -24,7 +24,7 @@
 #include <cmath>
 #include <stdio.h>
 
-#include "StyleSettings.h"
+#include "StyleSettings_SinglePhoton7TeV.h"
 
 const static bool plotPNG = false;
 const static bool plotC   = true;
@@ -33,7 +33,7 @@ const static bool plotPrelim = false;
 TCanvas * c1 = 0;
 
 void DrawPlot2D(PlotTools *PlotTool, TCanvas*canvas, TH2* h, const std::string& flag, const string& x, const std::string& y, const std::string& var, 
-                const std::string& ztitel, double zmin=-999, double zmax=-999 )
+                const std::string& ztitel, double zmin=-999, double zmax=-999, style*s=0 )
 {
    TH2F *plot2D = (TH2F*)h->Clone();
    plot2D->GetZaxis()->SetTitle(ztitel.c_str());
@@ -45,20 +45,23 @@ void DrawPlot2D(PlotTools *PlotTool, TCanvas*canvas, TH2* h, const std::string& 
    plot2D->Draw("colz"); 
    double tx=400;
    double ty=1.045*(plot2D->GetYaxis()->GetXmax()-plot2D->GetYaxis()->GetXmin())+plot2D->GetYaxis()->GetXmin();  
-//   TLatex tex(tx,ty,"#font[42]{CMS preliminary, 4.03 fb^{-1}, #sqrt{s} = 8 TeV}");
-   TLatex tex(tx,ty,"#font[42]{CMS preliminary, 4.62 fb^{-1}, #sqrt{s} = 7 TeV}");
-   tex.SetTextSize(0.035);
-   tex.Draw();
+
+   if (s) s->cmsprelimTemperaturePlot->Draw();
+   if (s) s->lumiTemperaturePlot->Draw();
+   //TLatex tex(tx,ty,"#font[42]{CMS preliminary, 4.62 fb^{-1}, #sqrt{s} = 7 TeV}");
+   //tex.SetTextSize(0.035);
+   //tex.Draw();
    string namePlot = "results/" + flag + "_"+x+"_"+y+"_"+var;
    if (plotPrelim) canvas->SaveAs((namePlot + "_prelim.pdf").c_str());
    if (plotPNG && plotPrelim) canvas->SaveAs((namePlot + "_prelim.png").c_str());
    if (plotC   && plotPrelim) canvas->SaveAs((namePlot + "_prelim.C").c_str());
    //
    plot2D->Draw("colz"); 
-//   TLatex tex2(tx,ty,"#font[42]{CMS, 4.03 fb^{-1}, #sqrt{s} = 8 TeV}");
-   TLatex tex2(tx,ty,"#font[42]{CMS, 4.62 fb^{-1}, #sqrt{s} = 7 TeV}");
-   tex2.SetTextSize(0.035);
-   tex2.Draw();
+   if (s) s->cmsTemperaturePlot->Draw();
+   if (s) s->lumiTemperaturePlot->Draw();
+//   TLatex tex2(tx,ty,"#font[42]{CMS, 4.62 fb^{-1}, #sqrt{s} = 7 TeV}");
+//   tex2.SetTextSize(0.035);
+//   tex2.Draw();
    canvas->SaveAs((namePlot + ".pdf").c_str());
    if (plotPNG) canvas->SaveAs((namePlot + ".png").c_str());
    if (plotC)   canvas->SaveAs((namePlot + ".C").c_str());
@@ -134,7 +137,7 @@ void DrawStandardPlots(PlotTools *pt, const std::string& flag, const std::string
    //Linear z-scale
    c1->SetLogz(0);
    DrawPlot2D(pt,c1,h,flag,x,y,"Acceptance",        "Acceptance");
-   DrawPlot2D(pt,c1,h,flag,x,y,"AcceptancePercent",        "Acceptance [%]");
+   DrawPlot2D(pt,c1,h,flag,x,y,"AcceptancePercent", "Acceptance [%]");
    DrawPlot2D(pt,c1,h,flag,x,y,"AcceptanceCorr",    "Acceptance corr. f. sig. cont. [%]");
 
    //1D Histograms
@@ -164,12 +167,12 @@ void DrawStandardLimitPlots(PlotTools *pt, const std::string& flag, const std::s
    //Log z-scale
    c1->SetLogz(1);
    //DrawPlot2D(pt,c1,h,flag+"_FixedBinning",x,y,"ObsXsecLimit",      "Observed cross section limit [pb]",0.001,0.02);
-   DrawPlot2D(pt,c1,h,flag,x,y,"ObsXsecLimit",      "Observed cross section limit [pb]");
-   DrawPlot2D(pt,c1,h,flag,x,y,"ExpXsecLimit",      "Expected cross section limit [pb]");
+   DrawPlot2D(pt,c1,h,flag,x,y,"ObsXsecLimit",      "Observed cross section limit [pb]", s->MinXsecZ, s->MaxXsecZ, s );
+   DrawPlot2D(pt,c1,h,flag,x,y,"ExpXsecLimit",      "Expected cross section limit [pb]", s->MinXsecZ, s->MaxXsecZ, s);
    //DrawPlot2D(pt,c1,h,flag,x,y,"ObsNsignalLimit",   "Observed limit on number signal events");
    //DrawPlot2D(pt,c1,h,flag,x,y,"ExpNsignalLimit",   "Expected limit on number signal events");
-   DrawPlot2D(pt,c1,h,flag,x,y,"ObsXsecLimitasym",  "Observed asympt. cross section limit [pb]");
-   DrawPlot2D(pt,c1,h,flag,x,y,"ExpXsecLimitasym",  "Expected asympt. cross section limit [pb]");
+   DrawPlot2D(pt,c1,h,flag,x,y,"ObsXsecLimitasym",  "Observed asympt. cross section limit [pb]", s->MinXsecZ, s->MaxXsecZ, s);
+   DrawPlot2D(pt,c1,h,flag,x,y,"ExpXsecLimitasym",  "Expected asympt. cross section limit [pb]", s->MinXsecZ, s->MaxXsecZ, s);
 
    //Linear z-scale
    c1->SetLogz(0);
@@ -215,7 +218,7 @@ void DrawStandardPlotsPerBin(PlotTools *pt, const std::string& flag, const std::
    
 }
 
-void InOutPlot(PlotTools *PlotTool, std::string flag, const std::string& x, const std::string& y, const std::string& R, TH2*h)
+TGraph * InOutPlot(PlotTools *PlotTool, std::string flag, const std::string& x, const std::string& y, const std::string& R, TH2*h, unsigned idx=0, int color=0, int style=0)
 {
    PlotTool->InOutFromR(h, x, y, R, 3);
    FillEmptyPoints(h,0.5);
@@ -243,7 +246,11 @@ void InOutPlot(PlotTools *PlotTool, std::string flag, const std::string& x, cons
    string nameXsPlot = "results/" + flag + "_"+x+"_"+y+"_"+"InOut"+R;
    c1->SaveAs((nameXsPlot + ".pdf").c_str());
    if (plotPNG) c1->SaveAs((nameXsPlot + ".png").c_str());
-
+   delete h;
+   TGraph * res = (TGraph*)contours[idx]->Clone();
+   res->SetLineColor(color);
+   res->SetLineStyle(style);
+   return res;
 }
 
 void DrawExclusion(PlotTools *PlotTool, std::string flag, const std::string& x, const std::string& y, 
@@ -253,31 +260,40 @@ void DrawExclusion(PlotTools *PlotTool, std::string flag, const std::string& x, 
    //PlotTool->Remove("ObsR", Compare::less, 0.0);
    //PlotTool->FillEmptyPointsByInterpolation1D(x, y);
  
+   TH2F *hs = (TH2F*)h->Clone();
+   TH2F *hplot = (TH2F*)hp->Clone();
+   hs->GetZaxis()->SetTitle("");
+
+std::cout << "s->iCLsObsExcl  =  "<<s->iCLsObsExcl<<", iCLsExpExcl = "<<s->iCLsExpExcl<<std::endl;
+
+   //TGraph * gCLsObsExcl     = PlotTool->GetContour(hs, x, y, "ObsR",       3, s->iCLsObsExcl  , kBlue, 1);
+   //TGraph * gCLsExpExcl     = PlotTool->GetContour(hs, x, y, "ExpR",       3, s->iCLsExpExcl  , kOrange - 3, 9);
+   //TGraph * gCLsExpExclm1   = PlotTool->GetContour(hs, x, y, "ExpRM1",     3, s->iCLsExpExclm1, kOrange - 3, 1);
+   //TGraph * gCLsExpExclp1   = PlotTool->GetContour(hs, x, y, "ExpRP1",     3, s->iCLsExpExclp1, kOrange - 3, 1);
+   //TGraph * gCLsObsTheom1   = PlotTool->GetContour(hs, x, y, "ObsRTheoM1", 3, s->iCLsObsTheom1, kBlue, 3);
+   //TGraph * gCLsObsTheop1   = PlotTool->GetContour(hs, x, y, "ObsRTheoP1", 3, s->iCLsObsTheop1, kBlue, 3);
+   //TGraph * gCLsExpTheom1   = PlotTool->GetContour(hs, x, y, "ExpRTheoM1", 3, s->iCLsExpTheom1, 1, 3);
+   //TGraph * gCLsExpTheop1   = PlotTool->GetContour(hs, x, y, "ExpRTheoP1", 3, s->iCLsExpTheop1, 1, 3);
+
    //In/Out Plot
-   {TH2F *hplot = (TH2F*)h->Clone();
-    hplot->GetZaxis()->SetTitle("Observed in/out");
-    InOutPlot(PlotTool,flag,x,y,"ObsR",hplot);
-   }{ 
-    TH2F *hplot = (TH2F*)h->Clone();
-    hplot->GetZaxis()->SetTitle("Expected in/out");
-    InOutPlot(PlotTool,flag,x,y,"ExpR",hplot);
-   }{ 
-    TH2F *hplot = (TH2F*)h->Clone();
-    hplot->GetZaxis()->SetTitle("Expected -1 #sigma_{experimental} in/out");
-    InOutPlot(PlotTool,flag,x,y,"ExpRM1",hplot);
-   }{ 
-    TH2F *hplot = (TH2F*)h->Clone();
-    hplot->GetZaxis()->SetTitle("Expected +1 #sigma_{experimental} in/out");
-    InOutPlot(PlotTool,flag,x,y,"ExpRP1",hplot);
-   }{ 
-    TH2F *hplot = (TH2F*)h->Clone();
-    hplot->GetZaxis()->SetTitle("Observed -1 #sigma_{theory} in/out");
-    InOutPlot(PlotTool,flag,x,y,"ObsRTheoM1",hplot);
-   }{ 
-    TH2F *hplot = (TH2F*)h->Clone();
-    hplot->GetZaxis()->SetTitle("Observed +1 #sigma_{theory} in/out");
-    InOutPlot(PlotTool,flag,x,y,"ObsRTheoP1",hplot);
-   }
+   hplot->GetZaxis()->SetTitle("Observed in/out");
+   TGraph * gCLsObsExcl	  = InOutPlot(PlotTool,flag,x,y,"ObsR",(TH2F*)h->Clone(), s->iCLsObsExcl, kBlue, 1);
+
+   hplot->GetZaxis()->SetTitle("Expected in/out");
+   TGraph * gCLsExpExcl   = InOutPlot(PlotTool,flag,x,y,"ExpR",(TH2F*)h->Clone(), s->iCLsExpExcl, kOrange - 3, 9);
+
+   hplot->GetZaxis()->SetTitle("Expected -1 #sigma_{experimental} in/out");
+   TGraph * gCLsExpExclm1 = InOutPlot(PlotTool,flag,x,y,"ExpRM1",(TH2F*)h->Clone(), s->iCLsExpExclm1, kOrange - 3, 1);
+
+   hplot->GetZaxis()->SetTitle("Expected +1 #sigma_{experimental} in/out");
+   TGraph * gCLsExpExclp1 = InOutPlot(PlotTool,flag,x,y,"ExpRP1",(TH2F*)h->Clone(), s->iCLsExpExclp1, kOrange - 3, 1);
+
+   hplot->GetZaxis()->SetTitle("Observed -1 #sigma_{theory} in/out");
+   TGraph * gCLsObsTheom1 = InOutPlot(PlotTool,flag,x,y,"ObsRTheoM1",(TH2F*)h->Clone(), s->iCLsObsTheom1, kBlue, 3);
+
+   hplot->GetZaxis()->SetTitle("Observed +1 #sigma_{theory} in/out");
+   TGraph * gCLsObsTheop1 = InOutPlot(PlotTool,flag,x,y,"ObsRTheoP1",(TH2F*)h->Clone(), s->iCLsObsTheop1, kBlue, 3);
+
 
    {//Exclusion Contours
    gStyle->SetPadRightMargin(0.08);
@@ -290,20 +306,7 @@ void DrawExclusion(PlotTools *PlotTool, std::string flag, const std::string& x, 
    c1->UseCurrentStyle();
    c1->SetLogz(0);
    c1->SetTopMargin(0.11);
-   TH2F *hs = (TH2F*)h->Clone();
-   TH2F *hplot = (TH2F*)hp->Clone();
-   hs->GetZaxis()->SetTitle("");
-
-std::cout << "s->iCLsObsExcl  =  "<<s->iCLsObsExcl<<std::endl;
-
-   TGraph * gCLsObsExcl     = PlotTool->GetContour(hs, x, y, "ObsR",       3, s->iCLsObsExcl  , kBlue, 1);
-   TGraph * gCLsExpExcl     = PlotTool->GetContour(hs, x, y, "ExpR",       3, s->iCLsExpExcl  , kOrange - 3, 9);
-   TGraph * gCLsExpExclm1   = PlotTool->GetContour(hs, x, y, "ExpRM1",     3, s->iCLsExpExclm1, kOrange - 3, 1);
-   TGraph * gCLsExpExclp1   = PlotTool->GetContour(hs, x, y, "ExpRP1",     3, s->iCLsExpExclp1, kOrange - 3, 1);
-   TGraph * gCLsObsTheom1   = PlotTool->GetContour(hs, x, y, "ObsRTheoM1", 3, s->iCLsObsTheom1, kBlue, 3);
-   TGraph * gCLsObsTheop1   = PlotTool->GetContour(hs, x, y, "ObsRTheoP1", 3, s->iCLsObsTheop1, kBlue, 3);
-   TGraph * gCLsExpTheom1   = PlotTool->GetContour(hs, x, y, "ExpRTheoM1", 3, s->iCLsExpTheom1, 1, 3);
-   TGraph * gCLsExpTheop1   = PlotTool->GetContour(hs, x, y, "ExpRTheoP1", 3, s->iCLsExpTheop1, 1, 3);
+   
    gCLsObsExcl->SetLineWidth(3);
    gCLsExpExcl->SetLineWidth(3);
    
@@ -312,11 +315,8 @@ std::cout << "s->iCLsObsExcl  =  "<<s->iCLsObsExcl<<std::endl;
    Smooth(gCLsExpExcl,     s->smooth_points, s->smooth_flag);
    Smooth(gCLsExpExclm1,   s->smooth_points, s->smooth_flag);
    Smooth(gCLsExpExclp1,   s->smooth_points, s->smooth_flag);
-
    Smooth(gCLsObsTheom1,     s->smooth_points, s->smooth_flag);
-   Smooth(gCLsExpTheom1,     s->smooth_points, s->smooth_flag);
    Smooth(gCLsObsTheop1,     s->smooth_points, s->smooth_flag);
-   Smooth(gCLsExpTheop1,     s->smooth_points, s->smooth_flag);
 
    TGraph * gCLs1Sigma = MakeBand(gCLsExpExclm1, gCLsExpExclp1);
    gCLs1Sigma->SetFillStyle(3001);
@@ -377,9 +377,7 @@ std::cout << "s->iCLsObsExcl  =  "<<s->iCLsObsExcl<<std::endl;
    gCLs1Sigma->Draw("f");
    gCLsObsExcl->Draw("l");
    gCLsExpExcl->Draw("l");
-   gCLsExpTheom1->Draw("l");
    gCLsObsTheom1->Draw("l");
-   gCLsExpTheop1->Draw("l");
    gCLsObsTheop1->Draw("l");
    leg->SetHeader("#bf{CMS preliminary, 4.62 fb^{-1}, #sqrt{s} = 7 TeV}");
    leg->Draw();
@@ -582,13 +580,11 @@ int plot(int argc, char** argv) {
 
   ///7 TeV Paper
   if (1){
-  TH2F*h_glBino     =new TH2F("h_glBino","",      28,80,1480, 24,290,1530);
-  TH2F*h_glBino_excl=new TH2F("h_glBino_excl","", 112,102.5,1457.5, 1200,315,1505);
   //DoPlotsFor("cha1","chi1","GMSB_7TeV_WinoBino2j","2012-06-19-13-43-GMSB_WinoBino_7TeV_2j/filelist.txt",GetWinoBinoPlotStyle(),0);
-  DoPlotsFor("squark","gluino","GMSB_7TeV_Wino2j","2012-06-23-13-27-GMSB_sqgWino_7TeV_2j/filelist.txt", GetSqGlWinoStyle(),4);
+  //DoPlotsFor("squark","gluino","GMSB_7TeV_Wino2j","2012-06-23-13-27-GMSB_sqgWino_7TeV_2j/filelist.txt", GetSqGlWinoStyle(),4);
   //DoPlotsFor("squark","gluino","GMSB_7TeV_Bino2j","2012-06-18-16-57-GMSB_sqgBino_7TeV_2j/filelist.txt", GetSqGlBinoStyle(),4);
   //DoPlotsFor("cha1",  "gluino","GMSB_7TeV_Wino2j","2012-06-19-13-41-GMSB_gWino_7TeV_2j/filelist.txt",   GetGlChiPlotStyle("wino","2500"),4);
-  DoPlotsFor("chi1",  "gluino","GMSB_7TeV_Bino2j","2012-06-22-09-36-GMSB_gBino_7TeV_2j/filelist.txt",   GetGlChiPlotStyle("bino","2500"),4,h_glBino,h_glBino);
+  DoPlotsFor("chi1",  "gluino","GMSB_7TeV_Bino2j","2012-06-22-09-36-GMSB_gBino_7TeV_2j/filelist.txt",   Get_GlBino_PlotStyle(),4);
   }
   //DoPlotsFor("squark","gluino","GMSB_Wino2j","2012-05-09-22-24-GMSBWino375Neutr2j/filelist.txt",GetSqGlWinoStyle(),4);
   //DoPlotsFor("squark","gluino","GMSB_Bino2j","2012-05-09-21-44-GMSBBino375Neutr2j/filelist.txt",GetSqGlBinoStyle(),4);
@@ -599,7 +595,7 @@ int plot(int argc, char** argv) {
   //MultipleChannels("squark","gluino","GMSB_SingleChannels_Wino2j", "2012-05-11-21-38-GMSBWino375NeutrSingleChannels2j");
 
   ///8 TeV Summer12 ICHEP
-  if (0){ // 2.52 fb-1
+  if (0){ // 4.02 fb-1
   DoPlotsFor("squark","gluino","GMSB_8TeV_Bino2j","2012-06-21-17-05-GMSB_sqgBino375_8TeV_2j/filelist.txt",GetSqGlBinoStyle8TeV(", #geq2 jets"),4);
   DoPlotsFor("squark","gluino","GMSB_8TeV_Wino2j","2012-06-21-17-06-GMSB_sqgWino375_8TeV_2j/filelist.txt",GetSqGlWinoStyle8TeV(", #geq2 jets"),4);
   }
