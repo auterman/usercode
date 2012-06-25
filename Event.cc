@@ -54,7 +54,7 @@ void ReadEvent(Event& evt, ConfigFile& config)
     //double signal = evt.Get("signal_"+flag);
     //evt.Set( "signal_"+flag+"_contamination", 100.*evt.Get("signal_"+flag+"_contamination")/signal );
   }
-
+  
 }
 
 void CalculateVariablesOnTheFly(Event& evt)
@@ -105,6 +105,12 @@ void ReadEvents(Events& evts, const std::string& filelist)
       try {
         ReadEvent(evt, config);
         CalculateVariablesOnTheFly(evt);
+	
+	///@@Quick and dirty fix of the binning problem in the '2012-06-22-09-36-GMSB_gBino_7TeV_2j/filelist.txt' scan:
+        if ( filelist=="2012-06-22-09-36-GMSB_gBino_7TeV_2j/filelist.txt" && evt.Get("gluino") < 1020.)
+          evt.Set("gluino", evt.Get("gluino") - 10.0);
+	///@@The scan should be regenerated!  
+
       }
       catch(...) {
         std::cerr<<"Catched exception: skipping bad event!"<<std::endl;
