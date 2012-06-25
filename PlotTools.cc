@@ -396,6 +396,7 @@ TGraph * PlotTools::GetContour(TH2*h, int ncont, int flag) {
 TGraph * PlotTools::GetContour(TH2*h, const std::string& x, const std::string& y, const std::string& func, 
                     int ncont, int flag, int color, int style, TH2*o) {
 	InOutFromR(h, x, y, func, 3);
+        FillEmptyPoints(h,0.5);
 	if (o) h = BinWiseOr(h,o);
 	TGraph * graph = GetContour(h, ncont, flag);
 	graph->SetLineColor(color);

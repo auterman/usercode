@@ -45,6 +45,7 @@ void DrawPlot2D(PlotTools *PlotTool, TCanvas*canvas, TH2* h, const std::string& 
    plot2D->Draw("colz"); 
    double tx=400;
    double ty=1.045*(plot2D->GetYaxis()->GetXmax()-plot2D->GetYaxis()->GetXmin())+plot2D->GetYaxis()->GetXmin();  
+//   TLatex tex(tx,ty,"#font[42]{CMS preliminary, 4.03 fb^{-1}, #sqrt{s} = 8 TeV}");
    TLatex tex(tx,ty,"#font[42]{CMS preliminary, 4.62 fb^{-1}, #sqrt{s} = 7 TeV}");
    tex.SetTextSize(0.035);
    tex.Draw();
@@ -54,6 +55,7 @@ void DrawPlot2D(PlotTools *PlotTool, TCanvas*canvas, TH2* h, const std::string& 
    if (plotC   && plotPrelim) canvas->SaveAs((namePlot + "_prelim.C").c_str());
    //
    plot2D->Draw("colz"); 
+//   TLatex tex2(tx,ty,"#font[42]{CMS, 4.03 fb^{-1}, #sqrt{s} = 8 TeV}");
    TLatex tex2(tx,ty,"#font[42]{CMS, 4.62 fb^{-1}, #sqrt{s} = 7 TeV}");
    tex2.SetTextSize(0.035);
    tex2.Draw();
@@ -96,7 +98,7 @@ void DrawHist1D(PlotTools *PlotTool, TCanvas*canvas, const std::string& flag, co
 }
 
 
-void DrawStandardUncertaintyPlots(PlotTools *pt, const std::string& flag, const std::string& x, const std::string& y, TH2*h)
+void DrawStandardUncertaintyPlots(PlotTools *pt, const std::string& flag, const std::string& x, const std::string& y, style*s, TH2*h)
 {
    c1->SetRightMargin(0.18);  
    //Log z-scale
@@ -114,7 +116,7 @@ void DrawStandardUncertaintyPlots(PlotTools *pt, const std::string& flag, const 
    DrawPlot2D(pt,c1,h,flag,x,y,"SignalTotalUnc",    "Rel. Signal Total uncertainty", 0.01, 100.);
 }
 
-void DrawStandardPlots(PlotTools *pt, const std::string& flag, const std::string& x, const std::string& y, TH2*h)
+void DrawStandardPlots(PlotTools *pt, const std::string& flag, const std::string& x, const std::string& y, style*s, TH2*h)
 {
    gStyle->SetPadRightMargin(0.2);
    gStyle->SetPadLeftMargin(0.2);
@@ -131,7 +133,9 @@ void DrawStandardPlots(PlotTools *pt, const std::string& flag, const std::string
 
    //Linear z-scale
    c1->SetLogz(0);
-   DrawPlot2D(pt,c1,h,flag,x,y,"Acceptance",        "Acceptance [%]");
+   DrawPlot2D(pt,c1,h,flag,x,y,"Acceptance",        "Acceptance");
+   DrawPlot2D(pt,c1,h,flag,x,y,"AcceptancePercent",        "Acceptance [%]");
+   DrawPlot2D(pt,c1,h,flag,x,y,"AcceptanceCorr",    "Acceptance corr. f. sig. cont. [%]");
 
    //1D Histograms
    DrawHist1D(pt,c1,flag,x,y,"SignalStatUnc",	  "Rel. Signal Statistical uncertainty", 20);
@@ -146,7 +150,7 @@ void DrawStandardPlots(PlotTools *pt, const std::string& flag, const std::string
    //DrawHist1D(pt,c1,flag,x,y,"ObsRdP2", "ObsR / ExpR+2sigma", 20);
 }
 
-void DrawStandardLimitPlots(PlotTools *pt, const std::string& flag, const std::string& x, const std::string& y, TH2*h)
+void DrawStandardLimitPlots(PlotTools *pt, const std::string& flag, const std::string& x, const std::string& y, style*s, TH2*h)
 {
    gStyle->SetPadRightMargin(0.2);
    gStyle->SetPadLeftMargin(0.2);
@@ -175,7 +179,7 @@ void DrawStandardLimitPlots(PlotTools *pt, const std::string& flag, const std::s
 }
 
 
-void DrawStandardPlotsPerBin(PlotTools *pt, const std::string& flag, const std::string& x, const std::string& y, TH2*h)
+void DrawStandardPlotsPerBin(PlotTools *pt, const std::string& flag, const std::string& x, const std::string& y, style*s, TH2*h)
 {
    for (int bin=0; bin<nchannels; ++bin) {
       std::stringstream binlabel, binl;
@@ -290,14 +294,16 @@ void DrawExclusion(PlotTools *PlotTool, std::string flag, const std::string& x, 
    TH2F *hplot = (TH2F*)hp->Clone();
    hs->GetZaxis()->SetTitle("");
 
-   TGraph * gCLsObsExcl     = PlotTool->GetContour(hs, x, y, "ObsR", 3, 0, kBlue, 1);
-   TGraph * gCLsExpExcl     = PlotTool->GetContour(hs, x, y, "ExpR", 3, 0, kOrange - 3, 9);
-   TGraph * gCLsExpExclm1   = PlotTool->GetContour(hs, x, y, "ExpRM1", 3, 0, kOrange - 3, 1);
-   TGraph * gCLsExpExclp1   = PlotTool->GetContour(hs, x, y, "ExpRP1", 3, 0, kOrange - 3, 1);
-   TGraph * gCLsObsTheom1   = PlotTool->GetContour(hs, x, y, "ObsRTheoM1", 3, 0, kBlue, 3);
-   TGraph * gCLsObsTheop1   = PlotTool->GetContour(hs, x, y, "ObsRTheoP1", 3, 0, kBlue, 3);
-   TGraph * gCLsExpTheom1   = PlotTool->GetContour(hs, x, y, "ExpRTheoM1", 3, 0, 1, 3);
-   TGraph * gCLsExpTheop1   = PlotTool->GetContour(hs, x, y, "ExpRTheoP1", 3, 0, 1, 3);
+std::cout << "s->iCLsObsExcl  =  "<<s->iCLsObsExcl<<std::endl;
+
+   TGraph * gCLsObsExcl     = PlotTool->GetContour(hs, x, y, "ObsR",       3, s->iCLsObsExcl  , kBlue, 1);
+   TGraph * gCLsExpExcl     = PlotTool->GetContour(hs, x, y, "ExpR",       3, s->iCLsExpExcl  , kOrange - 3, 9);
+   TGraph * gCLsExpExclm1   = PlotTool->GetContour(hs, x, y, "ExpRM1",     3, s->iCLsExpExclm1, kOrange - 3, 1);
+   TGraph * gCLsExpExclp1   = PlotTool->GetContour(hs, x, y, "ExpRP1",     3, s->iCLsExpExclp1, kOrange - 3, 1);
+   TGraph * gCLsObsTheom1   = PlotTool->GetContour(hs, x, y, "ObsRTheoM1", 3, s->iCLsObsTheom1, kBlue, 3);
+   TGraph * gCLsObsTheop1   = PlotTool->GetContour(hs, x, y, "ObsRTheoP1", 3, s->iCLsObsTheop1, kBlue, 3);
+   TGraph * gCLsExpTheom1   = PlotTool->GetContour(hs, x, y, "ExpRTheoM1", 3, s->iCLsExpTheom1, 1, 3);
+   TGraph * gCLsExpTheop1   = PlotTool->GetContour(hs, x, y, "ExpRTheoP1", 3, s->iCLsExpTheop1, 1, 3);
    gCLsObsExcl->SetLineWidth(3);
    gCLsExpExcl->SetLineWidth(3);
    
@@ -338,19 +344,19 @@ void DrawExclusion(PlotTools *PlotTool, std::string flag, const std::string& x, 
    leg->SetTextFont(42);
    leg->SetTextSize(0.03);
    leg->SetHeader(s->LegendTitel.c_str());
-   leg->AddEntry(gCLsObsExcl, "Obs. limit", "l");
-   leg->AddEntry(gCLsObsTheop1, "Obs. limit #pm1#sigma signal theory", "l");
+   leg->AddEntry(gCLsObsExcl, "Observed", "l");
+   leg->AddEntry(gCLsObsTheop1, "Observed #pm1#sigma signal theory", "l");
    TH1F* legExp = (TH1F*)gCLs1Sigma->Clone();
    legExp->SetLineStyle(gCLsExpExcl->GetLineStyle());
    legExp->SetLineColor(gCLsExpExcl->GetLineColor());
    legExp->SetLineWidth(gCLsExpExcl->GetLineWidth());
-   leg->AddEntry(legExp, "Exp. limit #pm1#sigma exp.", "lf");
+   leg->AddEntry(legExp, "Expected #pm1#sigma exp.", "lf");
    //leg->AddEntry(gCLsExpTheop1, "Exp. limit #pm1#sigma signal theory", "l");
+   if (s->excluded) s->excluded->Draw();
+   if (s->coverUp) s->coverUp();   
    leg->Draw();
    s->lumi->Draw();
    s->cms->Draw();
-   if (s->excluded) s->excluded->Draw();
-   if (s->coverUp) s->coverUp();   
 
    gPad->RedrawAxis();
    string nameExcl = "results/"+ flag + "_"+x+"_"+y+"_Exclusion_";
@@ -439,7 +445,6 @@ void GetPlotTools(PlotTools*& plotTools, std::string filename, const std::string
   //Fill the holes by 2D interpolation in gl-sq
   plotTools->FillEmptyPointsByInterpolation(x, y);
 
-
   //Make grid in Mzero, Mhalf finer by factors of 2 by linear interpolation
   for (int i=2; i<=factor; i*=2)
     plotTools->ExpandGrid(x, y);
@@ -469,15 +474,28 @@ void AddEvents(PlotTools*& plotTools, std::string filename, std::string Generato
 
 void DoPlotsFor(const std::string& x, const std::string& y, const std::string& flag, const std::string& file, style*s, int factor=0, TH2*plot_range=0, TH2*plot_excl=0)  {
     PlotTools * PlotTool;
-    GetPlotTools(PlotTool, file, x, y, "", factor);
+    GetPlotTools(PlotTool, file, x, y, "", 0);
     GetInfo("squark")->SetLabel("m(#tilde{q}) [GeV]");
     GetInfo("gluino")->SetLabel("m(#tilde{g}) [GeV]");
     GetInfo("chi1")->SetLabel("m(#tilde{#chi}^{0}_{1}) [GeV]");
+    GetInfo("cha1")->SetLabel("m(#tilde{#chi}^{#pm}_{1}) [GeV]");
     if (!plot_range) plot_range = PlotTool->GetHist(x,y);
     if (!plot_excl)  plot_excl = plot_range;
-    DrawStandardPlots(PlotTool, flag, x,y, plot_range);
+    DrawStandardPlots(PlotTool, flag, x,y, s, plot_range);
     //DrawStandardPlotsPerBin(PlotTool, "GMSB", x,y, &plot_range);
-    DrawStandardLimitPlots(PlotTool, flag, x,y, plot_range);
+    DrawStandardLimitPlots(PlotTool, flag, x,y, s, plot_range);
+  
+    for (int i=2; i<=factor; i*=2)
+      PlotTool->ExpandGrid(x, y);
+
+    if (plot_excl == plot_range) {
+      delete plot_range; 
+      plot_range = PlotTool->GetHist(x,y);
+      plot_excl = plot_range;
+    } else {
+      delete plot_range; 
+      plot_range = PlotTool->GetHist(x,y);
+    }  
     DrawExclusion(PlotTool,flag,x,y,plot_range,plot_excl,s); //removes points, which have no limits and fills the gaps by interpolation
 }
 
@@ -562,16 +580,29 @@ int plot(int argc, char** argv) {
   c1 = c_square;
   c1->cd();
 
-//  DoPlotsFor("squark","gluino","GMSB_Wino2j","2012-05-09-22-24-GMSBWino375Neutr2j/filelist.txt",GetSqGlWinoStyle(),4);
-//  DoPlotsFor("squark","gluino","GMSB_Bino2j","2012-05-09-21-44-GMSBBino375Neutr2j/filelist.txt",GetSqGlBinoStyle(),4);
-//  DoPlotsFor("chi1",  "gluino","GMSB_Bino2j","2012-05-09-22-33-GMSB_SquarkGluino_vs_Neutralino2j/filelist.txt",GetGlChiPlotStyle("bino","2500"),4);
-//  DoPlotsFor("chi1",  "gluino","T1gg2j",     "2012-05-22-21-38-GMSB_T1gg2j/filelist.txt",GetSMST1ggStyle(),2);
-//  DoPlotsFor("chi1",  "gluino","T1lg2j",     "2012-05-22-21-45-GMSB_T1lg2j/filelist.txt",GetSMST1lgStyle(),2);
+  ///7 TeV Paper
+  if (1){
+  TH2F*h_glBino     =new TH2F("h_glBino","",      28,80,1480, 24,290,1530);
+  TH2F*h_glBino_excl=new TH2F("h_glBino_excl","", 112,102.5,1457.5, 1200,315,1505);
+  //DoPlotsFor("cha1","chi1","GMSB_7TeV_WinoBino2j","2012-06-19-13-43-GMSB_WinoBino_7TeV_2j/filelist.txt",GetWinoBinoPlotStyle(),0);
+  DoPlotsFor("squark","gluino","GMSB_7TeV_Wino2j","2012-06-23-13-27-GMSB_sqgWino_7TeV_2j/filelist.txt", GetSqGlWinoStyle(),4);
+  //DoPlotsFor("squark","gluino","GMSB_7TeV_Bino2j","2012-06-18-16-57-GMSB_sqgBino_7TeV_2j/filelist.txt", GetSqGlBinoStyle(),4);
+  //DoPlotsFor("cha1",  "gluino","GMSB_7TeV_Wino2j","2012-06-19-13-41-GMSB_gWino_7TeV_2j/filelist.txt",   GetGlChiPlotStyle("wino","2500"),4);
+  DoPlotsFor("chi1",  "gluino","GMSB_7TeV_Bino2j","2012-06-22-09-36-GMSB_gBino_7TeV_2j/filelist.txt",   GetGlChiPlotStyle("bino","2500"),4,h_glBino,h_glBino);
+  }
+  //DoPlotsFor("squark","gluino","GMSB_Wino2j","2012-05-09-22-24-GMSBWino375Neutr2j/filelist.txt",GetSqGlWinoStyle(),4);
+  //DoPlotsFor("squark","gluino","GMSB_Bino2j","2012-05-09-21-44-GMSBBino375Neutr2j/filelist.txt",GetSqGlBinoStyle(),4);
+  //DoPlotsFor("chi1",  "gluino","GMSB_Bino2j","2012-05-09-22-33-GMSB_SquarkGluino_vs_Neutralino2j/filelist.txt",GetGlChiPlotStyle("bino","2500"),4);
+  //DoPlotsFor("chi1",  "gluino","T1gg2j",     "2012-05-22-21-38-GMSB_T1gg2j/filelist.txt",GetSMST1ggStyle(),2);
+  //DoPlotsFor("chi1",  "gluino","T1lg2j",     "2012-05-22-21-45-GMSB_T1lg2j/filelist.txt",GetSMST1lgStyle(),2);
   //MultipleChannels("squark","gluino","GMSB_SingleChannels_Bino2j", "2012-05-11-21-38-GMSBBino375NeutrSingleChannels2j");
   //MultipleChannels("squark","gluino","GMSB_SingleChannels_Wino2j", "2012-05-11-21-38-GMSBWino375NeutrSingleChannels2j");
 
-  DoPlotsFor("chi1",  "gluino","T1gg2j",     "Dongwook/filelist.txt",GetSMST1ggStyle(),1);
-  
+  ///8 TeV Summer12 ICHEP
+  if (0){ // 2.52 fb-1
+  DoPlotsFor("squark","gluino","GMSB_8TeV_Bino2j","2012-06-21-17-05-GMSB_sqgBino375_8TeV_2j/filelist.txt",GetSqGlBinoStyle8TeV(", #geq2 jets"),4);
+  DoPlotsFor("squark","gluino","GMSB_8TeV_Wino2j","2012-06-21-17-06-GMSB_sqgWino375_8TeV_2j/filelist.txt",GetSqGlWinoStyle8TeV(", #geq2 jets"),4);
+  }
 }
 
 int main(int argc, char** argv) {

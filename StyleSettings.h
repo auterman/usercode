@@ -1,4 +1,4 @@
-// $Id: StyleSettings.h,v 1.2 2012/05/28 22:55:12 auterman Exp $
+// $Id: StyleSettings.h,v 1.3 2012/05/29 17:27:18 auterman Exp $
 
 #ifndef STYLE_SETTINGS_H
 #define STYLE_SETTINGS_H
@@ -19,6 +19,14 @@ struct style{
   int smooth_flag;
   int smooth_points;
   void (*coverUp)();
+  int iCLsObsExcl;  
+  int iCLsExpExcl;  
+  int iCLsExpExclm1;
+  int iCLsExpExclp1;
+  int iCLsObsTheom1;
+  int iCLsObsTheop1;
+  int iCLsExpTheom1;
+  int iCLsExpTheop1;
 };
 
 void DrawNeutrNNLSP() {
@@ -64,6 +72,23 @@ void DrawNeutrNNLSPandDiagonalCut() {
 	gPad->RedrawAxis();
 }
 
+void DrawWinoBinoDiagonalCut() {
+	TGraph*cover = new TGraph(0);
+	cover->SetPoint(0,   0,   0);
+	cover->SetPoint(1, 600, 600);
+	cover->SetPoint(2,   0, 600);
+	cover->SetPoint(3,   0,   0);
+	cover->SetFillColor(kGray);
+	cover->Draw("f");
+
+	TLatex tex;
+	tex.SetTextSize(0.025);
+	tex.SetTextFont(62);
+	tex.SetNDC(true);
+	tex.DrawLatex(0.25, 0.6, "bino m_{#tilde{#chi}^{0}} > wino m_{#tilde{#chi}}");
+	gPad->RedrawAxis();
+}
+
 style* GetSqGlBinoStyle(){ /// Sq-Gl Bino /// ---------------------------------------------------------------------
   style * s = new style();
   s->LegendTitel = "#splitline{GGM bino-like #tilde{#chi}^{0}}{m_{#tilde{#chi}^{0}} = 375 GeV}";
@@ -94,6 +119,96 @@ style* GetSqGlBinoStyle(){ /// Sq-Gl Bino /// ----------------------------------
   s->smooth_flag=0;
   s->smooth_points=25;
   s->coverUp=0;
+  s->iCLsObsExcl=0;  
+  s->iCLsExpExcl=0;  
+  s->iCLsExpExclm1=0;
+  s->iCLsExpExclp1=0;
+  s->iCLsObsTheom1=0;
+  s->iCLsObsTheop1=0;
+  s->iCLsExpTheom1=0;
+  s->iCLsExpTheop1=0;  
+  return s;
+}
+
+style* GetSqGlBinoStyle8TeV(const std::string& njets=""){ /// Sq-Gl Bino /// ---------------------------------------------------------------------
+  style * s = new style();
+  s->LegendTitel = "#splitline{GGM bino-like #tilde{#chi}^{0}}{m_{#tilde{#chi}^{0}} = 375 GeV}";
+  s->LegendMinX=0.26;
+  s->LegendMaxX=0.61;
+  s->LegendMinY=0.26;
+  s->LegendMaxY=0.45;
+  s->lumi = new TLatex(0.58, 0.901, ((std::string)"4.03fb^{  -1}  #sqrt{s} = 8 TeV   #geq1#gamma"+njets).c_str());
+  s->lumi->SetNDC(true);
+  s->lumi->SetTextColor(12);
+  s->lumi->SetTextFont(43);
+  s->lumi->SetTextSize(20);
+  s->cms = new TLatex(0.21, 0.901, "#bf{CMS}");
+  s->cms->SetNDC(true);
+  s->cms->SetTextColor(12);
+  s->cms->SetTextFont(43);
+  s->cms->SetTextSize(20);
+  s->cmsprelim = new TLatex(0.21, 0.901, "#bf{CMS preliminary}");
+  s->cmsprelim->SetNDC(true);
+  s->cmsprelim->SetTextColor(12);
+  s->cmsprelim->SetTextFont(43);
+  s->cmsprelim->SetTextSize(20);
+  s->excluded = new TLatex(0.3, 0.7, "excluded");
+  s->excluded->SetNDC(true);
+  s->excluded->SetTextColor(12);
+  s->excluded->SetTextFont(43);
+  s->excluded->SetTextSize(20);
+  s->smooth_flag=0;
+  s->smooth_points=25;
+  s->coverUp=0;
+  s->iCLsObsExcl=0;  
+  s->iCLsExpExcl=0;  
+  s->iCLsExpExclm1=0;
+  s->iCLsExpExclp1=0;
+  s->iCLsObsTheom1=0;
+  s->iCLsObsTheop1=0;
+  s->iCLsExpTheom1=0;
+  s->iCLsExpTheop1=0;  
+  return s;
+}
+
+style* GetSqGlWinoStyle8TeV(const std::string& njets=""){ /// Sq-Gl Wino /// ---------------------------------------------------------------------
+  style * s = new style();
+  s->LegendTitel = "#splitline{GGM wino-like #tilde{#chi}^{0}}{m_{#tilde{#chi}^{0}} = 375 GeV}";
+  s->LegendMinX=0.47;
+  s->LegendMaxX=0.82;
+  s->LegendMinY=0.64;
+  s->LegendMaxY=0.85;
+  s->lumi = new TLatex(0.58, 0.901, ((std::string)"4.03fb^{  -1}  #sqrt{s} = 8 TeV   #geq1#gamma"+njets).c_str());
+  s->lumi->SetNDC(true);
+  s->lumi->SetTextColor(12);
+  s->lumi->SetTextFont(43);
+  s->lumi->SetTextSize(20);
+  s->cms = new TLatex(0.21, 0.901, "#bf{CMS}");
+  s->cms->SetNDC(true);
+  s->cms->SetTextColor(12);
+  s->cms->SetTextFont(43);
+  s->cms->SetTextSize(20);
+  s->cmsprelim = new TLatex(0.2, 0.901, "#bf{CMS preliminary}");
+  s->cmsprelim->SetNDC(true);
+  s->cmsprelim->SetTextColor(12);
+  s->cmsprelim->SetTextFont(43);
+  s->cmsprelim->SetTextSize(20);
+  s->excluded = new TLatex(0.3, 0.3, "excluded");
+  s->excluded->SetNDC(true);
+  s->excluded->SetTextColor(12);
+  s->excluded->SetTextFont(43);
+  s->excluded->SetTextSize(25);
+  s->smooth_flag=0;
+  s->smooth_points=25;
+  s->coverUp=0;
+  s->iCLsObsExcl=0;  
+  s->iCLsExpExcl=0;  
+  s->iCLsExpExclm1=0;
+  s->iCLsExpExclp1=0;
+  s->iCLsObsTheom1=0;
+  s->iCLsObsTheop1=0;
+  s->iCLsExpTheom1=0;
+  s->iCLsExpTheop1=0;  
   
   return s;
 }
@@ -128,6 +243,14 @@ style* GetSqGlWinoStyle(){ /// Sq-Gl Wino /// ----------------------------------
   s->smooth_flag=0;
   s->smooth_points=25;
   s->coverUp=0;
+  s->iCLsObsExcl=0;  
+  s->iCLsExpExcl=0;  
+  s->iCLsExpExclm1=0;
+  s->iCLsExpExclp1=0;
+  s->iCLsObsTheom1=0;
+  s->iCLsObsTheop1=0;
+  s->iCLsExpTheom1=0;
+  s->iCLsExpTheop1=0;  
   
   return s;
 }
@@ -162,6 +285,56 @@ style* GetGlChiPlotStyle(std::string neutralinotype, std::string squarkmass){ //
   s->smooth_flag=2;
   s->smooth_points=15;
   s->coverUp=DrawNeutrNNLSPandDiagonalCut;
+  s->iCLsObsExcl=0;  
+  s->iCLsExpExcl=0;  
+  s->iCLsExpExclm1=0;
+  s->iCLsExpExclp1=0;
+  s->iCLsObsTheom1=0;
+  s->iCLsObsTheop1=0;
+  s->iCLsExpTheom1=0;
+  s->iCLsExpTheop1=0;  
+
+  return s;
+}
+
+style* GetWinoBinoPlotStyle(){ /// Cha - Chi /// -----------------------------------------------------------------------
+  style * s = new style();
+  s->LegendTitel = "GGM    m_{#tilde{q}} =  m_{#tilde{g}} = 5 TeV";
+  s->LegendMinX=0.4;
+  s->LegendMinY=0.68;
+  s->LegendMaxX=0.89;
+  s->LegendMaxY=0.88;
+  s->lumi = new TLatex(0.6, 0.901, "4.6fb^{  -1}  #sqrt{s} = 7 TeV   #geq1#gamma, #geq2 jets");
+  s->lumi->SetNDC(true);
+  s->lumi->SetTextColor(12);
+  s->lumi->SetTextFont(43);
+  s->lumi->SetTextSize(20);
+  s->cms = new TLatex(0.21, 0.901, "#bf{CMS}");
+  s->cms->SetNDC(true);
+  s->cms->SetTextColor(12);
+  s->cms->SetTextFont(43);
+  s->cms->SetTextSize(20);
+  s->cmsprelim = new TLatex(0.21, 0.901, "#bf{CMS preliminary}");
+  s->cmsprelim->SetNDC(true);
+  s->cmsprelim->SetTextColor(12);
+  s->cmsprelim->SetTextFont(43);
+  s->cmsprelim->SetTextSize(20);
+  s->excluded = new TLatex(0.6, 0.4, "excluded");
+  s->excluded->SetNDC(true);
+  s->excluded->SetTextColor(12);
+  s->excluded->SetTextFont(43);
+  s->excluded->SetTextSize(20);
+  s->smooth_flag=2;
+  s->smooth_points=15;
+  s->coverUp=DrawWinoBinoDiagonalCut;
+  s->iCLsObsExcl=1;  
+  s->iCLsExpExcl=0;  
+  s->iCLsExpExclm1=0;
+  s->iCLsExpExclp1=0;
+  s->iCLsObsTheom1=1;
+  s->iCLsObsTheop1=1;
+  s->iCLsExpTheom1=0;
+  s->iCLsExpTheop1=0;  
 
   return s;
 }
@@ -192,6 +365,14 @@ style* GetSMST1ggStyle(){ /// SMS T1 gg /// ------------------------------------
   s->smooth_flag=2;
   s->smooth_points=30;
   s->coverUp=DrawNeutrNNLSP;
+  s->iCLsObsExcl=0;  
+  s->iCLsExpExcl=0;  
+  s->iCLsExpExclm1=0;
+  s->iCLsExpExclp1=0;
+  s->iCLsObsTheom1=0;
+  s->iCLsObsTheop1=0;
+  s->iCLsExpTheom1=0;
+  s->iCLsExpTheop1=0;  
 
   return s;
 }
@@ -222,6 +403,14 @@ style* GetSMST1lgStyle(){ /// SMS T1 lg /// ------------------------------------
   s->smooth_flag=2;
   s->smooth_points=50;
   s->coverUp=DrawNeutrNNLSP;
+  s->iCLsObsExcl=0;  
+  s->iCLsExpExcl=0;  
+  s->iCLsExpExclm1=0;
+  s->iCLsExpExclp1=0;
+  s->iCLsObsTheom1=0;
+  s->iCLsObsTheop1=0;
+  s->iCLsExpTheom1=0;
+  s->iCLsExpTheop1=0;  
 
   return s;
 }
@@ -233,7 +422,7 @@ namespace util {
   //!
   //!  \author   Matthias Schroeder (www.desy.de/~matsch)
   //!  \date     2010/03/09
-  //!  $Id: StyleSettings.h,v 1.2 2012/05/28 22:55:12 auterman Exp $
+  //!  $Id: StyleSettings.h,v 1.3 2012/05/29 17:27:18 auterman Exp $
   // -------------------------------------------------------------------------------------
   class StyleSettings {
   public:
