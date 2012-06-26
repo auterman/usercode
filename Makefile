@@ -13,7 +13,7 @@ LFLAGS = $(SPECIALFLAGS) -lz
 RCXX=$(CFLAGS) $(ROOTCFLAGS)
 RLXX=$(LFLAGS) $(ROOTLIBS)
 
-SRC=Variable.cc ConfigFile.cc GeneratorMasses.cc PlotTools.cc
+SRC=Variable.cc ConfigFile.cc GeneratorMasses.cc PlotTools.cc 
 
 %.o: %.cc
 		$(C) $(RCXX) -c $<
@@ -21,6 +21,7 @@ SRC=Variable.cc ConfigFile.cc GeneratorMasses.cc PlotTools.cc
 all: plot plotDiPhoton
 
 
+# common object files:
 ConfigFile.o: ConfigFile.cc ConfigFile.h
 		$(C) $(RCXX) -c ConfigFile.cc 
 
@@ -39,21 +40,32 @@ GeneratorMasses.o: GeneratorMasses.cc GeneratorMasses.h
 PlotTools.o: PlotTools.cc PlotTools.h 
 		$(C) $(RCXX) -c PlotTools.cc 
 
+Plotting.o: Plotting.cc Plotting.h 
+		$(C) $(RCXX) -c Plotting.cc 
+
 TheLimits.o: TheLimits.cc TheLimits.h
 		$(C) $(RCXX) -c TheLimits.cc 
 
-plot.o: plot.cc plot.h StyleSettings.h StyleSettings_SinglePhoton7TeV.h StyleSettings_SinglePhoton8TeV.h  
+# single photon specific
+StyleSettings_SinglePhoton.o: StyleSettings.h
+		$(C) $(RCXX) -c StyleSettings_SinglePhoton.cc
+
+plot.o: plot.cc plot.h   
 		$(C) $(RCXX) -c plot.cc 
 
-plot: $(SRC:.cc=.o) Event.o plot.o 
-		$(LD) $(SRC:.cc=.o) Event.o plot.o $(RLXX) $(JCORR) -o plot
+plot: $(SRC:.cc=.o) Event.o StyleSettings_SinglePhoton.o Plotting.o plot.o 
+		$(LD) $(SRC:.cc=.o) StyleSettings_SinglePhoton.o Event.o plot.o Plotting.o $(RLXX) $(JCORR) -o plot
 		@echo '-> plot executable created.'
 
-plotDiPhoton.o: plotDiPhoton.cc plot.h StyleSettings.h StyleSettings_DiPhoton.h 
+# di photon specific
+StyleSettings_DiPhoton.o: StyleSettings.h
+		$(C) $(RCXX) -c StyleSettings_DiPhoton.cc
+
+plotDiPhoton.o: plotDiPhoton.cc plot.h
 		$(C) $(RCXX) -c plotDiPhoton.cc 
 
-plotDiPhoton: $(SRC:.cc=.o) EventDiPhoton.o plotDiPhoton.o 
-		$(LD) $(SRC:.cc=.o) EventDiPhoton.o plotDiPhoton.o $(RLXX) $(JCORR) -o plotDiPhoton
+plotDiPhoton: $(SRC:.cc=.o) EventDiPhoton.o StyleSettings_DiPhoton.o Plotting.o plotDiPhoton.o 
+		$(LD) $(SRC:.cc=.o) StyleSettings_DiPhoton.o EventDiPhoton.o plotDiPhoton.o Plotting.o $(RLXX) $(JCORR) -o plotDiPhoton
 		@echo '-> plotDiPhoton executable created.'
 
 clean:
