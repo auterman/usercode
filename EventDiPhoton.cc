@@ -31,29 +31,24 @@ void ReadEvent(Event& evt, ConfigFile& config)
   evt.Add( ReadVariable(config, "ExpRasymM2",  "CLs expected m2sigma asymptotic", -9999999 ) );
   evt.Add( ReadVariable(config, "ExpRasymP2",  "CLs expected p2sigma asymptotic", -9999999 ) );
   //"Optional" variables with default values:
-  evt.Add( ReadVariable(config, "ObsR",        "CLs observed",         -9999999 ) );
-  evt.Add( ReadVariable(config, "ExpR",        "CLs expected",         -9999999 ) );
-  evt.Add( ReadVariable(config, "ExpRM1",      "CLs expected m1sigma", -9999999 ) );
-  evt.Add( ReadVariable(config, "ExpRP1",      "CLs expected p1sigma", -9999999 ) );
-  evt.Add( ReadVariable(config, "ExpRM2",      "CLs expected m2sigma", -9999999 ) );
-  evt.Add( ReadVariable(config, "ExpRP2",      "CLs expected p2sigma", -9999999 ) );
+  
+  //evt.Add( ReadVariable(config, "ObsR",        "CLs observed",         -9999999 ) );
+  //evt.Add( ReadVariable(config, "ExpR",        "CLs expected",         -9999999 ) );
+  //evt.Add( ReadVariable(config, "ExpRM1",      "CLs expected m1sigma", -9999999 ) );
+  //evt.Add( ReadVariable(config, "ExpRP1",      "CLs expected p1sigma", -9999999 ) );
+  //evt.Add( ReadVariable(config, "ExpRM2",      "CLs expected m2sigma", -9999999 ) );
+  //evt.Add( ReadVariable(config, "ExpRP2",      "CLs expected p2sigma", -9999999 ) );
+
+  //The fully freq. CLs seem not to be available!? Use asymptotic instead...
+  evt.Add( ReadVariable(config, "ObsR",    "CLs observed asymptotic", -9999999 ) );
+  evt.Add( ReadVariable(config, "ExpR",    "CLs expected asymptotic", -9999999 ) );
+  evt.Add( ReadVariable(config, "ExpRM1",  "CLs expected m1sigma asymptotic", -9999999 ) );
+  evt.Add( ReadVariable(config, "ExpRP1",  "CLs expected p1sigma asymptotic", -9999999 ) );
+  evt.Add( ReadVariable(config, "ExpRM2",  "CLs expected m2sigma asymptotic", -9999999 ) );
+  evt.Add( ReadVariable(config, "ExpRP2",  "CLs expected p2sigma asymptotic", -9999999 ) );
 
   evt.Add( ReadVariable(config, "u_signal_scale", "signal.scale.uncertainty", 0 ) );
   evt.Add( ReadVariable(config, "u_signal_pdf",   "signal.PDF.uncertainty",   0 ) );
-
-  if (1)
-  for (int ch=0; ch<nchannels; ++ch) {
-    std::stringstream ss;
-    ss<<ch;
-    std::string flag = ss.str(); 
-    evt.Add( ReadVariable(config, "signal_"+flag,                  "signal_"+flag, 0 ) );
-
-    evt.Add( ReadVariable(config, "signal_"+flag+"_contamination", "signal_contamination_"+flag, -1) ); 	       
-    
-    //normalize with signal:
-    //double signal = evt.Get("signal_"+flag);
-    //evt.Set( "signal_"+flag+"_contamination", 100.*evt.Get("signal_"+flag+"_contamination")/signal );
-  }
   
 }
 
@@ -64,9 +59,6 @@ void CalculateVariablesOnTheFly(Event& evt)
   evt.Add( Variable(evt.Get("ExpR")*evt.Get("Xsection"), new Info("ExpXsecLimit","") ) );
   evt.Add( Variable(evt.Get("ObsRasym")*evt.Get("Xsection"), new Info("ObsXsecLimitasym","") ) );
   evt.Add( Variable(evt.Get("ExpRasym")*evt.Get("Xsection"), new Info("ExpXsecLimitasym","") ) );
-  evt.Add( Variable(100*evt.Get("Acceptance"), new Info("AcceptancePercent","") ) );
-  evt.Add( Variable(100.*(evt.Get("signal")-evt.Get("contamination"))/(evt.Get("Xsection")*evt.Get("Luminosity")), 
-           new Info("AcceptanceCorrected","") ) );
 
   double NLO = evt.Get("u_signal_scale");
   double PDF = evt.Get("u_signal_pdf");
