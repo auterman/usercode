@@ -1,3 +1,11 @@
+// $Id: Event.h,v 1.1 2012/06/26 08:57:31 auterman Exp $
+
+/*** ------------------------------------------------------------------------------------------------------- ***
+     TheBetterPlotScript, a tool to plot final results, limits and exclusion contours, based on 'PlotScript'
+
+     Christian Autermann, Hamburg University/LPC, February 2012
+ *** ------------------------------------------------------------------------------------------------------- ***/
+
 #ifndef EVENT_H
 #define EVENT_H
 

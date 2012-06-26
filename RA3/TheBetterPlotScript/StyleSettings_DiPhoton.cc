@@ -1,7 +1,10 @@
-// $Id: StyleSettings_SinglePhoton7TeV.h,v 1.1 2012/06/25 10:27:37 auterman Exp $
+// $Id: StyleSettings_DiPhoton.h,v 1.1 2012/06/26 08:57:31 auterman Exp $
 
-#ifndef STYLE_SETTINGS_SINGLEPHOTON_7TEV_H
-#define STYLE_SETTINGS_SINGLEPHOTON_7TEV_H
+/*** ------------------------------------------------------------------------------------------------------- ***
+     TheBetterPlotScript, a tool to plot final results, limits and exclusion contours, based on 'PlotScript'
+
+     Christian Autermann, Hamburg University/LPC, February 2012
+ *** ------------------------------------------------------------------------------------------------------- ***/
 
 #include <iostream>
 
@@ -13,7 +16,7 @@
 #include "StyleSettings.h"
 
 
-style* GetSqGlBinoStyle(){ /// Sq-Gl Bino /// ---------------------------------------------------------------------
+style* SqGlBino_Style(){ /// Sq-Gl Bino /// ---------------------------------------------------------------------
   style * s = new style();
   s->LegendTitel = "#splitline{GGM bino-like #tilde{#chi}^{0}}{m_{#tilde{#chi}^{0}} = 375 GeV}";
   s->LegendMinX=0.26;
@@ -46,7 +49,7 @@ style* GetSqGlBinoStyle(){ /// Sq-Gl Bino /// ----------------------------------
   return s;
 }
 
-style* GetSqGlWinoStyle(){ /// Sq-Gl Wino /// ---------------------------------------------------------------------
+style* SqGlWino_Style(){ /// Sq-Gl Wino /// ---------------------------------------------------------------------
   style * s = new style();
   s->LegendTitel = "#splitline{GGM wino-like #tilde{#chi}^{0}}{m_{#tilde{#chi}^{0}} = 375 GeV}";
   s->LegendMinX=0.47;
@@ -83,7 +86,7 @@ style* GetSqGlWinoStyle(){ /// Sq-Gl Wino /// ----------------------------------
 
 /// ----------- Gl - Bino ------------ /// ----------------------------------------------------------------------------------
 
-void Draw_GlBino_CoverUp() {
+void Draw_DiPhoton_GlBino_CoverUp() {
 	TGraph*cover = new TGraph(0);
 	cover->SetPoint(0, 200,  300);
 	cover->SetPoint(1, 1200, 1210);
@@ -110,7 +113,7 @@ void Draw_GlBino_CoverUp() {
 }
 
 
-style* Get_GlBino_PlotStyle(){ 
+style* GlBino_Style(){ 
   style * s = new style();
   s->LegendTitel = "#splitline{GGM bino-like #tilde{#chi}^{0}}{m_{#tilde{q}} = 2500 GeV}";
   s->LegendMinX=0.26;
@@ -156,7 +159,7 @@ style* Get_GlBino_PlotStyle(){
   s->excluded->SetTextSize(20);
   s->smooth_flag=2;
   s->smooth_points=25;
-  s->coverUp=Draw_GlBino_CoverUp;
+  s->coverUp=Draw_DiPhoton_GlBino_CoverUp;
   s->iCLsObsExcl=0;  
   s->iCLsExpExcl=0;  
   s->iCLsExpExclm1=0;
@@ -170,7 +173,7 @@ style* Get_GlBino_PlotStyle(){
 }
 
 /// ----------- Gl - Wino ------------ /// ----------------------------------------------------------------------------------
-void Draw_GlWino_CoverUp() {
+void Draw_DiPhoton_GlWino_CoverUp() {
 	TGraph*cover = new TGraph(0);
 	cover->SetPoint(0, 300,  350);
 	cover->SetPoint(1, 950, 1000);
@@ -196,7 +199,7 @@ void Draw_GlWino_CoverUp() {
 	gPad->RedrawAxis();
 }
 
-style* Get_GlWino_PlotStyle(){ 
+style* GlWino_Style(){ 
   style * s = new style();
   s->LegendTitel = "#splitline{GGM wino-like #tilde{#chi}^{0}}{m_{#tilde{q}} = 2500 GeV}";
   s->LegendMinX=0.42;
@@ -225,7 +228,7 @@ style* Get_GlWino_PlotStyle(){
   s->excluded->SetTextSize(20);
   s->smooth_flag=2;
   s->smooth_points=25;
-  s->coverUp=Draw_GlWino_CoverUp;
+  s->coverUp=Draw_DiPhoton_GlWino_CoverUp;
   s->iCLsObsExcl=0;  
   s->iCLsExpExcl=0;  
   s->iCLsExpExclm1=0;
@@ -239,7 +242,27 @@ style* Get_GlWino_PlotStyle(){
   return s;
 }
 
-style* GetWinoBinoPlotStyle(){ /// Cha - Chi /// -----------------------------------------------------------------------
+/// Cha - Chi /// -----------------------------------------------------------------------
+void DrawWinoBinoDiagonalCut() {
+	TGraph*cover = new TGraph(0);
+	cover->SetPoint(0,   0,   0);
+	cover->SetPoint(1, 1200, 1200);
+	cover->SetPoint(2,   0, 1200);
+	cover->SetPoint(3,   0,   0);
+	cover->SetFillColor(kGray);
+	cover->Draw("f");
+
+	TLatex tex;
+	tex.SetTextSize(0.025);
+	tex.SetTextFont(62);
+	tex.SetNDC(true);
+	tex.DrawLatex(0.25, 0.6, "bino m_{#tilde{#chi}^{0}} > wino m_{#tilde{#chi}}");
+	gPad->RedrawAxis();
+}
+
+
+
+style* WinoBino_Style(){ 
   style * s = new style();
   s->LegendTitel = "GGM    m_{#tilde{q}} =  m_{#tilde{g}} = 5 TeV";
   s->LegendMinX=0.4;
@@ -270,18 +293,18 @@ style* GetWinoBinoPlotStyle(){ /// Cha - Chi /// -------------------------------
   s->smooth_points=15;
   s->coverUp=DrawWinoBinoDiagonalCut;
   s->iCLsObsExcl=1;  
-  s->iCLsExpExcl=0;  
-  s->iCLsExpExclm1=0;
-  s->iCLsExpExclp1=0;
+  s->iCLsExpExcl=1;  
+  s->iCLsExpExclm1=1;
+  s->iCLsExpExclp1=1;
   s->iCLsObsTheom1=1;
   s->iCLsObsTheop1=1;
-  s->iCLsExpTheom1=0;
-  s->iCLsExpTheop1=0;  
+  s->iCLsExpTheom1=1;
+  s->iCLsExpTheop1=1;  
   return s;
 }
 
 /// ------  SMS T1 gg /// -------------------------------------------------------
-void Draw_T1gg_CoverUp() {
+void Draw_DiPhoton_T1gg_CoverUp() {
 
 	TGraph*cover = new TGraph(0);
 	cover->SetPoint(0, 50,     75);
@@ -317,7 +340,7 @@ void Draw_T1gg_CoverUp() {
 }
 
 
-style* GetSMST1ggStyle(){ 
+style* SMST1gg_Style(){ 
   style * s = new style();
   s->LegendTitel = "SMS #gamma#gamma";
   s->LegendMinX=0.31;
@@ -342,7 +365,7 @@ style* GetSMST1ggStyle(){
   s->excluded=0;
   s->smooth_flag=2;
   s->smooth_points=30;
-  s->coverUp=Draw_T1gg_CoverUp;
+  s->coverUp=Draw_DiPhoton_T1gg_CoverUp;
   s->iCLsObsExcl=0;  
   s->iCLsExpExcl=0;  
   s->iCLsExpExclm1=0;
@@ -357,46 +380,4 @@ style* GetSMST1ggStyle(){
   return s;
 }
   
-style* GetSMST1lgStyle(){ /// SMS T1 lg /// -------------------------------------------------------
-  style * s = new style();
-  s->LegendTitel = "SMS #gamma + X";
-  s->LegendMinX=0.31;
-  s->LegendMinY=0.69;
-  s->LegendMaxX=0.69;
-  s->LegendMaxY=0.84;
-  s->lumi = new TLatex(0.58, 0.901, "4.6fb^{  -1}  #sqrt{s} = 7 TeV   #geq1#gamma, #geq2 jets");
-  s->lumi->SetNDC(true);
-  s->lumi->SetTextColor(12);
-  s->lumi->SetTextFont(43);
-  s->lumi->SetTextSize(20);
-  s->cms = new TLatex(0.21, 0.901, "#bf{CMS}");
-  s->cms->SetNDC(true);
-  s->cms->SetTextColor(12);
-  s->cms->SetTextFont(43);
-  s->cms->SetTextSize(20);
-  s->cmsprelim = new TLatex(0.21, 0.901, "#bf{CMS preliminary}");
-  s->cmsprelim->SetNDC(true);
-  s->cmsprelim->SetTextColor(12);
-  s->cmsprelim->SetTextFont(43);
-  s->cmsprelim->SetTextSize(20);
-  s->excluded=0;
-  s->smooth_flag=2;
-  s->smooth_points=50;
-  s->coverUp=DrawNeutrNNLSP;
-  s->iCLsObsExcl=1;  
-  s->iCLsExpExcl=1;  
-  s->iCLsExpExclm1=1;
-  s->iCLsExpExclp1=1;
-  s->iCLsObsTheom1=1;
-  s->iCLsObsTheop1=1;
-  s->iCLsExpTheom1=1;
-  s->iCLsExpTheop1=1;  
-  s->MinXsecZ=0.01;
-  s->MaxXsecZ=1;
-
-  return s;
-}
-
-#endif
-
 

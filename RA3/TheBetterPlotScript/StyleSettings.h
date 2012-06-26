@@ -1,4 +1,10 @@
-// $Id: StyleSettings.h,v 1.6 2012/06/26 08:57:31 auterman Exp $
+// $Id: StyleSettings.h,v 1.7 2012/06/26 10:01:49 auterman Exp $
+
+/*** ------------------------------------------------------------------------------------------------------- ***
+     TheBetterPlotScript, a tool to plot final results, limits and exclusion contours, based on 'PlotScript'
+
+     Christian Autermann, Hamburg University/LPC, February 2012
+ *** ------------------------------------------------------------------------------------------------------- ***/
 
 #ifndef STYLE_SETTINGS_H
 #define STYLE_SETTINGS_H
@@ -9,8 +15,16 @@
 #include "TStyle.h"
 #include "TLatex.h"
 #include "TGraph.h"
+#include "TPad.h"
 
-
+struct style;
+style* WinoBino_Style();
+style* SqGlWino_Style();
+style* SqGlBino_Style();
+style* GlWino_Style();
+style* GlBino_Style();
+style* SMST1gg_Style();
+style* SMST1lg_Style();
 
 struct style{
   style(){ //Set Defaults
@@ -95,65 +109,6 @@ struct style{
   bool Set505;
 };
 
-void DrawNeutrNNLSP() {
-	TGraph*gluinoNLSP = new TGraph(0);
-	gluinoNLSP->SetPoint(0, 50, 50);
-	gluinoNLSP->SetPoint(1, 3000, 3000);
-	gluinoNLSP->SetPoint(2, 3000, 50);
-	gluinoNLSP->SetPoint(3, 50, 50);
-	gluinoNLSP->SetFillColor(kGray);
-	gluinoNLSP->Draw("f");
-
-	TLatex tex;
-	tex.SetTextSize(0.03);
-	tex.SetTextFont(62);
-	tex.SetNDC(true);
-	tex.DrawLatex(0.6, 0.25, "#tilde{g} NLSP");
-	gPad->RedrawAxis();
-}
-
-void DrawNeutrNNLSPandDiagonalCut() {
-	TGraph*cover = new TGraph(0);
-	cover->SetPoint(0, 200,  500);
-	cover->SetPoint(1, 950, 1000);
-	cover->SetPoint(2, 1000, 1000);
-	cover->SetPoint(3,    0,    0);
-	cover->SetFillColor(kWhite);
-	//cover->SetLineColor(kBlack);
-	cover->Draw("f");
-
-	TGraph*gluinoNLSP = new TGraph(0);
-	gluinoNLSP->SetPoint(0, 50, 50);
-	gluinoNLSP->SetPoint(1, 3000, 3000);
-	gluinoNLSP->SetPoint(2, 3000, 50);
-	gluinoNLSP->SetPoint(3, 50, 50);
-	gluinoNLSP->SetFillColor(kGray);
-	gluinoNLSP->Draw("f");
-
-	TLatex tex;
-	tex.SetTextSize(0.03);
-	tex.SetTextFont(62);
-	tex.SetNDC(true);
-	tex.DrawLatex(0.6, 0.25, "#tilde{g} NLSP");
-	gPad->RedrawAxis();
-}
-
-void DrawWinoBinoDiagonalCut() {
-	TGraph*cover = new TGraph(0);
-	cover->SetPoint(0,   0,   0);
-	cover->SetPoint(1, 1200, 1200);
-	cover->SetPoint(2,   0, 1200);
-	cover->SetPoint(3,   0,   0);
-	cover->SetFillColor(kGray);
-	cover->Draw("f");
-
-	TLatex tex;
-	tex.SetTextSize(0.025);
-	tex.SetTextFont(62);
-	tex.SetNDC(true);
-	tex.DrawLatex(0.25, 0.6, "bino m_{#tilde{#chi}^{0}} > wino m_{#tilde{#chi}}");
-	gPad->RedrawAxis();
-}
 
 
 
@@ -164,7 +119,7 @@ namespace util {
   //!
   //!  \author   Matthias Schroeder (www.desy.de/~matsch)
   //!  \date     2010/03/09
-  //!  $Id: StyleSettings.h,v 1.6 2012/06/26 08:57:31 auterman Exp $
+  //!  $Id: StyleSettings.h,v 1.7 2012/06/26 10:01:49 auterman Exp $
   // -------------------------------------------------------------------------------------
   class StyleSettings {
   public:

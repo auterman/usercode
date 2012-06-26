@@ -1,3 +1,11 @@
+// $Id: Event.cc,v 1.1 2012/06/26 08:57:31 auterman Exp $
+
+/*** ------------------------------------------------------------------------------------------------------- ***
+     TheBetterPlotScript, a tool to plot final results, limits and exclusion contours, based on 'PlotScript'
+
+     Christian Autermann, Hamburg University/LPC, February 2012
+ *** ------------------------------------------------------------------------------------------------------- ***/
+
 #include "Event.h"
 #include "ConfigFile.h"
 #include "GeneratorMasses.h"
@@ -31,6 +39,7 @@ void ReadEvent(Event& evt, ConfigFile& config)
   evt.Add( ReadVariable(config, "ExpRasymM2",  "CLs expected m2sigma asymptotic", -9999999 ) );
   evt.Add( ReadVariable(config, "ExpRasymP2",  "CLs expected p2sigma asymptotic", -9999999 ) );
   //"Optional" variables with default values:
+
   evt.Add( ReadVariable(config, "ObsR",        "CLs observed",         -9999999 ) );
   evt.Add( ReadVariable(config, "ExpR",        "CLs expected",         -9999999 ) );
   evt.Add( ReadVariable(config, "ExpRM1",      "CLs expected m1sigma", -9999999 ) );
@@ -38,6 +47,14 @@ void ReadEvent(Event& evt, ConfigFile& config)
   evt.Add( ReadVariable(config, "ExpRM2",      "CLs expected m2sigma", -9999999 ) );
   evt.Add( ReadVariable(config, "ExpRP2",      "CLs expected p2sigma", -9999999 ) );
 
+/*
+  evt.Add( ReadVariable(config, "ObsR",    "CLs observed asymptotic", -9999999 ) );
+  evt.Add( ReadVariable(config, "ExpR",    "CLs expected asymptotic", -9999999 ) );
+  evt.Add( ReadVariable(config, "ExpRM1",  "CLs expected m1sigma asymptotic", -9999999 ) );
+  evt.Add( ReadVariable(config, "ExpRP1",  "CLs expected p1sigma asymptotic", -9999999 ) );
+  evt.Add( ReadVariable(config, "ExpRM2",  "CLs expected m2sigma asymptotic", -9999999 ) );
+  evt.Add( ReadVariable(config, "ExpRP2",  "CLs expected p2sigma asymptotic", -9999999 ) );
+*/
   evt.Add( ReadVariable(config, "u_signal_scale", "signal.scale.uncertainty", 0 ) );
   evt.Add( ReadVariable(config, "u_signal_pdf",   "signal.PDF.uncertainty",   0 ) );
 
