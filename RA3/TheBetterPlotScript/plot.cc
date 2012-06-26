@@ -25,7 +25,7 @@
 #include <stdio.h>
 
 #include "StyleSettings_SinglePhoton7TeV.h"
-#include "StyleSettings_DiPhoton.h"
+#include "StyleSettings_SinglePhoton8TeV.h"
 
 const static bool plotPNG = false;
 const static bool plotC   = true;
@@ -599,17 +599,6 @@ int plot(int argc, char** argv) {
   if (0){ // 4.02 fb-1
   DoPlotsFor("squark","gluino","GMSB_8TeV_Bino2j","2012-06-21-17-05-GMSB_sqgBino375_8TeV_2j/filelist.txt",GetSqGlBinoStyle8TeV(", #geq2 jets"),4);
   DoPlotsFor("squark","gluino","GMSB_8TeV_Wino2j","2012-06-21-17-06-GMSB_sqgWino375_8TeV_2j/filelist.txt",GetSqGlWinoStyle8TeV(", #geq2 jets"),4);
-  }
-  
-  
-  ///Di-Photon 7 TeV Paper
-  if (1){
-  DoPlotsFor("cha1",  "chi1",  "GMSB_DiPhoton7TeV_WinoBino2j","20120622/WB_1jet/filelist.txt",     DiPhoton_WinoBino_Style(),0);
-  DoPlotsFor("squark","gluino","GMSB_DiPhoton7TeV_Wino2j",    "20120622/gsq_W_1jet/filelist.txt",  DiPhoton_SqGlWino_Style(),4);
-  DoPlotsFor("squark","gluino","GMSB_DiPhoton7TeV_Bino2j",    "20120622/gsq_B_1jet/filelist.txt",  DiPhoton_SqGlBino_Style(),4);
-  DoPlotsFor("cha1",  "gluino","GMSB_DiPhoton7TeV_Wino2j",    "20120622/gW_1jet/filelist.txt",     DiPhoton_GlWino_Style(),4);
-  DoPlotsFor("chi1",  "gluino","GMSB_DiPhoton7TeV_Bino2j",    "20120622/gB_1jet/filelist.txt",     DiPhoton_GlBino_Style(),4);
-  DoPlotsFor("chi1",  "gluino","T1gg2j_DiPhoton",	      "20120622/sms_gg_1jet/filelist.txt", DiPhoton_SMST1gg_Style(),2);
   }
   
   
