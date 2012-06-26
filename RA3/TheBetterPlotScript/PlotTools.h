@@ -37,7 +37,7 @@ TCanvas*  GetLimitTemplateCanvas(std::string file,std::string key);
 
 TH2 * BinWiseOr(TH2*h1, TH2*h2);
 
-void SetZRange(TH2 * h);
+void SetZRange(TH2 * h, TH2*h2=0);
 
 
 class PlotTools {

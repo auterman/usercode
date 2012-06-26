@@ -24,7 +24,6 @@
 #include <cmath>
 #include <stdio.h>
 
-#include "StyleSettings_SinglePhoton7TeV.h"
 #include "StyleSettings_DiPhoton.h"
 
 const static bool plotPNG = false;
@@ -575,43 +574,14 @@ int plot(int argc, char** argv) {
   c1 = c_square;
   c1->cd();
 
-  ///Single-Photon 7 TeV Paper
-  if (0){
-  DoPlotsFor("cha1",  "chi1",  "GMSB_7TeV_WinoBino2j","2012-06-19-13-43-GMSB_WinoBino_7TeV_2j/filelist.txt",GetWinoBinoPlotStyle(),0);
-  DoPlotsFor("squark","gluino","GMSB_7TeV_Wino2j",    "2012-06-23-13-27-GMSB_sqgWino_7TeV_2j/filelist.txt", GetSqGlWinoStyle(),4);
-  DoPlotsFor("squark","gluino","GMSB_7TeV_Bino2j",    "2012-06-18-16-57-GMSB_sqgBino_7TeV_2j/filelist.txt", GetSqGlBinoStyle(),4);
-  DoPlotsFor("cha1",  "gluino","GMSB_7TeV_Wino2j",    "2012-06-19-13-41-GMSB_gWino_7TeV_2j/filelist.txt",   Get_GlWino_PlotStyle(),4);
-  DoPlotsFor("chi1",  "gluino","GMSB_7TeV_Bino2j",    "2012-06-22-09-36-GMSB_gBino_7TeV_2j/filelist.txt",   Get_GlBino_PlotStyle(),4);
-  DoPlotsFor("chi1",  "gluino","T1gg2j",	      "2012-05-22-21-38-GMSB_T1gg2j/filelist.txt",GetSMST1ggStyle(),2);
-  DoPlotsFor("chi1",  "gluino","T1lg2j",              "2012-05-22-21-45-GMSB_T1lg2j/filelist.txt",GetSMST1lgStyle(),2);
-  //MultipleChannels("squark","gluino","GMSB_SingleChannels_Bino2j", "2012-05-11-21-38-GMSBBino375NeutrSingleChannels2j");
-  //MultipleChannels("squark","gluino","GMSB_SingleChannels_Wino2j", "2012-05-11-21-38-GMSBWino375NeutrSingleChannels2j");
-  }
-  //DoPlotsFor("squark","gluino","GMSB_Wino2j","2012-05-09-22-24-GMSBWino375Neutr2j/filelist.txt",GetSqGlWinoStyle(),4);
-  //DoPlotsFor("squark","gluino","GMSB_Bino2j","2012-05-09-21-44-GMSBBino375Neutr2j/filelist.txt",GetSqGlBinoStyle(),4);
-  //DoPlotsFor("chi1",  "gluino","GMSB_Bino2j","2012-05-09-22-33-GMSB_SquarkGluino_vs_Neutralino2j/filelist.txt",GetGlChiPlotStyle("bino","2500"),4);
-  //DoPlotsFor("chi1",  "gluino","T1gg2j",     "2012-05-22-21-38-GMSB_T1gg2j/filelist.txt",GetSMST1ggStyle(),2);
-  //DoPlotsFor("chi1",  "gluino","T1lg2j",     "2012-05-22-21-45-GMSB_T1lg2j/filelist.txt",GetSMST1lgStyle(),2);
-  //MultipleChannels("squark","gluino","GMSB_SingleChannels_Bino2j", "2012-05-11-21-38-GMSBBino375NeutrSingleChannels2j");
-  //MultipleChannels("squark","gluino","GMSB_SingleChannels_Wino2j", "2012-05-11-21-38-GMSBWino375NeutrSingleChannels2j");
-
-  ///Single Photon 8 TeV Summer12 ICHEP
-  if (0){ // 4.02 fb-1
-  DoPlotsFor("squark","gluino","GMSB_8TeV_Bino2j","2012-06-21-17-05-GMSB_sqgBino375_8TeV_2j/filelist.txt",GetSqGlBinoStyle8TeV(", #geq2 jets"),4);
-  DoPlotsFor("squark","gluino","GMSB_8TeV_Wino2j","2012-06-21-17-06-GMSB_sqgWino375_8TeV_2j/filelist.txt",GetSqGlWinoStyle8TeV(", #geq2 jets"),4);
-  }
-  
   
   ///Di-Photon 7 TeV Paper
-  if (1){
   DoPlotsFor("cha1",  "chi1",  "GMSB_DiPhoton7TeV_WinoBino2j","20120622/WB_1jet/filelist.txt",     DiPhoton_WinoBino_Style(),0);
   DoPlotsFor("squark","gluino","GMSB_DiPhoton7TeV_Wino2j",    "20120622/gsq_W_1jet/filelist.txt",  DiPhoton_SqGlWino_Style(),4);
   DoPlotsFor("squark","gluino","GMSB_DiPhoton7TeV_Bino2j",    "20120622/gsq_B_1jet/filelist.txt",  DiPhoton_SqGlBino_Style(),4);
   DoPlotsFor("cha1",  "gluino","GMSB_DiPhoton7TeV_Wino2j",    "20120622/gW_1jet/filelist.txt",     DiPhoton_GlWino_Style(),4);
   DoPlotsFor("chi1",  "gluino","GMSB_DiPhoton7TeV_Bino2j",    "20120622/gB_1jet/filelist.txt",     DiPhoton_GlBino_Style(),4);
   DoPlotsFor("chi1",  "gluino","T1gg2j_DiPhoton",	      "20120622/sms_gg_1jet/filelist.txt", DiPhoton_SMST1gg_Style(),2);
-  }
-  
   
   
 }

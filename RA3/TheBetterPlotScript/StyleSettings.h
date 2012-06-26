@@ -1,4 +1,4 @@
-// $Id: StyleSettings.h,v 1.4 2012/06/25 07:11:41 auterman Exp $
+// $Id: StyleSettings.h,v 1.5 2012/06/25 10:27:37 auterman Exp $
 
 #ifndef STYLE_SETTINGS_H
 #define STYLE_SETTINGS_H
@@ -34,7 +34,45 @@ struct style{
     iCLsExpTheop1=0;
     MinXsecZ=-999.;//let the plot find the min/max
     MaxXsecZ=-999.;  
+    MinAccZ=-999.;//let the plot find the min/max
+    MaxAccZ=-999.;  
+    lumi = new TLatex(0.58, 0.901, "4.6fb^{  -1}  #sqrt{s} = 7 TeV   #geq1#gamma, #geq2 jets");
+    lumi->SetNDC(true);
+    lumi->SetTextColor(12);
+    lumi->SetTextFont(43);
+    lumi->SetTextSize(20);
+    cms = new TLatex(0.21, 0.901, "#bf{CMS}");
+    cms->SetNDC(true);
+    cms->SetTextColor(12);
+    cms->SetTextFont(43);
+    cms->SetTextSize(20);
+    cmsprelim = new TLatex(0.21, 0.901, "#bf{CMS preliminary}");
+    cmsprelim->SetNDC(true);
+    cmsprelim->SetTextColor(12);
+    cmsprelim->SetTextFont(43);
+    cmsprelim->SetTextSize(20);
+
+    lumiTemperaturePlot = new TLatex(0.48, 0.906, "4.6fb^{  -1}  #sqrt{s} = 7 TeV   #geq1#gamma, #geq2 jets");
+    lumiTemperaturePlot->SetNDC(true);
+    lumiTemperaturePlot->SetTextColor(12);
+    lumiTemperaturePlot->SetTextFont(43);
+    lumiTemperaturePlot->SetTextSize(20);
+    cmsTemperaturePlot = new TLatex(0.21, 0.906, "#bf{CMS}");
+    cmsTemperaturePlot->SetNDC(true);
+    cmsTemperaturePlot->SetTextColor(12);
+    cmsTemperaturePlot->SetTextFont(43);
+    cmsTemperaturePlot->SetTextSize(20);
+    cmsprelimTemperaturePlot = new TLatex(0.21, 0.906, "#bf{CMS preliminary}");
+    cmsprelimTemperaturePlot->SetNDC(true);
+    cmsprelimTemperaturePlot->SetTextColor(12);
+    cmsprelimTemperaturePlot->SetTextFont(43);
+    cmsprelimTemperaturePlot->SetTextSize(20);
+    Set505=false;
   } 
+  ///
+  /// Please make sure, that all new variables in this class are set to proper default values in the contructor above!
+  /// I.e. the default value should leave the old style unchanged.
+  ///
    
   std::string LegendTitel;
   float LegendMinX, LegendMaxX, LegendMinY, LegendMaxY;
@@ -52,6 +90,9 @@ struct style{
   int iCLsExpTheop1;
   double MinXsecZ;
   double MaxXsecZ;
+  double MinAccZ;
+  double MaxAccZ;
+  bool Set505;
 };
 
 void DrawNeutrNNLSP() {
@@ -100,8 +141,8 @@ void DrawNeutrNNLSPandDiagonalCut() {
 void DrawWinoBinoDiagonalCut() {
 	TGraph*cover = new TGraph(0);
 	cover->SetPoint(0,   0,   0);
-	cover->SetPoint(1, 600, 600);
-	cover->SetPoint(2,   0, 600);
+	cover->SetPoint(1, 1200, 1200);
+	cover->SetPoint(2,   0, 1200);
 	cover->SetPoint(3,   0,   0);
 	cover->SetFillColor(kGray);
 	cover->Draw("f");
@@ -206,7 +247,7 @@ namespace util {
   //!
   //!  \author   Matthias Schroeder (www.desy.de/~matsch)
   //!  \date     2010/03/09
-  //!  $Id: StyleSettings.h,v 1.4 2012/06/25 07:11:41 auterman Exp $
+  //!  $Id: StyleSettings.h,v 1.5 2012/06/25 10:27:37 auterman Exp $
   // -------------------------------------------------------------------------------------
   class StyleSettings {
   public:

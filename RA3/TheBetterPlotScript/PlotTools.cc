@@ -160,8 +160,8 @@ TH2 * PlotTools::GetHist(const std::string& x, const std::string& y)
   std::string titel = ";"+GetInfo(x)->GetLabel()+";"+GetInfo(y)->GetLabel();
   std::stringstream name;
   name << ++plotindex_ << "_" << GetInfo(x)->GetLabel()<<"_"<<GetInfo(y)->GetLabel();
-  TH2F*h = new TH2F(name.str().c_str(),titel.c_str(),binsx,minx,maxx,binsy,miny,maxy);
-  std::cout<<"...using binning "<<binsx<<", "<<minx<<", "<<maxx<<", "<<binsy<<", "<<miny<<", "<<maxy<<std::endl;
+  TH2F*h = new TH2F(name.str().c_str(),titel.c_str(),binsx+1,minx-gridx/2.,maxx+gridx/2,binsy+1,miny-gridy/2,maxy+gridy/2.);
+  std::cout<<"...using binning "<<binsx+1<<", "<<minx-gridx/2.<<", "<<maxx+gridx/2.<<", "<<binsy+1<<", "<<miny-gridy/2.<<", "<<maxy+gridy/2.<<std::endl;
   return h;
 }
 
@@ -691,7 +691,7 @@ TCanvas * GetLimitTemplateCanvas(std::string file,std::string key)
   return (TCanvas*)f.Get(key.c_str());
 }
 
-void SetZRange(TH2 * h) {
+void SetZRange(TH2 * h, TH2*h2) {
     //cout<<"Find optimal z range..."<<endl;
     double maxValue = 0, minValue = 0;
 
@@ -719,6 +719,8 @@ void SetZRange(TH2 * h) {
     //    cout<<"maximum value:"<<maxValue<<endl;
     //    cout<<"minimum value:"<<minValue<<endl;
     h->GetZaxis()->SetRangeUser(minValue, maxValue);
+    if (h2)     h2->GetZaxis()->SetRangeUser(minValue, maxValue);
+
 
 }
 
