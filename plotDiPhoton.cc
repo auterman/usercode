@@ -576,6 +576,7 @@ int plot(int argc, char** argv) {
 
   
   ///Di-Photon 7 TeV Paper
+  ///syntax: <x>,     <y>,     <label for the scan>,          <file listing all limit files>,     <instance of style class>, <increase number of bins by this factor>
   DoPlotsFor("cha1",  "chi1",  "GMSB_DiPhoton7TeV_WinoBino2j","20120622/WB_1jet/filelist.txt",     DiPhoton_WinoBino_Style(),0);
   DoPlotsFor("squark","gluino","GMSB_DiPhoton7TeV_Wino2j",    "20120622/gsq_W_1jet/filelist.txt",  DiPhoton_SqGlWino_Style(),4);
   DoPlotsFor("squark","gluino","GMSB_DiPhoton7TeV_Bino2j",    "20120622/gsq_B_1jet/filelist.txt",  DiPhoton_SqGlBino_Style(),4);
