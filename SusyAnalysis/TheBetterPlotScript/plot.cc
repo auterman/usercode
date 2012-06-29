@@ -30,6 +30,7 @@
 #include "TemplateTanb10.h"
 
 const static bool plotPNG = false;
+const static bool plotC   = true;
 TCanvas * c1 = 0;
 
 void DrawPlot2D(PlotTools *PlotTool, TCanvas*canvas, TH2* h, const std::string& flag, const string& x, const std::string& y, const std::string& var, 
@@ -48,9 +49,16 @@ void DrawPlot2D(PlotTools *PlotTool, TCanvas*canvas, TH2* h, const std::string& 
    tex.SetTextSize(0.035);
    tex.Draw();
    string namePlot = "results/" + flag + "_"+x+"_"+y+"_"+var;
+   canvas->SaveAs((namePlot + "_prelim.pdf").c_str());
+   if (plotPNG) canvas->SaveAs((namePlot + "_prelim.png").c_str());
+   //
+   plot2D->Draw("colz"); 
+   TLatex tex2(tx,ty,"#font[42]{CMS, 4.98 fb^{-1}, #sqrt{s} = 7 TeV}");
+   tex2.SetTextSize(0.035);
+   tex2.Draw();
    canvas->SaveAs((namePlot + ".pdf").c_str());
    if (plotPNG) canvas->SaveAs((namePlot + ".png").c_str());
- }
+}
  
 void DrawHist1D(PlotTools *PlotTool, TCanvas*canvas, const std::string& flag, const string& x, const std::string& y, const std::string& var, 
                 const std::string& titel, int n)
@@ -244,10 +252,10 @@ void DrawExclusion(PlotTools *PlotTool, std::string flag, const std::string& x, 
    gCLsExpExcl->SetLineWidth(2);
 
    Cut(gCLsExpExclm1,'y','<',260);
-   Cut(gCLsExpExclp1,'y','<',200);
+   Cut(gCLsExpExclp1,'y','<',220);
    Cut(gCLsExpExcl,'y','<',240);
    Cut(gCLsObsExcl,'y','<',260);
-   Cut(gCLsExpExcl,'x','>',2970);
+   Cut(gCLsExpExcl,'x','>',2770);
    Cut(gCLsObsExcl,'x','>',2970);
    Cut(gCLsExpExclp1,'x','>',2780);
 
@@ -281,35 +289,42 @@ void DrawExclusion(PlotTools *PlotTool, std::string flag, const std::string& x, 
    c2->cd();
    TGraph * RA2_36pb = RA2Observed_36pb();
    TGraph * RA2_1fb = RA2Observed_1fb();
-   RA2_36pb->Draw("l");
-   //hplot->Draw("");
+   TGraph * RA2_5fb = Obs7TeV5fbM0M12();
+   //TGraph * Atlas = Atlas0l24j_1fb();
+   //RA2_36pb->Draw("l");
+   //RA2_1fb->Draw("l");
+   
+   //Atlas->Draw("l");
    gCLs1Sigma->Draw("f");
    gCLsObsExcl->Draw("l");
    gCLsExpExcl->Draw("l");
-   gCLsExpTheom1->Draw("l");
+//   gCLsExpTheom1->Draw("l");
    gCLsObsTheom1->Draw("l");
-   gCLsExpTheop1->Draw("l");
+//   gCLsExpTheop1->Draw("l");
    gCLsObsTheop1->Draw("l");
 
+   //RA2_5fb->Draw("l");//The published 5fb result
+
    //Legends
-   {TLegend * leg = new TLegend(0.35, 0.6, 0.7, 0.8);
+   TLegend * leg = new TLegend(0.35, 0.6, 0.7, 0.8);
    leg->SetBorderSize(0);
    leg->SetFillColor(0);
    //leg->SetFillStyle(4000);
    leg->SetTextSize(0.035);
    leg->SetTextFont(42);
-   leg->SetHeader("#bf{CMS, 4.98 fb^{-1}, #sqrt{s} = 7 TeV}");
-   leg->AddEntry(gCLsObsExcl, "Obs. limit", "l");
-   leg->AddEntry(gCLsObsTheop1, "Obs. limit #pm1#sigma signal theory", "l");
+   leg->SetHeader("#bf{CMS, #int 4.98 fb^{-1}, #sqrt{s} = 7 TeV}");
+   leg->AddEntry(gCLsObsExcl, "Observed", "l");
+   leg->AddEntry(gCLsObsTheop1, "Observed #pm1#sigma signal theory", "l");
    TH1F* legExp = (TH1F*)gCLs1Sigma->Clone();
    legExp->SetLineStyle(gCLsExpExcl->GetLineStyle());
    legExp->SetLineColor(gCLsExpExcl->GetLineColor());
    legExp->SetLineWidth(gCLsExpExcl->GetLineWidth());
-   leg->AddEntry(legExp, "Exp. limit #pm 1#sigma exp.", "lf");
-   leg->AddEntry(gCLsExpTheop1, "Exp. limit #pm1#sigma signal theory", "l");
-   leg->AddEntry(RA2_36pb, "Observed 36 pb^{-1}", "l");
+   leg->AddEntry(legExp, "Expected #pm1#sigma exp.", "lf");
+   //leg->AddEntry(gCLsExpTheop1, "Exp. limit #pm1#sigma signal theory", "l");
+   //leg->AddEntry(Atlas, "Atlas, 1.04 fb^{-1}", "l");
+   //leg->AddEntry(RA2_1fb, "CMS, 1.1 fb^{-1}", "l");
+   //leg->AddEntry(RA2_36pb, "CMS, 36 pb^{-1}", "l");
    leg->Draw();
-   }
    TMarker lm5(230,360,29);
    lm5.SetMarkerColor(14);
    lm5.Draw("same");
@@ -322,8 +337,38 @@ void DrawExclusion(PlotTools *PlotTool, std::string flag, const std::string& x, 
    string nameExcl = "results/"+ flag + "_"+x+"_"+y+"_Exclusion_";
    c2->SaveAs((nameExcl + ".pdf").c_str());
    if (plotPNG) c2->SaveAs((nameExcl + ".png").c_str());
+   if (plotC  ) {
+     h->GetZaxis()->SetTitle("");
+     h->Draw("h");
+     gCLsObsExcl->SetName("Observed limit");
+     gCLsObsExcl->SetTitle("Observed limit");
+     gCLsObsExcl->Draw("l");
+     c2->SaveAs((nameExcl + ".C").c_str());
+   }
    //delete c2;
+
+   ///------------------------------------------------------------------------------------
+   /// same, but preliminary:
+   c2 = GetLimitTemplateCanvas(c1);
+   c2->cd();
+   //RA2_36pb->Draw("l");
+   gCLs1Sigma->Draw("f");
+   gCLsObsExcl->Draw("l");
+   gCLsExpExcl->Draw("l");
+   gCLsExpTheom1->Draw("l");
+   gCLsObsTheom1->Draw("l");
+   gCLsExpTheop1->Draw("l");
+   gCLsObsTheop1->Draw("l");
+   leg->SetHeader("#bf{CMS preliminary, 4.98 fb^{-1}, #sqrt{s} = 7 TeV}");
+   leg->Draw();
+   lm5.Draw("same");
+   tex.Draw();
+   gPad->RedrawAxis();
+   nameExcl = "results/"+ flag + "_"+x+"_"+y+"_Exclusion_prelim";
+   c2->SaveAs((nameExcl + ".pdf").c_str());
+
    
+   ///------------------------------------------------------------------------------------
    //Draw Exclusion Plot again, but now without asymptotic limits, but with old RA2 limits
    //Drawing the contours
    //TCanvas * c3 = GetLimitTemplateCanvas("GridTanb10_v1.root","GridCanvas");
@@ -458,9 +503,9 @@ void DrawExclusionGlSq(PlotTools *PlotTool, std::string flag, const std::string&
    gCLsObsExcl->Draw("l");
    gCLsExpExcl->Draw("l");
    gCLsObsTheom1->Draw("l");
-   gCLsExpTheom1->Draw("l");
+   //gCLsExpTheom1->Draw("l");
    gCLsObsTheop1->Draw("l");
-   gCLsExpTheop1->Draw("l");
+   //gCLsExpTheop1->Draw("l");
    //unsmoothed->Draw("l");
    //cOVER-UP
    TGraph *CoverUp = new TGraph(4);
@@ -489,23 +534,26 @@ void DrawExclusionGlSq(PlotTools *PlotTool, std::string flag, const std::string&
    //LepLimit->Draw("l");
 
    //Legends
+   TLegend* legcov = new TLegend(0.18,0.44,0.38,0.73,NULL,"brNDC");
+   legcov->SetFillColor(0);legcov->SetShadowColor(0);
+   legcov->SetTextFont(42);legcov->SetTextSize(0.033);legcov->SetBorderSize(0);  
+   legcov->Draw(); 
    TLatex ms; ms.SetTextSize(0.035); ms.SetTextFont(42);
    //ms.DrawLatex(10,1613,"L_{int} = 4.98 fb^{-1}, #sqrt{s} = 7 TeV"); 
    ms.DrawLatex(1200,1800,"tan#beta=10, #mu>0, A_{0}=0"); 
-   {
-   TLegend* legexp_gq = new TLegend(0.2,0.38,0.43,0.69,NULL,"brNDC");
+   TLegend* legexp_gq = new TLegend(0.18,0.38,0.38,0.69,NULL,"brNDC");
    legexp_gq->SetFillColor(0);legexp_gq->SetShadowColor(0);
    legexp_gq->SetTextFont(42);legexp_gq->SetTextSize(0.033);legexp_gq->SetBorderSize(0);
    //TEV_sg_cdf.SetLineColor(1);  
-   legexp_gq->SetHeader("#bf{CMS, 4.98 fb^{-1}, #sqrt{s} = 7 TeV}");
-   legexp_gq->AddEntry(gCLsObsExcl, "Obs. limit", "l");
-   legexp_gq->AddEntry(gCLsObsTheom1, "Obs. limit #pm1#sigma signal theory", "l");
+   legexp_gq->SetHeader("#bf{CMS, #int L dt = 4.98 fb^{-1}, #sqrt{s} = 7 TeV}");
+   legexp_gq->AddEntry(gCLsObsExcl, "Observed", "l");
+   legexp_gq->AddEntry(gCLsObsTheom1, "Observed #pm1#sigma signal theory", "l");
    TH1F* legExp = (TH1F*)gCLs1Sigma->Clone();
    legExp->SetLineStyle(gCLsExpExcl->GetLineStyle());
    legExp->SetLineColor(gCLsExpExcl->GetLineColor());
    legExp->SetLineWidth(gCLsExpExcl->GetLineWidth());
-   legexp_gq->AddEntry(legExp, "Exp. limit #pm1#sigma exp.", "lf");
-   legexp_gq->AddEntry(gCLsExpTheom1, "Exp. limit #pm1#sigma signal theory", "l");
+   legexp_gq->AddEntry(legExp, "Expected #pm1#sigma exp.", "lf");
+   //legexp_gq->AddEntry(gCLsExpTheom1, "Exp. limit #pm1#sigma signal theory", "l");
    //legexp_gq->AddEntry(gCLsObsAsym, "Obs. CLs asymptotic, NLO", "l");
    //legexp_gq->AddEntry(gCLsExpAsym, "Exp. CLs asymptotic, NLO", "l");
    legexp_gq->AddEntry(tev,"Tevatron RunI","f"); 
@@ -513,7 +561,7 @@ void DrawExclusionGlSq(PlotTools *PlotTool, std::string flag, const std::string&
    legexp_gq->AddEntry(dez,"D0 RunII","f");   
    legexp_gq->AddEntry(lep,"LEP2","f"); //NOT FOR tb=50!
    legexp_gq->Draw();
-   }
+   
    TPaveText tpave(0.6,0.33,0.75,0.4,"NDC");
    tpave.AddText("no CMSSM");tpave.AddText("solution");
    tpave.SetBorderSize(0);tpave.SetFillColor(0);tpave.SetTextFont(42);
@@ -522,8 +570,41 @@ void DrawExclusionGlSq(PlotTools *PlotTool, std::string flag, const std::string&
    string nameExcl = "results/"  + flag + "_"+x+"_"+y+ "_Exclusion_";
    c1->SaveAs((nameExcl + ".pdf").c_str());
    if (plotPNG) c1->SaveAs((nameExcl + ".png").c_str());
+   if (plotC  ) {
+     h->GetZaxis()->SetTitle("");
+     h->Draw("h");
+     gCLsObsExcl->SetName("Observed limit");
+     gCLsObsExcl->SetTitle("Observed limit");
+     gCLsObsExcl->Draw("l");
+     c1->SaveAs((nameExcl + ".C").c_str());
+   }
    
+   ///------------------------------------------------------------------------------------
+   /// same, but preliminary:
+   hplot->Draw("");
+   gCLs1Sigma->Draw("f");
+   gCLsObsExcl->Draw("l");
+   gCLsExpExcl->Draw("l");
+   gCLsObsTheom1->Draw("l");
+   //gCLsExpTheom1->Draw("l");
+   gCLsObsTheop1->Draw("l");
+   //gCLsExpTheop1->Draw("l");
+   nosol_aux->Draw("f");
+   dez->Draw("f");
+   cdf->Draw("f");
+   tev->Draw("f");
+   lep->Draw("f");
+   nosol->Draw("f");nosol->Draw("l");   
+   ms.DrawLatex(1200,1800,"tan#beta=10, #mu>0, A_{0}=0"); 
+   tpave.AddText("no CMSSM");tpave.AddText("solution");
+   legexp_gq->SetHeader("#bf{CMS preliminary, 4.98 fb^{-1}}");
+   legexp_gq->Draw();
+   ms.DrawLatex(1200,1650,"#sqrt{s} = 7 TeV"); 
+   gPad->RedrawAxis();
+   nameExcl = "results/"+ flag + "_"+x+"_"+y+"_Exclusion_prelim";
+   c1->SaveAs((nameExcl + ".pdf").c_str());
    
+   ///------------------------------------------------------------------------------------
    //Draw Exclusion Plot again, but now without asymptotic limits, but with old RA2 limits
    //Drawing the contours
    hplot->Draw("");
@@ -537,6 +618,8 @@ void DrawExclusionGlSq(PlotTools *PlotTool, std::string flag, const std::string&
    cdf->Draw("f");
    tev->Draw("f");
    lep->Draw("f");
+   TGraph * RA2_5fb = Obs7TeV5fbSqGl();
+   //RA2_5fb->Draw("l");//The published 5fb result
    //LepLimit->Draw("l");
    //The Legends
    ms.DrawLatex(1200,1800,"tan#beta=10, #mu>0, A_{0}=0"); 
@@ -664,7 +747,7 @@ void DrawExclusion_NEWSTYLE(PlotTools *PlotTool, std::string flag, const std::st
    c2->cd();
    TGraph * RA2_36pb = RA2Observed_36pb();
    TGraph * RA2_1fb = RA2Observed_1fb();
-   RA2_36pb->Draw("l");
+   //RA2_36pb->Draw("l");
    //hplot->Draw("");
    gCLs1Sigma->Draw("f");
    gCLsObs->Draw("f");
@@ -691,7 +774,7 @@ void DrawExclusion_NEWSTYLE(PlotTools *PlotTool, std::string flag, const std::st
    legExp->SetLineColor(gCLsExpExcl->GetLineColor());
    legExp->SetLineWidth(gCLsExpExcl->GetLineWidth());
    leg->AddEntry(legExp, "Exp. limit #pm 1#sigma exp. (w/o signal theory)", "lf");
-   leg->AddEntry(RA2_36pb, "Observed 36 pb^{-1}", "l");
+   //leg->AddEntry(RA2_36pb, "Observed 36 pb^{-1}", "l");
    leg->Draw();
    }
    TMarker lm5(230,360,29);
@@ -999,11 +1082,13 @@ int plot(int argc, char** argv) {
   //m0 m1/2 stuff //////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////////////////////
   PlotTools * PlotTool;
-  //GetPlotTools(PlotTool, "2012-03-28-00-09-cMSSM_V9/filelist.txt", "masses_cMSSM_tb10_A0_Mu1.dat");
-  //GetPlotTools(PlotTool, "2012-04-16-10-49-cMSSM_V9b/filelist.txt");
+  ///The paper 2012 scan:
   GetPlotTools(PlotTool, "2012-04-27-21-49-cMSSM_V9/filelist.txt");
 
-  TH2F h_plot("h",";m_{0} (GeV/c^{2}); m_{1/2} (GeV/c^{2}); cross section [pb]",
+  ///paper limits, but with new Z->invis uncertainties
+  //GetPlotTools(PlotTool, "2012-06-28-11-41-cMSSM_V9_EwkUncRev/filelist.txt");
+
+  TH2F h_plot("h",";m_{0} [GeV]; m_{1/2} [GeV]; cross section [pb]",
           148,50, 3010, 47, 90, 1030);
 
 
@@ -1012,10 +1097,10 @@ int plot(int argc, char** argv) {
 
   c1=c_square; c1->cd();
   DrawStandardPlots(      PlotTool, "cMSSM", "Mzero", "Mhalf", &h_plot);
-  DrawStandardPlotsPerBin(PlotTool, "cMSSM", "Mzero", "Mhalf", &h_plot);
+  //DrawStandardPlotsPerBin(PlotTool, "cMSSM", "Mzero", "Mhalf", &h_plot);
 
 
-  TH2F h1("h1",";m_{0} (GeV/c^{2}); m_{1/2} (GeV/c^{2}); cross section [pb]",
+  TH2F h1("h1",";m_{0} [GeV]; m_{1/2} [GeV]; cross section [pb]",
           145,110, 3010, 45, 90, 990);
 
   c1=c_square; c1->cd();
@@ -1023,7 +1108,8 @@ int plot(int argc, char** argv) {
 
 
   c1=c_rectangle; c1->cd();
-  AddEvents(PlotTool, "2012-04-16-10-49-cMSSM_V9b/filelist_additional.txt", "");
+  ///The paper 2012 limits:
+  //AddEvents(PlotTool, "2012-04-16-10-49-cMSSM_V9b/filelist_additional.txt", "");
   DrawExclusion(PlotTool,"cMSSM","Mzero","Mhalf",&h_plot,&h1); //removes points, which have no limits and fills the gaps by interpolation
 
   
@@ -1033,17 +1119,19 @@ int plot(int argc, char** argv) {
 
 
 
-
   //msq, mgl stuff /////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////////////////////
   PlotTools *CMSSM_gl_sq;
   
   //standard plots in gl-sq --------------------------------------------------------------------
   if(1){ 
-  TH2F h_sq_gl("h_sq_gl","; m_{#tilde{g}} [GeV]; m_{#tilde{q}} [GeV]; cross section [pb]",
+  TH2F h_sq_gl("h_sq_gl","; m(#tilde{g}) [GeV]; m(#tilde{q}) [GeV]; cross section [pb]",
           25, 300, 1800, 75, 500, 2000);
-  //GetPlotTools(CMSSM_gl_sq, "2012-04-16-10-49-cMSSM_V9b/filelist.txt", "masses_cMSSM_tb10_A0_Mu1.dat", 1);
+  //the paper 2012 limits:
   GetPlotTools(CMSSM_gl_sq, "2012-04-27-21-49-cMSSM_V9/filelist.txt", "masses_cMSSM_tb10_A0_Mu1.dat", 1);
+
+  ///paper limits, but with new Z->invis uncertainties
+  //GetPlotTools(CMSSM_gl_sq, "2012-06-28-11-41-cMSSM_V9_EwkUncRev/filelist.txt", "masses_cMSSM_tb10_A0_Mu1.dat", 1);
 
   CMSSM_gl_sq->Remove("ObsR", Compare::less, 0.0);
   CMSSM_gl_sq->FillEmptyPointsByInterpolation1D("Mzero", "Mhalf");
@@ -1055,11 +1143,12 @@ int plot(int argc, char** argv) {
   //exclusion contours in gl-sq ----------------------------------------------------------------
   if(1){ 
   //AddEvents(CMSSM_gl_sq, "2012-04-16-10-49-cMSSM_V9b/filelist.txt", "masses_cMSSM_tb10_A0_Mu1.dat");
-  TH2F h_sq_gl("h_sq_gl","; m_{#tilde{g}} [GeV]; m_{#tilde{q}} [GeV]; cross section [pb]",
+  TH2F h_sq_gl("h_sq_gl","; m(#tilde{g}) [GeV]; m(#tilde{q}) [GeV]; cross section [pb]",
           30, 0, 1800, 90, 0, 2000);
   TH2F h("hqg",";gluino;squark; dummy",
           25, 600, 1800, 60, 900, 2100);
   c1=c_rectangle; c1->cd();
+  ///paper 2012:
   AddEvents(PlotTool, "2012-04-16-10-49-cMSSM_V9b/filelist_additional.txt", "masses_cMSSM_tb10_A0_Mu1.dat");
   CMSSM_gl_sq->Remove("ObsR", Compare::less, 0.0);
   CMSSM_gl_sq->FillEmptyPointsByInterpolation1D("Mzero", "Mhalf");

@@ -3832,7 +3832,7 @@ TCanvas * GetLimitTemplateCanvas(TCanvas *GridCanvas, TH1*myHist=0){
    tex->SetTextAngle(23);
    tex->SetLineWidth(2);
    tex->Draw();
-      tex = new TLatex(1500,200,"#font[12]{m(#tilde{g}) = 500}");
+      tex = new TLatex(1000,200,"#font[12]{m(#tilde{g}) = 500}");
    tex->SetTextColor(12);
    tex->SetTextSize(0.03);
    tex->SetTextAngle(-3);

@@ -117,6 +117,7 @@ class sort_TGraph{
    bool operator()(const TGraph*g1, const TGraph*g2);
 };
 
+TGraph* Atlas0l24j_1fb( );
 TGraph* RA2Observed_36pb();
 TGraph* RA2Observed_1fb( );
 TGraph* gl_LEP();
@@ -125,6 +126,9 @@ TGraph* sq_CDF();
 TGraph* sq_DEZ();
 TGraph* glsq_NoSol();
 TGraph* glsq_NoSol_aux();
+
+TGraph* Obs7TeV5fbM0M12();
+TGraph* Obs7TeV5fbSqGl();
 
 
 #endif
