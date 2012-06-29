@@ -1,7 +1,0 @@
-#!/bin/bash
-
-rm -d Table_*.txt
-./demo -d $1 --mzero 500 --mhalf 560 > Table_500_560_nominal.txt
-./demo -d $1 --mzero 1000 --mhalf 400 > Table_1000_400_nominal.txt
-./demo -d $1 --mzero 2500 --mhalf 240 > Table_2500_240_nominal.txt
-
