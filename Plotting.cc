@@ -1,4 +1,4 @@
-// $Id: Plotting.cc,v 1.1 2012/06/26 08:57:31 auterman Exp $
+// $Id: Plotting.cc,v 1.1 2012/06/26 13:58:58 auterman Exp $
 
 /*** ------------------------------------------------------------------------------------------------------- ***
      TheBetterPlotScript, a tool to plot final results, limits and exclusion contours, based on 'PlotScript'
@@ -22,6 +22,13 @@ void DrawPlot2D(PlotTools *PlotTool, TCanvas*canvas, TH2* h, const std::string& 
    if (zmin!=-999) plot2D->SetMinimum(zmin);
    if (zmax!=-999) plot2D->SetMaximum(zmax);
    if (zmin==-999&&zmax==-999) SetZRange(plot2D);
+   if (s&&s->SetMoreLogLabels) {
+     plot2D->GetZaxis()->SetMoreLogLabels();
+     plot2D->GetZaxis()->SetLabelSize(0.035);
+     plot2D->GetZaxis()->SetTitleOffset(2.1);
+     c1->SetRightMargin(0.22);  
+     c1->SetLeftMargin(0.15);  
+   }  
    plot2D->Draw("colz"); 
    double tx=400;
    double ty=1.045*(plot2D->GetYaxis()->GetXmax()-plot2D->GetYaxis()->GetXmin())+plot2D->GetYaxis()->GetXmin();  
@@ -310,16 +317,8 @@ std::cout << "s->iCLsObsExcl  =  "<<s->iCLsObsExcl<<", iCLsExpExcl = "<<s->iCLsE
    gCLsObsTheop1->Draw("l");
 
    //Legends
-   TLegend* leg = new TLegend(s->LegendMinX,  s->LegendMinY, s->LegendMaxX,s->LegendMaxY);
+   TLegend* leg = s->leg;
    TH1F * legdummy = 0;
-   //leg->AddEntry(legdummy,  ("m_{#tilde{#chi}^{0}} = "+neutralinomass+" [GeV]").c_str(), "l");
-   leg->SetBorderSize(0);
-   leg->SetLineColor(0);
-   leg->SetFillColor(10);
-   leg->SetFillStyle(1001);
-   leg->SetTextFont(42);
-   leg->SetTextSize(0.03);
-   leg->SetHeader(s->LegendTitel.c_str());
    leg->AddEntry(gCLsObsExcl, "Observed", "l");
    leg->AddEntry(gCLsObsTheop1, "Observed #pm1#sigma signal theory", "l");
    TH1F* legExp = (TH1F*)gCLs1Sigma->Clone();
@@ -345,6 +344,9 @@ std::cout << "s->iCLsObsExcl  =  "<<s->iCLsObsExcl<<", iCLsExpExcl = "<<s->iCLsE
      gCLsObsExcl->SetName("Observed limit");
      gCLsObsExcl->SetTitle("Observed limit");
      gCLsObsExcl->Draw("l");
+     gCLsExpExcl->SetName("Expected limit");
+     gCLsExpExcl->SetTitle("Expected limit");
+     gCLsExpExcl->Draw("l");
      c1->SaveAs((nameExcl + ".C").c_str());
    }
 
@@ -355,11 +357,11 @@ std::cout << "s->iCLsObsExcl  =  "<<s->iCLsObsExcl<<", iCLsExpExcl = "<<s->iCLsE
    gCLsExpExcl->Draw("l");
    gCLsObsTheom1->Draw("l");
    gCLsObsTheop1->Draw("l");
-   leg->SetHeader("#bf{CMS preliminary, 4.62 fb^{-1}, #sqrt{s} = 7 TeV}");
+   if (s->excluded) s->excluded->Draw();
+   if (s->coverUp) s->coverUp();   
    leg->Draw();
    s->lumi->Draw();
    s->cmsprelim->Draw();
-   if (s->coverUp) s->coverUp();   
    gPad->RedrawAxis();
    nameExcl = "results/"+ flag + "_"+x+"_"+y+"_Exclusion_prelim";
    if (plotPrelim) c1->SaveAs((nameExcl + ".pdf").c_str());

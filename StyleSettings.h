@@ -1,4 +1,4 @@
-// $Id: StyleSettings.h,v 1.7 2012/06/26 10:01:49 auterman Exp $
+// $Id: StyleSettings.h,v 1.8 2012/06/26 13:58:23 auterman Exp $
 
 /*** ------------------------------------------------------------------------------------------------------- ***
      TheBetterPlotScript, a tool to plot final results, limits and exclusion contours, based on 'PlotScript'
@@ -16,6 +16,7 @@
 #include "TLatex.h"
 #include "TGraph.h"
 #include "TPad.h"
+#include "TLegend.h"
 
 struct style;
 style* WinoBino_Style();
@@ -26,8 +27,10 @@ style* GlBino_Style();
 style* SMST1gg_Style();
 style* SMST1lg_Style();
 
+
 struct style{
   style(){ //Set Defaults
+    leg=0;
     cms=0;
     cmsprelim=0;
     lumi=0;
@@ -82,14 +85,14 @@ struct style{
     cmsprelimTemperaturePlot->SetTextFont(43);
     cmsprelimTemperaturePlot->SetTextSize(20);
     Set505=false;
+    SetMoreLogLabels=false;
   } 
   ///
   /// Please make sure, that all new variables in this class are set to proper default values in the contructor above!
   /// I.e. the default value should leave the old style unchanged.
   ///
    
-  std::string LegendTitel;
-  float LegendMinX, LegendMaxX, LegendMinY, LegendMaxY;
+  TLegend * leg;
   TLatex * cms, *cmsprelim, *lumi, *excluded, * cmsTemperaturePlot, *cmsprelimTemperaturePlot, *lumiTemperaturePlot ;
   int smooth_flag;
   int smooth_points;
@@ -107,6 +110,8 @@ struct style{
   double MinAccZ;
   double MaxAccZ;
   bool Set505;
+  bool SetMoreLogLabels;
+
 };
 
 
@@ -119,7 +124,7 @@ namespace util {
   //!
   //!  \author   Matthias Schroeder (www.desy.de/~matsch)
   //!  \date     2010/03/09
-  //!  $Id: StyleSettings.h,v 1.7 2012/06/26 10:01:49 auterman Exp $
+  //!  $Id: StyleSettings.h,v 1.8 2012/06/26 13:58:23 auterman Exp $
   // -------------------------------------------------------------------------------------
   class StyleSettings {
   public:
@@ -362,6 +367,8 @@ namespace util {
     }
   };  
 }
+
+
 #endif
 
 

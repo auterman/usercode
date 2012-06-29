@@ -1,4 +1,4 @@
-// $Id: StyleSettings_DiPhoton.cc,v 1.1 2012/06/26 13:58:23 auterman Exp $
+// $Id: StyleSettings_SinglePhoton_7TeV.cc,v 1.1 2012/06/26 13:58:23 auterman Exp $
 
 /*** ------------------------------------------------------------------------------------------------------- ***
      TheBetterPlotScript, a tool to plot final results, limits and exclusion contours, based on 'PlotScript'
@@ -18,7 +18,7 @@
 
 style* SqGlBino_Style(){ /// Sq-Gl Bino /// ---------------------------------------------------------------------
   style * s = new style();
-  s->leg=new TLegend(0.26,0.61,0.26,0.45,"#splitline{GGM bino-like #tilde{#chi}^{0}}{m_{#tilde{#chi}^{0}} = 375 GeV}");
+  s->leg=new TLegend(0.26,0.26,0.61,0.45,"#splitline{GGM bino-like #tilde{#chi}^{0}}{m_{#tilde{#chi}^{0}} = 375 GeV}");
   s->leg->SetBorderSize(0);
   s->leg->SetLineColor(0);
   s->leg->SetFillColor(10);
@@ -49,12 +49,6 @@ style* SqGlBino_Style(){ /// Sq-Gl Bino /// ------------------------------------
   s->smooth_points=25;
   s->MinXsecZ=0.001;
   s->MaxXsecZ=0.03;
-  s->iCLsObsExcl=2;  
-  s->iCLsExpExcl=0;  
-  s->iCLsExpExclm1=0;
-  s->iCLsExpExclp1=0;
-  s->iCLsObsTheom1=2;
-  s->iCLsObsTheop1=2;
   return s;
 }
 
@@ -98,7 +92,7 @@ style* SqGlWino_Style(){ /// Sq-Gl Wino /// ------------------------------------
 
 /// ----------- Gl - Bino ------------ /// ----------------------------------------------------------------------------------
 
-void Draw_DiPhoton_GlBino_CoverUp() {
+void Draw_GlBino_CoverUp() {
 	TGraph*cover = new TGraph(0);
 	cover->SetPoint(0, 200,  300);
 	cover->SetPoint(1, 1200, 1210);
@@ -174,7 +168,7 @@ style* GlBino_Style(){
   s->excluded->SetTextSize(20);
   s->smooth_flag=2;
   s->smooth_points=25;
-  s->coverUp=Draw_DiPhoton_GlBino_CoverUp;
+  s->coverUp=Draw_GlBino_CoverUp;
   s->iCLsObsExcl=0;  
   s->iCLsExpExcl=0;  
   s->iCLsExpExclm1=0;
@@ -188,7 +182,7 @@ style* GlBino_Style(){
 }
 
 /// ----------- Gl - Wino ------------ /// ----------------------------------------------------------------------------------
-void Draw_DiPhoton_GlWino_CoverUp() {
+void Draw_GlWino_CoverUp() {
 	TGraph*cover = new TGraph(0);
 	cover->SetPoint(0, 300,  350);
 	cover->SetPoint(1, 950, 1000);
@@ -246,7 +240,7 @@ style* GlWino_Style(){
   s->excluded->SetTextSize(20);
   s->smooth_flag=2;
   s->smooth_points=25;
-  s->coverUp=Draw_DiPhoton_GlWino_CoverUp;
+  s->coverUp=Draw_GlWino_CoverUp;
   s->iCLsObsExcl=0;  
   s->iCLsExpExcl=0;  
   s->iCLsExpExclm1=0;
@@ -279,10 +273,9 @@ void DrawWinoBinoDiagonalCut() {
 }
 
 
-
 style* WinoBino_Style(){ 
   style * s = new style();
-  s->leg=new TLegend(0.4,0.68,0.89,0.88,"GGM    m_{#tilde{q}} =  m_{#tilde{g}} = 5 TeV");
+  s->leg = new TLegend(0.4,0.68,0.89,0.88,"GGM    m_{#tilde{q}} =  m_{#tilde{g}} = 5 TeV");
   s->leg->SetBorderSize(0);
   s->leg->SetLineColor(0);
   s->leg->SetFillColor(10);
@@ -314,18 +307,18 @@ style* WinoBino_Style(){
   s->smooth_points=15;
   s->coverUp=DrawWinoBinoDiagonalCut;
   s->iCLsObsExcl=1;  
-  s->iCLsExpExcl=1;  
-  s->iCLsExpExclm1=1;
-  s->iCLsExpExclp1=1;
+  s->iCLsExpExcl=0;  
+  s->iCLsExpExclm1=0;
+  s->iCLsExpExclp1=0;
   s->iCLsObsTheom1=1;
   s->iCLsObsTheop1=1;
-  s->iCLsExpTheom1=1;
-  s->iCLsExpTheop1=1;  
+  s->iCLsExpTheom1=0;
+  s->iCLsExpTheop1=0;  
   return s;
 }
 
 /// ------  SMS T1 gg /// -------------------------------------------------------
-void Draw_DiPhoton_T1gg_CoverUp() {
+void Draw_T1gg_CoverUp() {
 
 	TGraph*cover = new TGraph(0);
 	cover->SetPoint(0, 50,     75);
@@ -389,7 +382,7 @@ style* SMST1gg_Style(){
   s->excluded=0;
   s->smooth_flag=2;
   s->smooth_points=30;
-  s->coverUp=Draw_DiPhoton_T1gg_CoverUp;
+  s->coverUp=Draw_T1gg_CoverUp;
   s->iCLsObsExcl=0;  
   s->iCLsExpExcl=0;  
   s->iCLsExpExclm1=0;
@@ -403,5 +396,67 @@ style* SMST1gg_Style(){
 
   return s;
 }
+
+/// SMS T1 lg /// -------------------------------------------------------
+void DrawNeutrNNLSP() {
+	TGraph*gluinoNLSP = new TGraph(0);
+	gluinoNLSP->SetPoint(0, 50, 50);
+	gluinoNLSP->SetPoint(1, 3000, 3000);
+	gluinoNLSP->SetPoint(2, 3000, 50);
+	gluinoNLSP->SetPoint(3, 50, 50);
+	gluinoNLSP->SetFillColor(kGray);
+	gluinoNLSP->Draw("f");
+
+	TLatex tex;
+	tex.SetTextSize(0.03);
+	tex.SetTextFont(62);
+	tex.SetNDC(true);
+	tex.DrawLatex(0.6, 0.25, "#tilde{g} NLSP");
+	gPad->RedrawAxis();
+}
+
   
+style* SMST1lg_Style(){ 
+  style * s = new style();
+  s->leg=new TLegend(0.31,0.69,0.69,0.84,"SMS #gamma + X");
+  s->leg->SetBorderSize(0);
+  s->leg->SetLineColor(0);
+  s->leg->SetFillColor(10);
+  s->leg->SetFillStyle(1001);
+  s->leg->SetTextFont(42);
+  s->leg->SetTextSize(0.03);
+
+  s->lumi = new TLatex(0.58, 0.901, "4.6fb^{  -1}  #sqrt{s} = 7 TeV   #geq1#gamma, #geq2 jets");
+  s->lumi->SetNDC(true);
+  s->lumi->SetTextColor(12);
+  s->lumi->SetTextFont(43);
+  s->lumi->SetTextSize(20);
+  s->cms = new TLatex(0.21, 0.901, "#bf{CMS}");
+  s->cms->SetNDC(true);
+  s->cms->SetTextColor(12);
+  s->cms->SetTextFont(43);
+  s->cms->SetTextSize(20);
+  s->cmsprelim = new TLatex(0.21, 0.901, "#bf{CMS preliminary}");
+  s->cmsprelim->SetNDC(true);
+  s->cmsprelim->SetTextColor(12);
+  s->cmsprelim->SetTextFont(43);
+  s->cmsprelim->SetTextSize(20);
+  s->excluded=0;
+  s->smooth_flag=2;
+  s->smooth_points=50;
+  s->coverUp=DrawNeutrNNLSP;
+  s->iCLsObsExcl=1;  
+  s->iCLsExpExcl=1;  
+  s->iCLsExpExclm1=1;
+  s->iCLsExpExclp1=1;
+  s->iCLsObsTheom1=1;
+  s->iCLsObsTheop1=1;
+  s->iCLsExpTheom1=1;
+  s->iCLsExpTheop1=1;  
+  s->MinXsecZ=0.01;
+  s->MaxXsecZ=1;
+
+  return s;
+}
+
 

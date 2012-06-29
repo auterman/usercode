@@ -18,7 +18,7 @@ SRC=Variable.cc ConfigFile.cc GeneratorMasses.cc PlotTools.cc
 %.o: %.cc
 		$(C) $(RCXX) -c $<
 
-all: plot plotDiPhoton
+all: plotSinglePhoton7TeV plotSinglePhoton8TeV plotDiPhoton
 
 
 # common object files:
@@ -46,18 +46,29 @@ Plotting.o: Plotting.cc Plotting.h
 TheLimits.o: TheLimits.cc TheLimits.h
 		$(C) $(RCXX) -c TheLimits.cc 
 
-# single photon specific
-StyleSettings_SinglePhoton.o: StyleSettings.h
-		$(C) $(RCXX) -c StyleSettings_SinglePhoton.cc
+# single photon 7 TeV specific ----------------------------------------------------------------------------------------
+StyleSettings_SinglePhoton_7TeV.o: StyleSettings.h
+		$(C) $(RCXX) -c StyleSettings_SinglePhoton_7TeV.cc
 
-plot.o: plot.cc plot.h   
-		$(C) $(RCXX) -c plot.cc 
+plotSinglePhoton7TeV.o: plotSinglePhoton7TeV.cc plot.h   
+		$(C) $(RCXX) -c plotSinglePhoton7TeV.cc 
 
-plot: $(SRC:.cc=.o) Event.o StyleSettings_SinglePhoton.o Plotting.o plot.o 
-		$(LD) $(SRC:.cc=.o) StyleSettings_SinglePhoton.o Event.o plot.o Plotting.o $(RLXX) $(JCORR) -o plot
-		@echo '-> plot executable created.'
+plotSinglePhoton7TeV: $(SRC:.cc=.o) Event.o StyleSettings_SinglePhoton_7TeV.o Plotting.o plotSinglePhoton7TeV.o 
+		$(LD) $(SRC:.cc=.o) StyleSettings_SinglePhoton_7TeV.o Event.o plotSinglePhoton7TeV.o Plotting.o $(RLXX) $(JCORR) -o plotSinglePhoton7TeV
+		@echo '-> plotSinglePhoton7TeV executable created.'
 
-# di photon specific
+# single photon 8 TeV specific ----------------------------------------------------------------------------------------
+StyleSettings_SinglePhoton_8TeV.o: StyleSettings.h StyleSettings_SinglePhoton_8TeV.cc
+		$(C) $(RCXX) -c StyleSettings_SinglePhoton_8TeV.cc
+
+plotSinglePhoton8TeV.o: plotSinglePhoton8TeV.cc plot.h   
+		$(C) $(RCXX) -c plotSinglePhoton8TeV.cc 
+
+plotSinglePhoton8TeV: $(SRC:.cc=.o) Event.o StyleSettings_SinglePhoton_8TeV.o Plotting.o plotSinglePhoton8TeV.o 
+		$(LD) $(SRC:.cc=.o) StyleSettings_SinglePhoton_8TeV.o Event.o plotSinglePhoton8TeV.o Plotting.o $(RLXX) $(JCORR) -o plotSinglePhoton8TeV
+		@echo '-> plotSinglePhoton8TeV executable created.'
+
+# di photon specific           ----------------------------------------------------------------------------------------
 StyleSettings_DiPhoton.o: StyleSettings.h
 		$(C) $(RCXX) -c StyleSettings_DiPhoton.cc
 

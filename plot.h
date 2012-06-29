@@ -1,4 +1,4 @@
-// $Id: plot.h,v 1.1 2012/06/26 08:57:31 auterman Exp $
+// $Id: plot.h,v 1.6 2012/06/26 13:58:23 auterman Exp $
 
 /*** ------------------------------------------------------------------------------------------------------- ***
      TheBetterPlotScript, a tool to plot final results, limits and exclusion contours, based on 'PlotScript'
@@ -79,6 +79,5 @@ class LimitGraphs{
   std::string name_;
   PlotTools * PlotTool;
 };
-
 
 #endif

@@ -1,4 +1,4 @@
-// $Id: EventDiPhoton.cc,v 1.1 2012/06/26 08:57:31 auterman Exp $
+// $Id: EventDiPhoton.cc,v 1.2 2012/06/26 13:58:23 auterman Exp $
 
 /*** ------------------------------------------------------------------------------------------------------- ***
      TheBetterPlotScript, a tool to plot final results, limits and exclusion contours, based on 'PlotScript'
@@ -107,7 +107,7 @@ void ReadEvents(Events& evts, const std::string& filelist)
         CalculateVariablesOnTheFly(evt);
 	
 	///@@Quick and dirty fix of the binning problem in the '2012-06-22-09-36-GMSB_gBino_7TeV_2j/filelist.txt' scan:
-        if ( filelist=="2012-06-22-09-36-GMSB_gBino_7TeV_2j/filelist.txt" && evt.Get("gluino") < 1020.)
+        if ( filelist=="20120622/gB_1jet/filelist.txt" && evt.Get("gluino") < 1020.)
           evt.Set("gluino", evt.Get("gluino") - 10.0);
 	///@@The scan should be regenerated!  
 
