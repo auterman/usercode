@@ -1,0 +1,8 @@
+#!/bin/bash
+
+for i in `ls $1/*`
+do
+   echo $i
+   cp $i $i.bkp
+   sed 's/signal uncertainty 1/signal statistical/' $i.bkp > $i
+done

@@ -1,0 +1,13 @@
+#!/bin/bash
+SignalDir=DataCards/signal_$1
+for i in `find $SignalDir/.`
+do
+   echo $i
+   ./mkInputs -e 6 -u 1 -o cMSSM_$1 -d DataCards/data.txt -q DataCards/qcd.txt -l DataCards/lostlepton.txt -t DataCards/tau.txt -z DataCards/zinvisible_PostPaper.txt -s $i
+done	 
+
+
+#for i in `find cMSSM/.`
+#do
+#  sed 's/#/\ /g' $i > new/$i
+#done
