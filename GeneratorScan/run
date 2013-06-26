@@ -1,0 +1,26 @@
+#!/bin/bash
+#echo "Input: m0, m12, tanb, A0, sign(mu)"
+#echo $1 $2 $3 $4 $5
+#echo 'runIsaPythia.sh $1 $2 $3 $4 $5'
+
+mtop=170.9
+tanb=10
+A_zero=0
+signmu=1
+m_zero=0
+while [ "$m_zero" -le 1000 ]
+do
+  m_half=100
+  while [ "$m_half" -le 500 ]
+  do
+     echo "mzero = $m_zero,  mhalf = $m_half"
+     ./runIsaPythia.sh $m_zero $m_half $tanb $A_zero $signmu
+     ./fill isa.out scan.dat
+     #runPythia.sh $m_zero $m_half $tanb $A_zero $signmu
+     #./fill_xsec pythia.out scan_xsec.dat
+     m_half=$(($m_half+10))
+  done
+
+  m_zero=$(($m_zero+10))
+done
+
