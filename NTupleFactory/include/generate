@@ -1,0 +1,10 @@
+#!/bin/bash
+path=`dirname $0`
+TMPFILE1=`mktemp tmp.1.XXXXXXXXXX` || exit 1
+TMPFILE2=`mktemp tmp.2.XXXXXXXXXX` || exit 1
+sed "s|@INPUTROOTFILE|${1}|" $path/generateSelectors.C > $TMPFILE1
+sed "s|@TREENAME|${2}|" $TMPFILE1 > $TMPFILE2
+mv $TMPFILE2 $TMPFILE2.C
+root -l -b -q $TMPFILE2.C
+mv $2.C $2.cc
+rm $TMPFILE1 $TMPFILE2.C 
