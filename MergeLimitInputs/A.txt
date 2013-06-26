@@ -1,0 +1,83 @@
+# gluino = 5000
+# squark = 5000
+# chi1 = 205
+# cha1 = 465
+# Xsection.LO = 0.01457
+# Xsection.NLO = 0.01679
+# Luminosity = 4618
+# signal.scale.uncertainty = 0.00297856   #(relative)
+# signal.scale.uncertainty.UP = 0.00297856   #(relative)
+# signal.scale.uncertainty.DN = 0.0113163   #(relative)
+# signal.PDF.uncertainty = 0.04217   #(relative)
+# signal.PDFacc.uncertainty = 0.00623691   #(relative)
+# signal.ngen = 10000
+# signal.acceptance = 0.39126
+# signal.acceptance.uncertainty = 0.0256899
+# signal.Stat.uncertainty = 0.00104251
+# qcd = 607.702
+# ewk = 17.202
+# fsr = 33.6214
+# background = 658.525
+# u_qcd = 0.0888861
+# u_qcd_stat = 0.0769157
+# u_ewk = 0.416667
+# u_ewk_stat = 0.0186761
+# u_fsr = 0.5
+# u_fsr_stat = 0.104638
+# background.uncertainty = 441.126
+# data = 615
+# signal = 30.3368
+# signal.qcd.contamination = 2.8436
+# signal.ewk.contamination = 0.0211311
+# signal.contamination = 2.86473
+# R_firstguess = 1.68415
+## data = 615
+## background = 658.525
+## signal = 30.3368
+## signal.contamination = 2.86473
+## acceptance = 0.39126
+imax  6  number of channels
+jmax  3  number of backgrounds
+kmax 29  number of nuisance parameters (sources of systematic uncertainties)
+------------
+## observed events
+bin          1    2    3   4   5   6
+observation  283  199  70  39  20  4
+------------
+
+## expected events
+bin                   1        1        1      1        2        2        2      2        3        3        3     3        4        4        4      4        5        5        5      5        6         6        6      6      
+process               signal   qcd      ewk    fsr      signal   qcd      ewk    fsr      signal   qcd      ewk   fsr      signal   qcd      ewk    fsr      signal   qcd      ewk    fsr      signal    qcd      ewk    fsr    
+process               0        1        2      3        0        1        2      3        0        1        2     3        0        1        2      3        0        1        2      3        0         1        2      3      
+rate                  3.78004  262.075  4.524  5.28085  7.10526  173.354  5.946  9.95106  6.47766  81.5414  3.21  6.37652  6.65751  55.0295  2.274  5.95776  2.72918  28.9453  0.834  4.39814  0.722434  6.75604  0.414  1.65703
+------------
+U_Sig lnN                    1.04515  -        -        -        1.04515  -        -        -        1.04515  -        -        -        1.04515  -        -        -       1.04515  -        -        -        1.04515  -        -        -      
+U_Lumi lnN                   1.022    -        -        1.022    1.022    -        -        1.022    1.022    -        -        1.022    1.022    -        -        1.022   1.022    -        -        1.022    1.022    -        -        1.022  
+U_qcd lnN                    -        1.08483  -        -        -        1.08672  -        -        -        1.08444  -        -        -        1.12201  -        -       -        1.08244  -        -        -        1.1135   -        -      
+U_ewk lnN                    -        -        1.41667  -        -        -        1.41667  -        -        -        1.41667  -        -        -        1.41667  -       -        -        1.41667  -        -        -        1.41667  -      
+U_fsr lnN                    -        -        -        1.5      -        -        -        1.5      -        -        -        1.5      -        -        -        1.5     -        -        -        1.5      -        -        -        1.5    
+U_signal_statistic_bin0 lnN  1.05447  -        -        -        -        -        -        -        -        -        -        -        -        -        -        -       -        -        -        -        -        -        -        -      
+U_signal_statistic_bin1 lnN  -        -        -        -        1.04046  -        -        -        -        -        -        -        -        -        -        -       -        -        -        -        -        -        -        -      
+U_signal_statistic_bin2 lnN  -        -        -        -        -        -        -        -        1.04277  -        -        -        -        -        -        -       -        -        -        -        -        -        -        -      
+U_signal_statistic_bin3 lnN  -        -        -        -        -        -        -        -        -        -        -        -        1.0409   -        -        -       -        -        -        -        -        -        -        -      
+U_signal_statistic_bin4 lnN  -        -        -        -        -        -        -        -        -        -        -        -        -        -        -        -       1.06373  -        -        -        -        -        -        -      
+U_signal_statistic_bin5 lnN  -        -        -        -        -        -        -        -        -        -        -        -        -        -        -        -       -        -        -        -        1.10231  -        -        -      
+U_qcd_statistic_bin0 lnN     -        1.11371  -        -        -        -        -        -        -        -        -        -        -        -        -        -       -        -        -        -        -        -        -        -      
+U_qcd_statistic_bin1 lnN     -        -        -        -        -        1.12783  -        -        -        -        -        -        -        -        -        -       -        -        -        -        -        -        -        -      
+U_qcd_statistic_bin2 lnN     -        -        -        -        -        -        -        -        -        1.28415  -        -        -        -        -        -       -        -        -        -        -        -        -        -      
+U_qcd_statistic_bin3 lnN     -        -        -        -        -        -        -        -        -        -        -        -        -        1.21754  -        -       -        -        -        -        -        -        -        -      
+U_qcd_statistic_bin4 lnN     -        -        -        -        -        -        -        -        -        -        -        -        -        -        -        -       -        1.36028  -        -        -        -        -        -      
+U_qcd_statistic_bin5 lnN     -        -        -        -        -        -        -        -        -        -        -        -        -        -        -        -       -        -        -        -        -        1.60703  -        -      
+U_ewk_statistic_bin0 lnN     -        -        1.03642  -        -        -        -        -        -        -        -        -        -        -        -        -       -        -        -        -        -        -        -        -      
+U_ewk_statistic_bin1 lnN     -        -        -        -        -        -        1.03177  -        -        -        -        -        -        -        -        -       -        -        -        -        -        -        -        -      
+U_ewk_statistic_bin2 lnN     -        -        -        -        -        -        -        -        -        -        1.04323  -        -        -        -        -       -        -        -        -        -        -        -        -      
+U_ewk_statistic_bin3 lnN     -        -        -        -        -        -        -        -        -        -        -        -        -        -        1.05137  -       -        -        -        -        -        -        -        -      
+U_ewk_statistic_bin4 lnN     -        -        -        -        -        -        -        -        -        -        -        -        -        -        -        -       -        -        1.08482  -        -        -        -        -      
+U_ewk_statistic_bin5 lnN     -        -        -        -        -        -        -        -        -        -        -        -        -        -        -        -       -        -        -        -        -        -        1.12039  -      
+U_fsr_statistic_bin0 lnN     -        -        -        1.25774  -        -        -        -        -        -        -        -        -        -        -        -       -        -        -        -        -        -        -        -      
+U_fsr_statistic_bin1 lnN     -        -        -        -        -        -        -        1.19064  -        -        -        -        -        -        -        -       -        -        -        -        -        -        -        -      
+U_fsr_statistic_bin2 lnN     -        -        -        -        -        -        -        -        -        -        -        1.24259  -        -        -        -       -        -        -        -        -        -        -        -      
+U_fsr_statistic_bin3 lnN     -        -        -        -        -        -        -        -        -        -        -        -        -        -        -        1.2328  -        -        -        -        -        -        -        -      
+U_fsr_statistic_bin4 lnN     -        -        -        -        -        -        -        -        -        -        -        -        -        -        -        -       -        -        -        1.31067  -        -        -        -      
+U_fsr_statistic_bin5 lnN     -        -        -        -        -        -        -        -        -        -        -        -        -        -        -        -       -        -        -        -        -        -        -        1.51971
+------------

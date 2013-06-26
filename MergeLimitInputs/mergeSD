@@ -1,0 +1,107 @@
+#! /usr/bin/env python
+
+import ROOT
+
+from messageLogger import messageLogger as log
+from optparse import OptionParser
+
+def parse(point):
+	"""
+	parse the limit input files
+	"""
+	from re import match
+	result = {}
+	for line in point.splitlines():
+		blockRe = match("# (gluino|squark|chi1|cha1) = ([0-9]+).*", line)
+		if not blockRe == None:
+			result[blockRe.group(1)] = int(blockRe.group(2))
+	return result		
+	
+
+def find(dirs, parameters):
+	"""
+	creates list of files to be merged
+	"""
+	result = {}
+	i=1
+	for d in dirs:
+		##Single-Photon
+		#result['point_%(i)s' % {'i':i}] = d+'/GMSB_%(squark)s_%(gluino)s_%(chi1)s_%(cha1)s.txt' % parameters
+		
+		##Di-Photon 7 TeV
+		#result['point_%(i)s' % {'i':i}] = d+'/gsq_W_1jet_mS%(squark)s_mG%(gluino)s_mB%(chi1)s_mW%(cha1)s.dat' % parameters
+
+		##Di-Photon 8 TeV
+		result['point_%(i)s' % {'i':i}] = d+'/wino_mS%(squark)s_mG%(gluino)s_mN%(chi1)s_1jet.dat' % parameters
+		
+		i+=1
+	for j in range(i, 5):
+		result['point_%(i)s' % {'i':j}] = ''
+	return result
+
+import os
+import sys
+def merge(points):
+	"""
+	run merge
+	"""
+	from subprocess import Popen, PIPE, call	
+	#feynHiggs slha
+	template = "./mergeInputs -r %(Rules)s -o %(OutputFile)s %(point_0)s %(point_1)s %(point_2)s %(point_3)s"
+	log.logDebug(template%points)
+	proc = Popen(template%points, shell=True, stdout=PIPE, stderr=PIPE)
+	Result = proc.communicate()[0]
+	return Result
+
+def run(argv, args, opts):
+
+	toMerge = args[1:]
+	if argv < 2:
+		print "Nothing to merge! Exit."
+		return
+	
+	import os
+	dirList=os.listdir('%(dir)s/' % {"dir": args[0]} )
+
+	for point in dirList:
+		fi = open(args[0]+'/'+point,'r')
+		thisPoint = fi.read()
+
+		pointParams = parse(thisPoint)
+		pointParams['chi1']=375
+		#pointParams['cha1']=0
+		#print pointParams
+		
+		pointsToMerge = find(toMerge, pointParams)
+		pointsToMerge['point_0']= args[0]+'/'+point
+		#print pointsToMerge
+		
+		pointsToMerge['OutputFile'] = "%(dir)s/%(file)s" % {'dir':opts.OutputDirectory,'file':point}
+		pointsToMerge['Rules'] = "%(Rules)s" % {'Rules':opts.Rules}
+		output = merge(pointsToMerge)
+		print output
+	
+	
+
+# This method just waits for a button to be pressed
+def waitForInput():
+    raw_input("Press return to continue!")
+    return
+
+# entry point
+#-------------
+if (__name__ == "__main__"):
+    # use option parser to allow verbose mode
+    parser = OptionParser()
+    parser.add_option("-v", "--verbose", dest="verbose", action="store_true", default=False,
+                                  help="talk about everything")
+    parser.add_option("-o", "--output", dest="OutputDirectory", default="output.txt",
+                                  help="output directory for the merged files", metavar="FILE")
+    parser.add_option("-r", "--rules", dest="Rules", default="rules.cfg",
+                                  help="rules configuration file", metavar="FILE")
+    (opts, args) = parser.parse_args()
+
+    print opts
+    # start
+    run(len(sys.argv[1:]), args, opts)
+ 
