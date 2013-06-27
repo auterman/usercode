@@ -1,4 +1,4 @@
-// $Id: Analyzer.cc,v 1.00 2013/05/26 20:00:00 auterman Exp $
+// $Id: Analyzer.cc,v 1.11 2013/06/17 16:15:34 auterman Exp $
 
 /*** ------------------------------------------------------------------------------------------------------- ***
      NTupleFactory, a tool to plot final results, using Root Reflex information
@@ -25,7 +25,7 @@
 //plotting 2D
 void Plot2D::InitSample(const Selection*sel, const Sample* sample)
 {
-  filename_="results/TH2_"+sel->Name()+"_"+sample->GetName()+"_"+v1_->Label()+"_"+v2_->Label()+".pdf";
+  filename_="results/TH2_"+sel->Name()+"_"+sample->GetName()+"_"+v1_->Label()+"_"+v2_->Label();
 }
 void Plot2D::Process(const Event * evt)
 {
@@ -36,7 +36,8 @@ void Plot2D::EndSample()
 {
   c_->cd();
   h_->Draw("");
-  c_->SaveAs(filename_.c_str());
+  c_->SaveAs((filename_+".pdf").c_str());
+  c_->SaveAs((filename_+".png").c_str());
 }
 
 
@@ -45,7 +46,7 @@ void Plot2D::EndSample()
 //plotting 1D
 void Plot1D::InitSample(const Selection*sel, const Sample* sample)
 {
-  filename_="results/TH1_"+sel->Name()+"_"+sample->GetLabel()+"_"+v1_->Label()+".pdf";
+  filename_="results/TH1_"+sel->Name()+"_"+sample->GetLabel()+"_"+v1_->Label();
 }
 void Plot1D::Process(const Event * evt)
 {
@@ -56,7 +57,8 @@ void Plot1D::EndSample()
 {
   c_->cd();
   h_->Draw("h");
-  c_->SaveAs(filename_.c_str());
+  c_->SaveAs((filename_+".pdf").c_str());
+  c_->SaveAs((filename_+".png").c_str());
 } 
 
 
@@ -230,6 +232,7 @@ void Stack::EndJob()
   stack_->Draw("same");
   leg.Draw();
   c_->SaveAs((filename_+"_linear.pdf").c_str());
+  c_->SaveAs((filename_+"_linear.png").c_str());
 
   gPad->SetLogy(1);
   h_->SetMinimum(0.1);
@@ -237,10 +240,91 @@ void Stack::EndJob()
   stack_->Draw("same");
   leg.Draw();
   c_->SaveAs((filename_+"_log.pdf").c_str());
+  c_->SaveAs((filename_+"_log.png").c_str());
   gPad->SetLogy(isLogy);
 } 
 
 
+
+
+
+
+
+
+
+//plotting Closure -------------------------------------
+void Closure::Add(const Sample*samp, const Selection*sel, TH1*h, Variable*v1,Variable*v2,Variable*v3)
+{
+  Key key = std::make_pair(samp,sel);
+  hists_[key]=(TH1*)h->Clone();
+  v1_[key]=v1;
+  v2_[key]=v2;
+  v3_[key]=v3;
+  selections_.push_back(sel);
+  filename_="results/Closure_"+samp->GetName()+"_"+v1->Label();
+}
+void Closure::Process(const Event * evt)
+{
+  for (std::vector<const Selection*>::const_iterator sel=selections_.begin(); sel!=selections_.end(); ++sel) {
+    if ( !(*sel)->Pass(evt) ) continue;
+    Key key = std::make_pair(evt->GetSample(),*sel);
+    TH1* h = hists_[key];
+    if (v3_[key])      h->Fill((*v1_[key])(evt), (*v3_[key])(evt)*(*v2_[key])(evt)*evt->GetSample()->GetWeight() );
+    else if (v2_[key]) h->Fill((*v1_[key])(evt), (*v2_[key])(evt)*evt->GetSample()->GetWeight() );
+    else               h->Fill((*v1_[key])(evt), evt->GetSample()->GetWeight());
+  }  
+}
+void Closure::EndJob()
+{
+  if (!hists_.size()) {
+    std::cout << "WARNING! Closure::EndJob(); var = "<<v1_.begin()->second->Label()<<" found no filled histograms! Forget to Add(..)?"<<std::endl;
+    return;
+  }  
+  
+  TLegend leg(0.5, 0.5, .9, .9);
+  leg.SetFillColor(0);
+  int isLogy = gStyle->GetOptLogy();
+  c_->cd();
+  float maximum = 0;
+  for (std::map<Key,TH1*>::iterator it=hists_.begin();it!=hists_.end();++it){
+    leg.AddEntry(it->second,it->second->GetTitle());
+    if (it->second->GetMaximum()>maximum) maximum=it->second->GetMaximum();
+  }
+
+  gPad->SetLogy(0);
+  std::map<Key,TH1*>::iterator it=hists_.begin();
+  it->second->SetMaximum(maximum+sqrt(maximum));
+  if (it->second->GetFillColor()>=0)   it->second->Draw("h");
+  if (it->second->GetLineColor()>=0)   it->second->Draw("l");
+  if (it->second->GetMarkerStyle()>=0) it->second->Draw("pe");
+  ++it;
+  for (;it!=hists_.end();++it){
+    if (it->second->GetFillColor()>=0)   it->second->Draw("h,same");
+    if (it->second->GetLineColor()>=0)   it->second->Draw("l,same");
+    if (it->second->GetMarkerStyle()>=0) it->second->Draw("pe,same");
+  }  
+  leg.Draw("same");
+  c_->SaveAs((filename_+"_linear.pdf").c_str());
+  c_->SaveAs((filename_+"_linear.png").c_str());
+
+  gPad->SetLogy(1); 
+  it=hists_.begin();
+  it->second->SetMinimum(0.1);
+  it->second->SetMaximum(1.5*maximum);
+  if (it->second->GetFillColor()>=0)   it->second->Draw("h");
+  if (it->second->GetLineColor()>=0)   it->second->Draw("l");
+  if (it->second->GetMarkerStyle()>=0) it->second->Draw("pe");
+  ++it;
+  for (;it!=hists_.end();++it){
+    if (it->second->GetFillColor()>=0)   it->second->Draw("h,same");
+    if (it->second->GetLineColor()>=0)   it->second->Draw("l,same");
+    if (it->second->GetMarkerStyle()>=0) it->second->Draw("pe,same");
+  }  
+  leg.Draw("same");
+  c_->SaveAs((filename_+"_log.pdf").c_str());
+  c_->SaveAs((filename_+"_log.png").c_str());
+  gPad->SetLogy(isLogy);
+} 
 
 
 

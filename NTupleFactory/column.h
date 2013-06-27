@@ -1,4 +1,4 @@
-// $Id: column.h,v 1.00 2013/05/26 20:00:00 auterman Exp $
+// $Id: column.h,v 1.3 2013/06/11 11:34:56 auterman Exp $
 
 /*** ------------------------------------------------------------------------------------------------------- ***
      Table, a tool to print nicely formatted tables

@@ -1,4 +1,4 @@
-// $Id: Analyzer.h,v 1.00 2013/05/26 20:00:00 auterman Exp $
+// $Id: Analyzer.h,v 1.9 2013/06/12 17:23:46 auterman Exp $
 
 /*** ------------------------------------------------------------------------------------------------------- ***
      NTupleFactory, a tool to plot final results, using Root Reflex information
@@ -42,6 +42,12 @@ class Analyzer {
 
 
 // A few use case examples ---------------------------------------------------------
+
+class ProduceVariables : public Analyzer {
+ public:
+  virtual void Produce(Event*evt);
+};
+
 
 class Plot1D : public Analyzer {
  public:
@@ -132,5 +138,23 @@ class Stack : public Analyzer {
 };
 
 
+
+class Closure : public Analyzer {
+ public:
+   Closure(TCanvas*c):Analyzer(),c_(c){};
+   virtual ~Closure(){/*delete hists...*/}
+   virtual void Process(const Event*evt);
+   virtual void EndJob();
+   void SetFileName(const std::string& s){filename_=s;}
+   void Add(const Sample*, const Selection*, TH1*, Variable*v1,Variable*v2=0,Variable*v3=0);
+ private:
+   typedef std::pair<const Sample*,const Selection*> Key;
+
+   TCanvas*c_;
+   std::map<Key,Variable*> v1_, v2_, v3_;
+   std::string filename_;
+   std::map<Key,TH1*> hists_;
+   std::vector<const Selection*> selections_;
+};
 
 #endif

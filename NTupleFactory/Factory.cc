@@ -1,4 +1,4 @@
-// $Id: Factory.cc,v 1.00 2013/05/26 20:00:00 auterman Exp $
+// $Id: Factory.cc,v 1.9 2013/06/17 16:15:34 auterman Exp $
 
 /*** ------------------------------------------------------------------------------------------------------- ***
      NTupleFactory, a tool to plot final results, using Root Reflex information
@@ -14,13 +14,12 @@
 #include "Selection.h"
 #include "Event.h"
 
-
 Event* Factory::NextEvent()
 {
   Event *evt = new Event;
   int R;
-  evt->SetRObject( cl_.Construct() );  
-  evt->GetRObject().Invoke("Init", R, Args_ );
+evt->SetRObject( cl_.Construct() );  
+evt->GetRObject().Invoke("Init", R, Args_ );
   tchain_->GetEntry(processed_);
 
   return evt;
@@ -44,12 +43,17 @@ void Factory::Process()
     for (std::vector<std::string>::const_iterator file=(*sample)->GetFiles()->begin(); file!=(*sample)->GetFiles()->end(); ++file)
 	tchain_->Add( file->c_str() );
 
+    nentries_ = tchain_->GetEntries();
+    processed_=0;
+    (*sample)->SetNevents( nentries_ * processFraction_ );
+
     cl_ = ROOT::Reflex::Type::ByName( (*sample)->GetSelector() );
     Args_.clear();
     Args_.push_back( (void*)(tchain_) );
-    nentries_ = tchain_->GetEntries();
-    processed_=0;
-    (*sample)->SetNevents( nentries_ );
+    int R;
+    Event * evt = new Event;
+    evt->SetRObject( cl_.Construct() );  
+    evt->GetRObject().Invoke("Init", R, Args_ );
 
     //init analyzers for relevant selection and all samples
     for (std::map<Selection*,std::vector<Analyzer*> >::iterator it=analyses_.begin(); it!=analyses_.end(); ++it)
@@ -57,8 +61,11 @@ void Factory::Process()
         (*i)->InitSample(it->first, *sample);
 
     //process events through all analyzers
-    for (; processed_ < nentries_; processed_++){
-      Event * evt = NextEvent();
+    //for (; processed_ < nentries_; processed_++){
+    for (; tchain_->LoadTree(processed_)>=0; processed_+=(int)(1./processFraction_)){
+      //Event * evt = NextEvent();
+      tchain_->GetEntry(processed_);
+ 
       evt->SetSample( *sample);
       for (std::map<Selection*,std::vector<Analyzer*> >::iterator it=analyses_.begin(); it!=analyses_.end(); ++it)
         if (it->first->Pass(evt))
@@ -66,8 +73,6 @@ void Factory::Process()
 	    (*i)->Produce(evt);
 	    (*i)->Process(evt);
 	  }  
-      
-      delete evt;
     }
     
     //post-processing analyzers for sample

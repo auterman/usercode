@@ -1,4 +1,4 @@
-// $Id: table.cc,v 1.00 2013/05/26 20:00:00 auterman Exp $
+// $Id: table.cc,v 1.5 2013/06/12 14:01:01 auterman Exp $
 
 /*** ------------------------------------------------------------------------------------------------------- ***
      Table, a tool to print nicely formatted tables
@@ -17,9 +17,9 @@ std::string TTable::hline(char c,char r) const {
   if (style_==TeX) return "\\\\ \\hline";
   
   std::stringstream ss;
-  for (int i=0; i<(delimiter_.size())/2; ++i) ss<<c;
+  for (int i=0; i<((int)delimiter_.size())/2; ++i) ss<<c;
   ss<<r;
-  for (int i=0; i<(delimiter_.size()-1)/2; ++i) ss<<c;
+  for (int i=0; i<((int)delimiter_.size()-1)/2; ++i) ss<<c;
   std::stringstream os;
   std::vector<TColumnBase*>::const_iterator it=table_.begin();
   os.fill('-');

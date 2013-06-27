@@ -19,7 +19,7 @@ ROOTLIBS=$(shell root-config --libs) -lReflex -lReflexDict -lCintex -lCint
 CFLAGS = $(SPECIALFLAGS) -fPIC -Wall $(ROOTAUXCFLAGS)
 LFLAGS = $(SPECIALFLAGS)  #-lz 
 
-RCXX=$(SPECIALFLAGS) -Wno-deprecated -Wall $(ROOTCFLAGS)
+RCXX=$(SPECIALFLAGS)  -fPIC -Wno-deprecated -Wall $(ROOTCFLAGS)
 RLXX=$(LFLAGS) $(ROOTLIBS)
 
 DICT=$(SEL:.cc=Dict.cc)
@@ -27,7 +27,7 @@ RFLX=$(DICT:Dict.cc=_rflx.cpp)
 LIBS=$(SEL:.cc=.so)
 
 
-all: main QcdClosure
+all: main QcdClosure CutStudies
 
 clean:
 	@rm -f *.o *.so *.pdf include/*Dict.cc include/*_rflx.cpp include/*.so
@@ -58,3 +58,6 @@ QcdClosure: $(SRC) QcdClosure.cc QcdClosure.h $(SRC:.cc=.h) $(subst include/,inc
 	$(LD) $(SRC) QcdClosure.cc $(subst include/,include/lib,$(LIBS)) $(RCXX) $(RLXX) -L. -o $@
 	@echo '-> executable $@ created.'
 
+CutStudies: $(SRC) CutStudies.cc CutStudies.h $(SRC:.cc=.h) $(subst include/,include/lib,$(LIBS))
+	$(LD) $(SRC) CutStudies.cc $(subst include/,include/lib,$(LIBS)) $(RCXX) $(RLXX) -L. -o $@
+	@echo '-> executable $@ created.'

@@ -1,4 +1,4 @@
-// $Id: QcdClosure.h,v 1.00 2013/05/26 20:00:00 auterman Exp $
+// $Id: QcdClosure.h,v 1.2 2013/06/17 16:15:34 auterman Exp $
 
 /*** ------------------------------------------------------------------------------------------------------- ***
      NTupleFactory, a tool to plot final results, using Root Reflex information
@@ -17,7 +17,7 @@
 
 class QcdWeights : public Analyzer {
  public:
-   QcdWeights(Variable*weight=0);//:v1_(new FloatVariable("met")),weight_(weight){};
+   QcdWeights(Variable*v1,Variable*weight=0);//:v1_(new FloatVariable("met")),weight_(weight){};
    virtual void InitSample(const Selection*sel,const Sample* sample);
    virtual void Process(const Event*evt);
    virtual void EndJob();
@@ -33,7 +33,7 @@ class QcdWeights : public Analyzer {
 
 class QcdPrediction : public Analyzer {
  public:
-   QcdPrediction(Variable*weight=0);
+   QcdPrediction(Variable*v1,Variable*weight=0);
    virtual void InitSample(const Selection*sel,const Sample* sample);
    virtual void Produce(Event*evt);
    void AddSample(const Sample*sample, const std::string& fact, const std::string& norm );
