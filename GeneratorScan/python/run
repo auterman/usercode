@@ -1,0 +1,146 @@
+#! /usr/bin/env python
+
+import ROOT
+
+from messageLogger import messageLogger as log
+from optparse import OptionParser
+
+def parseSLHA(slha, pdgIds=[24]):
+	"""
+	parse SUSY Les Houches Accord (SLHA) formated strings (e.g. SOFTSUSY output)
+	"""
+	#print slha
+	from re import match
+	result = {}
+	massBlock = ""
+	block = None
+	for line in slha.splitlines():
+		blockRe = match("[Bb][Ll][Oo][Cc][Kk] ([a-zA-Z]+).*", line)
+		if not blockRe == None:
+			block = blockRe.group(1)
+		if block == "MASS":
+			for pdgId in pdgIds:
+				pdgIdRe = match("\s*%s\s*([0-9.Ee\+-]+)"%pdgId, line)
+				if not pdgIdRe == None:
+					result[pdgId] = float(pdgIdRe.group(1))
+	for pdgId in pdgIds:
+		if not pdgId in result:
+			log.logError("could not find %s"%pdgId)
+			log.logDebug(slha)
+	return result
+
+def runSoftsusy(parameters):
+	"""
+	parameters: dict holding all information needed to run SOSTUSY for one point
+	
+	result: dict of resulting mass spectrum
+	"""
+	from subprocess import Popen, PIPE
+	#softpoint.x                 sugra     <m0>  <m12>  <a0>  <tanb>  <mgut>  <sgnMu>
+	template = "%(path)s %(mode)s %(m0)s %(m12)s %(A0)s %(tanb)s %(mgut)s %(sgnMu)s"
+	log.logDebug(template%parameters)
+	proc = Popen(template%parameters, shell=True, stdout=PIPE, stderr=PIPE)
+	slha = proc.communicate()[0]
+	return slha
+
+import os
+import sys
+def runFeynHiggs(parameters):
+	"""
+	run feynHiggs using slha file as input
+	"""
+	from subprocess import Popen, PIPE, call	
+	#feynHiggs slha
+	template = "%(path)s %(slha)s"
+	log.logDebug(template%parameters)
+	proc = Popen(template%parameters, shell=True, stdout=PIPE, stderr=PIPE)
+	feynHiggsResult = proc.communicate()[0]
+	return feynHiggsResult
+
+def run():
+	from ROOT import TH2F, TCanvas, gStyle
+	from itertools import product
+	susyParameters = {
+		"path":"softsusy-3.3.4/softpoint.x",
+		"mode": "sugra",
+		"m0": 60,
+		"m12": 250,
+		"A0":-3000,
+		"tanb":10.,
+		"mgut":"unified",
+		"sgnMu":1
+					  }
+					  
+	feynHiggsParameters = {
+		"path":"FeynHiggs-2.9.2/bin/FeynHiggs",
+		"slha":"FeynHiggs-2.9.2/example/SLHA/TestEXTPAR.spc"
+	}				  
+	nTanb = 5
+
+	m0Range = (4690,4900)
+	m0Step = 5
+	
+	m12Range = (180,250)
+	m12Step = 1
+	
+	tanbRange = (10,60)
+	tanB=20
+	
+	nA0 = 4
+	A0Range = (-3000,-3000)
+	A0 = -3000
+
+	
+	#for A0 in range(A0Range[0], A0Range[1], 3000):
+	for m0, m12 in product(range(m0Range[0],m0Range[1],m0Step), range(m12Range[0],m12Range[1],m12Step)):
+			pdgIds = [25, 1000022, 1000023]
+			susyParameters["m0"]   = m0
+			susyParameters["m12"]  = m12
+			susyParameters["tanb"] = tanB 
+			susyParameters["A0"] = A0
+			
+			print susyParameters
+			susyPoint = runSoftsusy(susyParameters)
+			#print susyPoint
+			spectrum = parseSLHA(susyPoint, pdgIds)
+	#               print spectrum
+			
+			if 1000023 in spectrum and 1000022 in spectrum and 25 in spectrum:
+				#write SLHA to file:
+				filename = 'FineScanA-3000tb10/msugra_%(m0)s_%(m12)s_%(tb)s_%(A0)s_%(mu)s.slha' % \
+					{"m0":susyParameters["m0"], "m12":susyParameters["m12"], "tb":susyParameters["tanb"], "mu":susyParameters["sgnMu"], "A0":susyParameters["A0"]}
+				f = open(filename,'w')
+				f.write(susyPoint)
+				f.close()
+
+				#run FeynHiggs
+				#feynHiggsParameters["slha"] = filename
+				#runFeynHiggs(feynHiggsParameters)
+				
+								
+	
+	
+
+# This method just waits for a button to be pressed
+def waitForInput():
+    raw_input("Press return to continue!")
+    return
+
+# entry point
+#-------------
+if (__name__ == "__main__"):
+    # use option parser to allow verbose mode
+    parser = OptionParser()
+    parser.add_option("-v", "--verbose", dest="verbose", action="store_true", default=False,
+                                  help="talk about everything")
+    (opts, args) = parser.parse_args()
+    if (opts.verbose):
+        # print out all output
+        log.outputLevel = 5
+    else:
+        # ignore output with "debug" level
+        log.outputLevel = 4
+
+    # start
+    run()
+ 

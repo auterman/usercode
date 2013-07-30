@@ -1,0 +1,187 @@
+#! /usr/bin/env python
+
+import ROOT
+
+from messageLogger import messageLogger as log
+from optparse import OptionParser
+
+def parseSLHA(slha, sBlock, pdgIds=[24]):
+	"""
+	parse SUSY Les Houches Accord (SLHA) formated strings (e.g. SOFTSUSY output)
+	"""
+	#print slha
+	from re import match
+	result = {}
+	massBlock = ""
+	block = None
+	for line in slha.splitlines():
+		blockRe = match("[Bb][Ll][Oo][Cc][Kk] ([a-zA-Z]+).*", line)
+		if not blockRe == None:
+			block = blockRe.group(1)
+		if block == sBlock:
+			for pdgId in pdgIds:
+				pdgIdRe = match("\s*%s\s*([0-9.Ee\+-]+)"%pdgId, line)
+				if not pdgIdRe == None:
+					result[pdgId] = float(pdgIdRe.group(1))
+	for pdgId in pdgIds:
+		if not pdgId in result:
+			log.logError("could not find %s"%pdgId)
+			log.logDebug(slha)
+	return result
+
+
+def run(Directory):
+	from ROOT import TH2F, TCanvas, gStyle
+	from itertools import product
+	susyParameters = {
+		"path":"softsusy-3.3.4/softpoint.x",
+		"mode": "sugra",
+		"m0": 60,
+		"m12": 250,
+		"A0":-3000,
+		"tanb":10.,
+		"mgut":"unified",
+		"sgnMu":1
+					  }
+					  
+	feynHiggsParameters = {
+		"path":"FeynHiggs-2.9.2/bin/FeynHiggs",
+		"slha":"FeynHiggs-2.9.2/example/SLHA/TestEXTPAR.spc"
+	}				  
+
+	import os
+	dirList=os.listdir(Directory+'/')
+    
+	nBinsM0 = 50
+	nBinsM12 = 35
+	nTanb = 5
+	m0Range = (4400,4900)
+	m12Range = (180,250)
+	tanbRange = (10,60)
+	
+	matchVariable = 'tanb' #can be: m0, m12, tanb, mu, A0
+	matchValue = 20
+
+	higgsMass   = TH2F("higgs",  "Higgs mass (%(var)s=%(val)2.0f);m_{0};m_{1/2};Higgs mass [GeV]" % {"var" : matchVariable, "val": matchValue}, nBinsM0, m0Range[0], m0Range[1], nBinsM12,  m12Range[0], m12Range[1])
+	edgeMass    = TH2F("edge",   "edge Mass (%(var)s=%(val)2.0f);m_{0};m_{1/2};edge Mass [GeV]" % {"var" : matchVariable, "val": matchValue},  nBinsM0, m0Range[0], m0Range[1], nBinsM12,  m12Range[0], m12Range[1])
+	higgsMassOK = TH2F("higgsOk","124<m(h)<127 GeV;m_{0};m_{1/2};%(var)s" % {"var" : matchVariable}, nBinsM0, m0Range[0], m0Range[1], nBinsM12,  m12Range[0], m12Range[1])
+	edgeMassOK  = TH2F("edgeOk", "65<edge<75 GeV;m_{0};m_{1/2};%(var)s" % {"var" : matchVariable},   nBinsM0, m0Range[0], m0Range[1], nBinsM12,  m12Range[0], m12Range[1])
+
+	FHhiggsMass   = TH2F("FHhiggs",  "FH Higgs mass (%(var)s=%(val)2.0f);m_{0};m_{1/2};Higgs mass [GeV]" % {"var" : matchVariable, "val": matchValue}, nBinsM0, m0Range[0], m0Range[1], nBinsM12,  m12Range[0], m12Range[1])
+	FHhiggsMassOK = TH2F("FHhiggsOk","124<m(h)<127 GeV;m_{0};m_{1/2};%(var)s" % {"var" : matchVariable}, nBinsM0, m0Range[0], m0Range[1], nBinsM12,  m12Range[0], m12Range[1])
+	i=0
+		
+	for fname in dirList:
+		#print i, fname
+		i = i + 1
+		pdgIds = [25, 1000022, 1000023]
+		params = [1, 2, 3, 4, 5] #M0, M12, TanB, Mu, A0
+		
+		fi = open(Directory+'/'+fname,'r')
+		slha = fi.read()
+		
+		spectrum = parseSLHA(slha, 'MASS', pdgIds)
+		msugra = parseSLHA(slha, 'MINPAR', params)
+		#print spectrum, msugra
+		susyParameters["m0"]   = msugra[1]
+		susyParameters["m12"]  = msugra[2]
+		susyParameters["tanb"] = msugra[3] 
+		susyParameters["mu"] = msugra[4]
+		susyParameters["A0"] = msugra[5] 
+
+		
+		isFeynHiggs = '.slha.fh-001' in fname
+		#print "is FH file? ", isFeynHiggs
+
+		if 1000023 not in spectrum or 1000022 not in spectrum or 25 not in spectrum:
+			continue 
+		
+		deltaNeutralinoMass = abs(spectrum[1000023]) - abs(spectrum[1000022])
+		xbinM0  = edgeMass.GetXaxis().FindBin(susyParameters["m0"])
+		ybinM12 = edgeMass.GetYaxis().FindBin(susyParameters["m12"])
+
+		print i, \
+		      " M0:%4.0f" % susyParameters["m0"], \
+		      " M1/2:%4.0f"% susyParameters["m12"], \
+		      " TanB:%2.0f"% susyParameters["tanb"], \
+		      " A0:%5.0f"% susyParameters["A0"],\
+		      ";  M(h)=%3.1f"% spectrum[25],\
+		      ",  M(chi1)=%3.1f"%  spectrum[1000022],\
+		      ",  M(ch2)=%3.1f"% spectrum[1000023],\
+		      ", edge=%3.1f"% deltaNeutralinoMass,\
+		      ", binx=%3.0f"% xbinM0,\
+		      ", biny=%3.0f"% ybinM12
+		
+		if isFeynHiggs:
+			if susyParameters[matchVariable] == matchValue:
+		        	FHhiggsMass.SetBinContent(xbinM0, ybinM12, spectrum[25])
+		        if 124. < spectrum[25] and spectrum[25] < 127.:
+		        	FHhiggsMassOK.SetBinContent(xbinM0, ybinM12, susyParameters[matchVariable] )
+
+		if not isFeynHiggs:
+		      	if susyParameters[matchVariable] == matchValue:
+		        	edgeMass.SetBinContent(xbinM0, ybinM12, deltaNeutralinoMass)
+		  		higgsMass.SetBinContent(xbinM0, ybinM12, spectrum[25])     
+
+			if 65. < deltaNeutralinoMass and deltaNeutralinoMass < 75.:
+		   		edgeMassOK.SetBinContent(xbinM0, ybinM12, susyParameters[matchVariable])
+
+			if 25 in spectrum and 124. < spectrum[25] and spectrum[25] < 127.:
+		        	higgsMassOK.SetBinContent(xbinM0, ybinM12, susyParameters[matchVariable])
+
+	gStyle.SetOptStat(0)
+	gStyle.SetPalette(1)
+	canv = 	TCanvas("canv","canv",800,600)
+	canv.SetRightMargin(0.2)
+
+	higgsMass.SetMinimum(110)    
+	higgsMass.SetMaximum(130)    
+	higgsMass.Draw("COLZ")
+	canv.Print("softsusy_higgsMass.png")
+
+	higgsMassOK.Draw("COLZ")
+	canv.Print("softsusy_higgsMassOk_for_%(var)s_eq_%(val)f.png" % {"var" : matchVariable, "val": matchValue})
+	
+	edgeMass.SetMinimum(60)	
+	edgeMass.SetMaximum(80)	
+	edgeMass.Draw("COLZ")
+	canv.Print("softsusy_edgeMass.png")
+
+	edgeMassOK.Draw("COLZ")
+	canv.Print("softsusy_edgeMassOk_for_%(var)s_eq_%(val)f.png" % {"var" : matchVariable, "val": matchValue})
+
+	FHhiggsMass.SetMinimum(110)    
+	FHhiggsMass.SetMaximum(130)    
+	FHhiggsMass.Draw("COLZ")
+	canv.Print("feynHiggs_higgsMass.png")
+
+	FHhiggsMassOK.Draw("COLZ")
+	canv.Print("feynHiggs_higgsMassOk_for_%(var)s_eq_%(val)f.png" % {"var" : matchVariable, "val": matchValue})
+	
+	#waitForInput()
+	
+	
+
+# This method just waits for a button to be pressed
+def waitForInput():
+    raw_input("Press return to continue!")
+    return
+
+# entry point
+#-------------
+if (__name__ == "__main__"):
+    # use option parser to allow verbose mode
+    parser = OptionParser()
+    parser.add_option("-v", "--verbose", dest="verbose", action="store_true", default=False,
+                                  help="talk about everything")
+    (opts, args) = parser.parse_args()
+    if (opts.verbose):
+        # print out all output
+        log.outputLevel = 5
+    else:
+        # ignore output with "debug" level
+        log.outputLevel = 4
+
+    # start
+    run(args[0])
+ 

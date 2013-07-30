@@ -1,0 +1,4 @@
+#!/bin/bash
+echo "running $1 $2"
+$1 $2 | grep -v %
+echo "$1 done."
