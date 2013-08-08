@@ -24,11 +24,6 @@
 //
 
 #include "QcdSelector.h"
-#include <TH2.h>
-#include <TCanvas.h>
-#include <TStyle.h>
-
-#include <iostream>
 
 void QcdSelector::Begin(TTree * /*tree*/)
 {
@@ -46,18 +41,6 @@ void QcdSelector::SlaveBegin(TTree * tree)
    // The SlaveBegin() function is called after the Begin() function.
    // When running with PROOF SlaveBegin() is called on each slave server.
    // The tree argument is deprecated (on PROOF 0 is passed).
-
-   //initialize the Tree branch addresses
-   Init(tree);
-
-   //print the option specified in the Process function.
-   TString option = GetOption();
-   Info("SlaveBegin",
-        "starting h1analysis with process option: %s (tree: %p)", option.Data(), tree);
-
-
-   h=new TH1F("h_met",";met [GeV];entries",100,0,500);
-   fOutput->Add(h);
 
 }
 
@@ -81,15 +64,6 @@ Bool_t QcdSelector::Process(Long64_t entry)
    //
    // The return value is currently not used.
 
-
-   //read full event:
-   //fChain->GetTree()->GetEntry(entry);
- 
-   //read only specific branch:
-   b_met->GetEntry(entry);
-
-   h->Fill( met );
-
    return kTRUE;
 }
 
@@ -110,12 +84,4 @@ void QcdSelector::Terminate()
    // a query. It always runs on the client, it can be used to present
    // the results graphically or save the results to file.
    
-   
-// Create a canvas, with 100 pads
-   TCanvas *c1 = new TCanvas("c1", "Proof ProofFirst canvas",3,3,600,600);
-   c1->cd();
-   h = dynamic_cast<TH1F *>(fOutput->FindObject("h_met"));
-   if (h) h->Draw("h");
-   c1->Update();
-
 }

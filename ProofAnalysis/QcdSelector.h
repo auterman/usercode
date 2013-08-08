@@ -27,8 +27,6 @@ const Int_t kMaxgenPhoton = 22;
 class QcdSelector : public TSelector {
 public :
 
-   TH1F* h;
-
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
 
    // Declaration of leaf types
