@@ -6,6 +6,8 @@
 #include <TStyle.h>
 //#include "TMath.h"
 #include "TFile.h"
+#include "TString.h"
+#include "TSystem.h"
 
 #include <complex>
 #include <iostream>
@@ -15,24 +17,23 @@ ClassImp(MySelector) //no ";" !
 
 void MySelector::Begin(TTree * tree)
 {
-  Init(tree);
+  //Init(tree);
  
-  TString option = GetOption();
+  //TString option = GetOption();
 }
 
 void MySelector::SlaveBegin(TTree * tree)
 {
  
    //initialize the Tree branch addresses
-//   Init(tree);
-/*
-   nentries = tree->GetEntries();
+   //Init(tree);
+   nentries = (tree?tree->GetEntries():0);
 
    //print the option specified in the Process function.
    TString option = GetOption();
    Info("SlaveBegin",
         "starting MySelector analysis with process option: %s (tree: %p)", option.Data(), tree);
-
+   
    //binning
    float pt_binning[] = {100, 200, 300, 400, 500, 600, 800, 1000};
    int   pt_nbins = 7;
@@ -42,12 +43,12 @@ void MySelector::SlaveBegin(TTree * tree)
    int   ht_nbins = 7;
 
    //QCD weights
-   h_pt    = new TH1F("h_lowmet_pt",";pT [GeV];entries",          pt_nbins,pt_binning);
-   w_pt    = new TH1F("w_lowmet_pt",";pT [GeV];entries",          pt_nbins,pt_binning);
-   h_ht    = new TH1F("h_lowmet_ht",";HT [GeV];entries",          ht_nbins,ht_binning);
-   w_ht    = new TH1F("w_lowmet_ht",";HT [GeV];entries",          ht_nbins,ht_binning);
-   h_met   = new TH1F("h_lowmet_met",";HT [GeV];entries",         met_nbins,met_binning);
-   w_met   = new TH1F("w_lowmet_met",";HT [GeV];entries",         met_nbins,met_binning);  
+   h_pt    = new TH1F("h_lowmet_pt",";pT [GeV];entries",             pt_nbins,pt_binning);
+   w_pt    = new TH1F("w_lowmet_pt",";pT [GeV];entries",             pt_nbins,pt_binning);
+   h_ht    = new TH1F("h_lowmet_ht",";HT [GeV];entries",             ht_nbins,ht_binning);
+   w_ht    = new TH1F("w_lowmet_ht",";HT [GeV];entries",             ht_nbins,ht_binning);
+   h_met   = new TH1F("h_lowmet_met",";HT [GeV];entries",            met_nbins,met_binning);
+   w_met   = new TH1F("w_lowmet_met",";HT [GeV];entries",            met_nbins,met_binning);  
    h_pt_ht = new TH2F("h_lowmet_pt_ht",";pT [GeV];HT [GeV];entries", pt_nbins,pt_binning, ht_nbins,ht_binning);    
    w_pt_ht = new TH2F("w_lowmet_pt_ht",";pT [GeV];HT [GeV];entries", pt_nbins,pt_binning, ht_nbins,ht_binning);
    fOutput->Add(h_pt);
@@ -58,7 +59,15 @@ void MySelector::SlaveBegin(TTree * tree)
    fOutput->Add(w_met);
    fOutput->Add(h_pt_ht);
    fOutput->Add(w_pt_ht);
-*/
+   Info("SlaveBegin", "Hists added to Output");
+
+   gSystem->GetFromPipe("mkdir results");
+   TString ls = gSystem->GetFromPipe("ls");
+   TString pwd = gSystem->GetFromPipe("pwd");
+   Info("SlaveBegin", "ls: %s", ls.Data());
+   Info("SlaveBegin", "pwd: %s", pwd.Data());
+
+
 /*
    //QCD closure
    h_qcdclosure_signal_photonpt     = new TH1F("h_qcdclosure_signal_photonpt",";photon pT [GeV];entries",pt_nbins,pt_binning);
@@ -81,7 +90,6 @@ void MySelector::SlaveBegin(TTree * tree)
    fOutput->Add(h_qcdclosure_error_ht);
 */  
 
-/*
    //Second iteration: Read weight-histograms, calculate weight hist
    TFile pfile( "results/WeightHists_photonTree.root" );
    TFile ffile( "results/WeightHists_photonJetTree.root", "READ" );
@@ -123,7 +131,6 @@ void MySelector::SlaveBegin(TTree * tree)
      canv->SaveAs("results/h_err.pdf");
      delete canv;
   }
-*/
 }
 
 /// End of Initialization ///
@@ -159,7 +166,8 @@ bool MySelector::doQcdClosure() const
 Bool_t MySelector::Process(Long64_t entry)
 {
    //read full event:
-   fChain->GetTree()->GetEntry(entry);
+   //fChain->GetTree()->
+   GetEntry(entry);
  
    //read only specific branches:
    //b_met->GetEntry(entry);
@@ -175,8 +183,11 @@ Bool_t MySelector::Process(Long64_t entry)
    //result |= doQcdClosure();
 
    //print Progress
-   if (entry%(nentries/10)==0)std::cerr<<"->"<<entry/(nentries/10)*10<<"%";
-   if (entry==nentries-1)std::cerr<<std::endl;
+   if (entry%10000==0)
+   Info("Process",
+        "processed %d (%d) pt=%f", (int)entry, (int)nentries , pt);
+//   if (entry%(nentries/10)==0)std::cerr<<"->"<<entry/(nentries/10)*10<<"%";
+//   if (entry==nentries-1)std::cerr<<std::endl;
 
    //neither tight nor loose photon - useless event   
    return result;  
@@ -194,6 +205,11 @@ template<typename T>
 void MySelector::GetAndWrite(const std::string hist, const std::string fname, const std::string opt) const
 {
   T* h = dynamic_cast<T*>(fOutput->FindObject(hist.c_str()));
+  
+  std::cerr << "MySelector::GetAndWrite(hist="<<hist<<", fname="<<fname<<", opt="<<opt<<")" << std::endl;
+  
+  //T*h = (T*)list->FindObject(hist.c_str());
+  std::cerr << "h="<<h << std::endl;
   if (!h) {
     std::cerr << "ERROR: Cannot find histogram '"<<hist<<"'! GetAndWrite failed!"<<std::endl;
     return;
@@ -208,16 +224,20 @@ void MySelector::GetAndWrite(const std::string hist, const std::string fname, co
     file->Close();
     delete file;  
   }
-
   TCanvas *canv = new TCanvas((hist+fname).c_str(), fname.c_str(),1,1,600,600);
-  h->Draw("COLZ");
+  h->DrawCopy("COLZ");
   canv->SaveAs(("results/"+hist+".pdf").c_str());
   delete canv;
 }
 
 void MySelector::QcdWeightHistogram() const
 {
-  std::string filename = "results/WeightHists_"+(std::string)fChain->GetName()+".root";
+  TString ls = gSystem->GetFromPipe("ls");
+  TString pwd = gSystem->GetFromPipe("pwd");
+  Info("QcdWeightHistogram", "ls: %s", ls.Data());
+  Info("QcdWeightHistogram", "pwd: %s", pwd.Data());
+
+  std::string filename = (fChain?"results/WeightHists_"+(std::string)fChain->GetName()+".root":"results/ProofWeightHists.root");
   GetAndWrite<TH1F>("h_lowmet_pt",	filename, "RECREATE");
   GetAndWrite<TH1F>("w_lowmet_pt",	filename, "UPDATE");
   GetAndWrite<TH1F>("h_lowmet_ht",	filename, "UPDATE");
@@ -288,10 +308,6 @@ void MySelector::SlaveTerminate()
    // The SlaveTerminate() function is called after all entries or objects
    // have been processed. When running with PROOF SlaveTerminate() is called
    // on each slave server.
-  
-   //TCanvas *c2 = new TCanvas("c2", "c2",3,3,600,600);
-   //h->Draw("h");
-   //c2->Update();
 }
 
 
@@ -301,6 +317,7 @@ void MySelector::Terminate()
    // a query. It always runs on the client, it can be used to present
    // the results graphically or save the results to file.
    
+   //list = GetOutputList();
    QcdWeightHistogram();
    //QcdClosure();
 }

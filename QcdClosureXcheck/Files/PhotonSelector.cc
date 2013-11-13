@@ -29,6 +29,8 @@
 
 #include <iostream>
 
+ClassImp(PhotonSelector)
+
 void PhotonSelector::Begin(TTree * /*tree*/)
 {
    // The Begin() function is called at the start of the query.
@@ -87,5 +89,9 @@ void PhotonSelector::Terminate()
    // The Terminate() function is the last function to be called during
    // a query. It always runs on the client, it can be used to present
    // the results graphically or save the results to file.
+
+  h_pt = dynamic_cast<TH1F*>(fOutput->FindObject("h_lowmet_pt"));
+  
+  std::cerr << "PhotonSelector::Terminate FindObject(h_lowmet_pt) = "<< h_pt << std::endl;
 
 }

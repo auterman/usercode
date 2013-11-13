@@ -11,6 +11,7 @@
 #include <TChain.h>
 #include <TFile.h>
 #include <TSelector.h>
+#include <TH1F.h>
 
 class PhotonSelector : public TSelector {
 public :
@@ -44,7 +45,10 @@ public :
    virtual void    SlaveTerminate();
    virtual void    Terminate();
 
-   //ClassDef(PhotonSelector,0);
+   ClassDef(PhotonSelector,0)
+   
+   private:
+   TH1F*h_pt;
 };
 
 #endif

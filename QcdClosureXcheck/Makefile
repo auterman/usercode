@@ -21,7 +21,7 @@ LD            = c++
 LDFLAGS       = -g
 SOFLAGS       = -Wl -shared
 LIBS          = $(ROOTLIBS) -lm -ldl -rdynamic 
-EXELIBS       = -L/home/home4/institut_1b/auterman/QcdClosureXcheck/Files -lPhotonSelector_cc -lMySelector_cc 
+EXELIBS       = -L/afs/naf.desy.de/user/a/auterman/usercode/QcdClosureXcheck/Files -lPhotonSelector_cc -lMySelector_cc -lProof -lProofPlayer
 
 all: $(TARGETSO) $(EXECUTABLE)
 

@@ -10,6 +10,7 @@
 #include <TFile.h>
 #include <TSelector.h>
 #include <TH1F.h>
+#include <TList.h>
 
 #include "PhotonSelector.h"
 
@@ -36,7 +37,7 @@ class MySelector : public PhotonSelector {
 
   //private member variables
   private: 
-   Long64_t nentries;
+   long nentries;
    
    //QCD weights
    TH1F *h_pt, *h_ht, *h_met,  
