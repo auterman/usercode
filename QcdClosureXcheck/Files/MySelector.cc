@@ -24,7 +24,8 @@ void MySelector::SlaveBegin(TTree * tree)
 {
  
    //initialize the Tree branch addresses
-   Init(tree);
+//   Init(tree);
+/*
    nentries = tree->GetEntries();
 
    //print the option specified in the Process function.
@@ -57,7 +58,7 @@ void MySelector::SlaveBegin(TTree * tree)
    fOutput->Add(w_met);
    fOutput->Add(h_pt_ht);
    fOutput->Add(w_pt_ht);
-
+*/
 /*
    //QCD closure
    h_qcdclosure_signal_photonpt     = new TH1F("h_qcdclosure_signal_photonpt",";photon pT [GeV];entries",pt_nbins,pt_binning);
@@ -80,6 +81,7 @@ void MySelector::SlaveBegin(TTree * tree)
    fOutput->Add(h_qcdclosure_error_ht);
 */  
 
+/*
    //Second iteration: Read weight-histograms, calculate weight hist
    TFile pfile( "results/WeightHists_photonTree.root" );
    TFile ffile( "results/WeightHists_photonJetTree.root", "READ" );
@@ -121,6 +123,7 @@ void MySelector::SlaveBegin(TTree * tree)
      canv->SaveAs("results/h_err.pdf");
      delete canv;
   }
+*/
 }
 
 /// End of Initialization ///
