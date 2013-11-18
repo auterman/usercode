@@ -1,5 +1,6 @@
 
 #include "MySelector.h"
+#include "Tools/ConfigFile.h"
 
 #include <TH2.h>
 #include <TCanvas.h>
@@ -12,28 +13,25 @@
 #include <complex>
 #include <iostream>
 #include <string>
+#include <sstream>
 
 ClassImp(MySelector) //no ";" !
 
 void MySelector::Begin(TTree * tree)
 {
-  //Init(tree);
- 
-  //TString option = GetOption();
 }
 
 void MySelector::SlaveBegin(TTree * tree)
 {
- 
-   //initialize the Tree branch addresses
-   //Init(tree);
-   nentries = (tree?tree->GetEntries():0);
-
    //print the option specified in the Process function.
    TString option = GetOption();
    Info("SlaveBegin",
         "starting MySelector analysis with process option: %s (tree: %p)", option.Data(), tree);
-   
+   std::stringstream ss( option.Data() );
+   ConfigFile config;
+   ss >> config;
+   nentries = (tree?tree->GetEntries(): config.read<long>("nevents", 0)); //Get events from tree if availaable, else get it from option if available, else set to 0
+  
    //binning
    float pt_binning[] = {100, 200, 300, 400, 500, 600, 800, 1000};
    int   pt_nbins = 7;
@@ -205,11 +203,6 @@ template<typename T>
 void MySelector::GetAndWrite(const std::string hist, const std::string fname, const std::string opt) const
 {
   T* h = dynamic_cast<T*>(fOutput->FindObject(hist.c_str()));
-  
-  std::cerr << "MySelector::GetAndWrite(hist="<<hist<<", fname="<<fname<<", opt="<<opt<<")" << std::endl;
-  
-  //T*h = (T*)list->FindObject(hist.c_str());
-  std::cerr << "h="<<h << std::endl;
   if (!h) {
     std::cerr << "ERROR: Cannot find histogram '"<<hist<<"'! GetAndWrite failed!"<<std::endl;
     return;
