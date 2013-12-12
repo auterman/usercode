@@ -92,7 +92,7 @@ void points::WriteHiggsInputSingleChannel(const std::string dir, const std::stri
          ofstream ofile;
          stringstream ss;
          //std::system(((string)"mkdir "+dir).c_str());
-         ss << dir << "/"<<prefix<<"_" << ToString(it->nr) << ".txt";
+         ss << dir << "/"<<prefix<<"_" << ToString(it->nr) << "_bin_"<< ToSTring(bin) <<".txt";
 
 	 ofile.open(ss.str().c_str());
 	 for (std::map<std::string,std::string>::iterator p=it->cmssm.params.begin(); p!=it->cmssm.params.end(); ++p)
@@ -763,7 +763,6 @@ void points::Read(ConfigFile& config) {
     catch(...){           cerr <<" -> catched exception in point "<<i<<". Stop processing of signals. "<<endl; return; }
     std::cout << "...processing signal '"<< conf.read<string>("signal scan","") <<"' point "<<i++<<std::endl;
     Add(p);  
-if (i==1)break; // just two points for testing
   } while (1);
 }
 
