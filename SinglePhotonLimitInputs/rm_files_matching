@@ -1,1 +1,0 @@
-find . -exec grep -l "imax  0  number of channels" {} \;| xargs rm

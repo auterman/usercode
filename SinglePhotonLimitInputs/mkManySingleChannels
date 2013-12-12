@@ -1,6 +1,0 @@
-#!/bin/bash
-for i in `ls DataCards/signal_$1/*`
-do
-   echo $i
-   ./mkInputs --single -o cMSSM_SingleChannels_$1 -d DataCards/data.txt -q DataCards/qcd.txt -l DataCards/lostlepton.txt -t DataCards/tau.txt -z DataCards/zinvisible.txt -s $i
-done	 

@@ -1,9 +1,0 @@
-#!/bin/bash
-
-rm -f EventYieldTable.txt
-./mkInputs --plain -o cMSSM_JesJer -d DataCards/data.txt -q DataCards/qcd.txt -l DataCards/lostlepton.txt -t DataCards/tau.txt -z DataCards/zinvisible.txt -s DataCards/signal_example.txt > EventYieldTable.txt
-cat EventYieldTable.txt
-
-rm -f EventYieldTable.tex
-./mkInputs --tex -o cMSSM_JesJer -d DataCards/data.txt -q DataCards/qcd.txt -l DataCards/lostlepton.txt -t DataCards/tau.txt -z DataCards/zinvisible.txt -s DataCards/signal_example.txt > EventYieldTable.tex
-# cat EventYieldTable.tex

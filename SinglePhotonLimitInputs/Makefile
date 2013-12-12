@@ -12,7 +12,7 @@ LFLAGS = $(SPECIALFLAGS) #-lz
 RCXX=$(SPECIALFLAGS) -Wno-deprecated -Wall $(ROOTCFLAGS)
 RLXX=$(LFLAGS) $(ROOTLIBS) 
 
-SRC=ConfigFile.cc table.cc anyoption.cc mkInputs.cc
+SRC=ConfigFile.cc table.cc mkInputs.cc
 
 %.o: %.cc
 		$(C) $(RCXX) -c $<
@@ -29,9 +29,6 @@ table.o: table.cc table.h column.h
 
 ConfigFile.o: ConfigFile.cc ConfigFile.h
 		$(C) $(RCXX) -c ConfigFile.cc 
-
-anyoption.o: anyoption.cc anyoption.h
-		$(C) $(RCXX) -c anyoption.cc 
 
 mkInputs.o: mkInputs.cc mkInputs.h
 	$(C) $(RCXX) -c mkInputs.cc
