@@ -14,14 +14,22 @@
 
 #include "ConfigFile.h"
 #include "mkInputs.h"
-#include "anyoption.h"
 
-const double trigger_uncertainty = 0.02; //2% trigger uncertainty
+using namespace std;
+
+const double trigger_uncertainty = 0.022; //2% trigger uncertainty
 const std::string SignalSystematicVeto1="SIGNAL_THEORY_SYST";
 const std::string SignalSystematicVeto2="SIGNAL_SYST_XSEC";
 
 
-std::string ToString(double d, std::string s=""){
+std::string ToString(double d, std::string s){
+  if (d==0&&s!="") return s;
+  std::stringstream ss;
+  ss << d;
+  return ss.str();
+}
+
+std::string ToString(int d, std::string s){
   if (d==0&&s!="") return s;
   std::stringstream ss;
   ss << d;
@@ -73,6 +81,7 @@ void points::ScaleLumi(double scale, double ScaleUnc)
 void points::WriteHiggsInputSingleChannel(const std::string dir, const std::string prefix) {
     using namespace Table;
     using namespace std;
+    std::cout << "...writing datacards for single channels" <<std::endl;
     for (vector<point>::iterator it = p_.begin(); it != p_.end(); ++it) {
        int n_nonzero_channels=0;
        for (int bin=0; bin<(int)it->bins.size(); ++bin) {
@@ -82,20 +91,14 @@ void points::WriteHiggsInputSingleChannel(const std::string dir, const std::stri
   
          ofstream ofile;
          stringstream ss;
-         std::system(((string)"mkdir "+dir).c_str());
-         ss << dir << "/"<<prefix<<"_" << it->cmssm.mzero << "_" << it->cmssm.mhalf << "_"
-          	         << it->cmssm.tanbeta << "_" << it->cmssm.azero << "_" << it->cmssm.mu<<"_ch"<<b<< ".txt";
+         //std::system(((string)"mkdir "+dir).c_str());
+         ss << dir << "/"<<prefix<<"_" << ToString(it->nr) << ".txt";
 
 	 ofile.open(ss.str().c_str());
-	 ofile << "# Mzero = " << it->cmssm.mzero << "\n";
-	 ofile << "# Mhalf = " << it->cmssm.mhalf << "\n";
-	 ofile << "# TanBeta = " << it->cmssm.tanbeta << "\n";
-	 ofile << "# Xsection.LO = " << it->cmssm.xsec << "\n";
-	 ofile << "# Xsection.NLO = " << it->cmssm.xsecNLO << "\n";
+	 for (std::map<std::string,std::string>::iterator p=it->cmssm.params.begin(); p!=it->cmssm.params.end(); ++p)
+	   ofile << "# " <<p->first<<" = " << p->second << "\n";
 	 ofile << "# Luminosity = " << it-> lumi << "\n";
 	 ofile << "# Channel = "<<b<<"\n";
-
-	 cout << "M0 = "<<it->cmssm.mzero<<", M1/2 ="<<it->cmssm.mhalf << ", Channel = "<< b <<endl;
 
 	 int n_backgrounds = it->bins[0].backgds.size();
 	 int n_nuisance	 = 0;
@@ -204,7 +207,6 @@ void points::WriteHiggsInputSingleChannel(const std::string dir, const std::stri
            ofile << "# "<<sys->first<<" = "<<sys->second<<"\n";
 	 } 
 	 it->syst.clear();
-	 //cout << "WRITE m0:" << it->cmssm.mzero << ", m1/2:" << it->cmssm.mhalf << endl;
 	 ofile.close();
       }
    }
@@ -216,37 +218,23 @@ void points::WriteHiggsInputSingleChannel(const std::string dir, const std::stri
 void points::WriteHiggsInputStatUncorr(const std::string dir, const std::string prefix) {
     using namespace Table;
     using namespace std;
+    std::cout << "...writing datacards" <<std::endl;
     for (vector<point>::iterator it = p_.begin(); it != p_.end(); ++it) {
        //create result file
        ofstream ofile;
        stringstream ss;
-       std::system(((string)"mkdir "+dir).c_str());
-       ss << dir << "/"<<prefix<<"_" << it->cmssm.mzero << "_" << it->cmssm.mhalf << "_"
-        	       << it->cmssm.tanbeta << "_" << it->cmssm.azero << "_" << it->cmssm.mu<< ".txt";
+       //std::system(((string)"mkdir "+dir).c_str());
+       ss << dir << "/"<<prefix<<"_" << ToString(it->nr)<< ".txt";
        ofile.open(ss.str().c_str());
        //write general SUSY parameter information
-       ofile << "# Mzero = " << it->cmssm.mzero << "\n";
-       ofile << "# Mhalf = " << it->cmssm.mhalf << "\n";
-       ofile << "# TanBeta = " << it->cmssm.tanbeta << "\n";
-       ofile << "# Xsection.LO = " << it->cmssm.xsec << "\n";
-       ofile << "# Xsection.NLO = " << it->cmssm.xsecNLO << "\n";
+       for (std::map<std::string,std::string>::iterator p=it->cmssm.params.begin(); p!=it->cmssm.params.end(); ++p)
+	   ofile << "# " <<p->first<<" = " << p->second << "\n";
+       ofile << "# point = " << it->nr << "\n";
        ofile << "# Luminosity = " << it-> lumi << "\n";
        if (lumiscale_>1.) {
          ofile << "# Luminosity Scale = " << lumiscale_ << "\n";
          ofile << "# Luminosity Uncertainty Scale = " << lumiuncscale_ << "\n";       
        }
-       
-       /*
-       cout<<"Uncertainties among samples are correlated as follows:"<<endl;
-       for (std::map<std::string,std::vector<std::string> >::const_iterator u=it->uncertainties.begin();
-            u!=it->uncertainties.end(); ++u) {
-	    cout<<"   "<<u->first<<": ";
-	    for (std::vector<std::string>::const_iterator s=u->second.begin();s!=u->second.end();++s)
-	      cout<<"  "<<*s;
-	    cout<<endl;  
-       }  
-       */    
-       cout << "M0 = "<<it->cmssm.mzero<<", M1/2 ="<<it->cmssm.mhalf << endl;
        
        int n_channels	 = it->n_bins;
        int n_nonzero_channels=0;
@@ -398,9 +386,8 @@ void points::WriteHiggsInputStatUncorr(const std::string dir, const std::string 
 	     continue; 
 	  }	
   
-	  //if (StrContains( u->first, "STAT") ){//&& !StrContains( u->first, "QCD")){//uncorrelated stat. uncertainties
-	    if (StrContains( u->first, "STAT") && !StrContains( u->first, "QCD")){//uncorrelated stat. uncertainties
-	    cout << u->first << " is a statistical uncertainty!"<<endl;
+	  if (StrContains( u->first, "STAT") ){//uncorrelated stat. uncertainties
+	    if (print_) cout << u->first << " is a statistical uncertainty!"<<endl;
 	    for (int thisbin=0; thisbin<n_channels; ++thisbin){
               if (it->bins[thisbin].signal.eventyield - it->bins[thisbin].signal.contamination<=0) continue; 
               stringstream ss(u->first);
@@ -417,7 +404,9 @@ void points::WriteHiggsInputStatUncorr(const std::string dir, const std::string 
         	for (int unc=0; unc<(int)it->bins[bin].signal.uncert.size();++unc){
 		  string unc_name( it->bins[bin].signal.uncert[unc].label );
         	  std::replace(unc_name.begin(), unc_name.end(), ' ', '_'); 
-        	  if (bin==thisbin && unc_name+" "+it->bins[bin].signal.uncert[unc].distribution ==u->first){
+
+		  //cout << "look for: "<<"signal_"+unc_name+" "+it->bins[bin].signal.uncert[unc].distribution<< ", found: "<<u->first<<endl;
+        	  if (bin==thisbin && "signal_"+unc_name+" "+it->bins[bin].signal.uncert[unc].distribution ==u->first){
 	            sys << ToString(it->bins[bin].signal.GetFactorialUncertainty(unc),"-"); // signal
 		    it->stat2[it->bins[bin].signal.label+" "+unc_name] +=
 		       pow((it->bins[bin].signal.GetFactorialUncertainty(unc)-1)*
@@ -495,188 +484,48 @@ void points::WriteHiggsInputStatUncorr(const std::string dir, const std::string 
          ofile << "# "<<sys->first<<" = "<<sqrt(sys->second)<<"\n";
        } 
 	
-       //cout << "WRITE m0:" << it->cmssm.mzero << ", m1/2:" << it->cmssm.mhalf << endl;
        ofile.close();
+       print_=false;
     }
 }
 //=========================================================================================================
 //=========================================================================================================
 //=========================================================================================================
 //=========================================================================================================
-/*
-void points::WriteHiggsInput(const std::string dir) {
-    using namespace Table;
-    using namespace std;
-    for (vector<point>::iterator it = p_.begin(); it != p_.end(); ++it) {
-       ofstream ofile;
-       stringstream ss;
-       ss << dir << "_" << it->cmssm.mzero << "_" << it->cmssm.mhalf << "_"
-        	       << it->cmssm.tanbeta << "_" << it->cmssm.azero << "_" << it->cmssm.mu<< ".txt";
-       ofile.open(ss.str().c_str());
-       ofile << "# Mzero = " << it->cmssm.mzero << "\n";
-       ofile << "# Mhalf = " << it->cmssm.mhalf << "\n";
-       ofile << "# TanBeta = " << it->cmssm.tanbeta << "\n";
-       ofile << "# Xsection.LO = " << it->cmssm.xsec << "\n";
-       ofile << "# Xsection.NLO = " << it->cmssm.xsecNLO << "\n";
-       ofile << "# Luminosity = " << it-> lumi << "\n";
-       
-       cout << "M0 = "<<it->cmssm.mzero<<", M1/2 ="<<it->cmssm.mhalf << endl;
-       
-       int n_channels	 = it->n_bins;
-       int n_nonzero_channels=0;
-       for (int bin=0; bin<n_channels; ++bin) 
-	   if (it->bins[bin].signal.eventyield - it->bins[bin].signal.contamination>0) ++n_nonzero_channels;
-       int n_backgrounds = it->bins[0].backgds.size();
-       int n_nuisance	 = it->uncertainties.size();
-       ofile << "imax " << setw(2) << n_nonzero_channels    << "  number of channels" << endl;
-       ofile << "jmax " << setw(2) << n_backgrounds << "  number of backgrounds" << endl;
-       ofile << "kmax " << setw(2) << n_nuisance    
-             << "  number of nuisance parameters (sources of systematic uncertainties)" << endl;
-       ofile << "------------" << endl;  
-
-       //observed events in all channels
-       TTable observed("# observed events");\
-       observed.SetStyle(Empty);
-       observed.SetDelimiter("  ");
-       observed.AddColumn<string>(""); 
-       for (int bin=1; bin<=n_channels; ++bin) {
-	   if (it->bins[bin-1].signal.eventyield - it->bins[bin-1].signal.contamination<=0) continue;
-	   observed.AddColumn<int>("");}
-       observed << "bin";	  
-       for (int bin=1; bin<=n_channels; ++bin) {
-	 if (it->bins[bin-1].signal.eventyield - it->bins[bin-1].signal.contamination<=0) continue;
-         observed << bin;
-       }
-       observed << "observation"; 
-       for (int bin=1; bin<=n_channels; ++bin) {
-         if (it->bins[bin-1].signal.eventyield - it->bins[bin-1].signal.contamination<=0) continue;
-	 stringstream ss;
-         ss << "n" << bin;
-         observed << (int)it->bins[bin-1].data.eventyield;
-       }  
-       ofile << observed << "------------\n" << endl;  
-
-       //expected events in all channels for signal and all backgrounds
-       TTable exp("# expected events");
-       exp.SetStyle(Empty);
-       exp.SetDelimiter("  ");
-       exp.AddColumn<string>(""); 
-       exp.SetMinumumWidth(20,0);//make first column at least 20 chars
-       for (int bin=1; bin<=n_channels; ++bin) {
-           if (it->bins[bin-1].signal.eventyield - it->bins[bin-1].signal.contamination<=0) continue;
-           for (int sample=1; sample<=n_backgrounds+1; ++sample) 
-             exp.AddColumn<string>("");
-       }     
-       exp << "bin"; 
-       for (int bin=1; bin<=n_channels; ++bin) {
-           if (it->bins[bin-1].signal.eventyield - it->bins[bin-1].signal.contamination<=0) continue;
-           for (int sample=1; sample<=n_backgrounds+1; ++sample) {
-              stringstream ss;
-              ss << bin;
-              exp << ss.str();
-           }
-       }   
-       exp << "process";
-       for (int bin=0; bin<n_channels; ++bin) {
-         if (it->bins[bin].signal.eventyield - it->bins[bin].signal.contamination<=0) continue;
-         exp << it->bins[bin].signal.label;
-	 for (int sample=0; sample<n_backgrounds;++sample) 
-           exp << it->bins[bin].backgds[sample].label;
-       }  
-       exp << "process"; 
-       for (int bin=1; bin<=n_channels; ++bin) {
-           if (it->bins[bin-1].signal.eventyield - it->bins[bin-1].signal.contamination<=0) continue;
-           for (int sample=1; sample<=n_backgrounds+1; ++sample) {
-              stringstream ss;
-              ss << (sample-1);
-              exp << ss.str();
-           }
-       }	      
-       exp << "rate"; 
-       for (int bin=0; bin<n_channels; ++bin) {
-         if (it->bins[bin].signal.eventyield - it->bins[bin].signal.contamination<=0) continue;
-         exp << ToString(it->bins[bin].signal.eventyield - it->bins[bin].signal.contamination);
-	 for (int sample=0; sample<n_backgrounds;++sample) 
-            exp << ToString(it->bins[bin].backgds[sample].eventyield);
-
-             
-       }  
-       ofile << exp << "------------" << std::endl;  
-       TTable sys("");
-       sys.SetStyle(Empty);
-       sys.SetDelimiter("  ");
-       sys.AddColumn<string>(""); 
-       sys.SetMinumumWidth(20,0);//make first column at least 20 chars
-       for (int bin=1; bin<=n_channels; ++bin) {
-           if (it->bins[bin-1].signal.eventyield - it->bins[bin-1].signal.contamination<=0) continue;       
-           for (int sample=1; sample<=n_backgrounds+1; ++sample) 
-             sys.AddColumn<string>("");
-       }     
-       for (std::map<std::string,std::vector<std::string> >::const_iterator u=it->uncertainties.begin();
-            u!=it->uncertainties.end(); ++u) {
-	  sys << u->first;
-	  for (int b=0; b<n_channels; ++b) {
-	    if (it->bins[b].signal.eventyield - it->bins[b].signal.contamination<=0) continue;
-	    bool foundSyst=false;
-            for (int unc=0; unc<(int)it->bins[b].signal.uncert.size();++unc){
-	      string unc_name( it->bins[b].signal.uncert[unc].label );
-              std::replace(unc_name.begin(), unc_name.end(), ' ', '_'); 
-              if (unc_name+" "+it->bins[b].signal.uncert[unc].distribution ==u->first){
-	        sys << ToString(it->bins[b].signal.GetFactorialUncertainty(unc),"-"); // signal
-		foundSyst=true;
-              }
-	    }
-	    if (!foundSyst) sys << "-";
-	    for (int sample=0; sample<n_backgrounds; ++sample) { 
-	      foundSyst=false; 
-              for (int unc=0; unc<(int)it->bins[b].backgds[sample].uncert.size();++unc){
-	        string unc_name( it->bins[b].backgds[sample].uncert[unc].label );
-                std::replace(unc_name.begin(), unc_name.end(), ' ', '_'); 
-                if (unc_name+" "+it->bins[b].backgds[sample].uncert[unc].distribution ==u->first){
-	          sys << ToString(it->bins[b].backgds[sample].GetFactorialUncertainty(unc),"-"); // background 'sample'
- 		  foundSyst=true;
-	        }
-	      }
-	      if (!foundSyst) sys << "-";
-	    }
-	  }        
-       }
-       ofile << sys << "------------" << std::endl;  
-
-       //cout << "WRITE m0:" << it->cmssm.mzero << ", m1/2:" << it->cmssm.mhalf << endl;
-       ofile.close();
-	}
-}
-*/
 
 void points::WriteTable(std::ostream& os, Table::TableStyle style, unsigned p)
 {
+   if (p>=p_.size()) return;
    using Table::TTable;
    TTable out("Observed and expected event yields");
-   out.SetCaption("Given systematics are simple quadric-sums, and not what is used for limit calculation where the correlations are considered.");
+   std::string captionstr = "Given systematics are simple quadric-sums, and not what is used for limit calculation where the correlations are considered. Signal parameters are: ";
+   for (std::map<std::string,std::string>::iterator it=p_[p].cmssm.params.begin(); it!=p_[p].cmssm.params.end(); ++it)
+      captionstr += it->first+" = " +it->second +", ";
+   captionstr += "Luminosity = " + ToString(p_[p].lumi);
+   out.SetCaption( captionstr );
    out.SetStyle(style);
    out.SetDelimiter("|");
    out.AddColumn<string>( "Samples" );
    for (int bin=0; bin<(int)p_[p].bins.size(); ++bin)
       out.AddColumn<string>( p_[p].bins[bin].label );
-   if (p>=0) { // add signal
-     out << p_[p].bins[0].signal.label;
-     for (int bin=0; bin<(int)p_[p].bins.size(); ++bin) {
-       std::stringstream ss;
-       ss<<std::fixed << std::setprecision(1) << p_[p].bins[bin].signal.eventyield;
-       if (style!=Table::TeX) ss << " +- ";
-       else ss <<" $\\pm$ ";
-       ss<<std::fixed << std::setprecision(1)<<p_[p].bins[bin].signal.GetTotalUncertainty() << " ";
-       out << ss.str();
-     }
-     //signal contamination  
-     out << p_[p].bins[0].signal.label+" contamination";
-     for (int bin=0; bin<(int)p_[p].bins.size(); ++bin) {
-       std::stringstream ss;
-       ss<<std::fixed << std::setprecision(1) << p_[p].bins[bin].signal.contamination;
-       out << ss.str();
-     }
+   // add signal
+   out << p_[p].bins[0].signal.label;
+   for (int bin=0; bin<(int)p_[p].bins.size(); ++bin) {
+     std::stringstream ss;
+     ss<<std::fixed << std::setprecision(1) << p_[p].bins[bin].signal.eventyield;
+     if (style!=Table::TeX) ss << " +- ";
+     else ss <<" $\\pm$ ";
+     ss<<std::fixed << std::setprecision(1)<<p_[p].bins[bin].signal.GetTotalUncertainty() << " ";
+     out << ss.str();
    }
+   //signal contamination  
+   out << p_[p].bins[0].signal.label+" contamination";
+   for (int bin=0; bin<(int)p_[p].bins.size(); ++bin) {
+     std::stringstream ss;
+     ss<<std::fixed << std::setprecision(1) << p_[p].bins[bin].signal.contamination;
+     out << ss.str();
+   }
+   
    //backgrounds
    std::vector<double> total_back, total_backuncert2;
    for (int bin=0; bin<(int)p_[p].bins.size(); ++bin) {total_back.push_back(0); total_backuncert2.push_back(0);}
@@ -712,162 +561,133 @@ void points::WriteTable(std::ostream& os, Table::TableStyle style, unsigned p)
 }
 
 
-void points::AddData(point& p, ConfigFile * data, std::string data_name){
-    p.lumi = data  ->read<double>("luminosity");
-    std::vector<double> dat_yield = bag_of<double>(data  ->read<std::string>(data_name+"_events"));
-    std::vector<std::string> bin_labels = bag_of_string(data->read<std::string>("channel"));
-    for (int i=0; i<(int)p.bins.size(); ++i) {
-      p.bins[i].label = bin_labels[i];
-      p.bins[i].data.label = data_name;
-      p.bins[i].data.eventyield = dat_yield[i];
+void points::AddData(point& p, ConfigFile * data){
+    p.lumi = data  ->read<double>("lumi", p.lumi);
+    std::vector<double> dat_yield = bag_of<double>(data  ->read<std::string>("selected"));
+    for (int b=0; b<p.n_bins; ++b) {
+      p.bins[b].data.eventyield = dat_yield[b];
+      p.bins[b].data.label="data";
     }
-}
-void points::AddData(point& p, std::string dat){
-    ConfigFile * data   = new ConfigFile( dat );
-    p.n_bins = data->read<double>("channels",1.);
-    if (!p.bins.size()) for (int i=0; i<(int)p.n_bins; ++i) p.bins.push_back(point::Bin());
-    else if (p.n_bins!=p.bins.size()){
-      std::cerr << "ERROR: inconsistent number of channels! Check data = "<< dat 
-                << " "<<p.n_bins<<"<->"<<p.bins.size()<<std::endl;
-      exit(1);
-    }
-    std::string data_name = data->read<std::string>("sample","data");
-    AddData(p,data,data_name);
 }
 
-void points::AddBackground(point& p, ConfigFile * cfg, std::string name){
-    double lumiscale = p.lumi / cfg->read<double>("luminosity");
-    std::vector<double> yield = bag_of<double>(cfg->read<std::string>(name+"_events"));
+
+void points::AddBackground(point& p, ConfigFile * cfg, const std::string& name){
+    double lumiscale = p.lumi / cfg->read<double>("luminosity", p.lumi);
+    std::vector<double> yield = bag_of<double>(cfg->read<std::string>(name+" background"));
     int n_nuis = cfg->read<int>("nuisances",1);
     std::vector<string> nuisance_label = bag_of_string(cfg->read<std::string>("nuisance",""));
     std::vector<string> nuisance_distr;
     std::vector< std::vector<double> > nuisUP, nuisDN;
     for (int nuis=0; nuis<n_nuis; ++nuis) {
-      std::stringstream ss, ssUP, ssDN, ssDistr;
-      ss << name<<"_uncertainty_"<<nuis+1;
-      ssUP << name<<"_uncertaintyUP_"<<nuis+1;
-      ssDN << name<<"_uncertaintyDN_"<<nuis+1;
-      ssDistr << name<<"_uncertaintyDistribution_"<<nuis+1;
-      nuisance_distr.push_back(cfg->read<std::string>(ssDistr.str(),"lnN"));
-      nuisDN.push_back(bag_of<double>(cfg->read<std::string>(ssDN.str(),
-                           cfg->read<std::string>(ss.str(),""))) ); //use symmetric uncertainty as default
-      nuisUP.push_back(bag_of<double>(cfg->read<std::string>(ssUP.str(),
-                           cfg->read<std::string>(ss.str(),""))) );
+      nuisance_distr.push_back(cfg->read<std::string>(name+" Distribution","lnN"));
+      nuisDN.push_back(bag_of<double>(cfg->read<std::string>(name+" "+nuisance_label[nuis]+" DN",cfg->read<std::string>(name+" "+nuisance_label[nuis],""))) ); //use symmetric uncertainty as default
+      nuisUP.push_back(bag_of<double>(cfg->read<std::string>(name+" "+nuisance_label[nuis]+" UP",cfg->read<std::string>(name+" "+nuisance_label[nuis],""))) );
       //if (nuisUP[nuis].size()!=p.bins.size() || nuisDN[nuis].size()!=p.bins.size() ){
-      if (nuisUP[nuis].size()!=nuisDN[nuis].size() || nuisUP[nuis].size()<p.n_bins ){
-        std::cerr << "ERROR: inconsistent number of channels for uncertainty '"<< ss.str() 
-	          << " up="<< nuisUP[nuis].size()<<"<->"<<p.bins.size()<< std::endl;
-	exit(1);
-      }
+      assert (nuisUP[nuis].size()==nuisDN[nuis].size());
+      assert (nuisUP[nuis].size()==nuisUP[nuis].size());
       //keep track of all correlated and uncorrelated uncertainties
-      string unc_name( nuisance_label[nuis] );
+      string unc_name( name+"_"+nuisance_label[nuis] );
       std::replace(unc_name.begin(), unc_name.end(), ' ', '_');
       p.uncertainties[ unc_name+" "+nuisance_distr[nuis] ].push_back(name );
    }
-   p.uncertainties[ name+"_trigger lnN"].push_back(name );
-   
-
-    for (int i=0; i<(int)p.bins.size(); ++i) {
+   for (int i=0; i<(int)p.bins.size(); ++i) {
       point::Sample s;
       s.label = name;
       s.eventyield = yield[i] * lumiscale;
       for (int u=0; u<n_nuis; ++u){
         point::Uncertainties uncert;
-	uncert.label = nuisance_label[u];
+	uncert.label = name+"_"+nuisance_label[u];
 	uncert.distribution = nuisance_distr[u];
 	uncert.up = nuisUP[u][i] * lumiscale;
 	uncert.dn = nuisDN[u][i] * lumiscale;
-	
-	//@@Check the impact of  errors: contrain them :
-	//if ( //(name=="zinvis" ) && 
-	//    (uncert.up>0.2*yield[i] || uncert.dn>0.2*yield[i])) {
-	//   uncert.up = 0.2*yield[i];
-	//   uncert.dn = 0.2*yield[i];
-	//}
-	//std::cout << "qcd? "<<(name=="qcd" && StrContains(uncert.label,"other")) 
-	//          << " : "<<name<<", "<<uncert.label<< "; "
-	//	  << yield[i]<<", "<< uncert.up<<"; "
-	//	  << uncert.up/yield[i]<<std::endl;  
-	//@@end: check
-
-	
+		
 	s.uncert.push_back(uncert);
       }
+      p.bins[i].backgds.push_back(s);      
+   }
+}
+
+void points::AddBkgTriggerUncertainty(point& p, ConfigFile * cfg, const std::string& name){
+    double lumiscale = p.lumi / cfg->read<double>("luminosity", p.lumi);
+    std::vector<double> yield = bag_of<double>(cfg->read<std::string>(name+" background"));
+    p.uncertainties[ name+"_trigger lnN"].push_back(name);
+    for (int i=0; i<(int)p.bins.size(); ++i) {
+      point::Sample s;
+      s.label = name;
+      s.eventyield = yield[i] * lumiscale;
       point::Uncertainties uncert;
       uncert.label = name+"_trigger";
       uncert.distribution = "lnN";
       uncert.up = trigger_uncertainty * yield[i] * lumiscale;
       uncert.dn = trigger_uncertainty * yield[i] * lumiscale;
       s.uncert.push_back(uncert);
-
       p.bins[i].backgds.push_back(s);      
     }
-
 }
-void points::AddSignal(point& p, ConfigFile * cfg, std::string name){
-    double lumiscale = p.lumi / cfg->read<double>("luminosity");
-    p.cmssm.mzero = cfg->read<double>("Mzero",-1.);
-    p.cmssm.mhalf = cfg->read<double>("Mhalf",-1.);
-    p.cmssm.azero = cfg->read<double>("Azero",-1.);
-    p.cmssm.tanbeta = cfg->read<double>("TanBeta",-1.);
-    p.cmssm.mu = cfg->read<double>("Mu",-1.);
-    p.cmssm.xsec = cfg->read<double>("Xsection.LO",-1.);
-    p.cmssm.xsecNLO = cfg->read<double>("Xsection.NLO",-1.);
 
-    std::vector<double> yield = bag_of<double>(cfg->read<std::string>(name+"_events"));
-    std::vector<double> contamination = bag_of<double>(cfg->read<std::string>(name+"_contamination"));
+void points::AddSignal(point& p, ConfigFile * cfg, int point_nr){
+    string name = "Point "+ToString(point_nr)+" ";
+    double lumiscale = p.lumi / cfg->read<double>("luminosity", p.lumi);
+    p.cmssm.params["gluino"] = cfg->read<std::string>(name+"gluino mass",cfg->read<std::string>("gluino mass","-1") );
+    p.cmssm.params["squark"] = cfg->read<std::string>(name+"squark mass",cfg->read<std::string>("squark mass","-1"));
+    p.cmssm.params["chi1"]   = cfg->read<std::string>(name+"chi1 mass",cfg->read<std::string>("chi1 mass","-1"));
+    p.cmssm.params["cha1"]   = cfg->read<std::string>(name+"cha1 mass",cfg->read<std::string>("cha1 mass","-1"));
+    p.cmssm.params["bino"]   = cfg->read<std::string>(name+"bino mass",cfg->read<std::string>("bino mass",p.cmssm.params["chi1"]));
+    p.cmssm.params["wino"]   = cfg->read<std::string>(name+"wino mass",cfg->read<std::string>("wino mass","-1"));
+    p.cmssm.params["Scan"]   = cfg->read<std::string>("signal scan","");
+    p.cmssm.params["ngenerated"]   = cfg->read<std::string>("nGen","");
+    p.cmssm.params["name"]   = name;
+    
+    //throws exception when end of file is reached:
+    std::vector<double> yield = bag_of<double>(cfg->read<std::string>(name+"number of signal events in bins"));
+    
+    //contamination
+    std::vector<double> qcd_contamination = bag_of<double>(cfg->read<std::string>(name+"QCD prediction"));
+    std::vector<double> ewk_contamination = bag_of<double>(cfg->read<std::string>(name+"EWK prediction"));
+    std::vector<double> contamination;
+    assert(yield.size()==p.bins.size());
+    assert(qcd_contamination.size()==p.bins.size());
+    assert(ewk_contamination.size()==p.bins.size());
+    for (int b=0; b<p.bins.size(); ++b)
+      contamination.push_back( qcd_contamination[b]+ewk_contamination[b] );
+
+    //STAT uncertainties *must* contain "STAT" in their label string (used to separate stat and syst uncs)!
+
     int n_nuis = cfg->read<int>("nuisances",1);
-    std::vector<string> nuisance_label = bag_of_string(cfg->read<std::string>("nuisance",""));
+    std::vector<string> nuisance_label = bag_of_string(cfg->read<std::string>("nuisance",";"));
+    assert(n_nuis==nuisance_label.size());
+
     std::vector<string> nuisance_distr;
     std::vector< std::vector<double> > nuisUP, nuisDN;
     for (int nuis=0; nuis<n_nuis; ++nuis) {
-      std::stringstream ss, ssUP, ssDN, ssDistr;
-      ss << name<<"_uncertainty_"<<nuis+1;
-      ssUP << name<<"_uncertaintyUP_"<<nuis+1;
-      ssDN << name<<"_uncertaintyDN_"<<nuis+1;
-      ssDistr << name<<"_uncertaintyDistribution_"<<nuis+1;
-      nuisance_distr.push_back(cfg->read<std::string>(ssDistr.str(),"lnN"));
-      nuisDN.push_back(bag_of<double>(cfg->read<std::string>(ssDN.str(),
-                           cfg->read<std::string>(ss.str(),""))) ); //use symmetric uncertainty as default
-      nuisUP.push_back(bag_of<double>(cfg->read<std::string>(ssUP.str(),
-                           cfg->read<std::string>(ss.str(),""))) );
-      //if (nuisUP[nuis].size()!=p.bins.size() || nuisDN[nuis].size()!=p.bins.size() ){
-      if (nuisUP[nuis].size()!=nuisDN[nuis].size() || nuisUP[nuis].size()<p.n_bins ){
-         std::cerr << "ERROR: inconsistent number of channels for uncertainty '"<< ss.str() << std::endl;
-	exit(1);
-      }
+
+      nuisance_distr.push_back(cfg->read<std::string>(nuisance_label[nuis]+" Distribution","lnN"));
+      nuisDN.push_back(bag_of<double>(cfg->read<std::string>(name+nuisance_label[nuis]+" DN", cfg->read<std::string>(name+nuisance_label[nuis],""))) ); //use symmetric uncertainty as default
+      nuisUP.push_back(bag_of<double>(cfg->read<std::string>(name+nuisance_label[nuis]+" UP", cfg->read<std::string>(name+nuisance_label[nuis],""))) );
+
+      assert(p.bins.size()==nuisDN[nuis].size());
+      assert(p.bins.size()==nuisUP[nuis].size());
+      
       //keep track of all correlated and uncorrelated uncertainties
-      string unc_name( nuisance_label[nuis] );
+      string unc_name( "signal_"+nuisance_label[nuis] );
       std::replace(unc_name.begin(), unc_name.end(), ' ', '_');
       p.uncertainties[ unc_name+" "+nuisance_distr[nuis] ].push_back(name );
     }
-    p.uncertainties[ name+"_trigger lnN"].push_back(name );
-   
+    //p.uncertainties[ "signal_trigger lnN"].push_back( name );
+    p.uncertainties[ "signal_trigger lnN"].push_back( "signal" );
 
     for (int i=0; i<(int)p.bins.size(); ++i) {
-      p.bins[i].signal.label = name;
-      p.bins[i].signal.eventyield    = yield[i] * lumiscale;
-      
+      p.bins[i].signal.label="signal";//name+" ("+p.cmssm.params["Scan"]+")";
+      p.bins[i].signal.eventyield    = yield[i] * lumiscale;      
       p.bins[i].signal.contamination = contamination[i] * lumiscale;
-      //p.bins[i].signal.contamination = 0;
       
-//kill bin 14: if (i==13)p.bins[i].signal.eventyield=0;
+      //uncertainties read from file
       for (int u=0; u<n_nuis; ++u){
         point::Uncertainties uncert;
 	uncert.label = nuisance_label[u];
 	uncert.distribution = nuisance_distr[u];
 	uncert.up = nuisUP[u][i] * lumiscale;
 	uncert.dn = nuisDN[u][i] * lumiscale;
-	
-	////@@Check the impact of hughe stat and JES/JER errors: contrain them to 20%:
-	//if ((uncert.label=="signal stat" || uncert.label=="signal syst") && 
-	 //   (uncert.up>0.2*p.bins[i].signal.eventyield || uncert.dn>0.2*p.bins[i].signal.eventyield)) {
-	//   uncert.up = 0.2*p.bins[i].signal.eventyield;
-	//   uncert.dn = 0.2*p.bins[i].signal.eventyield;
-	//}
-	//std::cout << "stat? "<<  (uncert.label=="signal stat") << " : "<<uncert.label<<std::endl;  
-	//std::cout << "syst? "<<  (uncert.label=="signal syst") << " : "<<uncert.label<<std::endl;  
-	//@@end: check
 	
 	if ((int)p.bins[i].signal.uncert.size()<=u ) 
 	  p.bins[i].signal.uncert.push_back(uncert);
@@ -877,9 +697,16 @@ void points::AddSignal(point& p, ConfigFile * cfg, std::string name){
 	  p.bins[i].signal.uncert[u].up = uncert.up;
 	  p.bins[i].signal.uncert[u].dn = uncert.dn;
 	}  
+	std::cout << "bin:"<<i<<", unc:"<<u<< " '"<<uncert.label<<"', up="<<uncert.up<<", dn="<<uncert.dn
+	          << "; Get()="<< p.bins[i].signal.GetFactorialUncertainty(u)
+		  <<endl;
+	
+
       }
+      //other uncertainties - by hand
+      //luminosity & trigger & data/MC scale uncertainty (affects all MC)
       point::Uncertainties uncert;
-      uncert.label = name+"_trigger";
+      uncert.label = "signal_trigger";
       uncert.distribution = "lnN";
       uncert.up = trigger_uncertainty * yield[i] * lumiscale;
       uncert.dn = trigger_uncertainty * yield[i] * lumiscale;
@@ -889,126 +716,80 @@ void points::AddSignal(point& p, ConfigFile * cfg, std::string name){
         p.bins[i].signal.uncert[n_nuis].distribution = uncert.distribution;
         p.bins[i].signal.uncert[n_nuis].up = uncert.up;
         p.bins[i].signal.uncert[n_nuis].dn = uncert.dn;
-      }  
-      
+      }      
     }
-
-}
-void points::AddBackgrounds(point& p, std::string bkg){
-    ConfigFile * cfg   = new ConfigFile( bkg );
-    int bins = cfg->read<double>("channels",1.);
-    if (!p.bins.size()) for (int i=0; i<bins; ++i) p.bins.push_back(point::Bin());
-    else if (bins!=(int)p.bins.size()){
-      std::cerr << "ERROR: inconsistent number of channels! Check background "<< bkg << std::endl;
-      exit(1);
-    }
-    std::vector<std::string> names = bag_of_string(cfg->read<std::string>("sample"));
-    for (std::vector<std::string>::const_iterator n=names.begin(); n!=names.end(); ++n)
-      AddBackground(p,cfg,*n);
 }
 
-void points::Read(std::string dat, std::vector<std::string> bkgs, std::vector<std::string> sigs) {
+void points::Read(ConfigFile& config) {
   using namespace std;
   point p;
-  AddData(p,dat);
-  for (std::vector<std::string>::const_iterator bkg=bkgs.begin(); bkg!=bkgs.end(); ++bkg){
-    AddBackgrounds(p,*bkg);
-  }  
-  for (std::vector<std::string>::const_iterator sig=sigs.begin(); sig!=sigs.end(); ++sig){
-    ConfigFile * signal = new ConfigFile( *sig );
-    int bins = signal->read<double>("channels",1.);
-    if (bins != signal->read<double>("channels",1.) ){
-        std::cerr << "ERROR: inconsistent number of channels! Skipping signal '"<<*sig<<"'" << std::endl;
-	continue;
-    }
-    stringstream ss;
-    ss << "signal"<<sig-sigs.begin();
-    std::string signal_name = signal->read<std::string>("sample",ss.str());
-    AddSignal(p,signal,signal_name);    
- 
-    Add(p);  
+  std::string infofile = config.read<std::string>("info file");
+  std::string datafile = config.read<std::string>("data file", infofile);
+  std::string bkgfile = config.read<std::string>("backgrounds file", datafile);
+  std::string qcdfile = config.read<std::string>("qcd file", bkgfile);
+  std::string ewkfile = config.read<std::string>("ewk file", bkgfile);
+  std::string isrfile = config.read<std::string>("isr file", bkgfile);
+  std::string signalfile = config.read<std::string>("signal file");
+
+  ConfigFile info(infofile);
+    p.lumi   = info.read<double>( config.read<std::string>("luminosity") );
+  p.n_bins = info.read<int>( config.read<std::string>("bins"), 1 );
+  for (int b=0; b<p.n_bins; ++b) {
+     point::Bin bin;
+     bin.label = info.read<std::string>("bin "+ToString(b), "bin "+ToString(b));
+     p.bins.push_back( bin );
   }
+  
+  ConfigFile data( datafile );
+  AddData(p, &data);
+
+  ConfigFile qcd( qcdfile );
+  AddBackground(p,&qcd,"QCD");
+
+  ConfigFile ewk( ewkfile );
+  AddBackground(p,&ewk,"EWK");
+
+  ConfigFile isr( isrfile );
+  AddBackground(p,&isr,"ISR");
+  AddBkgTriggerUncertainty(p,&isr,"ISR");
+
+  ConfigFile conf( signalfile );
+  int i=0;
+  do {
+    p.nr = i; 
+    try { AddSignal(p, &conf, i); } 
+    catch (exception& e){ cerr << e.what() << endl; throw e;}    
+    catch(std::string s){ cerr <<" -> catched exception in point "<<i<<": '"<<s<<"'. Stop processing of signals. "<<endl; return; }
+    catch(...){           cerr <<" -> catched exception in point "<<i<<". Stop processing of signals. "<<endl; return; }
+    std::cout << "...processing signal '"<< conf.read<string>("signal scan","") <<"' point "<<i++<<std::endl;
+    Add(p);  
+if (i==1)break; // just two points for testing
+  } while (1);
 }
 
 
 
 int main( int argc, char* argv[] ) {
-   Points.Reset();
-   std::string data="";
-   std::string out="limits";
-   std::vector<std::string> bkgds;
-   std::vector<std::string> signals;
-   double lumiscale = 1., lumiuncscale = 1;
-           
-   AnyOption *opt = new AnyOption();
-   opt->addUsage( "Usage: " );
-   opt->addUsage( "" );
-   opt->addUsage( " -h  --help                     Prints this help " );
-   opt->addUsage( " --tex                          Prints TeX table " );
-   opt->addUsage( " --single                       Creates Single-Channel input files" );
-   opt->addUsage( " --theory                       Include theoretical uncertainties on the signal cross-section" );
-   opt->addUsage( " -h  --help                     Prints this help " );
-   opt->addUsage( " -d  --data [file]              Data data-card " );
-   opt->addUsage( " -q  --qcd [file]               QCD data-card " );
-   opt->addUsage( " -l  --lostlepton [file]        W/tt lostlepton data-card " );
-   opt->addUsage( " -t  --tau [file]               W/tt->tau data-card " );
-   opt->addUsage( " -z  --zinvisible [file]        Z->nu nu data-card " );
-   opt->addUsage( " -o  --output [directory]       Output directory " );
-   opt->addUsage( " -s  --signal [file(s) ...]     Signal data-card(s) " );
-   opt->addUsage( " -e  --lumiscale [factor]       extrapolate to some lumi scenario" );
-   opt->addUsage( " -u  --lumiuncscale [factor]    uncertainty scale factor for some lumi scenario" );
-   opt->setFlag(  "help", 'h' );
-   opt->setFlag(  "tex" );
-   opt->setFlag(  "plain" );
-   opt->setFlag(  "single" );
-   opt->setFlag(  "theory" );
-   opt->setOption(  "data", 'd' );
-   opt->setOption(  "qcd", 'q' );
-   opt->setOption(  "lostlepton", 'l' );
-   opt->setOption(  "tau", 't' );
-   opt->setOption(  "zinvisible", 'z' );
-   opt->setOption(  "signal", 's' );
-   opt->setOption(  "output", 'o' );
-   opt->setOption(  "lumiscale", 'e' );
-   opt->setOption(  "lumiuncscale", 'u' );
-   opt->processCommandArgs( argc, argv );
-   if( opt->getValue( 'd' ) != NULL  || opt->getValue( "data" ) != NULL  )  
-      data = opt->getValue( 'd' );
-   if( opt->getValue( 'q' ) != NULL  || opt->getValue( "qcd"  ) != NULL  )  
-      bkgds.push_back( (string)opt->getValue( 'q' ));
-   if( opt->getValue( 'l' ) != NULL  || opt->getValue( "lostlepton"  ) != NULL  )  
-      bkgds.push_back( (string)opt->getValue( 'l' ));
-   if( opt->getValue( 't' ) != NULL  || opt->getValue( "tau"  ) != NULL  )  
-      bkgds.push_back( (string)opt->getValue( 't' ));
-   if( opt->getValue( 'z' ) != NULL  || opt->getValue( "zinvisible"  ) != NULL  )  
-      bkgds.push_back( (string)opt->getValue( 'z' ));
-   if( opt->getValue( 'o' ) != NULL  || opt->getValue( "output"  ) != NULL  )  
-      out = (string)opt->getValue( 'o' );
-   if( opt->getValue( 'e' ) != NULL  || opt->getValue( "lumiscale"  ) != NULL  )  
-      lumiscale = ToDouble((string)opt->getValue( 'e' ));
-   if( opt->getValue( 'u' ) != NULL  || opt->getValue( "lumiuncscale"  ) != NULL  )  
-      lumiuncscale = ToDouble((string)opt->getValue( 'u' ));
-   if( opt->getValue( 's' ) != NULL  || opt->getValue( "signal"  ) != NULL  )  
-      signals.push_back( (string)opt->getValue( 's' ));
-   for( int i = 0 ; i < opt->getArgc() ; i++ ) signals.push_back( (string)opt->getArgv( i ) );
 
-   if( opt->getFlag( "help" ) || opt->getFlag( 'h' ) ) opt->printUsage();
-   if (data==""||signals.size()<1||bkgds.size()<1){
-      if (!opt->getFlag( "help" ) && !opt->getFlag( 'h' ) ) opt->printUsage();
-      cerr<<"ERROR: Arguments missing!"<<endl;     
-      return 1;
-   }
-   Points.TheoryUncertainties( opt->getFlag( "theory" ) );
-  
-   Points.Read(data,bkgds,signals);
+   ConfigFile config( (argc>1?argv[1]:"default.cfg") );
+
+   Points.Reset();
+   std::string out="limits";
+   double lumiscale = 1., lumiuncscale = 1;
+             
+   Points.Read( config );
 
    if (lumiscale>1.)
      Points.ScaleLumi(lumiscale, lumiuncscale);
 
-   if (!opt->getFlag( "single" )) Points.WriteHiggsInputStatUncorr(out,"cMSSM");
-   else                           Points.WriteHiggsInputSingleChannel(out,"cMSSM");
-   if (opt->getFlag( "tex" ))     Points.WriteTable(std::cout,Table::TeX);
-   if (opt->getFlag( "plain" ))   Points.WriteTable(std::cout);
-   
+   Points.WriteHiggsInputStatUncorr(out,"dataCard");
+   Points.WriteHiggsInputSingleChannel(out,"dataCard_sc");
+   Points.WriteTable(std::cout,Table::Plain,0);
+
+   ofstream ofile;
+   ofile.open("Table.tex");
+   Points.WriteTable(ofile,Table::TeX, 0);
+   ofile.close();
+
    return 0;
 }

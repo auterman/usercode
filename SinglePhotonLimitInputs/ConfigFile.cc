@@ -39,8 +39,10 @@ ConfigFile::ConfigFile( string filename, string delimiter,
 	
 	std::ifstream in( filename.c_str() );
 	
-	if( !in ) throw file_not_found( filename ); 
-	
+	if( !in ) {
+	  std::cerr << "ConfigFile ERROR: Cannot find file '" <<filename<<"'!"<<std::endl;
+	  throw file_not_found( filename ); 
+	}
 	in >> (*this);
 }
 
