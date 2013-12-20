@@ -1,5 +1,5 @@
-C=g++
-LD=g++
+C=c++
+LD=c++
 F77=g77
 #O2 for optimization, g for debugging
 SPECIALFLAGS=-g # -O2 -g
@@ -13,12 +13,13 @@ LFLAGS = $(SPECIALFLAGS) -lz
 RCXX=$(CFLAGS) $(ROOTCFLAGS)
 RLXX=$(LFLAGS) $(ROOTLIBS)
 
-SRC=Variable.cc OldExclusionContours.cc ConfigFile.cc GeneratorMasses.cc PlotTools.cc Plotting.cc Event.cc
+SRC=table.cc Overview.cc Variable.cc OldExclusionContours.cc ConfigFile.cc GeneratorMasses.cc PlotTools.cc Plotting.cc Event.cc
 
 %.o: %.cc
 		$(C) $(RCXX) -c $<
 
-all: plotSinglePhoton7TeV plotSinglePhoton8TeV plot_Combination
+all: plotSinglePhoton8TeV20fb
+#plotSinglePhoton7TeV plotSinglePhoton8TeV plot_Combination
 
 
 # common object files:
@@ -70,6 +71,17 @@ plotSinglePhoton8TeV.o: plotSinglePhoton8TeV.cc plot.h
 plotSinglePhoton8TeV: $(SRC:.cc=.o) StyleSettings_SinglePhoton_8TeV.o plotSinglePhoton8TeV.o 
 		$(LD) $(SRC:.cc=.o) StyleSettings_SinglePhoton_8TeV.o plotSinglePhoton8TeV.o $(RLXX) $(JCORR) -o plotSinglePhoton8TeV
 		@echo '-> plotSinglePhoton8TeV executable created.'
+
+# single photon 8 TeV, 20 fb-1 specific ----------------------------------------------------------------------------------------
+StyleSettings_SinglePhoton_8TeV20fb.o: StyleSettings.h StyleSettings_SinglePhoton_8TeV20fb.cc
+		$(C) $(RCXX) -c StyleSettings_SinglePhoton_8TeV20fb.cc
+
+plotSinglePhoton8TeV20fb.o: plotSinglePhoton8TeV20fb.cc plot.h   
+		$(C) $(RCXX) -c plotSinglePhoton8TeV20fb.cc 
+
+plotSinglePhoton8TeV20fb: $(SRC:.cc=.o) StyleSettings_SinglePhoton_8TeV20fb.o plotSinglePhoton8TeV20fb.o 
+		$(LD) $(SRC:.cc=.o) StyleSettings_SinglePhoton_8TeV20fb.o plotSinglePhoton8TeV20fb.o $(RLXX) $(JCORR) -o plotSinglePhoton8TeV20fb
+		@echo '-> plotSinglePhoton8TeV20fb executable created.'
 
 # Combination specific ----------------------------------------------------------------------------------------
 StyleSettings_Combination.o: StyleSettings.h StyleSettings_Combination.cc

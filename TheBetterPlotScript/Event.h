@@ -17,7 +17,7 @@
 #include "Variable.h"
 
 
-const static int nchannels=14;
+const static int nchannels=6;
 
 
 class GeneratorMasses;
@@ -26,7 +26,11 @@ class GeneratorMasses;
 class Event{
  public:
   Event(){}
-  Event(Event*e){vars_=e->vars_; VariableIndex_=e->GetVariableIndex();}
+  //Event(Event& e){vars_=e.vars_; VariableIndex_=e.GetVariableIndex();}
+  Event(Event*e){vars_=e->vars_; //VariableIndex_=e->GetVariableIndex();
+    for (std::map<const std::string, unsigned>::const_iterator it=GetVariableBegin();it!=GetVariableEnd();++it)
+      VariableIndex_[it->first]=it->second;
+  }
  
   double Get(const std::string& variable) const {
     std::map<const std::string, unsigned>::const_iterator it = VariableIndex_.find(variable);
@@ -40,7 +44,9 @@ class Event{
   const Event operator+(const Event& f) const;
 
   std::vector<Variable> vars_;
-  std::map<const std::string, unsigned> GetVariableIndex(){return VariableIndex_;}
+  std::map<const std::string, unsigned> GetVariableIndex() const {return VariableIndex_;}
+  std::map<const std::string, unsigned>::const_iterator GetVariableBegin() const {return VariableIndex_.begin();}
+  std::map<const std::string, unsigned>::const_iterator GetVariableEnd() const {return VariableIndex_.end();}
   
  private:
 //  std::vector<Variable> vars_;
@@ -68,6 +74,7 @@ class Compare{
     if (op==less)         return evt.Get(variable)<value;
     else if (op==greater) return evt.Get(variable)>value;
     else if (op==equal)   return evt.Get(variable)==value;
+    return false;
   }
  private:
   const std::string variable;

@@ -22,6 +22,7 @@ void ReadEvent(Event& evt, ConfigFile& config)
   //If no default value is specified here, and a data-card does not contain the requested variable, 
   //the event is skipped, after an error message [void ReadEvents(Events& evts, const std::string& filelist)].
   //                           <Variable Name>, <Name in Cfg File>
+  evt.Add( ReadVariable(config, "number",      "point" ) );
   evt.Add( ReadVariable(config, "gluino",      "gluino" ) );
   evt.Add( ReadVariable(config, "squark",      "squark" ) );
   evt.Add( ReadVariable(config, "chi1",        "chi1" ) );
@@ -29,10 +30,9 @@ void ReadEvent(Event& evt, ConfigFile& config)
   evt.Add( ReadVariable(config, "cha1",        "cha1", evt.Get("chi1") ) );
   evt.Add( ReadVariable(config, "Xsection",    "Xsection.NLO" ) );
   evt.Add( ReadVariable(config, "Luminosity",  "Luminosity" ) );
-  evt.Add( ReadVariable(config, "signal",      "signal",0 ) );
-  evt.Add( ReadVariable(config, "contamination","signal.contamination", 0 ) );
-  evt.Add( ReadVariable(config, "Acceptance",  "signal.acceptance" ) );
+  //evt.Add( ReadVariable(config, "Acceptance",  "signal.acceptance", 0 ) );
 
+  evt.Add( ReadVariable(config, "R_firstguess","R_firstguess" ) );
   evt.Add( ReadVariable(config, "ObsRasym",    "CLs observed asymptotic", -9999999 ) );
   evt.Add( ReadVariable(config, "ExpRasym",    "CLs expected asymptotic", -9999999 ) );
   evt.Add( ReadVariable(config, "ExpRasymM1",  "CLs expected m1sigma asymptotic", -9999999 ) );
@@ -59,6 +59,8 @@ void ReadEvent(Event& evt, ConfigFile& config)
   evt.Add( ReadVariable(config, "u_signal_scale", "signal.scale.uncertainty", 0 ) );
   evt.Add( ReadVariable(config, "u_signal_pdf",   "signal.PDF.uncertainty",   0 ) );
 
+  double signal=0;
+  double contamination=0;
   if (1)
   for (int ch=0; ch<nchannels; ++ch) {
     std::stringstream ss;
@@ -71,7 +73,12 @@ void ReadEvent(Event& evt, ConfigFile& config)
     //normalize with signal:
     //double signal = evt.Get("signal_"+flag);
     //evt.Set( "signal_"+flag+"_contamination", 100.*evt.Get("signal_"+flag+"_contamination")/signal );
+    
+    signal += evt.Get("signal_"+flag);
+    contamination += evt.Get("signal_"+flag+"_contamination");
   }
+  evt.Add( Variable(signal, new Info("signal", "") ) );
+  evt.Add( Variable(contamination, new Info("contamination", "") ) );
   
 }
 
@@ -82,9 +89,10 @@ void CalculateVariablesOnTheFly(Event& evt)
   evt.Add( Variable(evt.Get("ExpR")*evt.Get("Xsection"), new Info("ExpXsecLimit","") ) );
   evt.Add( Variable(evt.Get("ObsRasym")*evt.Get("Xsection"), new Info("ObsXsecLimitasym","") ) );
   evt.Add( Variable(evt.Get("ExpRasym")*evt.Get("Xsection"), new Info("ExpXsecLimitasym","") ) );
+  evt.Add( Variable(100.*(evt.Get("signal")-evt.Get("contamination"))/(evt.Get("Xsection")*evt.Get("Luminosity")), new Info("AcceptanceCorrected","") ) );
+  evt.Add( Variable(evt.Get("signal")/(evt.Get("Xsection")*evt.Get("Luminosity")), new Info("Acceptance","") ) );
   evt.Add( Variable(100*evt.Get("Acceptance"), new Info("AcceptancePercent","") ) );
-  evt.Add( Variable(100.*(evt.Get("signal")-evt.Get("contamination"))/(evt.Get("Xsection")*evt.Get("Luminosity")), 
-           new Info("AcceptanceCorrected","") ) );
+  evt.Add( Variable(100.*evt.Get("contamination")/evt.Get("signal"), new Info("ContaminationRelToSignal","") ) );
 
   double NLO = evt.Get("u_signal_scale");
   double PDF = evt.Get("u_signal_pdf");

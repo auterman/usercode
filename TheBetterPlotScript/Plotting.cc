@@ -115,8 +115,8 @@ void DrawStandardPlots(PlotTools *pt, const std::string& flag, const std::string
    c1->UseCurrentStyle();
 
    //Require an observed CLs limit:
-   pt->Remove("Acceptance", Compare::less,    s->MinAccZ);
-   pt->Remove("Acceptance", Compare::greater, s->MaxAccZ);
+   //pt->Remove("Acceptance", Compare::less,    s->MinAccZ);
+   //pt->Remove("Acceptance", Compare::greater, s->MaxAccZ);
    //Fill the holes by 2D interpolation in gl-sq
    pt->FillEmptyPointsByInterpolation(x, y);
    
@@ -128,7 +128,8 @@ void DrawStandardPlots(PlotTools *pt, const std::string& flag, const std::string
    c1->SetLogz(0);
    DrawPlot2D(pt,c1,h,flag,x,y,"Acceptance",        "Acceptance", s->MinAccZ, s->MaxAccZ, s );
    DrawPlot2D(pt,c1,h,flag,x,y,"AcceptancePercent", "Acceptance [%]", s->MinAccZ*100., s->MaxAccZ*100., s );
-   DrawPlot2D(pt,c1,h,flag,x,y,"AcceptanceCorr",    "Acceptance corr. f. sig. cont. [%]", s->MinAccZ*100., s->MaxAccZ*100., s );
+   DrawPlot2D(pt,c1,h,flag,x,y,"AcceptanceCorrected",    "Acceptance corr. f. sig. cont. [%]", s->MinAccZ*100., s->MaxAccZ*100., s );
+   DrawPlot2D(pt,c1,h,flag,x,y,"ContaminationRelToSignal", "Signal contamination / Signal yield [%]" );
 
    //1D Histograms
    DrawHist1D(pt,c1,flag,x,y,"SignalStatUnc",	  "Rel. Signal Statistical uncertainty", 20);
@@ -163,6 +164,7 @@ void DrawStandardLimitPlots(PlotTools *pt, const std::string& flag, const std::s
    //Log z-scale
    c1->SetLogz(1);
    //DrawPlot2D(pt,c1,h,flag+"_FixedBinning",x,y,"ObsXsecLimit",      "Observed cross section limit [pb]",0.001,0.02);
+   DrawPlot2D(pt,c1,h,flag,x,y,"R_firstguess",      "R (first guess)", s->MinXsecZ, s->MaxXsecZ, s );
    DrawPlot2D(pt,c1,h,flag,x,y,"ObsXsecLimit",      "95% CL cross section upper limit [pb]", s->MinXsecZ, s->MaxXsecZ, s );
    DrawPlot2D(pt,c1,h,flag,x,y,"ExpXsecLimit",      "Expected cross section limit [pb]", s->MinXsecZ, s->MaxXsecZ, s);
    //DrawPlot2D(pt,c1,h,flag,x,y,"ObsNsignalLimit",   "Observed limit on number signal events");
@@ -364,7 +366,7 @@ void DrawExclusion(PlotTools *PlotTool, std::string flag, const std::string& x, 
    leg->AddEntry(legExp, "Expected #pm1#sigma exp.", "lf");
    //leg->AddEntry(gCLsExpTheop1, "Exp. limit #pm1#sigma signal theory", "l");
 
-   if (s->PostExclusionPlotting) s->PostExclusionPlotting(s);
+   if (s->PostExclusionPlotting) s->PostExclusionPlotting(s,leg);
    leg->Draw();
    s->lumi->Draw();
    s->cms->Draw();
@@ -394,7 +396,7 @@ void DrawExclusion(PlotTools *PlotTool, std::string flag, const std::string& x, 
    gCLsObsTheom1->Draw("l");
    gCLsObsTheop1->Draw("l");
    if (s->excluded) s->excluded->Draw();
-   if (s->PostExclusionPlotting) s->PostExclusionPlotting(s);   
+   if (s->PostExclusionPlotting) s->PostExclusionPlotting(s,0);   
    leg->Draw();
    s->lumi->Draw();
    s->cmsprelim->Draw();
@@ -458,7 +460,6 @@ void DrawExclusion(PlotTools *PlotTool, std::string flag, const std::string& x, 
    gCLsObsTheom1->Draw("l");
    gCLsObsTheop1->Draw("l");
    if (s->excluded) s->excluded->Draw();
-   if (s->PostExclusionPlotting)  s->PostExclusionPlotting(s);   
    TLegend* legSMS = s->leg;
    std::string header = legSMS->GetHeader();
    legSMS->Clear();
@@ -467,6 +468,7 @@ void DrawExclusion(PlotTools *PlotTool, std::string flag, const std::string& x, 
    legSMS->AddEntry(gCLsObsTheop1, "Observed #pm1#sigma theory", "l");
    legSMS->AddEntry(gCLsExpExcl,   "Expected", "l");
    legSMS->AddEntry(gCLsExpExclm1, "Expected #pm1#sigma exp.", "l");
+   if (s->PostExclusionPlotting)  s->PostExclusionPlotting(s,legSMS);   
    legSMS->Draw();
    s->lumiTemperaturePlot->Draw();
    s->cmsTemperaturePlot->Draw();
@@ -512,3 +514,4 @@ void GetPlotTools(PlotTools*& plotTools, std::string filename, const std::string
     Match( GenMasses, *events);
   }  
 } 
+

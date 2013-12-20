@@ -43,7 +43,6 @@ static bool plotROOT   = false;
 static bool plotPrelim = false;
 static TCanvas * c1 = 0;
 
-
 void DrawPlot2D(PlotTools *PlotTool, TCanvas*canvas, TH2* h, const std::string& flag, const string& x, const std::string& y, const std::string& var, 
                 const std::string& ztitel, double zmin=-999, double zmax=-999, style*s=0 );
 

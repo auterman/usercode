@@ -54,7 +54,7 @@ namespace Table {
     virtual unsigned    Size(){return field_.size();};
     virtual void        SetMinumumWidth(unsigned p){width_=p;};
     std::string         Str(const unsigned i){
-      if (i<0||i>=field_.size()) return "";
+      if (i>=field_.size()) return "";
       std::stringstream ss;
       ss<<std::fixed << std::setprecision(GetPrecision())<< *field_[i];
       return ss.str();

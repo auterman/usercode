@@ -120,7 +120,7 @@ struct style{
   /// I.e. the default value should leave the old style unchanged.
   ///
   void (*PreExclusionPlotting)(style*, PlotTools*);
-  void (*PostExclusionPlotting)(style*);
+  void (*PostExclusionPlotting)(style*, TLegend*);
    
   TLegend * leg;
   TLatex * cms, *cmsprelim, *lumi, *excluded, * cmsTemperaturePlot, *cmsprelimTemperaturePlot, *lumiTemperaturePlot ;

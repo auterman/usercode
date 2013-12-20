@@ -27,6 +27,7 @@
 #include "TLatex.h"
 #include "TFile.h"
 #include "TStyle.h"
+#include "table.h"
 
 PlotTools * PlotTools::Clone()
 {
@@ -44,6 +45,12 @@ void PlotTools::Area(TH2*h, const std::string& x, const std::string& y, const st
    Fill Y(y);
    Fill F(f);
    for (Events::const_iterator it = scan_->begin(); it != scan_->end(); ++it) {
+      double nr = it->Get("number");
+      if ( Overview && (nr-(int)nr)==0) { 
+        //std::cout << nr << ",  "<<f<< ",  "<<F(*it) << "; str="<<ToString<double>(F(*it)) <<std::endl;
+        Overview->Add( nr, f, ToString(F(*it)) );
+      }
+      
       h->SetBinContent(h->GetXaxis()->FindBin(X(*it)), h->GetYaxis()->FindBin(Y(*it)), F(*it));
       //if (x=="chi1"&&y=="gluino"&&f=="Acceptance")
       //std::cout<<x<<"="<<X(*it)<<", "<<y<<"="<<Y(*it)<<", "<<f<<"="<<F(*it)<<std::endl;
@@ -757,7 +764,6 @@ void SetZRange(TH2 * h, TH2*h2) {
 
 
 }
-
 
 TGraph* RA2Observed_36pb(){
    TGraph *graph = new TGraph(129);

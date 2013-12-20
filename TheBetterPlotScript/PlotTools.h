@@ -12,7 +12,9 @@
 #include <vector>
 #include <string>
 
+#include "Overview.h"
 #include "Event.h"
+#include "table.h"
 
 class TGraph;
 class SusyScan;
@@ -45,7 +47,6 @@ TCanvas*  GetLimitTemplateCanvas(std::string file,std::string key);
 TH2 * BinWiseOr(TH2*h1, TH2*h2);
 
 void SetZRange(TH2 * h, TH2*h2=0);
-
 
 class PlotTools {
  public:
@@ -94,7 +95,7 @@ class PlotTools {
   ///Delete points, for which the boolean result of the operation 'co' of 'var' with 'value' is true. 
   void Remove(const std::string& var, const Compare::comparator co, double value);
 
-  void Print(const std::string& var, const Compare::comparator co, double value, const std::string& var="", const Compare::comparator co=Compare::equal, double value=0);
+  void Print(const std::string& varvar, const Compare::comparator coco, double valvalue, const std::string& var="", const Compare::comparator co=Compare::equal, double value=0);
 
 /*
   TGraph * Line( double(*x)(const T*), double(*y)(const T*), 
@@ -134,6 +135,7 @@ class sort_TGraph{
    sort_TGraph(){}
    bool operator()(const TGraph*g1, const TGraph*g2);
 };
+
 
 TGraph* Atlas0l24j_1fb( );
 TGraph* RA2Observed_36pb();
