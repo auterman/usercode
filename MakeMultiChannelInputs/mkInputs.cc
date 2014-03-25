@@ -22,9 +22,8 @@
 
 //LUMI
 const double luminosity = 19789.301;
-const double luminosityUncertainty = 1.022; //lumi for 2013, 29.11.2013
+const double luminosityUncertainty = 1.0255; //lumi for 2013, 30.1.2014
 
-const std::string WinoScanString = "Wino";  //sub-string in signalAcceptance input file, specifying if the number of generated events has to be set manually (because of generator cuts).
 const std::string T1lgScanString = "T1lg";
 const std::string T1ggScanString = "T1gg";
 
@@ -36,6 +35,22 @@ std::string ToString(double d, std::string s=""){
   return ss.str();
 }
 
+template<class T>
+T StringTo(const std::string& str)
+{
+  std::stringstream ss(str);
+  T res;
+  ss >> res;
+  return res;
+}
+
+template<class T>
+std::string ToString(T t)
+{
+  std::stringstream ss;
+  ss << t;
+  return ss.str();
+}
 
 struct point {
 	//general stuff, independent from selection
@@ -72,6 +87,9 @@ struct point {
 	double u_ewk_stat;
 	double u_fsr;
 	double u_fsr_stat;
+	//bin limits
+	std::string bin_low;
+	std::string bin_up;
 	};
 	std::vector<bin> bins;
 
@@ -104,10 +122,21 @@ struct point {
 
 class points {
 public:
+	void Do(const std::string& name, const std::string&dat, const std::string&sig, const
+  	        std::string&xsec, const std::string&pdf);
+
 	point* Get(double gl, double sq, double chi, double cha=0) {
-		for (std::vector<point>::iterator it = p_.begin(); it != p_.end(); ++it)
-			if ((gl==5000||gl==-1||it->gluino == gl) && (sq==5000||sq==-1||it->squark == sq) && it->chi == chi && (cha==0 || it->cha == cha))
+		for (std::vector<point>::iterator it = p_.begin(); it != p_.end(); ++it){
+//std::cout<<"   Get gl="<<it->gluino<<", sq="<<it->squark<<", chi="<<it->chi<<", cha="<<it->cha
+//         <<std::endl;
+
+			if ((gl==5000||gl==-1||it->gluino == gl) && 
+			    (sq==5000||sq==-1||it->squark == sq) && 
+			    (chi==5000||it->chi==chi) && 
+			    (cha==5000||cha==2000||cha==0||it->cha == cha)
+			   )
 				return &(*it);
+		}
 		return 0;
 	}
 	std::vector<point*> GetPointsWithSameMass(double gl, double sq) {
@@ -195,13 +224,6 @@ public:
 			ofile << "# signal.ewk.contamination = " << it->ewk_contamination << "\n";
 			ofile << "# signal.contamination = " << it->qcd_contamination + it->ewk_contamination << "\n";
                         ///some rough by-hand calculation of 'R' to pre-define (and check) the search range:
-			//double u_back2 = pow(it->u_qcd,2)+pow(it->u_qcd_stat,2)+pow(it->u_ewk,2)+pow(it->u_ewk_stat,2)+pow(it->u_fsr,2)+pow(it->u_fsr_stat,2);			
-			//double R = sqrt(it->data + u_signal_exp2*it->signal*it->signal + u_back2*(it->bgd_qcd + it->bgd_ewk + it->bgd_fsr)*(it->bgd_qcd + it->bgd_ewk + it->bgd_fsr))/(it->signal-it->qcd_contamination-it->ewk_contamination);
-			//ofile << "# s = " << it->signal << "+-"<< it->signal*sqrt(u_signal_exp2) <<"\n";
-			//ofile << "# b = " << (it->bgd_qcd + it->bgd_ewk + it->bgd_fsr)<< "+-"<< sqrt(u_back2)*(it->bgd_qcd + it->bgd_ewk + it->bgd_fsr)<<"\n";
-			//ofile << "# R = "         << R/2.    << "\n";
-			//ofile << "# R_m2sigma = " << R/8. << "\n";
-			//ofile << "# R_p2sigma = " << 2.*R << "\n";
 			///---
 			int n_channels    = it->bins.size();
 			int n_backgrounds = 3;
@@ -228,11 +250,6 @@ public:
 			  if (R<Rmin) Rmin=R;	  
 			}
 			ofile << "# R_firstguess = " << Rmin << "\n";
-			ofile << "## data = " << d << "\n";
-			ofile << "## background = " << b << "\n";
-			ofile << "## signal = " << s << "\n";
-			ofile << "## signal.contamination = " << cont << "\n";
-			ofile << "## acceptance = " << s/(it->lumi * it->xsecNLO ) << "\n";
 
 			ofile << "imax " << setw(2) << n_channels    << "  number of channels" << endl;
 			ofile << "jmax " << setw(2) << n_backgrounds << "  number of backgrounds" << endl;
@@ -397,8 +414,20 @@ public:
 			ofstream ofile;
 			stringstream ss;
 			ss << dir << "_" << it->squark << "_" << it->gluino << "_"
-					<< it->chi << "_bin"<<bin<<".txt";
+					<< it->chi << "_"<<it->cha<<"_bin"<<bin<<".txt";
 			ofile.open(ss.str().c_str());
+
+			double u_signal_exp2 =pow(it->u_pdfacc ,2) +
+				             pow(it->u_sig_stat ,2) +
+				             pow(luminosityUncertainty-1,2) + //lumi-err not included since correlated with backgd
+				             pow(it->u_scaleDataMC-1 ,2) + //factorial
+					     pow(it->u_jes-1 ,2); //factorial
+
+			double u_signal_theo2 =   pow(it->u_NLO,2) +
+				             pow(it->u_pdfxsec ,2);
+
+			double u_acc = it->signal/(it->xsecNLO * it->lumi ) *
+			               sqrt( u_signal_exp2 +u_signal_theo2 );
 			ofile << "# gluino = " << it->gluino << "\n";
 			ofile << "# squark = " << it-> squark << "\n";
 			ofile << "# chi1 = " << it-> chi << "\n";
@@ -406,7 +435,35 @@ public:
 			ofile << "# Xsection.LO = " << it-> xsec << "\n";
 			ofile << "# Xsection.NLO = " << it-> xsecNLO << "\n";
 			ofile << "# Luminosity = " << it-> lumi << "\n";
+			ofile << "# signal.scale.uncertainty = " << it->u_NLO << "   #(relative)\n";
+			ofile << "# signal.scale.uncertainty.UP = " << it->u_NLO_Up << "   #(relative)\n";
+			ofile << "# signal.scale.uncertainty.DN = " << it->u_NLO_Dn << "   #(relative)\n";
+			ofile << "# signal.PDF.uncertainty = " << it->u_pdfxsec << "   #(relative)\n";
+			ofile << "# signal.PDFacc.uncertainty = " << it-> u_pdfacc << "   #(relative)\n";
+			ofile << "# signal.ngen = " << it->totalGenerated << "\n";
+			ofile << "# signal.acceptance = " << it->signal/(it->xsecNLO * it->lumi ) << "\n";
+			ofile << "# signal.acceptance.uncertainty = " << u_acc << "\n";
+			ofile << "# signal.Stat.uncertainty = " << it->u_sig_stat << "\n";
+			ofile << "# qcd = " << it->bgd_qcd << "\n";
+			ofile << "# ewk = " << it->bgd_ewk << "\n";
+			ofile << "# fsr = " << it->bgd_fsr << "\n";
+			ofile << "# background = " << it->bgd_qcd + it->bgd_ewk + it->bgd_fsr << "\n";
+			ofile << "# u_qcd = "      << it->u_qcd  << "\n";
+			ofile << "# u_qcd_stat = " << it->u_qcd_stat << "\n";
+			ofile << "# u_ewk = "      << it->u_ewk  << "\n";
+			ofile << "# u_ewk_stat = " << it->u_ewk_stat << "\n";
+			ofile << "# u_fsr = "      << it->u_fsr  << "\n";
+			ofile << "# u_fsr_stat = " << it->u_fsr_stat << "\n";
+			ofile << "# background.uncertainty = " << (it->bgd_qcd + it->bgd_ewk + it->bgd_fsr)*sqrt(pow(it->u_qcd,2)+pow(it->u_qcd_stat,2)+pow(it->u_ewk,2)+pow(it->u_ewk_stat,2)+pow(it->u_fsr,2)+pow(it->u_fsr_stat,2)) << "\n";
+			ofile << "# data = " << it-> data << "\n";
+			ofile << "# signal = " << it->signal << "\n";
+			ofile << "# signal.qcd.contamination = " << it->qcd_contamination << "\n";
+			ofile << "# signal.ewk.contamination = " << it->ewk_contamination << "\n";
+			ofile << "# signal.contamination = " << it->qcd_contamination + it->ewk_contamination << "\n";
 			ofile << "# channel = "<<bin<<"\n";
+			ofile << "# bin = "<<bin<<"\n";
+			ofile << "# bin lower limit = "<<it->bins[bin].bin_low<<"\n";
+			ofile << "# bin upper limit = "<<it->bins[bin].bin_up<<"\n";
 			int n_backgrounds = 3;
 			int n_nuisance    = 8; //systs & stats
 			double d=it->bins[bin].data;
@@ -496,8 +553,8 @@ public:
 
 			//Now the statistical uncertainties:...................................
 			sys << "U_qcd_statistic lnN" << "-" << ToString(it->bins[bin].u_qcd_stat,"-") << "-" << "-"; 
-			sys << "U_ewk_statistic lnN" <<"-"<< "-"<< ToString(it->bins[b].u_ewk_stat,"-")<< "-"; 
-			sys << "U_fsr_statistic lnN" <<"-"<< "-"<<"-"<< ToString(it->bins[b].u_fsr_stat,"-");
+			sys << "U_ewk_statistic lnN" <<"-"<< "-"<< ToString(it->bins[bin].u_ewk_stat,"-")<< "-"; 
+			sys << "U_fsr_statistic lnN" <<"-"<< "-"<<"-"<<	ToString(it->bins[bin].u_fsr_stat,"-");
 			ofile << sys << "------------" << std::endl;  
 			//cout << "WRITE GL:" << it->gluino << ", SQ:" << it->squark << endl;
 
@@ -527,41 +584,61 @@ void ReadSignal(std::string sig_file, std::string dat_file="", std::string fsr_f
   if(cfg==0||dat_cfg==0||fsr_cfg==0)
    std::cerr << "FILE NOT FOUND! scan file= "<<cfg<<", data file="<<dat_cfg<<", isr file="<<fsr_cfg<<std::endl;
   int n=0;
+  
+  double default_gluino = cfg->read<double>("gluino mass",-1.);
+  double default_squark = cfg->read<double>("squark mass",-1.);
+  double default_chi    = cfg->read<double>("NLSP mass",-1.);	 
+         default_chi    = cfg->read<double>("bino mass",default_chi); 
+  double default_cha    = cfg->read<double>("wino mass",-1);   
+  int    ngen           = cfg->read<int>("nGen");   
+  
+  std::vector<std::pair<std::string,std::string> > bin_limits;
+  int n_channels = dat_cfg->read<int>("nMetBins");
+  for (int i=0; i<n_channels; ++i) {
+    std::string bin_str( (std::string)"bin "+ToString<int>(i));
+    std::vector<std::string> l = bag_of<std::string>(dat_cfg->read<std::string>(bin_str));
+    bin_limits.push_back(std::make_pair( l[0], l[2] ));
+  }
+  
+  
+  //loop over all signal points
   do {
 
     point p;
     std::stringstream ss;
     p.nr = n;
     ss << "Point " << n++;
-    p.gluino = cfg->read<double>(ss.str()+" gluino mass",-1.);
-    p.squark = cfg->read<double>(ss.str()+" squark mass",-1.);
-    p.chi    = cfg->read<double>(ss.str()+" NLSP mass",-1.);    
+    p.gluino = cfg->read<double>(ss.str()+" gluino mass",default_gluino);
+    p.squark = cfg->read<double>(ss.str()+" squark mass",default_squark);
+    p.chi    = cfg->read<double>(ss.str()+" NLSP mass",default_chi);    
     p.chi    = cfg->read<double>(ss.str()+" bino mass",p.chi); 
-    p.cha    = cfg->read<double>(ss.str()+" wino mass",-1);   
+    p.cha    = cfg->read<double>(ss.str()+" wino mass",default_cha);   
     
-    if (p.gluino==-1 && p.squark==-1 && p.chi==-1 && p.cha==-1) break;  
+    if (p.gluino==default_gluino && p.squark==default_squark && p.chi==default_chi && p.cha==default_cha) break;  
 
-    p.lumi = luminosity;
+    p.lumi = dat_cfg->read<double>("lumi", luminosity);
     p.signal = p.bgd_qcd = p.bgd_ewk= p.bgd_fsr = p.qcd_contamination = p.ewk_contamination = p.data = p.u_NLO = 0;
     p.u_pdfxsec = p.u_pdfacc = p.u_sig_stat = p.u_lumi = p.u_qcd = p.u_qcd_stat= p.u_ewk= p.u_ewk_stat= p.u_fsr= p.u_fsr_stat=0;
+    //read data and data-driven backgrounds
     std::vector<double> data       = bag_of<double>(dat_cfg->read<std::string>("selected"));
     std::vector<double> qcd        = bag_of<double>(dat_cfg->read<std::string>("QCD background"));
-    std::vector<double> u_qcd      = bag_of<double>(dat_cfg->read<std::string>("QCD syst error"));
-    std::vector<double> u_qcd_stat = bag_of<double>(dat_cfg->read<std::string>("QCD stat error"));
+    std::vector<double> u_qcd      = bag_of<double>(dat_cfg->read<std::string>("QCD syst uncert"));
+    std::vector<double> u_qcd_stat = bag_of<double>(dat_cfg->read<std::string>("QCD stat uncert"));
     std::vector<double> ewk        = bag_of<double>(dat_cfg->read<std::string>("EWK background"));
-    std::vector<double> u_ewk      = bag_of<double>(dat_cfg->read<std::string>("EWK syst error"));
-    std::vector<double> u_ewk_stat = bag_of<double>(dat_cfg->read<std::string>("EWK stat error"));
-
+    std::vector<double> u_ewk      = bag_of<double>(dat_cfg->read<std::string>("EWK syst uncert"));
+    std::vector<double> u_ewk_stat = bag_of<double>(dat_cfg->read<std::string>("EWK stat uncert"));
+    //MC backgrounds
     std::vector<double> fsr        = bag_of<double>(fsr_cfg->read<std::string>("ISR background"));
-    std::vector<double> u_fsr      = bag_of<double>(fsr_cfg->read<std::string>("ISR syst error"));
-    std::vector<double> u_fsr_stat = bag_of<double>(fsr_cfg->read<std::string>("ISR stat error"));
-
+    std::vector<double> u_fsr      = bag_of<double>(fsr_cfg->read<std::string>("ISR syst uncert"));
+    std::vector<double> u_fsr_stat = bag_of<double>(fsr_cfg->read<std::string>("ISR stat uncert"));
+    //Signal
     std::vector<double> sig        = bag_of<double>(cfg->read<std::string>(ss.str()+" number of signal events in bins"));
     std::vector<double> u_sig      = bag_of<double>(cfg->read<std::string>(ss.str()+" statistical error of signal events in bins"));
     std::vector<double> sig_qcd    = bag_of<double>(cfg->read<std::string>(ss.str()+" QCD prediction"));
     std::vector<double> sig_ewk    = bag_of<double>(cfg->read<std::string>(ss.str()+" EWK prediction"));
-    int n_channels = data.size();
-    if ((int)qcd.size()!=n_channels ||(int)ewk.size()!=n_channels ||(int)fsr.size()!=n_channels ||
+    //Consistency check: Same number of channels in all samples?
+    if ( n_channels != (int)data.size() ||
+        (int)qcd.size()!=n_channels ||(int)ewk.size()!=n_channels ||(int)fsr.size()!=n_channels ||
         (int)sig.size()!=n_channels || (int)sig_ewk.size()!=n_channels) {
       std::cerr << "ERROR: inconstitent number of channels at signalpoint "<<n-1
                 << "; data=" << data.size()
@@ -574,17 +651,19 @@ void ReadSignal(std::string sig_file, std::string dat_file="", std::string fsr_f
       continue;
     }
 
-
     double scaleDataMC = 1.0;   //scale
     p.u_jes = 1.02;             //factorial uncertainty
     p.u_scaleDataMC = 1.04;     //factorial uncertainty
     
+    //fill all channels/bins
     for (int c=0;c<n_channels;++c){
 
       point::bin channel;
+      channel.bin_up             = bin_limits[c].first;
+      channel.bin_low            = bin_limits[c].second;
 
       channel.signal             = sig[c] * scaleDataMC;//This is in <number of generated events>, needs to be
-                                                         //weighted according to Lumi*xsec/n_generated, do that 
+                                                         //weighted according to Lumi*xsec/n_generated, do that later
 
       channel.bgd_qcd            = qcd[c];
       channel.bgd_ewk            = ewk[c];
@@ -598,11 +677,11 @@ void ReadSignal(std::string sig_file, std::string dat_file="", std::string fsr_f
       channel.u_sig_stat         = (sig[c] ?           1.+ u_sig[c]/sig[c]:0);
       channel.u_lumi             = luminosityUncertainty;
 
-      channel.u_qcd              = (channel.bgd_qcd?	   u_qcd[c]/channel.bgd_qcd	  :0);
+      channel.u_qcd              = (channel.bgd_qcd?   1.+ u_qcd[c]/channel.bgd_qcd	  :0);
       channel.u_qcd_stat         = (channel.bgd_qcd?   1.+ u_qcd_stat[c]/channel.bgd_qcd  :0);
-      channel.u_ewk              = (channel.bgd_ewk?       u_ewk[c]/channel.bgd_ewk       :0);
+      channel.u_ewk              = (channel.bgd_ewk?   1.+ u_ewk[c]/channel.bgd_ewk       :0);
       channel.u_ewk_stat         = (channel.bgd_ewk?   1.+ u_ewk_stat[c]/channel.bgd_ewk  :0);
-      channel.u_fsr              = (channel.bgd_fsr?   1.+ u_fsr[c]/channel.bgd_fsr:0);
+      channel.u_fsr              = (channel.bgd_fsr?   1.+ u_fsr[c]/channel.bgd_fsr       :0);
       channel.u_fsr_stat         = (channel.bgd_fsr?   1.+ u_fsr_stat[c]/channel.bgd_fsr  :0);
 
       channel.u_jes = p.u_jes;
@@ -630,11 +709,12 @@ void ReadSignal(std::string sig_file, std::string dat_file="", std::string fsr_f
   }
 
   //store total uncertainties per point *relative*, e.g. u_qcd=0.10 means 10% on qcd:
-  p.u_lumi      = (luminosityUncertainty-1.)*luminosity;
+  p.totalGenerated = ngen;
+  p.u_lumi      = (luminosityUncertainty-1.)*p.lumi;
   p.u_sig_stat  = sqrt(p.signal)/p.totalGenerated; 
-  p.u_qcd       = p.u_qcd / p.bgd_qcd - 1;
+  p.u_qcd       = p.u_qcd / p.bgd_qcd;
   p.u_qcd_stat  = sqrt(p.u_qcd_stat) / p.bgd_qcd;
-  p.u_ewk       = p.u_ewk / p.bgd_ewk - 1;
+  p.u_ewk       = p.u_ewk / p.bgd_ewk;
   p.u_ewk_stat  = sqrt(p.u_ewk_stat) / p.bgd_ewk;
   p.u_fsr       = p.u_fsr / p.bgd_fsr;
   p.u_fsr_stat  = sqrt(p.u_fsr_stat) / p.bgd_fsr;
@@ -654,7 +734,7 @@ void AddSMSXsec(std::string filelist) {
 	masses_file.open(filelist.c_str());
 	std::string file;
 	point p;
-	p.lumi = luminosity;
+	//p.lumi = luminosity;
 	p.squark = 0; //eigentlich 1E09, aber 'GetPointsWithSameMass' checked 0..
 	p.u_pdfxsec = 0;
 	p.u_pdfacc = 0;
@@ -679,20 +759,20 @@ void AddSMSXsec(std::string filelist) {
 	  		//	   std::cout << "gl" <<a->gluino << std::endl;
 	  	 	    // a->xsec        = p.xsec;
 	  	 	     a->xsecNLO     = p.xsecNLO;
-	  	 	     a->signal     *= luminosity*p.xsecNLO/a->totalGenerated;
-	  	 	     //a->u_sig_stat *= luminosity*p.xsecNLO/a->totalGenerated;
-	  	 	     a->qcd_contamination  *= luminosity*p.xsecNLO/a->totalGenerated;
-	  	 	     a->ewk_contamination  *= luminosity*p.xsecNLO/a->totalGenerated;
+	  	 	     a->signal     *= p.lumi*p.xsecNLO/a->totalGenerated;
+	  	 	     //a->u_sig_stat *= p.lumi*p.xsecNLO/a->totalGenerated;
+	  	 	     a->qcd_contamination  *= p.lumi*p.xsecNLO/a->totalGenerated;
+	  	 	     a->ewk_contamination  *= p.lumi*p.xsecNLO/a->totalGenerated;
 	  	 	     a->u_NLO       = p.u_NLO;
 	  	 	     a->u_NLO_Up    = p.u_NLO_Up;
 	  	 	     a->u_NLO_Dn    = p.u_NLO_Dn;
 	  		     a->u_pdfxsec   = p.u_pdfxsec;
 			     a->u_pdfacc    = p.u_pdfacc;
            	             for (std::vector<point::bin>::iterator bin=a->bins.begin(); bin!=a->bins.end(); ++bin) {
-	  	 	       bin->signal     *= luminosity*p.xsecNLO/a->totalGenerated;
-	  	 	       //bin->u_sig_stat *= luminosity*p.xsecNLO/a->totalGenerated;
-	  	 	       bin->qcd_contamination *= luminosity*p.xsecNLO/a->totalGenerated;
-	  	 	       bin->ewk_contamination *= luminosity*p.xsecNLO/a->totalGenerated;
+	  	 	       bin->signal     *= p.lumi*p.xsecNLO/a->totalGenerated;
+	  	 	       //bin->u_sig_stat *= p.lumi*p.xsecNLO/a->totalGenerated;
+	  	 	       bin->qcd_contamination *= p.lumi*p.xsecNLO/a->totalGenerated;
+	  	 	       bin->ewk_contamination *= p.lumi*p.xsecNLO/a->totalGenerated;
 	  	 	       bin->u_NLO = 1.0; //not considered for limit calculation
 		               bin->u_pdfxsec = 1.0;
 			       bin->u_pdfacc  = 1.0;
@@ -716,10 +796,10 @@ void AddXsec(std::string filelist) {
 	masses_file.open(filelist.c_str());
 	std::string file;
 	point p;
-	p.lumi = luminosity;
-	double LO_dn, LO_up, NLO_up, NLO_dn;
+	//p.lumi = luminosity;
+	double ngen, LO_dn, LO_up, NLO_up, NLO_dn;
 	while (1) {
-	   masses_file >> p.squark >> p.gluino >> p.chi >> p.xsec >> LO_up >> LO_dn >> p.xsecNLO
+	   masses_file >> ngen >> p.squark >> p.gluino >> p.chi >> p.cha >> p.xsec >> LO_up >> LO_dn >> p.xsecNLO
 	   	       >> NLO_up >> NLO_dn;
 	   if (!masses_file.good()) break;
 	   
@@ -729,27 +809,27 @@ void AddXsec(std::string filelist) {
 	   //std::cout << "neutr" << p.chi << std::endl;
 	   
 	   point * a = 0;
-	   a = Points.Get(p.gluino, p.squark, p.chi);
+	   a = Points.Get(p.gluino, p.squark, p.chi, p.cha);
+	   //std::cout<<"gl:"<<p.gluino<<", sq:"<<p.squark<<", chi:"<<p.chi<<" cha:"<<p.cha<<"; a="<<a<<std::endl;
 	   if (a && !a->u_NLO){
 	     a->xsec        = p.xsec;
 	     a->xsecNLO     = p.xsecNLO;
-	     a->signal     *= luminosity*p.xsecNLO/a->totalGenerated;
-	     //a->u_sig_stat *= luminosity*p.xsecNLO/a->totalGenerated;
-	     a->qcd_contamination  *= luminosity*p.xsecNLO/a->totalGenerated;
-	     a->ewk_contamination  *= luminosity*p.xsecNLO/a->totalGenerated;
+	     a->signal     *= a->lumi*p.xsecNLO/a->totalGenerated;
+	     //a->u_sig_stat *= a->lumi*p.xsecNLO/a->totalGenerated;
+	     a->qcd_contamination  *= a->lumi*p.xsecNLO/a->totalGenerated;
+	     a->ewk_contamination  *= a->lumi*p.xsecNLO/a->totalGenerated;
 	     a->u_NLO       = NLO_up / p.xsecNLO;
 	     a->u_NLO_Up    = NLO_up / p.xsecNLO;
 	     a->u_NLO_Dn    = NLO_dn / p.xsecNLO;
 	     for (std::vector<point::bin>::iterator bin=a->bins.begin(); bin!=a->bins.end(); ++bin) {
-	       bin->signal     *= luminosity*p.xsecNLO/a->totalGenerated;
-	       //bin->u_sig_stat *= luminosity*p.xsecNLO/a->totalGenerated;
-	       bin->qcd_contamination *= luminosity*p.xsecNLO/a->totalGenerated;
-	       bin->ewk_contamination *= luminosity*p.xsecNLO/a->totalGenerated;
+	       bin->signal     *= a->lumi*p.xsecNLO/a->totalGenerated;
+	       //bin->u_sig_stat *= a->lumi*p.xsecNLO/a->totalGenerated;
+	       bin->qcd_contamination *= a->lumi*p.xsecNLO/a->totalGenerated;
+	       bin->ewk_contamination *= a->lumi*p.xsecNLO/a->totalGenerated;
 	       bin->u_NLO = 1.0 + NLO_up / p.xsecNLO; //assume that 'u_NLO_up' is the absolute uncertainty in the same units as 'xsecNLO'
 	     }  
 	   }
 	   //else Points.Add(p); //We don't actually want x-sections for points for which we don't have event yields
-
 	}
 
 }
@@ -782,19 +862,19 @@ void Add_WB_NewXsec(std::string filelist) {
 	     a->gluino      = p.gluino;
 	     a->xsec        = p.xsec;
 	     a->xsecNLO     = fabs( p.xsecNLO );
-	     a->signal     *= luminosity*p.xsecNLO/p.totalGenerated;
-	     //a->u_sig_stat *= luminosity*p.xsecNLO/p.totalGenerated;
-	     a->qcd_contamination  *= luminosity*p.xsecNLO/p.totalGenerated;
-	     a->ewk_contamination  *= luminosity*p.xsecNLO/p.totalGenerated;
+	     a->signal     *= p.lumi*p.xsecNLO/p.totalGenerated;
+	     //a->u_sig_stat *= p.lumi*p.xsecNLO/p.totalGenerated;
+	     a->qcd_contamination  *= p.lumi*p.xsecNLO/p.totalGenerated;
+	     a->ewk_contamination  *= p.lumi*p.xsecNLO/p.totalGenerated;
 	     a->u_NLO       = fabs( NLO_up / p.xsecNLO );
 	     a->u_NLO_Up    = fabs( NLO_up / p.xsecNLO );
 	     a->u_NLO_Dn    = fabs( NLO_dn / p.xsecNLO );
 	     a->totalGenerated = p.totalGenerated;
 	     for (std::vector<point::bin>::iterator bin=a->bins.begin(); bin!=a->bins.end(); ++bin) {
-	       bin->signal     *= luminosity*p.xsecNLO/p.totalGenerated;
-	       //bin->u_sig_stat *= luminosity*p.xsecNLO/p.totalGenerated;
-	       bin->qcd_contamination *= luminosity*p.xsecNLO/p.totalGenerated;
-	       bin->ewk_contamination *= luminosity*p.xsecNLO/p.totalGenerated;
+	       bin->signal     *= p.lumi*p.xsecNLO/p.totalGenerated;
+	       //bin->u_sig_stat *= p.lumi*p.xsecNLO/p.totalGenerated;
+	       bin->qcd_contamination *= p.lumi*p.xsecNLO/p.totalGenerated;
+	       bin->ewk_contamination *= p.lumi*p.xsecNLO/p.totalGenerated;
 	       bin->u_NLO = 1.0 + fabs( NLO_up / p.xsecNLO ); //assume that 'u_NLO_up' is the absolute uncertainty in the same units as 'xsecNLO'
 	     }  
 	   }
@@ -815,12 +895,15 @@ void AddPDFs(const std::string filelist) {
                 masses_file >> p.totalGenerated >> p.gluino >> p.squark >> p.chi >> p.cha >> u_pdfxsec >> u_pdfacc;
 		if (!masses_file.good())	break;
 		point * a = Points.Get(p.gluino, p.squark, p.chi, p.cha);
+                //std::cout<<"PDFxsec gl="<<p.gluino<<", sq="<<p.squark<<", chi="<<p.chi<<", cha="<<p.cha<<"; point = "<<a
+                //         <<", pdf_xs="<<u_pdfxsec<<std::endl;
 		if (a) {
 		  a->u_pdfxsec = 0.01 * u_pdfxsec; //relative per point(!) 
 		  a->u_pdfacc  = 0.01 * u_pdfacc;
 	          for (std::vector<point::bin>::iterator bin=a->bins.begin(); bin!=a->bins.end(); ++bin) {
 		    bin->u_pdfxsec = 1.0 + 0.01 * u_pdfxsec; //factorial per bin(!)
 		    bin->u_pdfacc  = 1.0 + 0.01 * u_pdfacc; 
+		    
 		  }  
                 }
 	}
@@ -938,51 +1021,53 @@ point * MergeBins(const point& p, int bmin=0, int bmax=-1)
   return res;
 }
 
+
+void points::Do(const std::string& name, const std::string&dat, const std::string&sig, const std::string&xsec, const std::string&pdf)
+{
+   Points.Reset();
+   ReadSignal(sig, dat);
+   AddXsec(xsec);
+   AddPDFs(pdf);
+   {points MergedPoints;
+   for (std::vector<point>::iterator it=Points.Get()->begin(); it!=Points.Get()->end(); ++it)
+      MergedPoints.Add( *MergeBins(*it, 6));
+   std::system( ((std::string)"mkdir DataCards/"+name).c_str());
+   std::system( ((std::string)"mkdir DataCards/"+name+"_SingleChannels").c_str());
+   MergedPoints.Write(((std::string)"DataCards/"+name+"/GMSB").c_str());
+   MergedPoints.WriteSingleBin(((std::string)"DataCards/"+name+"_SingleChannels/GMSB").c_str());
+   }
+
+}
+
 int main(int argc, char* argv[]) {
-/*
-   //New Paper 2012 Scan: ///////// Bin --- Wino /////////////////////////////////////////////////////////////////////// 
-   //2-jets
-   Points.Reset();
-   ReadSignalAcceptance("2j","inputWinter11/signalAcceptanceBinoWinoWinter11.dat", "inputWinter11/data_Full2011.txt");
-   Add_WB_NewXsec("inputWinter11/Spectra_WB.xsec");
-   AddPDFs("inputWinter11/Spectra_WB_phad_pdfuncert.dat");
-   {points MergedPoints;
-   for (std::vector<point>::iterator it=Points.Get()->begin(); it!=Points.Get()->end(); ++it)
-      MergedPoints.Add( *MergeBins(*it, 6));
-   std::system("mkdir GMSB_WinoBino_2j");
-   std::system("mkdir GMSB_WinoBino_SingleChannels2j");
-   MergedPoints.Write("GMSB_WinoBino_2j/GMSB");
-   MergedPoints.WriteSingleBin("GMSB_WinoBino_SingleChannels2j/GMSB");
-   }
 
-
-  Points.Reset();
-   ReadSignalAcceptance("2j","inputWinter11/signalAcceptanceWino_preARC20120208.dat", "inputWinter11/data_Full2011.txt");
-   AddXsec("inputWinter11/wino375NLOxsec2_Dec1.dat");
-   AddPDFxsec("inputWinter11/PDFcross.txt", 375);
-   AddPDFAcceptance("inputWinter11/PDFacceptance.txt", 375);
-   {points MergedPoints;
-   for (std::vector<point>::iterator it=Points.Get()->begin(); it!=Points.Get()->end(); ++it)
-      MergedPoints.Add( *MergeBins(*it, 6));
-   std::system("mkdir GMSBWino375Neutr2j");
-   std::system("mkdir GMSBWino375NeutrSingleChannels2j");
-   MergedPoints.Write("GMSBWino375Neutr2j/GMSB");
-   MergedPoints.WriteSingleBin("GMSBWino375NeutrSingleChannels2j/GMSB");
-   }
-*/   
-
-   Points.Reset();
-   ReadSignal("inputWinter13/SqGl-Wino.txt", "inputWinter13/mc_estimation.txt");
-   AddXsec("Xsecs/NLOProspinoXsecs_Wino_Neutr375.txt");
-   AddPDFxsec("PDF/PDFcross.txt", 375);
-   AddPDFAcceptance("PDF/PDFacceptance.txt", 375);
-   {points MergedPoints;
-   for (std::vector<point>::iterator it=Points.Get()->begin(); it!=Points.Get()->end(); ++it)
-      MergedPoints.Add( *MergeBins(*it, 6));
-   std::system("mkdir GMSB_SqGl-Wino");
-   std::system("mkdir GMSB_SqGl-Wino_SingleChannels");
-   MergedPoints.Write("GMSB_SqGl-Wino/GMSB");
-   MergedPoints.WriteSingleBin("GMSB_SqGl-Wino_SingleChannels/GMSB");
-   }
+   std::string gsq_w_xsec="Xsecs/Spectra_gsq_W_8TeV.xsec";//"Xsecs/NLOProspinoXsecs_Wino_Neutr375.txt";
+   std::string gsq_b_xsec="Xsecs/Spectra_gsq_B_8TeV.xsec";//"Xsecs/NLOProspinoXsecs_Bino_Neutr375.txt";
+   std::string gsq_w_pdf="PDF/Spectra_gsq_W_phad_pdfuncert.dat";
+   std::string gsq_b_pdf="PDF/Spectra_gsq_B_phad_envpdfuncert.dat";
+   std::string YieldsData = "inputWinter13/eventYieldData-2014-03-19.txt";
    
+   /*
+   //21 MET bins	       
+   Points.Do("GMSB_SqGl-Wino-21metBins", "inputWinter13/eventYieldData_21metBins-2014-01-30.txt",
+             "inputWinter13/eventYieldSpectra_gsq_W_21metBins-2014-01-29.txt",gsq_w_xsec,gsq_w_pdf);   
+
+   Points.Do("GMSB_SqGl-Bino-21metBins", "inputWinter13/eventYieldData_21metBins-2014-01-30.txt",
+             "inputWinter13/eventYieldSpectra_gsq_B_21metBins-2014-01-29.txt",gsq_b_xsec,gsq_b_pdf); 
+
+	       
+   //4fb-1, real data yields
+   Points.Do("GMSB_SqGl-Wino-4fb", "inputWinter13/eventYieldData4fb-2014-01-30.txt",
+             "inputWinter13/eventYieldSpectra_gsq_W-2014-01-29.txt",gsq_w_xsec,gsq_w_pdf);   
+
+   Points.Do("GMSB_SqGl-Bino-4fb", "inputWinter13/eventYieldData4fb-2014-01-30.txt",
+             "inputWinter13/eventYieldSpectra_gsq_B-2014-01-29.txt",gsq_b_xsec,gsq_b_pdf); 
+   */
+   //normal
+   Points.Do("GMSB_SqGl-Wino", YieldsData,
+             "inputWinter13/eventYieldSpectra_gsq_W-2014-01-29.txt",gsq_w_xsec,gsq_w_pdf);   
+
+   Points.Do("GMSB_SqGl-Bino", YieldsData,
+             "inputWinter13/eventYieldSpectra_gsq_B-2014-01-29.txt",gsq_b_xsec,gsq_b_pdf); 
+
 }

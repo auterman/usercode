@@ -1,0 +1,35 @@
+
+# This file contains event yield and uncertainties for data and simulated event points.
+# Produced by:
+#    Knut Kiesel
+# on:
+#    2014-01-30 17:42:53
+# with input version:
+#    44
+# There will be a common section for all signal points, folllowed by the information
+# for each signal point. The numbering of the signal points is arbitrary.
+# For bin edges, the ROOT conversion is used (lower bin edge included, upper bin
+# edge excluded).
+
+##################################
+
+lumi = 3932 #pb
+nMetBins = 6
+bin 0 = 100.0 to 120.0
+bin 1 = 120.0 to 160.0
+bin 2 = 160.0 to 200.0
+bin 3 = 200.0 to 270.0
+bin 4 = 270.0 to 350.0
+bin 5 = 350.0 to infinity
+
+##################################
+selected        = 383 234 64 46 23 7
+QCD background  = 268.004665375 153.660564423 32.7079510689 34.4322383404 18.2193207741 8.49999971688
+QCD stat uncert = 22.7785753004 18.4469071733 7.96568401975 12.2816549279 6.30402286991 4.86263628586
+QCD syst uncert = 69.0116406547 58.3629727788 9.17300299396 19.6190366714 5.24111032486 4.54916583369
+EWK background  = 9.93079960346 11.7955994606 6.334400177 4.8395998776 2.04240009189 0.991599960253
+EWK stat uncert = 0.509446833616 0.577388173274 0.373557390306 0.313621312247 0.187052186655 0.125689816144
+EWK syst uncert = 4.99433172906 5.93216447738 3.18565443202 2.43389940236 1.02715027838 0.498688860813
+ISR background  = 7.64594435692 10.5579280853 6.36157631874 5.8897292614 2.87772536278 2.25760051981
+ISR stat uncert = 0.144212380966 0.167317534751 0.128133279972 0.122382605053 0.081529651048 0.0640169617102
+ISR syst uncert = 3.82297217846 5.27896404266 3.18078815937 2.9448646307 1.43886268139 1.1288002599
