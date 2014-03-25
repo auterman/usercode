@@ -85,15 +85,18 @@ void points::PrintGlobalSums(std::ofstream& os, point&p)
     os << "# ewk = " << p.bgd_ewk << "\n";
     os << "# fsr = " << p.bgd_fsr << "\n";
     os << "# background = " << p.bgd_qcd + p.bgd_ewk + p.bgd_fsr << "\n";
+    os << "# background.uncertainty = " << (p.bgd_qcd + p.bgd_ewk + p.bgd_fsr)*sqrt(pow(p.u_qcd,2)+pow(p.u_qcd_stat,2)+pow(p.u_ewk,2)+pow(p.u_ewk_stat,2)+pow(p.u_fsr,2)+pow(p.u_fsr_stat,2)) << "\n";
     os << "# u_qcd = "      << p.u_qcd  << "\n";
     os << "# u_qcd_stat = " << p.u_qcd_stat << "\n";
     os << "# u_ewk = "      << p.u_ewk  << "\n";
     os << "# u_ewk_stat = " << p.u_ewk_stat << "\n";
     os << "# u_fsr = "      << p.u_fsr  << "\n";
     os << "# u_fsr_stat = " << p.u_fsr_stat << "\n";
-    os << "# background.uncertainty = " << (p.bgd_qcd + p.bgd_ewk + p.bgd_fsr)*sqrt(pow(p.u_qcd,2)+pow(p.u_qcd_stat,2)+pow(p.u_ewk,2)+pow(p.u_ewk_stat,2)+pow(p.u_fsr,2)+pow(p.u_fsr_stat,2)) << "\n";
     os << "# data = " << p. data << "\n";
     os << "# signal = " << p.signal << "\n";
+    os << "# u_signal_exp = " << sqrt(u_signal_exp2) << "\n";
+    os << "# u_signal_theo = " << sqrt(u_signal_theo2) << "\n";
+    
     os << "# signal.qcd.contamination = " << p.qcd_contamination << "\n";
     os << "# signal.ewk.contamination = " << p.ewk_contamination << "\n";
     os << "# signal.contamination = " << p.qcd_contamination + p.ewk_contamination << "\n";
@@ -118,6 +121,7 @@ void points::PrintBin(std::ofstream& os, point&p, unsigned bin, const std::strin
   	  os << "# data = " << d << "\n";
   	  os << "# background = " << b << "\n";
   	  os << "# signal = " << s << "\n";
+  	  os << "# u_signal = " << (u_sig-1.0) * s << "\n";
   	  os << "# signal.contamination = " << cont << "\n";
   	  os << "# signal.acceptance = " << s/(p.lumi * p.xsecNLO ) << "\n";
   	  os << "# signal.acceptance.uncertainty = " << (u_sig-1.0) * s/(p.lumi * p.xsecNLO )  << "\n";
