@@ -125,8 +125,8 @@ void points::PrintBin(std::ofstream& os, point&p, unsigned bin, const std::strin
   	  os << "# background names = qcd; ewk; fsr\n";
   	  os << "# signal = " << s << "\n";
   	  os << "# u_rel_signal_exp = " << (u_sig-1.0) << "\n";
-  	  os << "# u_rel_signal_theo = " << sqrt( pow(p.bins[b].u_NLO-1.,2) +
-  				                  pow(p.bins[bin].u_pdfxsec-1.,2)) << "\n";
+  	  //os << "# u_rel_signal_theo = " << sqrt( pow(p.bins[b].u_NLO-1.,2) +
+  	  //			                  pow(p.bins[bin].u_pdfxsec-1.,2)) << "\n";
   	  os << "# signal.contamination = " << cont << "\n";
   	  os << "# signal.acceptance = " << s/(p.lumi * p.xsecNLO ) << "\n";
   	  os << "# signal.acceptance.uncertainty = " << (u_sig-1.0) * s/(p.lumi * p.xsecNLO )  << "\n";
