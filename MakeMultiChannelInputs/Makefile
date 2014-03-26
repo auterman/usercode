@@ -24,16 +24,7 @@ clean:
 	@rm -f mkInputs 
 
 
-table.o: table.cc table.h column.h
-	$(C) $(RCXX) -c table.cc
-
-ConfigFile.o: ConfigFile.cc ConfigFile.h
-		$(C) $(RCXX) -c ConfigFile.cc 
-
-mkInputs.o: mkInputs.cc
-	$(C) $(RCXX) -c mkInputs.cc
-
-mkInputs: $(SRC:.cc=.o) table.h 
-	$(LD) $(SRC:.cc=.o) $(RLXX) -lMathMore  -o mkInputs
-	@echo '-> executable mkInputs created.'
+mkInputs: $(SRC:.cc=.o) 
+	$(LD) $(SRC:.cc=.o) $(RLXX) -lMathMore  -o $@
+	@echo '-> executable $@ created.'
 
