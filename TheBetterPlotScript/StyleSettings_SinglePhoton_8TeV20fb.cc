@@ -70,6 +70,18 @@ void SetDefault(style * s=0)
 
 }
 
+void Draw_OldBinoLimits(style * s=0, TLegend*l=0) {
+  TGraph * exp7TeVBinoSqGl = Exp_7TeV_Bino2j_squark_gluino();
+  TGraph * exp8TeVBinoSqGl = Exp_8TeV_Bino2j_squark_gluino();
+  TGraph * exp78TeVBinoSqGl = Exp_Bino_Single78corr_squark_gluino();
+  exp7TeVBinoSqGl->Draw();
+  exp8TeVBinoSqGl->Draw();
+  exp78TeVBinoSqGl->Draw();
+  if (l) l->AddEntry(exp78TeVBinoSqGl,"Combination 7 & 8 TeV, 9 fb^{-1}","l");
+  if (l) l->AddEntry(exp8TeVBinoSqGl, "Exp. 8 TeV, 4 fb^{-1}","l");
+  if (l) l->AddEntry(exp7TeVBinoSqGl, "Exp. 7 TeV, 5 fb^{-1}","l");
+}
+
 style* SqGlBino_Style(){ /// Sq-Gl Bino /// ---------------------------------------------------------------------
   style * s = new style();
   s->leg=new TLegend(0.26,0.26,0.61,0.45,"#splitline{Bino-like #tilde{#chi}^{0} NLSP}{m_{#tilde{#chi}^{0}} = 375 GeV}");
@@ -81,6 +93,7 @@ style* SqGlBino_Style(){ /// Sq-Gl Bino /// ------------------------------------
   s->smooth_points=25;
   s->MinXsecZ=0.001;
   s->MaxXsecZ=0.03;
+  s->PostExclusionPlotting=Draw_OldBinoLimits;
   
   SetDefault(s);
   return s;

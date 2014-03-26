@@ -22,7 +22,7 @@ void ReadEvent(Event& evt, ConfigFile& config)
   //If no default value is specified here, and a data-card does not contain the requested variable, 
   //the event is skipped, after an error message [void ReadEvents(Events& evts, const std::string& filelist)].
   //                           <Variable Name>, <Name in Cfg File>
-  evt.Add( ReadVariable(config, "number",      "point" ) );
+  evt.Add( ReadVariable(config, "number",      "point", -1 ) );
   evt.Add( ReadVariable(config, "gluino",      "gluino" ) );
   evt.Add( ReadVariable(config, "squark",      "squark" ) );
   evt.Add( ReadVariable(config, "chi1",        "chi1" ) );

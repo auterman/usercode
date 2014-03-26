@@ -189,9 +189,21 @@ int plot(int argc, char** argv) {
 
   Overview = new OverviewTable();
 
-  ///Single Photon 8 TeV Summer12 ICHEP
-  if (1){ // 4.04 fb-1
-  DoPlotsFor("squark","gluino","GMSB_8TeV_Wino","2013-12-18-17-08-limitinput_test/filelist.txt",SqGlWino_Style(),4);
+  ///Single Photon 8 TeV 20fb-1 Spring 2014 PAS
+  if (0){ // 4.04 fb-1
+  DoPlotsFor("squark","gluino","GMSB_8TeV_Bino","2014-02-05-15-35-GMSB_SqGl-Bino/filelist.txt",SqGlBino_Style(),4);
+  DoPlotsFor("squark","gluino","GMSB_8TeV_Wino","2014-02-05-15-35-GMSB_SqGl-Wino/filelist.txt",SqGlWino_Style(),4);
+
+  DoPlotsFor("squark","gluino","GMSB_8TeV_Bino_21met","2014-01-31-11-22-GMSB_SqGl-Bino-21metBins/filelist.txt",SqGlBino_Style(),4);
+  DoPlotsFor("squark","gluino","GMSB_8TeV_Wino_21met","2014-01-31-11-22-GMSB_SqGl-Wino-21metBins/filelist.txt",SqGlWino_Style(),4);
+
+  DoPlotsFor("squark","gluino","GMSB_8TeV_Bino_4fb","2014-01-31-10-55-GMSB_SqGl-Bino-4fb/filelist.txt",SqGlBino_Style(),4);
+  DoPlotsFor("squark","gluino","GMSB_8TeV_Wino_4fb","2014-01-31-10-55-GMSB_SqGl-Wino-4fb/filelist.txt",SqGlWino_Style(),4);
+  }
+  //20.3.2014
+  if (1){
+  DoPlotsFor("squark","gluino","GMSB_8TeV_Bino","2014-03-19-17-41-GMSB_SqGl-Bino/filelist.txt",SqGlBino_Style(),4);
+  DoPlotsFor("squark","gluino","GMSB_8TeV_Wino","2014-03-19-17-41-GMSB_SqGl-Wino/filelist.txt",SqGlWino_Style(),4);
   }
   
   std::ofstream ofile;

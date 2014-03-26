@@ -98,7 +98,7 @@ public:
 	ConfigFile( string filename,
 	            string delimiter = "=",
 	            string comment = "#",
-				string sentry = "EndConfigFile" );
+		    string sentry = "EndConfigFile" );
 	ConfigFile();
 	~ConfigFile(){myContents.clear();}
 	
