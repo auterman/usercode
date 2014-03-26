@@ -68,18 +68,18 @@ function Scan()
     echo "--> Point $n, testing r=$i (max. steps=$MAX)"
     echo "$EXE $OPTIONS --saveToys --saveHybridResult --clsAcc 0 -T $PSEUDO --iterations $ITERATIONS -s -1 -n $MODEL  --singlePoint $i $FULLPATHMODEL &> CLsFrequ.$MODEL.$i.log"
     $EXE $OPTIONS --saveToys --saveHybridResult --clsAcc 0 -T $PSEUDO --iterations $ITERATIONS -s -1 -n $MODEL --singlePoint $i $FULLPATHMODEL &> CLsFrequ.$MODEL.$i.log
-    CLb=`grep -A 5 "And I'm done" CLsFrequ.$MODEL.$i.log | grep "CLb      =" | cut -d '=' -f 2 | cut -d '+' -f 1`
-    CLbUnc=`grep -A 5 "And I'm done" CLsFrequ.$MODEL.$i.log | grep "CLb      =" | cut -d '-' -f 2`
-    CLsb=`grep -A 6 "And I'm done" CLsFrequ.$MODEL.$i.log | grep "CLsplusb" | cut -d '=' -f 2 | cut -d '+' -f 1`
-    CLsbUnc=`grep -A 6 "And I'm done" CLsFrequ.$MODEL.$i.log | grep "CLsplusb" | cut -d '-' -f 2`
-    CLs=$CLsb
-    CLsUnc=$CLsbUnc
-    if  [ $(float_cond "$CLb != 0") == 0 ]; then 
-      CLs=`grep -A 1 "And I'm done" CLsFrequ.$MODEL.$i.log | grep "CLs" | cut -d '=' -f 2 | cut -d '+' -f 1`
-      CLsUnc=`grep -A 1 "And I'm done" CLsFrequ.$MODEL.$i.log | grep "CLs" | cut -d '-' -f 2`
-    else
-      echo "Warning, CLb=$CLb! Setting CLs = CLsb = $CLsb to continue..."
-    fi
+    CLb=`grep "CLb" CLsFrequ.$MODEL.$i.log | cut -d '=' -f 2 | cut -d '+' -f 1`
+    CLbUnc=`grep "CLb" CLsFrequ.$MODEL.$i.log | cut -d '-' -f 2`
+    CLsb=`grep "CLsplusb" CLsFrequ.$MODEL.$i.log | cut -d '=' -f 2 | cut -d '+' -f 1`
+    CLsbUnc=`grep "CLsplusb" CLsFrequ.$MODEL.$i.log | cut -d '-' -f 2`
+    CLs=`grep -A 2 "Hybrid New" CLsFrequ.$MODEL.$i.log | grep "CLs =" | cut -d '=' -f 2 | cut -d '+' -f 1`
+    CLsUnc=`grep -A 2 "Hybrid New" CLsFrequ.$MODEL.$i.log | grep "CLs ="  | cut -d '-' -f 2`
+#    if  [ $(float_cond "$CLb != 0") == 0 ]; then 
+#      CLs=`grep -A 1 "And I'm done" CLsFrequ.$MODEL.$i.log | grep "CLs" | cut -d '=' -f 2 | cut -d '+' -f 1`
+#      CLsUnc=`grep -A 1 "And I'm done" CLsFrequ.$MODEL.$i.log | grep "CLs" | cut -d '-' -f 2`
+#    else
+#      echo "Warning, CLb=$CLb! Setting CLs = CLsb = $CLsb to continue..."
+#    fi
     echo "r=$i  CLs = $CLs +- $CLsUnc,  CLb = $CLb +- $CLbUnc,  CLs+b = $CLsb +- $CLsbUnc"
     r[$n]=$i
     CLsArray[$n]=$CLs

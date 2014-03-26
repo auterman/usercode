@@ -6,6 +6,6 @@ ls $1/*.result.txt > $1/filelist.txt
 tar -cf $DIR.tar $1/*.txt
 gzip $DIR.tar
 #rm -f $1/*.txt
-cp $DIR.tar.gz  /afs/desy.de/user/a/auterman/temp/.
+scp $DIR.tar.gz  portal.physik.rwth-aachen.de:temp/.
 echo ""
-echo "cp  /afs/desy.de/user/a/auterman/temp/$DIR.tar.gz . ; tar -xvzf $DIR.tar.gz"
+echo "scp  portal.physik.rwth-aachen.de:temp/$DIR.tar.gz . ; tar -xvzf $DIR.tar.gz"
