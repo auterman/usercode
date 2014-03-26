@@ -69,7 +69,7 @@ std::ostream& operator<<( std::ostream& os, const TTable& tab )
        os<<tab.GetCaption()<<std::endl;
     if (tex) {
        os<<"\\end{tabular}"<<std::endl;
-       os<<"\\label{tab:xyz}"<<std::endl;
+       //os<<"\\label{tab:xyz}"<<std::endl;
        if (tab.GetCaption()!="") os<<"\\caption{"<<tab.GetCaption()<<"}"<<std::endl;
       }  
     return os;

@@ -12,7 +12,6 @@ void MyConfig::Process(){
   }
 
   opt_->processCommandArgs( argc_, argv_ );
-  std::cout<< opt_->getFlag( 'h' ) <<std::endl;
   if (IsAvailableInCL(confStr_,confChar_)) config_=new ConfigFile(GetFromCL(confStr_,confChar_));
   if (IsAvailableInCL("help",'h')) printUsage();
 }  

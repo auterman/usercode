@@ -20,7 +20,7 @@ void WriteTable(std::ostream& os, const Table::TableStyle style, const std::stri
   std::string titel = "";
   std::string pm = " +- ";
   if (style==Table::TeX) {
-    titel = "DemoPoint, m($\\tilde{q}$) = "+ToString(sq)+" GeV, m($\\tilde{g}$) = "+ToString(gl)+" GeV, m($\\tilde{\\chi^0_1}$) = "+ToString(chi)+" GeV, m($\\tilde{\\chi^\\pm_1}$) = "+ToString(cha)+" GeV (from "+dir+")";
+    titel = "%% DemoPoint, m($\\tilde{q}$) = "+ToString(sq)+" GeV, m($\\tilde{g}$) = "+ToString(gl)+" GeV, m($\\tilde{\\chi^0_1}$) = "+ToString(chi)+" GeV, m($\\tilde{\\chi^\\pm_1}$) = "+ToString(cha)+" GeV (from "+dir+")";
     pm = "$\\pm$";
   }
   else if (caption) titel = "m(squark) = "+ToString(sq)+", m(gluino) = "+ToString(gl)+", m(chi^0_1) = "+ToString(chi)+", m(chi^+-_1) = "+ToString(cha);
@@ -55,27 +55,31 @@ void WriteTable(std::ostream& os, const Table::TableStyle style, const std::stri
        lumi[i]      = config[i]->read<double>("Luminosity");
        xsec[i]      = config[i]->read<double>("Xsection.NLO", -1);
        data[i]      = config[i]->read<std::string>("data");
+       sig[i]	    = config[i]->read<double>("signal"), 
        qcdyield[i]  = config[i]->read<double>("qcd");
        ewkyield[i]  = config[i]->read<double>("ewk"); 
        fsryield[i]  = config[i]->read<double>("fsr");
-       u_qcd[i]     = sqrt(pow(config[i]->read<double>("u_qcd"),2)+
-                           pow(config[i]->read<double>("u_qcd_stat"),2));
-       u_ewk[i]     = sqrt(pow(config[i]->read<double>("u_ewk"),2)+
-                           pow(config[i]->read<double>("u_ewk_stat"),2));
-       u_fsr[i]     = sqrt(pow(config[i]->read<double>("u_fsr"),2)+
-     		           pow(config[i]->read<double>("u_fsr_stat"),2));
-       sig[i]	    = config[i]->read<double>("signal"), 
-       u_sig[i]     = config[i]->read<double>("signal.acceptance.uncertainty")*lumi[i]*xsec[i];
+       u_qcd[i]     = sqrt(pow(config[i]->read<double>("u_rel_qcd"),2)+
+                           pow(config[i]->read<double>("u_rel_qcd_stat"),2)) *
+		      qcdyield[i];
+       u_ewk[i]     = sqrt(pow(config[i]->read<double>("u_rel_ewk"),2)+
+                           pow(config[i]->read<double>("u_rel_ewk_stat"),2)) *
+		      ewkyield[i];
+       u_fsr[i]     = sqrt(pow(config[i]->read<double>("u_rel_fsr"),2)+
+     		           pow(config[i]->read<double>("u_rel_fsr_stat"),2)) *
+		      fsryield[i];
+       u_sig[i]     = config[i]->read<double>("u_rel_signal_exp") * 
+                      sig[i];
        totbgd[i]    = config[i]->read<double>("background");
        u_totbgd[i]  = sqrt( pow(u_qcd[i],2)+pow(u_ewk[i],2)+pow(u_fsr[i],2));
        acceptance[i]= ToString(100.*sig[i]/(xsec[i]*lumi[i]) );
 
 
-       qcd[i]	    = ToString(qcdyield[i])	+pm+ ToString( u_qcd[i]  );	     
-       ewk[i]	    = ToString(ewkyield[i])	+pm+ ToString( u_ewk[i]  );
-       fsr[i]	    = ToString(fsryield[i])	+pm+ ToString( u_fsr[i]  );
-       signal[i]    = ToString(sig[i])  	+pm+ ToString( u_sig[i]  );
-       background[i]= ToString(totbgd[i])	+pm+ ToString( u_totbgd[i]);
+       qcd[i]	    = ToStringYield(qcdyield[i])+pm+ ToStringUnc( u_qcd[i]  );	     
+       ewk[i]	    = ToStringYield(ewkyield[i])+pm+ ToStringUnc( u_ewk[i]  );
+       fsr[i]	    = ToStringYield(fsryield[i])+pm+ ToStringUnc( u_fsr[i]  );
+       signal[i]    = ToStringYield(sig[i])  	+pm+ ToStringUnc( u_sig[i]  );
+       background[i]= ToStringYield(totbgd[i])	+pm+ ToStringUnc( u_totbgd[i]);
     }
   }    
 
@@ -92,8 +96,8 @@ void WriteTable(std::ostream& os, const Table::TableStyle style, const std::stri
   for (int i=0; i<=max-min; ++i)  table << data[i];
   table << "Signal";
   for (int i=0; i<=max-min; ++i)  table << signal[i];
-  table << "Signal contamination";
-  for (int i=0; i<=max-min; ++i)  table << (!config[i]?"-":ToString(config[i]->read<double>("signal.contamination", -1),2));
+  table << "Signal cont.";
+  for (int i=0; i<=max-min; ++i)  table << (!config[i]?"-":ToStringYield(config[i]->read<double>("signal.contamination", -1)));
   table << "Acceptance [\\%]";
   for (int i=0; i<=max-min; ++i)  table << acceptance[i];
   //--------------------------------------------------------------------------------------------------------------
@@ -140,13 +144,20 @@ void WriteTable(std::ostream& os, const Table::TableStyle style, const std::stri
         << "the NLO cross-section is $\\sigma$ = "<<xsec<<" pb."
 	<<std::endl;   
      } else {
-     ss<<"\nResults for point $M_{sq}="<< ToString(sq) <<"$~GeV, $M_{gl}="
-       << ToString(gl) <<"$~GeV, $M_{chi^0_1}="<< ToString(chi) <<"$~GeV, $M_{chi^+-_1}="
-       << ToString(cha) <<"$~GeV, $\\tan\\beta=10$, $A_{0}=0$, $\\mu<0$, and $\\sigma_{\\mbox{NLO}}="
-       << std::fixed << std::setprecision(4)<< xsec
-       <<"$~pb."; 
+     ss<<"\nResulting event yields for the data corresponding to $"
+       << std::fixed << std::setprecision(0)<< config->read<double>("Luminosity", 0) 
+       << "$~pb$^{-1}$, the estimated background, and a signal point with $M_{\\tilde{q}}="
+       << ToString(sq) <<"$~GeV, $M_{\\tilde{g}}="
+       << ToString(gl) <<"$~GeV, and a total signal cross section of $\\sigma_{\\mbox{\\footnotesize NLO}}="
+       << std::fixed << std::setprecision(4)<< xsec<<"$~pb. \n";
+     ss<<"The combined observed (expected) CLs cross-section limit for this point is  $"
+       <<std::fixed << std::setprecision(4)<< xsec * config->read<double>("CLs observed", 0)
+       <<"$~pb ($"
+       <<std::fixed << std::setprecision(4)<< xsec * config->read<double>("CLs expected", 0)
+       <<"$~pb) at $95\\%$~CL.\n"; 
      }
      if (caption) table.SetCaption(ss.str());
+     //os << ss.str()<<std::endl;
     }
   }  
     
@@ -165,6 +176,7 @@ int main( int argc, char* argv[] )
    config->addUsage(  "Usage: " );
    config->addUsage(  "" );
    config->addFlag(   "help",   'h',              "Prints this help" );
+   config->addFlag(   "caption",' ',              "Prints a caption" );
    config->addOption( "config", 'c',"[file]",     "configuration file (can be supassed by commandline args) " );
    config->addOption( "style",  's',"[style]",    "Style can be 'tex', 'empty' or 'plain' (default) " );
    config->addOption( "msquark",' ',"[GeV]",      "m(sq)" );
@@ -185,6 +197,7 @@ int main( int argc, char* argv[] )
    if (config->IsAvailable("min"))     min = StringTo<int>(config->Get("min"));
    if (config->IsAvailable("max"))     max = StringTo<int>(config->Get("max"));
    if (config->IsAvailable("style")) stylestr = config->Get("style");
+   caption = config->IsAvailable("style");
    std::transform(stylestr.begin(), stylestr.end(), stylestr.begin(), std::ptr_fun<int, int>(std::toupper));
    if      (stylestr=="TEX")    style = Table::TeX;
    else if (stylestr=="EMPTY")  style = Table::Empty;
