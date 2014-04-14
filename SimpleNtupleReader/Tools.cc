@@ -62,17 +62,21 @@ TH1 * MyYields::GetPlot(const std::string& s)
   ss  << s << "_" << plotnr++;
   int nbins=GetNBins(s);
   double bins[nbins];
-  //std::cout << "binning for >>"<<s<<"<<"<<std::endl;  
+  //std::cout << "binning for >>"<<s<<"<< nbins="<<nbins<<std::endl;  
   for (int i=0; i<nbins; ++i) { 
     bins[i]=GetBinBorder(s,i);
+    //std::cout << "bin "<<i<<", lower border: "<<bins[i]<<std::endl;  
   }
   TH1 * r = new TH1F(ss.str().c_str(),(";"+s+";events").c_str(),nbins-1,bins);
-  
+ 
+  //std::map<int,Yield> * mp = GetYieldsRef(s)->GetYields();
+ 
   for (int i=0; i<nbins; ++i) {
     r->SetBinContent(i, Weighted(s,i) );
     r->SetBinError(  i, Error(s,i) );
-    //std::cout << " bin "<<i<<": > "<<bins[i]
+    //std::cout << " my bin "<<i<<": > "<<bins[i]
     //          << " contents: "<< r->GetBinContent(i)<<" +- "<<r->GetBinError(i)
+    //	      << " map[]: "<<(*mp)[i].weighted()<<" +- "<<(*mp)[i].error()
     //	      <<std::endl;
   }
   return r;

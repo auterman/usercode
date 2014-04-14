@@ -13,6 +13,9 @@
 #include <vector>
 #include <numeric>
 
+
+
+
 const static double metbins[] = {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 160, 200, 270, 350, 500}; 
 const static int n_metbins = 16;
 const static std::vector<double> m_b(metbins,metbins+n_metbins);
@@ -23,7 +26,7 @@ class Histograms {
   public:
     Histograms(const std::string& l):label_(l){}
     void Add(Histograms* r);
-    void Book();
+    virtual void Book();
     void Fill(const std::string&s,double c, double w=1.);
     TH1* Get(const std::string&s){return h_[s];}
     std::map<std::string, TH1*> * GetAll(){return &h_;}    
@@ -176,7 +179,7 @@ class YieldDataClass : public Yields
     virtual double GetBinBorder(int v){return binning_->at(v);}
     virtual int GetBin(double v){
       //std::cout << "GetBin:: met = "<<v<<" in bin "<<  std::upper_bound(binning_->begin(),binning_->end(),v)-binning_->begin()-1<<std::endl;
-      return std::upper_bound(binning_->begin(),binning_->end(),v)-binning_->begin()-1;
+      return std::upper_bound(binning_->begin(),binning_->end(),v)-binning_->begin();
     }
 
   protected:
@@ -191,8 +194,16 @@ class MyYields
     
     void Add(const std::string& s, YieldDataClass* d){y_[s]=d;}
     void Add(const std::string& s, int bin, int n, double w){y_[s]->GetYield(bin)->Add(n,w);}
+    void AddRef(std::map<std::string, YieldDataClass*>* ref){
+      for (std::map<std::string, YieldDataClass*>::iterator it=ref->begin();it!=ref->end();++it){
+        y_[it->first]->Add( it->second );
+      }
+    }
     void SetBinning(const std::string& s,const double *b,int n){y_[s]->SetBinning(b,n);}
     
+    YieldDataClass* GetYieldsRef(const std::string& s){return y_[s];}
+    std::map<std::string, YieldDataClass*> * GetRef(){return &y_;}
+
     int GetNBins(const std::string& s){return y_[s]->GetNBins();}
     int GetBin(  const std::string& s, double v){return y_[s]->GetBin(v);}
     double GetBinBorder(const std::string& s, int v){return y_[s]->GetBinBorder(v);}
@@ -211,42 +222,60 @@ class MyYields
 template<typename T>
 class Closure : public Plotter<T> {
   public:
-    Closure(std::string n):Plotter<T>(n),denominator_(0),nominator_(0),sighists_(0){
-      yields_ = new ControlYieldsMET(n);
+    Closure(std::string n):Plotter<T>(n),denominator_(0),nominator_(0),sigYields_(0){
+      //yields_ = new ControlYieldsMET(n);
     }
     virtual void Init();
     virtual bool Process(T*t,Long64_t i,Long64_t n,double);
     virtual void Write();
+    virtual void Book();
 
-    Yields* GetYields(){  return yields_;}
+    //Yields* GetYields(){  return yields_;}
+    std::map<std::string, YieldDataClass*>* GetRef(){  return myYields_->GetRef();}
+    void AddRef(std::map<std::string, YieldDataClass*>* ref){  return myYields_->AddRef(ref);}
     void SetDenominator(Yields*y){ denominator_=y;}
     void SetNominator(Yields*y){   nominator_=y;}
-    void SetSignalYields(ControlYieldsMET*y){   signal_=y;}
-    ControlYieldsMET* GetSignalYields(){  return signal_;}
-    void SetSignalHists(Histograms *y){   sighists_=y;}
-    Histograms * GetHists(){  return Plotter<T>::h_;}
+    //void SetSignalYields(ControlYieldsMET*y){   signal_=y;}
+    //ControlYieldsMET* GetSignalYields(){  return signal_;}
+    //void SetSignalHists(Histograms *y){   sighists_=y;}
+    //Histograms * GetHists(){  return Plotter<T>::h_;}
+    //void SetSignalYields(MyYields *y){   sigYields_=y;}
+    void AddSignalYields(MyYields *y){   
+      if (!sigYields_) sigYields_=y;
+      else sigYields_->AddRef( y->GetRef() );
+    }
+    MyYields * GetYields(){  return myYields_;}
 
   private:
-    ControlYieldsMET * yields_;      //control region MET>100, loose
+    //ControlYieldsMET * yields_;      //control region MET>100, loose
     Yields * denominator_, //Nenner: MET<100, loose isolated 
 	   * nominator_;   //Zähler: MET<100, tight isolated
-    ControlYieldsMET * signal_;  //signal region MET>100, tight 
-    Histograms * sighists_; 	   
+    //ControlYieldsMET * signal_;  //signal region MET>100, tight 
+    //Histograms * sighists_; 	   
     std::vector<double> weights_; //lookuptable for weights to speed up process
     
     
     MyYields * myYields_;
+    MyYields * sigYields_;
+    
+    void BookHistogram(const std::string& s, const std::string title, const double * bins, int nbins){
+      myYields_ = new MyYields(title);  
+      myYields_->Add(s, new YieldDataClass(s));
+      myYields_->SetBinning(s, bins, nbins);
+
+      //if (!sigYields_) sigYields_ = new MyYields(title);  
+      //sigYields_->Add(s, new YieldDataClass(s));
+      //sigYields_->SetBinning(s, bins, nbins);
+    }
 };
 
 
 template<typename T>
-void Closure<T>::Init()
+void Closure<T>::Book()
 {
-  Plotter<T>::Init();
+  //Plotter<T>::Book();
 
-  myYields_ = new MyYields("Data class containing the closure yields");  
-  myYields_->Add("met", new YieldDataClass("met"));
-  myYields_->SetBinning("met", metbins, n_metbins);
+  BookHistogram("met","Data class containing the closure yields",metbins, n_metbins+1);
   
   if (!denominator_ || !nominator_) return;
   for (int b=0; b<nominator_->GetNBins(); ++b) {
@@ -257,6 +286,12 @@ void Closure<T>::Init()
 }
 
 template<typename T>
+void Closure<T>::Init()
+{
+  Plotter<T>::Init();
+}
+
+template<typename T>
 bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
 {
   if (denominator_ && nominator_){
@@ -264,10 +299,13 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
     Plotter<T>::weight_ = weights_[bin];
   } else 
     Plotter<T>::weight_ = 1.0;
-  int bin = yields_->GetBin( t->met,0,0 );
-  yields_->GetYield( bin )->Add( 1, Plotter<T>::weight_ * w );
+  //int bin = yields_->GetBin( t->met,0,0 );
+  //yields_->GetYield( bin )->Add( 1, Plotter<T>::weight_ * w );
   
+  int mybin = myYields_->GetBin("met",t->met);
   myYields_->Add("met", myYields_->GetBin("met",t->met), 1, Plotter<T>::weight_ * w  );
+  
+  //std::cout << "old bin = "<<bin<<", mybin = "<<mybin<<std::endl;
   
   return Plotter<T>::Process(t,i,n,w);
 }
@@ -276,15 +314,15 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
 template<typename T>
 void Closure<T>::Write()
 {
-  if (!Plotter<T>::h_->Get( "met" )) {
-    std::cerr<<"ERROR: Closure<T>::Write(): Your forgot to book the histograms!"<<std::endl;
-    exit(2);
-  }
-  for (std::map<int,Yield>::iterator it=yields_->GetYields()->begin(); 
-       it!=yields_->GetYields()->end();++it) { 
-    Plotter<T>::h_->Get( "met" )->SetBinContent( it->first, it->second.weighted() );
-    Plotter<T>::h_->Get( "met" )->SetBinError( it->first, it->second.error() );
-  }
+//  if (!Plotter<T>::h_->Get( "met" )) {
+//    std::cerr<<"ERROR: Closure<T>::Write(): Did you forget to book the histograms?"<<std::endl;
+//    exit(2);
+//  }
+//  for (std::map<int,Yield>::iterator it=yields_->GetYields()->begin(); 
+//       it!=yields_->GetYields()->end();++it) { 
+//    Plotter<T>::h_->Get( "met" )->SetBinContent( it->first, it->second.weighted() );
+//    Plotter<T>::h_->Get( "met" )->SetBinError( it->first, it->second.error() );
+//  }
 
   //Plotter<T>::Write();
   TCanvas * c1 = new TCanvas("","",600,600);
@@ -293,18 +331,22 @@ void Closure<T>::Write()
   gPad->SetLogy(0);
   //Plotter<T>::h_->Get( "met" )->Draw("he");
   TH1 * met = myYields_->GetPlot("met");
+  met->SetLineColor(2);
+  met->SetLineWidth(3);
   met->Draw("he");
-  if (sighists_ && sighists_->Get( "met" )) {
-    sighists_->Get( "met" )->SetMarkerStyle(8);
-    sighists_->Get( "met" )->Draw("pe,same");
+  TH1* sighist = 0;
+  if (sigYields_) {
+    sighist = sigYields_->GetPlot( "met" );
+    sighist->SetMarkerStyle(8);
+    sighist->Draw("pe,same");
   }  
   c1->SaveAs(((std::string)"plots/"+label+"_met.pdf").c_str());
 
   gPad->SetLogy(1);
   //Plotter<T>::h_->Get( "met" )->Draw("he");
   met->Draw("he");
-  if (sighists_ && sighists_->Get( "met" ))
-    sighists_->Get( "met" )->Draw("pe,same");
+  if (sighist)
+    sighist->Draw("pe,same");
   c1->SaveAs(((std::string)"plots/"+label+"_met_log.pdf").c_str());
 
   delete c1;

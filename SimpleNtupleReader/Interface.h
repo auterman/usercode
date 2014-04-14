@@ -12,6 +12,12 @@
 #include "QCD_Jet.h"
 
 
+double met(GJets_Photon*t);
+double met(GJets_Jet*t);
+double met(QCD_Photon*t);
+double met(QCD_Jet*t);
+
+
 
 template <typename T> 
 class Processor {

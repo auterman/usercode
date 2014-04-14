@@ -37,6 +37,7 @@ int Reader()
   Plotter<GJets_Photon> gjets_g("GJets_Photon");
   Weighter<GJets_Photon> weights_gj_g("GJets_Photon");
   Closure<GJets_Photon> direct_gj("Direct_GJets");
+  direct_gj.Book();
   gjets_g.Book();
   gjets_g.Add( Status<GJets_Photon> );
   v_gjets_g.push_back( &gjets_g );
@@ -52,6 +53,7 @@ int Reader()
   Plotter<QCD_Photon> qcd_g("Qcd_Photon");
   Weighter<QCD_Photon> weights_qcd_g("Qcd_Photon");
   Closure<QCD_Photon> direct_qcd("Direct_QCD");
+  direct_qcd.Book();
   qcd_g.Book();
   qcd_g.Add( Status<QCD_Photon> );
   v_qcd_g.push_back( &qcd_g );
@@ -100,21 +102,17 @@ int Reader()
   Closure<GJets_Jet> closure_gj("Closure_GJets");
   Closure<QCD_Jet> closure_qcd("Closure_QCD");
   Closure<GJets_Jet> closure("Closure_Combined");
-  closure_gj.Book();
-  direct_gj.Book();
   direct_gj.Write();
   closure_gj.SetNominator( weights_gj_g.GetYields());   //Zähler, tight isolated
   closure_gj.SetDenominator( weights_gj_j.GetYields()); //Nenner, loose isolated
-  closure_gj.SetSignalHists( direct_gj.GetHists());   //Signal
+  closure_gj.AddSignalYields( direct_gj.GetYields());   //Signal
+  closure_gj.Book();
 
-  closure_qcd.Book();
-  direct_qcd.Book();
   direct_qcd.Write();
   closure_qcd.SetNominator( weights_qcd_g.GetYields() );   //Zähler, tight isolated
   closure_qcd.SetDenominator( weights_qcd_j.GetYields() ); //Nenner, loose isolated
-  closure_qcd.SetSignalHists( direct_qcd.GetHists() );   //Signal
-
-
+  closure_qcd.AddSignalYields( direct_qcd.GetYields() );   //Signal
+  closure_qcd.Book();
 
   std::cout << "Photon-Jet Jet Tree (2nd pass for closure)" <<std::endl;
   std::vector<Processor<GJets_Jet>*> vc_gjets_j;
@@ -122,7 +120,6 @@ int Reader()
   vc_gjets_j.push_back( &closure_gj );
   Process<GJets_Jet>("photonJetTree",vc_gjets_j,"data/GJets_200_400_V03.06_tree.root",0.32466417277);
   Process<GJets_Jet>("photonJetTree",vc_gjets_j,"data/GJets_400_inf_V03.06_tree.root",0.0502103290278 );
-  
   
   std::cout << "QCD Jet Tree (2nd pass for closure)" <<std::endl;
   std::vector<Processor<QCD_Jet>*> vc_qcd_j;
@@ -135,15 +132,17 @@ int Reader()
   closure_gj.Write();
   closure_qcd.Write();
 
-  closure.Book();
-  Histograms signal_combined("Combined Direct Simulation");
-  signal_combined.Add( direct_qcd.GetHists() );
-  signal_combined.Add( direct_gj.GetHists() );
   closure.SetNominator(   &tight_g );   //Zähler, tight isolated
-  closure.SetDenominator( &loose_g ); //Nenner, loose isolated
-  closure.SetSignalHists( &signal_combined );   //Signal
-  closure.GetYields()->Add(closure_gj.GetYields());
-  closure.GetYields()->Add(closure_qcd.GetYields());
+  closure.SetDenominator( &loose_g );   //Nenner, loose isolated
+  //Histograms signal_combined("Combined Direct Simulation");
+  //signal_combined.Add( direct_qcd.GetHists() );
+  //signal_combined.Add( direct_gj.GetHists() );
+  //closure.SetSignalHists( &signal_combined );   //Signal
+  closure.AddSignalYields( direct_qcd.GetYields() ); 
+  closure.AddSignalYields( direct_gj.GetYields() ); 
+  closure.Book();
+  closure.AddRef(closure_gj.GetRef());
+  closure.AddRef(closure_qcd.GetRef());
   closure.Write();
 
   return 0;
