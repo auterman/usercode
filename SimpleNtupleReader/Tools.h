@@ -18,7 +18,19 @@
 
 const static double metbins[] = {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 160, 200, 270, 350, 500}; 
 const static int n_metbins = 16;
-const static std::vector<double> m_b(metbins,metbins+n_metbins);
+
+const static double htbins[] = {500,600,700,800,900,1000,1100,1200,1300,1400,1500,1700,2000}; 
+const static int n_htbins = 12;
+
+const static double weightbins[] = {0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.5, 2.0, 3, 5, 10, 20}; 
+const static int n_weightbins = 17;
+
+const static double stdbinning[] = {0,100,200,300,400,500,600,700,800,900,1000}; 
+const static int n_stdbins = 11;
+
+
+
+
 static int plotnr = 0;
 
 ///data helper class for the Plotter
@@ -152,6 +164,7 @@ bool Weighter<T>::Process(T*t,Long64_t i,Long64_t n,double w)
 
 ///Closure test class ==============================================================================
 
+/*
 class ControlYieldsMET : public Yields
 {
   public:
@@ -166,7 +179,7 @@ class ControlYieldsMET : public Yields
     TH1 * h_;
     
 };
-
+*/
 
 class YieldDataClass : public Yields
 {
@@ -231,8 +244,13 @@ class Closure : public Plotter<T> {
     virtual void Book();
 
     //Yields* GetYields(){  return yields_;}
-    std::map<std::string, YieldDataClass*>* GetRef(){  return myYields_->GetRef();}
-    void AddRef(std::map<std::string, YieldDataClass*>* ref){  return myYields_->AddRef(ref);}
+    //std::map<std::string, YieldDataClass*>* GetRef(){  return myYields_->GetRef();}
+    //void AddRef(std::map<std::string, YieldDataClass*>* ref){  return myYields_->AddRef(ref);}
+    void AddRef(std::map<std::string,MyYields*> *y){   
+        for (std::map<std::string,MyYields*>::iterator it=y->begin();it!=y->end();++it)
+          yields_[it->first]->AddRef( it->second->GetRef() );
+    }
+    
     void SetDenominator(Yields*y){ denominator_=y;}
     void SetNominator(Yields*y){   nominator_=y;}
     //void SetSignalYields(ControlYieldsMET*y){   signal_=y;}
@@ -240,11 +258,13 @@ class Closure : public Plotter<T> {
     //void SetSignalHists(Histograms *y){   sighists_=y;}
     //Histograms * GetHists(){  return Plotter<T>::h_;}
     //void SetSignalYields(MyYields *y){   sigYields_=y;}
-    void AddSignalYields(MyYields *y){   
-      if (!sigYields_) sigYields_=y;
-      else sigYields_->AddRef( y->GetRef() );
+    void AddSignalYields(std::map<std::string,MyYields*> *y){   
+      if (!sig_.size()) sig_= *y;
+      else if (y) 
+        for (std::map<std::string,MyYields*>::iterator it=y->begin();it!=y->end();++it)
+          sig_[it->first]->AddRef( it->second->GetRef() );
     }
-    MyYields * GetYields(){  return myYields_;}
+    std::map<std::string,MyYields*> * GetYields(){  return &yields_;}
 
   private:
     //ControlYieldsMET * yields_;      //control region MET>100, loose
@@ -257,15 +277,19 @@ class Closure : public Plotter<T> {
     
     MyYields * myYields_;
     MyYields * sigYields_;
+
+    std::map<std::string,MyYields*> yields_, sig_;
     
     void BookHistogram(const std::string& s, const std::string title, const double * bins, int nbins){
-      myYields_ = new MyYields(title);  
-      myYields_->Add(s, new YieldDataClass(s));
-      myYields_->SetBinning(s, bins, nbins);
-
-      //if (!sigYields_) sigYields_ = new MyYields(title);  
-      //sigYields_->Add(s, new YieldDataClass(s));
-      //sigYields_->SetBinning(s, bins, nbins);
+      //myYields_ = new MyYields(title);  
+      //myYields_->Add(s, new YieldDataClass(s));
+      //myYields_->SetBinning(s, bins, nbins);
+      yields_[s] = new MyYields(title);  
+      yields_[s]->Add(s, new YieldDataClass(s));
+      yields_[s]->SetBinning(s, bins, nbins);
+    }
+    void Fill(const std::string& s, double var, double w ){
+      yields_[s]->Add(s, yields_[s]->GetBin(s,var), 1, w  );
     }
 };
 
@@ -276,6 +300,13 @@ void Closure<T>::Book()
   //Plotter<T>::Book();
 
   BookHistogram("met","Data class containing the closure yields",metbins, n_metbins+1);
+  BookHistogram("met_trans","Data class containing the closure yields",metbins, n_metbins+1);
+  BookHistogram("ht", "Data class containing the closure yields",htbins,  n_htbins+1);
+  BookHistogram("met_const", "closure", stdbinning, n_stdbins);
+  BookHistogram("mht", "closure", stdbinning, n_stdbins);
+  BookHistogram("em1_pt", "closure", stdbinning, n_stdbins);
+  BookHistogram("em1_ptstar", "closure", stdbinning, n_stdbins);
+  BookHistogram("weight", "closure", weightbins, n_weightbins );
   
   if (!denominator_ || !nominator_) return;
   for (int b=0; b<nominator_->GetNBins(); ++b) {
@@ -288,7 +319,7 @@ void Closure<T>::Book()
 template<typename T>
 void Closure<T>::Init()
 {
-  Plotter<T>::Init();
+  //Plotter<T>::Init();
 }
 
 template<typename T>
@@ -302,12 +333,22 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   //int bin = yields_->GetBin( t->met,0,0 );
   //yields_->GetYield( bin )->Add( 1, Plotter<T>::weight_ * w );
   
-  int mybin = myYields_->GetBin("met",t->met);
-  myYields_->Add("met", myYields_->GetBin("met",t->met), 1, Plotter<T>::weight_ * w  );
+  //int mybin = myYields_->GetBin("met",t->met);
+  //myYields_->Add("met", myYields_->GetBin("met",t->met), 1, Plotter<T>::weight_ * w  );
+
+  double weight = Plotter<T>::weight_ * w ;
+  Fill("met",       t->met, weight);
+  Fill("met_trans", transverse_met(t), weight);
+  Fill("ht",        t->ht,  weight);
+  Fill("met_const", t->met, weight);
+  Fill("mht",	    t->mht, weight );
+  Fill("em1_pt",    t->photons_pt[0], weight);
+  Fill("em1_ptstar",t->photons__ptJet[0], weight);
+  Fill("weight",    weight, 1. );
   
   //std::cout << "old bin = "<<bin<<", mybin = "<<mybin<<std::endl;
   
-  return Plotter<T>::Process(t,i,n,w);
+  return true; //Plotter<T>::Process(t,i,n,w);
 }
 
 
@@ -327,30 +368,62 @@ void Closure<T>::Write()
   //Plotter<T>::Write();
   TCanvas * c1 = new TCanvas("","",600,600);
   std::string label = Plotter<T>::name_;
+  
+  
+  for (std::map<std::string,MyYields*>::iterator it=yields_.begin();it!=yields_.end();++it) {
      
-  gPad->SetLogy(0);
-  //Plotter<T>::h_->Get( "met" )->Draw("he");
-  TH1 * met = myYields_->GetPlot("met");
-  met->SetLineColor(2);
-  met->SetLineWidth(3);
-  met->Draw("he");
-  TH1* sighist = 0;
-  if (sigYields_) {
-    sighist = sigYields_->GetPlot( "met" );
-    sighist->SetMarkerStyle(8);
-    sighist->Draw("pe,same");
-  }  
-  c1->SaveAs(((std::string)"plots/"+label+"_met.pdf").c_str());
+    gPad->SetLogy(0);
+    //Plotter<T>::h_->Get( "met" )->Draw("he");
+    TH1 * pred = it->second->GetPlot(it->first);
+    pred->SetLineColor(2);
+    pred->SetLineWidth(3);
+    pred->Draw("he");
+    TH1* sighist = 0;
+    if (sig_[it->first]) {
+      sighist = sig_[it->first]->GetPlot( it->first );
+      sighist->SetMarkerStyle(8);
+      sighist->Draw("pe,same");
+    }  
+    c1->SaveAs(((std::string)"plots/"+label+"_"+it->first+".pdf").c_str());
 
-  gPad->SetLogy(1);
-  //Plotter<T>::h_->Get( "met" )->Draw("he");
-  met->Draw("he");
-  if (sighist)
-    sighist->Draw("pe,same");
-  c1->SaveAs(((std::string)"plots/"+label+"_met_log.pdf").c_str());
-
+    gPad->SetLogy(1);
+    //Plotter<T>::h_->Get( "met" )->Draw("he");
+    pred->Draw("he");
+    if (sighist)
+      sighist->Draw("pe,same");
+    c1->SaveAs(((std::string)"plots/"+label+"_"+it->first+"_log.pdf").c_str());
+  }
+  
   delete c1;
 }
+
+
+
+////Cutter 
+template<typename T>
+class Cutter : public Processor<T> {
+  public:
+    Cutter(std::string n):Processor<T>(n),d_tot(0),d_pass(0),i_tot(0), i_pass(0){}
+    //virtual void Init(){};
+    virtual bool Process(T*t,Long64_t i,Long64_t n,double w) {
+      ++i_tot;
+      d_tot += w;
+      if (t->photons__ptJet[0]<110.) {
+	return false;
+      }	
+      ++i_pass;
+      d_pass += w;
+      return true;
+    }
+    virtual void Terminate(){
+      std::cout << "Cutter '"<<Processor<T>::name_<<"' Terminate: "<<d_pass<<" ("<<i_pass<<") / "
+                << d_tot << " ("<<i_tot<<") passed all cuts";
+      if (d_tot&&i_tot) std::cout << ", i.e. "<< d_pass/d_tot*100.<<"% ("<<100.*i_pass/i_tot<<"%)."<<std::endl;
+    }
+  private:
+   double d_tot, d_pass;
+   int    i_tot, i_pass;  
+};
 
 
 #endif

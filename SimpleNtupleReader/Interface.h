@@ -12,10 +12,10 @@
 #include "QCD_Jet.h"
 
 
-double met(GJets_Photon*t);
-double met(GJets_Jet*t);
-double met(QCD_Photon*t);
-double met(QCD_Jet*t);
+double transverse_met(GJets_Photon*t);
+double transverse_met(GJets_Jet*t);
+double transverse_met(QCD_Photon*t);
+double transverse_met(QCD_Jet*t);
 
 
 
@@ -29,9 +29,15 @@ class Processor {
   virtual bool Process(T*t,Long64_t i,Long64_t n, double w){
     bool result = true;
     for (std::vector< bool(*)(TSelector*,Long64_t,Long64_t,double) >::iterator it=genfuncts_.begin();
-         it!=genfuncts_.end();++it) result *= (*it)(t,i,n,w);
+         it!=genfuncts_.end();++it) {
+      result *= (*it)(t,i,n,w);
+      if (!result) break;
+    }
     for (typename std::vector< bool(*)(T*,Long64_t,Long64_t,double) >::iterator it=functs_.begin();
-         it!=functs_.end();++it) result *= (*it)(t,i,n,w);
+         it!=functs_.end();++it) {
+      result *= (*it)(t,i,n,w);
+      if (!result) break;
+    }
     return result;
   }
   virtual void Terminate(){}
@@ -75,7 +81,7 @@ void Interface<T>::Process( std::vector<Processor<T>*>& t )
     proc_->GetEntry( i );
     proc_->Process( i );
     for (typename std::vector<Processor<T>*>::iterator it=t.begin();it!=t.end();++it)
-     (*it)->Process(proc_,i,nentries_,weight_);
+      if (!(*it)->Process(proc_,i,nentries_,weight_)) break;
   }  
   for (typename std::vector<Processor<T>*>::iterator it=t.begin();it!=t.end();++it)
      (*it)->Terminate();
