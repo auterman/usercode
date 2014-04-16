@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////
 // This class has been automatically generated on
-// Thu Apr  3 20:36:11 2014 by ROOT version 5.34/05
+// Tue Apr 15 10:48:50 2014 by ROOT version 5.34/18
 // from TChain photonJetTree/
 //////////////////////////////////////////////////////////
 
@@ -17,13 +17,13 @@
 
 class GJets_Jet : public TSelector {
 public :
-
+// Fixed size dimensions of array or collections stored in the TTree if any.
 const static Int_t kMaxphotons = 2;
-const static Int_t kMaxjets = 11;
-const static Int_t kMaxelectrons = 4;
-const static Int_t kMaxmuons = 2;
-const static Int_t kMaxgenPhotons = 5;
-const static Int_t kMaxgenElectrons = 2;
+const static Int_t kMaxjets = 10;
+const static Int_t kMaxelectrons = 3;
+const static Int_t kMaxmuons = 1;
+const static Int_t kMaxgenPhotons = 4;
+const static Int_t kMaxgenElectrons = 1;
 
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
 
@@ -77,9 +77,8 @@ const static Int_t kMaxgenElectrons = 2;
    Float_t         genElectrons_eta[kMaxgenElectrons];   //[genElectrons_]
    Float_t         genElectrons_phi[kMaxgenElectrons];   //[genElectrons_]
    Float_t         met;
-   Float_t         mht;
-   Float_t         type0met;
-   Float_t         type1met;
+   Float_t         metSig;
+   Float_t         metPhi;
    Float_t         ht;
    Float_t         weight;
    Int_t           nVertex;
@@ -139,9 +138,8 @@ const static Int_t kMaxgenElectrons = 2;
    TBranch        *b_genElectrons_eta;   //!
    TBranch        *b_genElectrons_phi;   //!
    TBranch        *b_met;   //!
-   TBranch        *b_mht;   //!
-   TBranch        *b_type0met;   //!
-   TBranch        *b_type1met;   //!
+   TBranch        *b_metSig;   //!
+   TBranch        *b_metPhi;   //!
    TBranch        *b_ht;   //!
    TBranch        *b_weight;   //!
    TBranch        *b_nVertex;   //!
@@ -167,7 +165,7 @@ const static Int_t kMaxgenElectrons = 2;
    virtual void    SlaveTerminate();
    virtual void    Terminate();
 
-  // ClassDef(GJets_Jet,0);
+   //ClassDef(GJets_Jet,0);
 };
 
 #endif
@@ -237,9 +235,8 @@ void GJets_Jet::Init(TTree *tree)
    fChain->SetBranchAddress("genElectrons.eta", genElectrons_eta, &b_genElectrons_eta);
    fChain->SetBranchAddress("genElectrons.phi", genElectrons_phi, &b_genElectrons_phi);
    fChain->SetBranchAddress("met", &met, &b_met);
-   fChain->SetBranchAddress("mht", &mht, &b_mht);
-   fChain->SetBranchAddress("type0met", &type0met, &b_type0met);
-   fChain->SetBranchAddress("type1met", &type1met, &b_type1met);
+   fChain->SetBranchAddress("metSig", &metSig, &b_metSig);
+   fChain->SetBranchAddress("metPhi", &metPhi, &b_metPhi);
    fChain->SetBranchAddress("ht", &ht, &b_ht);
    fChain->SetBranchAddress("weight", &weight, &b_weight);
    fChain->SetBranchAddress("nVertex", &nVertex, &b_nVertex);

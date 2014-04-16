@@ -6,16 +6,35 @@
 #include <vector>
 #include <iostream>
 
+#include "TMath.h"
+
 #include "GJets_Photon.h"
 #include "GJets_Jet.h"
 #include "QCD_Photon.h"
 #include "QCD_Jet.h"
 
 
+const static Double_t kPI	 = TMath::Pi();
+const static Double_t kTWOPI	 = 2.*kPI;
+
+Double_t DeltaPhi(Double_t x, Double_t y);
+static int plotnr = 0;
+
+
 double transverse_met(GJets_Photon*t);
 double transverse_met(GJets_Jet*t);
 double transverse_met(QCD_Photon*t);
 double transverse_met(QCD_Jet*t);
+
+double parallel_met(GJets_Photon*t);
+double parallel_met(GJets_Jet*t);
+double parallel_met(QCD_Photon*t);
+double parallel_met(QCD_Jet*t);
+
+bool tight_isolated(double pt, double ptstar, double phi, double eta, int seed, double HoE, 
+                    double sigmaIetaOeta, double chaIso, double neuIso, double phoIso);
+bool loose_isolated(double pt, double ptstar, double phi, double eta, int seed, double HoE, 
+                    double sigmaIetaOeta, double chaIso, double neuIso, double phoIso);
 
 
 

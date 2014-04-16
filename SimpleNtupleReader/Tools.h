@@ -6,8 +6,8 @@
 #include "TCanvas.h"
 #include "TPad.h"
 
-
 #include <map>
+#include <set>
 #include <string>
 #include <cmath>
 #include <vector>
@@ -19,6 +19,9 @@
 const static double metbins[] = {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 160, 200, 270, 350, 500}; 
 const static int n_metbins = 16;
 
+const static double metphibins[] = {0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 3.0, 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9, 4.0, 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8, 4.9, 5.0, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.8, 5.9, 6.0, 6.1, 6.2}; 
+const static int n_metphibins = 64;
+
 const static double htbins[] = {500,600,700,800,900,1000,1100,1200,1300,1400,1500,1700,2000}; 
 const static int n_htbins = 12;
 
@@ -28,10 +31,13 @@ const static int n_weightbins = 17;
 const static double stdbinning[] = {0,100,200,300,400,500,600,700,800,900,1000}; 
 const static int n_stdbins = 11;
 
+const static double bins_64_nPi_Pi[] = {-3.2,-3.1,-3.0,-2.9,-2.8,-2.7,-2.6,-2.5,-2.4,-2.3,-2.2,-2.1,-2.0,-1.9,-1.8,-1.7,-1.6,-1.5,-1.4,-1.3,-1.2,-1.1,-1.0,-0.9,-0.8,-0.7,-0.6,-0.5,-0.4,-0.3,-0.2,-0.1,0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 3.0, 3.1, 3.2}; 
+const static int n_64 = 64;
+
+const static double bins_50_0_100[] = {0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62,64,66,68,70,72,74,76,78,80,82,84,86,88,90,92,94,96,98,100}; 
+const static int n_50 = 50;
 
 
-
-static int plotnr = 0;
 
 ///data helper class for the Plotter
 class Histograms {
@@ -78,14 +84,28 @@ bool Plotter<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   if (h_) {
   h_->Fill( "met", t->met, w );
   h_->Fill( "met_const", t->met, w );
-  h_->Fill( "mht", t->mht, w );
+  //h_->Fill( "mht", t->mht, w );
   h_->Fill( "ht", t->ht, w );
-  h_->Fill( "em1_pt", t->photons_pt[0], w );
+  h_->Fill( "em1_pt", t->photons_pt[t->photons_], w );
   h_->Fill( "weight", w );
+  
+  h_->Fill("em1_phi", t->photons_phi[t->photons_], w);
+  h_->Fill("em1_eta", t->photons_phi[t->photons_], w);
+  h_->Fill("em1_ptstar" , t->photons__ptJet[t->photons_], w);
+  h_->Fill("em1_sigmaIphiIphi", t->photons_sigmaIphiIphi[t->photons_], w);
+  h_->Fill("em1_sigmaIetaIeta", t->photons_sigmaIetaIeta[t->photons_], w);
+  h_->Fill("em1_r9", t->photons_r9[t->photons_], w);
+  h_->Fill("em1_hadTowOverEm", t->photons_hadTowOverEm[t->photons_], w);
+  h_->Fill("em1_chargedIso", t->photons_chargedIso[t->photons_], w);
+  h_->Fill("em1_neutralIso", t->photons_neutralIso[t->photons_], w);
+  h_->Fill("em1_photonIso", t->photons_photonIso[t->photons_], w);
+  h_->Fill("em1_conversionSafeVeto", t->photons_conversionSafeVeto[t->photons_], w);
+  h_->Fill("em1_pixelseed" , t->photons_pixelseed[t->photons_], w);
+  h_->Fill("em1_genInformation", t->photons_genInformation[t->photons_], w);
+  h_->Fill("em1_matchedJetIndex", t->photons_matchedJetIndex[t->photons_], w);
   }
   return res;
 }
-
 
 ///helper class for Yield
 template<typename T> struct square
@@ -143,7 +163,7 @@ class Weighter : public Processor<T> {
     Weighter(std::string n):Processor<T>(n){yields_=new Yields(); }
     //virtual void Init(){};
     virtual bool Process(T*t,Long64_t i,Long64_t n,double);
-    virtual void Terminate(){std::cout << "Weighter '"<<Processor<T>::name_<<"': "<<yields_->Weighted(0)<<" +- "<<yields_->Error(0)<<"  ("<<yields_->Unweighted(0)<<")"<<std::endl;};
+    virtual void Terminate(){std::cout << "  Summary Weighter '"<<Processor<T>::name_<<"': "<<yields_->Weighted(0)<<" +- "<<yields_->Error(0)<<"  ("<<yields_->Unweighted(0)<<")"<<std::endl;};
 
     Yields* GetYields(){return yields_;}
 
@@ -299,20 +319,25 @@ void Closure<T>::Book()
 {
   //Plotter<T>::Book();
 
-  BookHistogram("met","Data class containing the closure yields",metbins, n_metbins+1);
-  BookHistogram("met_trans","Data class containing the closure yields",metbins, n_metbins+1);
-  BookHistogram("ht", "Data class containing the closure yields",htbins,  n_htbins+1);
+  BookHistogram("met","closure",metbins, n_metbins+1);
+  BookHistogram("met_trans","closure",metbins, n_metbins+1);
+  BookHistogram("met_paral","closure",metbins, n_metbins+1);
+  BookHistogram("ht", "closure",htbins,  n_htbins+1);
   BookHistogram("met_const", "closure", stdbinning, n_stdbins);
-  BookHistogram("mht", "closure", stdbinning, n_stdbins);
+  BookHistogram("met_phi", "closure", metphibins, n_metphibins);
+  BookHistogram("met_signif", "closure", bins_50_0_100, n_50);
+  //BookHistogram("mht", "closure", stdbinning, n_stdbins);
   BookHistogram("em1_pt", "closure", stdbinning, n_stdbins);
   BookHistogram("em1_ptstar", "closure", stdbinning, n_stdbins);
+  BookHistogram("em1_phi", "closure", bins_64_nPi_Pi, n_64);
   BookHistogram("weight", "closure", weightbins, n_weightbins );
+  BookHistogram("phi_met_em1", "closure", bins_64_nPi_Pi, n_64);
   
   if (!denominator_ || !nominator_) return;
   for (int b=0; b<nominator_->GetNBins(); ++b) {
     double d = denominator_->Weighted( b );
     weights_.push_back( (d==0?1.0:nominator_->Weighted( b ) / d) );
-    std::cout << "Closure '"<<Plotter<T>::name_<<"' weight (bin=" <<b<<") = "<< weights_.back() << std::endl;
+    std::cout << "  Summary Closure '"<<Plotter<T>::name_<<"' weight (bin=" <<b<<") = "<< weights_.back() << std::endl;
   }  
 }
 
@@ -321,6 +346,7 @@ void Closure<T>::Init()
 {
   //Plotter<T>::Init();
 }
+
 
 template<typename T>
 bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
@@ -337,20 +363,29 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   //myYields_->Add("met", myYields_->GetBin("met",t->met), 1, Plotter<T>::weight_ * w  );
 
   double weight = Plotter<T>::weight_ * w ;
+  
+  
   Fill("met",       t->met, weight);
   Fill("met_trans", transverse_met(t), weight);
+  Fill("met_paral", parallel_met(t), weight);
   Fill("ht",        t->ht,  weight);
   Fill("met_const", t->met, weight);
-  Fill("mht",	    t->mht, weight );
-  Fill("em1_pt",    t->photons_pt[0], weight);
-  Fill("em1_ptstar",t->photons__ptJet[0], weight);
+  Fill("met_phi",   t->metPhi, weight);
+  Fill("met_signif",t->metSig, weight);
+  //Fill("mht",	    t->mht, weight );
+  Fill("em1_pt",    t->photons_pt[t->photons_], weight);
+  Fill("em1_ptstar",t->photons__ptJet[t->photons_], weight);
+  Fill("em1_phi",   t->photons_phi[t->photons_], weight);
   Fill("weight",    weight, 1. );
+  Fill("phi_met_em1", DeltaPhi(t->metPhi-kPI, t->photons_phi[t->photons_]), weight);
   
   //std::cout << "old bin = "<<bin<<", mybin = "<<mybin<<std::endl;
   
   return true; //Plotter<T>::Process(t,i,n,w);
 }
 
+
+void RatioPlot(TH1*a, TH1*b, const std::string& file, const std::string& t);
 
 template<typename T>
 void Closure<T>::Write()
@@ -366,35 +401,18 @@ void Closure<T>::Write()
 //  }
 
   //Plotter<T>::Write();
-  TCanvas * c1 = new TCanvas("","",600,600);
-  std::string label = Plotter<T>::name_;
-  
-  
+
   for (std::map<std::string,MyYields*>::iterator it=yields_.begin();it!=yields_.end();++it) {
      
-    gPad->SetLogy(0);
-    //Plotter<T>::h_->Get( "met" )->Draw("he");
     TH1 * pred = it->second->GetPlot(it->first);
-    pred->SetLineColor(2);
-    pred->SetLineWidth(3);
-    pred->Draw("he");
-    TH1* sighist = 0;
+    pred->SetTitle("Prediction");
+    TH1 * sighist = 0;
     if (sig_[it->first]) {
-      sighist = sig_[it->first]->GetPlot( it->first );
-      sighist->SetMarkerStyle(8);
-      sighist->Draw("pe,same");
+      sighist = sig_[it->first]->GetPlot( it->first );  
+      sighist->SetTitle("Direct simulation");    
+      RatioPlot(sighist, pred, Closure<T>::name_+"_"+it->first, Plotter<T>::name_);
     }  
-    c1->SaveAs(((std::string)"plots/"+label+"_"+it->first+".pdf").c_str());
-
-    gPad->SetLogy(1);
-    //Plotter<T>::h_->Get( "met" )->Draw("he");
-    pred->Draw("he");
-    if (sighist)
-      sighist->Draw("pe,same");
-    c1->SaveAs(((std::string)"plots/"+label+"_"+it->first+"_log.pdf").c_str());
   }
-  
-  delete c1;
 }
 
 
@@ -416,11 +434,108 @@ class Cutter : public Processor<T> {
       return true;
     }
     virtual void Terminate(){
-      std::cout << "Cutter '"<<Processor<T>::name_<<"' Terminate: "<<d_pass<<" ("<<i_pass<<") / "
+      std::cout << "  Summary Cutter '"<<Processor<T>::name_<<"' Terminate: "<<d_pass<<" ("<<i_pass<<") / "
                 << d_tot << " ("<<i_tot<<") passed all cuts";
       if (d_tot&&i_tot) std::cout << ", i.e. "<< d_pass/d_tot*100.<<"% ("<<100.*i_pass/i_tot<<"%)."<<std::endl;
     }
-  private:
+  protected:
+   double d_tot, d_pass;
+   int    i_tot, i_pass;  
+};
+
+
+
+////Cutter 
+template<typename T>
+class Cutter_looseID : public Cutter<T> {
+  public:
+    Cutter_looseID(std::string n):Cutter<T>(n){}
+    //virtual void Init(){};
+    virtual bool Process(T*t,Long64_t i,Long64_t n,double w) {
+      ++Cutter<T>::i_tot;
+      Cutter<T>::d_tot += w;
+      
+      bool found = false;
+      for (int i=0; i<t->kMaxphotons;++i) {
+        found = (found || loose_isolated(t->photons_pt[i], t->photons__ptJet[i], t->photons_phi[i], t->photons_eta[i],
+                           t->photons_pixelseed[i],t->photons_hadTowOverEm[i],t->photons_sigmaIetaIeta[i],
+			   t->photons_chargedIso[i],t->photons_neutralIso[i],t->photons_photonIso[i])
+	        );
+	if (found) {t->photons_ = i; break;}	
+      }	
+      if (!found) return false;
+      ++Cutter<T>::i_pass;
+      Cutter<T>::d_pass += w;
+      return true;
+    }
+};
+
+
+////Cutter 
+template<typename T>
+class Cutter_tightID : public Cutter<T> {
+  public:
+    Cutter_tightID(std::string n):Cutter<T>(n){}
+    //virtual void Init(){};
+    virtual bool Process(T*t,Long64_t i,Long64_t n,double w) {
+      ++Cutter<T>::i_tot;
+      Cutter<T>::d_tot += w;
+      
+      bool found = false;
+      for (int i=0; i<t->kMaxphotons;++i) {
+        found = (found || tight_isolated(t->photons_pt[i], t->photons__ptJet[i], t->photons_phi[i], t->photons_eta[i],
+                           t->photons_pixelseed[i],t->photons_hadTowOverEm[i],t->photons_sigmaIetaIeta[i],
+			   t->photons_chargedIso[i],t->photons_neutralIso[i],t->photons_photonIso[i])
+	        );
+	if (found) {t->photons_ = i; break;}	
+      }	
+      if (!found) return false;
+      ++Cutter<T>::i_pass;
+      Cutter<T>::d_pass += w;
+      return true;
+    }
+};
+
+
+///Doublicate Event Filter -------------------------------------------------------------------------
+///Helper class for doublicate event filter
+struct EventId { 
+   EventId(UInt_t nr, UInt_t lumi, UInt_t run):nr(nr),lumi(lumi),run(run){} 
+   UInt_t nr, lumi, run; 
+   bool operator<(const EventId& rh) const {
+     return (nr!=rh.nr? nr<rh.nr : (lumi!=rh.lumi? lumi<rh.lumi : run<rh.run) );
+   }
+};
+
+
+////Doublecate event filter 
+template<typename T>
+class DoubleCountFilter : public Processor<T> {
+  public:
+  
+    DoubleCountFilter(std::string n):Processor<T>(n),d_tot(0),d_pass(0),i_tot(0), i_pass(0){}
+    //virtual void Init(){};
+    virtual bool Process(T*t,Long64_t i,Long64_t n,double w) {
+      ++i_tot;
+      d_tot += w;
+      if (evts_.insert( EventId (t->eventNumber, t->runNumber, t->luminosityBlockNumber) ).second){
+        ++i_pass;
+        d_pass += w;
+        return true;
+      }	
+      else
+        return false;	
+    }
+    virtual void Terminate(){
+      std::cout << "  Doublicate Event Filter '"<<Processor<T>::name_<<"' Terminate: "<<d_pass<<" ("<<i_pass<<") / "
+                << d_tot << " ("<<i_tot<<") passed all cuts";
+      if (d_tot&&i_tot) std::cout << ", i.e. "<< d_pass/d_tot*100.<<"% ("<<100.*i_pass/i_tot<<"%)."<<std::endl;
+    }
+    
+    std::set<EventId> * Get(){return &evts_;}
+    void Set(std::set<EventId>*l){evts_.insert(l->begin(),l->end()); }
+  protected:
+   std::set<EventId> evts_;
    double d_tot, d_pass;
    int    i_tot, i_pass;  
 };
