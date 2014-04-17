@@ -142,7 +142,7 @@ double CorectedMet(float met, float met_phi, float g_pt, float g_eta, float g_ph
   ROOT::Math::PtEtaPhiEVector Met(met,0,met_phi,0);
   ROOT::Math::PtEtaPhiEVector gamma(j_pt,g_eta,g_phi, j_pt*cos(2.*atan(exp(-g_eta))));
   ROOT::Math::PtEtaPhiEVector jet(j_pt,j_eta,j_phi, j_pt*cos(2.*atan(exp(-j_eta))));
-  Met = Met + gamma - jet;
+  Met = Met - gamma + jet;
   return Met.Pt();
 }
 

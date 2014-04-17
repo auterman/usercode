@@ -49,11 +49,11 @@ class Status : public Processor<T> {
     Status(std::string name):Processor<T>(name){}
     virtual bool Process(T*t,Long64_t i,Long64_t n,double w){
       if (i==0)             std::cout <<"   > "<< n << " events: \n" << std::flush;
-      if (n&&(n/times)&&(i%(n/times))==0) std::cout << "   "<<barspin[i%4]<<" "<<i/(n/times)*times << "% \r"<< std::flush;
+      if (n&&(n/times)&&(i%(n/times))==0) std::cout << "   "<<barspin[i%4]<<" "<<i/(n/times) << "% \r"<< std::flush;
       return true;
     }
   private:
-    const static int times = 10;
+    const static int times = 100;
 };
 
 ///data helper class for the Plotter
