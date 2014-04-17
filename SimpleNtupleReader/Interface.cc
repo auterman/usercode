@@ -103,7 +103,7 @@ ROOT::Math::PtEtaPhiEVector Recoil(float g_pt, float g_eta, float g_phi, float *
 {
   ROOT::Math::PtEtaPhiEVector recoil;
   for (int i=0; i<njets; ++i){
-    if (jets_pt[i]<30. || fabs(jets_phi[i])>3.0 || deltaR(g_eta,g_phi,jets_eta[i],jets_phi[i])<0.5 ) continue;
+    if (jets_pt[i]<30. || fabs(jets_eta[i])>3.0 || deltaR(g_eta,g_phi,jets_eta[i],jets_phi[i])<0.5 ) continue;
     double E=jets_pt[i] * cos( 2.*atan( exp(-jets_eta[i]) ));
     ROOT::Math::PtEtaPhiEVector jet(jets_pt[i],jets_eta[i],jets_phi[i],E);
     recoil += jet;
@@ -116,7 +116,9 @@ double Mht(float g_pt, float g_eta, float g_phi, float *jets_pt, float* jets_eta
 {
   ROOT::Math::PtEtaPhiEVector mht(g_pt,g_eta,g_phi, g_pt*cos(2.*atan(exp(-g_eta))));
   for (int i=0; i<njets; ++i){
-    if (jets_pt[i]<30. || fabs(jets_phi[i])>3.0 || deltaR(g_eta,g_phi,jets_eta[i],jets_phi[i])<0.5 ) continue;
+//std::cout << i<<" / "<<njets
+//          <<" jet pt="<<jets_pt[i]<<", eta="<<jets_eta[i]<<", phi="<<jets_phi[i]<<std::endl;
+    if (jets_pt[i]<30. || fabs(jets_eta[i])>3.0 || deltaR(g_eta,g_phi,jets_eta[i],jets_phi[i])<0.5 ) continue;
     double E=jets_pt[i] * cos( 2.*atan( exp(-jets_eta[i]) ));
     ROOT::Math::PtEtaPhiEVector jet(jets_pt[i],jets_eta[i],jets_phi[i],E);
     mht += jet;
@@ -128,7 +130,7 @@ double Recoil_ht(float g_pt, float g_eta, float g_phi, float *jets_pt, float* je
 {
   double ht=0;
   for (int i=0; i<njets; ++i){
-    if (jets_pt[i]<30. || fabs(jets_phi[i])>3.0 || deltaR(g_eta,g_phi,jets_eta[i],jets_phi[i])<0.5 ) continue;
+    if (jets_pt[i]<30. || fabs(jets_eta[i])>3.0 || deltaR(g_eta,g_phi,jets_eta[i],jets_phi[i])<0.5 ) continue;
     double E=jets_pt[i] * cos( 2.*atan( exp(-jets_eta[i]) ));
     ht += jets_pt[i];
   }

@@ -42,23 +42,19 @@ const static int n_50 = 50;
 const static double bins_11_0_10[] = {-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5,10.5}; 
 
 ///Class to print the Status
+const static char barspin[4] = {'-','\\','|','/'};
 template<typename T>
 class Status : public Processor<T> {
   public:
-    Status(std::string n):Processor<T>(n){}
-    virtual bool Process(T*t,Long64_t i,Long64_t n,double);
+    Status(std::string name):Processor<T>(name){}
+    virtual bool Process(T*t,Long64_t i,Long64_t n,double w){
+      if (i==0)             std::cout <<"   > "<< n << " events: \n" << std::flush;
+      if (n&&(n/times)&&(i%(n/times))==0) std::cout << "   "<<barspin[i%4]<<" "<<i/(n/times)*times << "% \r"<< std::flush;
+      return true;
+    }
+  private:
+    const static int times = 10;
 };
-template <typename T>
-bool Status<T>::Process(T*t, Long64_t i, Long64_t n, double w)
-{
-   const int times = 10;
-   if (i==0)             std::cout <<"   > "<< n << " events: \n" << std::flush;
-   char barspin[4] = {'-','\\','|','/'};
-   if (n&&(n/times)&&(i%(n/times))==0) std::cout << "   "<<barspin[i%4]<<" "<<i/(n/times)*times << "% \r"<< std::flush;
-   //if (n&&(n/times)&&(i%(n/times))==0) std::cout << "   "<<i/(n/times)*times << "% \r"<< std::flush;
-   if (i==n-1)           std::cout<<std::endl;
-   return true;
-}
 
 ///data helper class for the Plotter
 class Histograms {
@@ -392,8 +388,9 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   //int mybin = myYields_->GetBin("met",t->met);
   //myYields_->Add("met", myYields_->GetBin("met",t->met), 1, Plotter<T>::weight_ * w  );
 
+  //std::cout << "Closure<T>::Process(T*t,Long64_t i="<<i<<",Long64_t n="<<n<<",double w="<<w<<")"<<std::endl;
+
   double weight = weight_ * w ;
-  
   
   Fill("met",       t->met, weight);
   Fill("met_trans", CalcTransMet(t->met,t->metPhi-kPI,t->photons_phi[t->photons_]), weight);
@@ -402,7 +399,9 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   Fill("met_const", t->met, weight);
   Fill("met_phi",   t->metPhi, weight);
   Fill("met_signif",t->metSig, weight);
-  Fill("mht",	    Mht(t->jets_pt[t->photons_matchedJetIndex[t->photons_]] ,t->jets_eta[t->photons_matchedJetIndex[t->photons_]], t->jets_phi[t->photons_matchedJetIndex[t->photons_]], t->jets_pt, t->jets_eta, t->jets_phi, t->kMaxjets ), weight );
+  int jet_i = t->photons_matchedJetIndex[t->photons_];
+  if (jet_i<t->kMaxjets) Fill("mht",Mht(t->jets_pt[jet_i] ,t->jets_eta[jet_i], t->jets_phi[jet_i], t->jets_pt, t->jets_eta, t->jets_phi, t->kMaxjets ), weight );
+  else std::cerr<<"ERROR: jet_i="<<jet_i<<" !< t->kMaxjets="<<t->kMaxjets<<std::endl;
   Fill("em1_pt",    t->photons_pt[t->photons_], weight);
   Fill("em1_ptstar",t->photons__ptJet[t->photons_], weight);
   Fill("em1_phi",   t->photons_phi[t->photons_], weight);
@@ -418,6 +417,8 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
 //  Fill("n_jet",       JetMult(t->photons_pt[t->photons_], t->photons_eta[t->photons_], t->photons_phi[t->photons_], t->jets_pt, t->jets_eta, t->jets_phi, t->kMaxjets), weight);
 //  Fill("n_loose",     LooseMult(t->kMaxphotons,t->photons_pt, t->photons__ptJet, t->photons_phi, t->photons_eta,t->photons_hadTowOverEm,t->photons_sigmaIetaIeta,t->photons_chargedIso,t->photons_neutralIso,t->photons_photonIso,t->photons_pixelseed), weight);
 //  Fill("n_tight",     TightMult(t->kMaxphotons,t->photons_pt, t->photons__ptJet, t->photons_phi, t->photons_eta,t->photons_hadTowOverEm,t->photons_sigmaIetaIeta,t->photons_chargedIso,t->photons_neutralIso,t->photons_photonIso,t->photons_pixelseed), weight);
+
+//  std::cout << "Closure<T>::Process(T*t,Long64_t i="<<i<<",Long64_t n="<<n<<",double w="<<w<<") Done!"<<std::endl;
   
   return true;//Processor<T>::Process(t,i,n,w);
 }
@@ -428,20 +429,7 @@ void RatioPlot(TH1*a, TH1*b, const std::string& file, const std::string& t);
 template<typename T>
 void Closure<T>::Write()
 {
-//  if (!Plotter<T>::h_->Get( "met" )) {
-//    std::cerr<<"ERROR: Closure<T>::Write(): Did you forget to book the histograms?"<<std::endl;
-//    exit(2);
-//  }
-//  for (std::map<int,Yield>::iterator it=yields_->GetYields()->begin(); 
-//       it!=yields_->GetYields()->end();++it) { 
-//    Plotter<T>::h_->Get( "met" )->SetBinContent( it->first, it->second.weighted() );
-//    Plotter<T>::h_->Get( "met" )->SetBinError( it->first, it->second.error() );
-//  }
-
-  //Plotter<T>::Write();
-
   for (std::map<std::string,MyYields*>::iterator it=yields_.begin();it!=yields_.end();++it) {
-     
     TH1 * pred = it->second->GetPlot(it->first);
     pred->SetTitle("Prediction");
     TH1 * sighist = 0;

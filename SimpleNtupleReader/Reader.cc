@@ -5,7 +5,7 @@
 #include "TChain.h"
 #include "TError.h"
 
-const static bool ONLY_QCD = true;
+const static bool ONLY_QCD = false;
 const static std::string version = "V03.16";
 
 template <typename T>
@@ -32,7 +32,7 @@ int Reader()
   Yields tight_g("tightly isolated photon");
   Yields loose_g("loosely isolated photon");
 
-  std::cout << "Photon-Jet Photon Tree\n======================" <<std::endl;
+  std::cout << "\nPhoton-Jet Photon Tree\n======================" <<std::endl;
   std::vector<Processor<GJets_Photon>*> v_gjets_g;
   Status<GJets_Photon> status_gjets_g("Status GJets_Photon");
   Plotter<GJets_Photon> gjets_g("plots/"+version+"/GJets_Photon");
@@ -57,7 +57,7 @@ int Reader()
   tight_g.Add( weights_gj_g.GetYields() );
   }
   
-  std::cout << "QCD Photon Tree\n======================" <<std::endl;
+  std::cout << "\nQCD Photon Tree\n======================" <<std::endl;
   std::vector<Processor<QCD_Photon>*> v_qcd_g;
   Status<QCD_Photon> status_qcd_g("Status QCD_Photon");
   Plotter<QCD_Photon> qcd_g("plots/"+version+"/Qcd_Photon");
@@ -81,7 +81,7 @@ int Reader()
   qcd_g.Write();
   tight_g.Add( weights_qcd_g.GetYields() );
   
-  std::cout << "Photon-Jet Jet Tree\n======================" <<std::endl;
+  std::cout << "\nPhoton-Jet Jet Tree\n======================" <<std::endl;
   std::vector<Processor<GJets_Jet>*> v_gjets_j;
   Status<GJets_Jet> status_gjets_j("Status GJets_Jet");
   Plotter<GJets_Jet> gjets_j("plots/"+version+"/GJets_Jet");
@@ -104,7 +104,7 @@ int Reader()
   loose_g.Add( weights_gj_j.GetYields() );
   }
   
-  std::cout << "QCD Jet Tree\n======================" <<std::endl;
+  std::cout << "\nQCD Jet Tree\n======================" <<std::endl;
   std::vector<Processor<QCD_Jet>*> v_qcd_j;
   Status<QCD_Jet> status_qcd_j("Status QCD_Jet");
   Plotter<QCD_Jet> qcd_j("plots/"+version+"/Qcd_Jet");
@@ -146,12 +146,12 @@ int Reader()
   closure_qcd.Book();
 
   if (!ONLY_QCD){
-  std::cout << "Photon-Jet Jet Tree (2nd pass for closure)\n===================================" <<std::endl;
+  std::cout << "\nPhoton-Jet Jet Tree (2nd pass for closure)\n===================================" <<std::endl;
   std::vector<Processor<GJets_Jet>*> vc_gjets_j;
-  Cutter<GJets_Jet> cut_gj("Cutter");
-  DoubleCountFilter<GJets_Jet> double_gj("DoublicateFilter_GJets");
-  Cutter_looseID<GJets_Jet> looseID_gj("LoosePhotonId_GJets");
-  double_gj.Set( double_gj_g.Get() );
+  Cutter               <GJets_Jet>   cut_gj(    "Cutter");
+  DoubleCountFilter    <GJets_Jet>   double_gj( "DoublicateFilter_GJets");
+  Cutter_looseID       <GJets_Jet>   looseID_gj("LoosePhotonId_GJets");
+  //double_gj.Set( double_gj_g.Get() );
   vc_gjets_j.push_back( &status_gjets_j );
   vc_gjets_j.push_back( &looseID_gj );
   vc_gjets_j.push_back( &double_gj );
@@ -161,11 +161,11 @@ int Reader()
   Process<GJets_Jet>("photonJetTree",vc_gjets_j,"data/"+version+"/GJets_400_inf_"+version+"_tree.root",0.0502103290278 );
   }
     
-  std::cout << "QCD Jet Tree (2nd pass for closure)\n===================================" <<std::endl;
+  std::cout << "\nQCD Jet Tree (2nd pass for closure)\n===================================" <<std::endl;
   std::vector<Processor<QCD_Jet>*> vc_qcd_j;
-  Cutter<QCD_Jet> cut_qcd("Cutter");
-  DoubleCountFilter<QCD_Jet> double_qcd("DoublicateFilter_QCD");
-  Cutter_looseID<QCD_Jet> looseID_qcd("LoosePhotonId_QCD");
+  Cutter               <QCD_Jet>   cut_qcd(    "Cutter");
+  DoubleCountFilter    <QCD_Jet>   double_qcd( "DoublicateFilter_QCD");
+  Cutter_looseID       <QCD_Jet>   looseID_qcd("LoosePhotonId_QCD");
   vc_qcd_j.push_back( &status_qcd_j );
   vc_qcd_j.push_back( &looseID_qcd );
   vc_qcd_j.push_back( &double_qcd );
@@ -177,27 +177,22 @@ int Reader()
 
   closure_qcd.Write();
   if (!ONLY_QCD) {
-  closure_gj.Write();
-  
-  closure.SetNominator(   &tight_g );   //Zähler, tight isolated
-  closure.SetDenominator( &loose_g );   //Nenner, loose isolated
-  //Histograms signal_combined("Combined Direct Simulation");
-  //signal_combined.Add( direct_qcd.GetHists() );
-  //signal_combined.Add( direct_gj.GetHists() );
-  //closure.SetSignalHists( &signal_combined );   //Signal
-  closure.AddSignalYields( direct_qcd.GetYields() ); 
-  closure.AddSignalYields( direct_gj.GetYields() ); 
-  closure.Book();
-  closure.AddRef(closure_gj.GetYields());
-  closure.AddRef(closure_qcd.GetYields());
-  closure.Write();
+   closure_gj.Write();
+   closure.SetNominator(    &tight_g );   //Zähler, tight isolated
+   closure.SetDenominator(  &loose_g );   //Nenner, loose isolated
+   closure.AddSignalYields( direct_qcd.GetYields() ); 
+   closure.AddSignalYields( direct_gj.GetYields() ); 
+   closure.Book();
+   closure.AddRef(          closure_gj.GetYields());
+   closure.AddRef(          closure_qcd.GetYields());
+   closure.Write();
   }
   
   return 0;
 }
 
-void do_data(){
-  std::cout << "Data Photon Tree\n======================" <<std::endl;
+int do_data(){
+  std::cout << "\nData Photon Tree\n======================" <<std::endl;
   std::vector<Processor<Data_Photon>*> v_Data_g;
   Status<Data_Photon> status_data_g("Status Data_Photon");
   Plotter<Data_Photon> Data_g("plots/"+version+"/Data_Photon");
@@ -221,7 +216,7 @@ void do_data(){
   Process<Data_Photon>("photonTree",v_Data_g,"data/"+version+"/PhotonHadD_"+version+"_tree.root",1.0);
   Data_g.Write();
 
-  std::cout << "Data Jet Tree\n======================" <<std::endl;
+  std::cout << "\nData Jet Tree\n======================" <<std::endl;
   std::vector<Processor<Data_Jet>*> v_Data_j;
   Status<Data_Jet> status_data_j("Status Data_Jet");
   Plotter<Data_Jet> Data_j("plots/"+version+"/Data_Jet");
@@ -243,7 +238,7 @@ void do_data(){
   Process<Data_Jet>("photonTree",v_Data_j,"data/"+version+"/PhotonHadD_"+version+"_tree.root",1.0);
   Data_j.Write();
 
-
+  return 0;
 }
 
 int main()
