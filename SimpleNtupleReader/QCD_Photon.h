@@ -18,6 +18,8 @@ class QCD_Photon : public TSelector {
 public :
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
+int ThePhoton;
+
 const static Int_t kMaxphotons = 1;
 const static Int_t kMaxjets = 9;
 const static Int_t kMaxelectrons = 1;

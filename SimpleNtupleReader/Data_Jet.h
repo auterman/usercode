@@ -17,6 +17,8 @@
 // Fixed size dimensions of array or collections stored in the TTree if any.
 class Data_Jet : public TSelector {
 public :
+int ThePhoton;
+
 const static Int_t kMaxphotons = 5;
 const static Int_t kMaxjets = 18;
 const static Int_t kMaxelectrons = 5;

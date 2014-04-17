@@ -18,6 +18,8 @@
 
 class Data_Photon : public TSelector {
 public :
+int ThePhoton;
+
 const static Int_t kMaxphotons = 3;
 const static Int_t kMaxjets = 17;
 const static Int_t kMaxelectrons = 4;
