@@ -408,13 +408,13 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   Fill("em1_phi",   t->photons_phi[t->ThePhoton], weight);
   Fill("weight",    weight, 1. );
   Fill("phi_met_em1", DeltaPhi(t->metPhi-kPI, t->photons_phi[t->ThePhoton]), weight);
-/*
+
   ROOT::Math::PtEtaPhiEVector recoil = Recoil(t->photons_pt[t->ThePhoton], t->photons_eta[t->ThePhoton], t->photons_phi[t->ThePhoton], t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ );
   Fill("recoil_ht",   Recoil_ht(t->photons_pt[t->ThePhoton], t->photons_eta[t->ThePhoton], t->photons_phi[t->ThePhoton], t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ ), weight );
   Fill("recoil_pt",   Recoil_pt(  &recoil ), weight );
   Fill("recoil_phi",  Recoil_phi( &recoil ), weight );
   Fill("phi_recoil_em1", DeltaPhi( Recoil_phi( &recoil ), t->photons_phi[t->ThePhoton]), weight);
-
+/*
   int jet_i = t->photons_matchedJetIndex[t->ThePhoton];
   if (jet_i<=t->jets_) {
     Fill("mht",Mht(t->jets_pt[jet_i],t->jets_eta[jet_i], t->jets_phi[jet_i], t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ ), weight );
