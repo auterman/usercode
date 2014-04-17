@@ -37,3 +37,6 @@ commit:
 		git add Makefile *.h *.cc
 		git commit -m "auto-commit by Makefile"	
 		git push	
+
+nedit:
+		 nedit Makefile GJets_Jet.h Reader.h Reader.cc Interface.h Interface.cc Tools.h Tools.cc &
