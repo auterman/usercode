@@ -19,7 +19,7 @@ class Data_Jet : public TSelector {
 public :
 int ThePhoton;
 
-const static Int_t kMaxphotons = 5;
+const static Int_t kMaxphotons = 10;
 const static Int_t kMaxjets = 20;
 const static Int_t kMaxelectrons = 5;
 const static Int_t kMaxmuons = 5;

@@ -20,7 +20,7 @@ public :
 // Fixed size dimensions of array or collections stored in the TTree if any.
 int ThePhoton;
 
-const static Int_t kMaxphotons = 5;
+const static Int_t kMaxphotons = 10;
 const static Int_t kMaxjets = 20;
 const static Int_t kMaxelectrons = 5;
 const static Int_t kMaxmuons = 5;
