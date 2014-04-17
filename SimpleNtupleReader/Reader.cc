@@ -151,7 +151,7 @@ int Reader()
   Cutter               <GJets_Jet>   cut_gj(    "Cutter");
   DoubleCountFilter    <GJets_Jet>   double_gj( "DoublicateFilter_GJets");
   Cutter_looseID       <GJets_Jet>   looseID_gj("LoosePhotonId_GJets");
-  //double_gj.Set( double_gj_g.Get() );
+  double_gj.Set( double_gj_g.Get() );
   vc_gjets_j.push_back( &status_gjets_j );
   vc_gjets_j.push_back( &looseID_gj );
   vc_gjets_j.push_back( &double_gj );
@@ -166,6 +166,7 @@ int Reader()
   Cutter               <QCD_Jet>   cut_qcd(    "Cutter");
   DoubleCountFilter    <QCD_Jet>   double_qcd( "DoublicateFilter_QCD");
   Cutter_looseID       <QCD_Jet>   looseID_qcd("LoosePhotonId_QCD");
+  double_qcd.Set( double_qcd_g.Get() );
   vc_qcd_j.push_back( &status_qcd_j );
   vc_qcd_j.push_back( &looseID_qcd );
   vc_qcd_j.push_back( &double_qcd );

@@ -345,14 +345,14 @@ void Closure<T>::Book()
   BookHistogram("met_corr", "closure", bins_50_0_1000, n_50+1);
   BookHistogram("met_phi", "closure", metphibins, n_metphibins+1);
   BookHistogram("met_signif", "closure", bins_50_0_100, n_50+1);
-  BookHistogram("mht", "closure", stdbinning, n_stdbins);
+  BookHistogram("mht", "closure", bins_50_0_1000, n_50+1);
   BookHistogram("em1_pt", "closure", bins_50_0_1000, n_50+1);
   BookHistogram("em1_ptstar", "closure", bins_50_0_1000, n_50+1);
   BookHistogram("em1_phi", "closure", bins_64_nPi_Pi, n_64+1);
   BookHistogram("weight", "closure", weightbins, n_weightbins+1 );
   BookHistogram("phi_met_em1", "closure", bins_64_nPi_Pi, n_64+1);
   BookHistogram("phi_recoil_em1", "closure", bins_64_nPi_Pi, n_64+1);
-  BookHistogram("recoil_ht", "closure",bins_50_0_1000, n_50+1);
+  BookHistogram("recoil_ht", "closure",bins_50_0_1500, n_50+1);
   BookHistogram("recoil_pt", "closure",bins_50_0_1500, n_50+1);
   BookHistogram("recoil_phi", "closure",bins_64_nPi_Pi, n_64+1);
   BookHistogram("n_jet", "closure",bins_11_0_10, 12);
@@ -404,7 +404,7 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   Fill("met_phi",   t->metPhi, weight);
   Fill("met_signif",t->metSig, weight);
   Fill("em1_pt",    t->photons_pt[t->ThePhoton], weight);
-  Fill("em1_ptstar",t->photons__ptJet[t->ThePhoton], weight);
+  Fill("em1_ptstar",(t->photons__ptJet[t->ThePhoton]>0.?t->photons__ptJet[t->ThePhoton]:t->photons_pt[t->ThePhoton]), weight);
   Fill("em1_phi",   t->photons_phi[t->ThePhoton], weight);
   Fill("weight",    weight, 1. );
   Fill("phi_met_em1", DeltaPhi(t->metPhi-kPI, t->photons_phi[t->ThePhoton]), weight);
@@ -421,9 +421,9 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   if (jet_i<=t->jets_) Fill("mht",Mht(t->jets_pt[jet_i],t->jets_eta[jet_i], t->jets_phi[jet_i], t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ ), weight );
   else std::cerr<<"ERROR: jet_i="<<jet_i<<" !<= t->jets_="<<t->jets_<<std::endl;
 
-//  Fill("n_jet",       JetMult(t->photons_pt[t->ThePhoton], t->photons_eta[t->ThePhoton], t->photons_phi[t->ThePhoton], t->jets_pt, t->jets_eta, t->jets_phi, t->jets_), weight);
-//  Fill("n_loose",     LooseMult(t->photons_,t->photons_pt, t->photons__ptJet, t->photons_phi, t->photons_eta,t->photons_hadTowOverEm,t->photons_sigmaIetaIeta,t->photons_chargedIso,t->photons_neutralIso,t->photons_photonIso,t->photons_pixelseed), weight);
-//  Fill("n_tight",     TightMult(t->photons_,t->photons_pt, t->photons__ptJet, t->photons_phi, t->photons_eta,t->photons_hadTowOverEm,t->photons_sigmaIetaIeta,t->photons_chargedIso,t->photons_neutralIso,t->photons_photonIso,t->photons_pixelseed), weight);
+  Fill("n_jet",       JetMult(t->photons_pt[t->ThePhoton], t->photons_eta[t->ThePhoton], t->photons_phi[t->ThePhoton], t->jets_pt, t->jets_eta, t->jets_phi, t->jets_), weight);
+  Fill("n_loose",     LooseMult(t->photons_,t->photons_pt, t->photons__ptJet, t->photons_phi, t->photons_eta,t->photons_hadTowOverEm,t->photons_sigmaIetaIeta,t->photons_chargedIso,t->photons_neutralIso,t->photons_photonIso,t->photons_pixelseed), weight);
+  Fill("n_tight",     TightMult(t->photons_,t->photons_pt, t->photons__ptJet, t->photons_phi, t->photons_eta,t->photons_hadTowOverEm,t->photons_sigmaIetaIeta,t->photons_chargedIso,t->photons_neutralIso,t->photons_photonIso,t->photons_pixelseed), weight);
 
   //std::cout << "Closure<T>::Process(T*t,Long64_t i="<<i<<",Long64_t n="<<n<<",double w="<<w<<") Done!"<<std::endl;
   
@@ -505,8 +505,8 @@ class Cutter_looseID : public Cutter<T> {
 	}   	
       }	
       if (found_pt==0 
-          //|| 
-          //!LeptonVeto(t->electrons_, t->electrons_pt, t->electrons_eta,t->muons_, t->muons_pt, t->muons_eta)
+          || 
+          !LeptonVeto(t->electrons_, t->electrons_pt, t->electrons_eta,t->muons_, t->muons_pt, t->muons_eta)
          ) 
 	 return false;
       ++Cutter<T>::i_pass;
@@ -539,8 +539,8 @@ class Cutter_tightID : public Cutter<T> {
 	}   	
       }	
       if (found_pt==0 
-          //|| 
-          //!LeptonVeto(t->electrons_, t->electrons_pt, t->electrons_eta,t->muons_, t->muons_pt, t->muons_eta)
+          || 
+          !LeptonVeto(t->electrons_, t->electrons_pt, t->electrons_eta,t->muons_, t->muons_pt, t->muons_eta)
          ) 
 	 return false;
       ++Cutter<T>::i_pass;

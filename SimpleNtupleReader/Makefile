@@ -29,3 +29,11 @@ Reader: $(SRC:.cc=.o)
 clean:
 		@rm -f *.o 
 		@rm -f Reader
+
+cp:
+		scp "portal.physik.rwth-aachen.de:~/GIT/usercode/SimpleNtupleReader/plots/V03.16/*" plots/V03.16/.
+
+commit:
+		git add Makefile *.h *.cc
+		git commit -m "auto-commit by Makefile"	
+		git push	

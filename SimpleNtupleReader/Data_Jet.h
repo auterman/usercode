@@ -20,11 +20,11 @@ public :
 int ThePhoton;
 
 const static Int_t kMaxphotons = 5;
-const static Int_t kMaxjets = 18;
+const static Int_t kMaxjets = 20;
 const static Int_t kMaxelectrons = 5;
-const static Int_t kMaxmuons = 3;
-const static Int_t kMaxgenPhotons = 1;
-const static Int_t kMaxgenElectrons = 1;
+const static Int_t kMaxmuons = 5;
+const static Int_t kMaxgenPhotons = 5;
+const static Int_t kMaxgenElectrons = 5;
 
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
 

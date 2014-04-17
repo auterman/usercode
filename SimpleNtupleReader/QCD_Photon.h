@@ -20,12 +20,12 @@ public :
 // Fixed size dimensions of array or collections stored in the TTree if any.
 int ThePhoton;
 
-const static Int_t kMaxphotons = 1;
-const static Int_t kMaxjets = 9;
-const static Int_t kMaxelectrons = 1;
-const static Int_t kMaxmuons = 1;
-const static Int_t kMaxgenPhotons = 2;
-const static Int_t kMaxgenElectrons = 1;
+const static Int_t kMaxphotons = 5;
+const static Int_t kMaxjets = 20;
+const static Int_t kMaxelectrons = 5;
+const static Int_t kMaxmuons = 5;
+const static Int_t kMaxgenPhotons = 5;
+const static Int_t kMaxgenElectrons = 5;
 
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
 
