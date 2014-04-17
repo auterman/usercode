@@ -35,9 +35,30 @@ const static double bins_64_nPi_Pi[] = {-3.2,-3.1,-3.0,-2.9,-2.8,-2.7,-2.6,-2.5,
 const static int n_64 = 64;
 
 const static double bins_50_0_100[] = {0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62,64,66,68,70,72,74,76,78,80,82,84,86,88,90,92,94,96,98,100}; 
+const static double bins_50_0_1000[] = {0,20,40,60,80,100,120,140,160,180,200,220,240,260,280,300,320,340,360,380,400,420,440,460,480,500,520,540,560,580,600,620,640,660,680,700,720,740,760,780,800,820,840,860,880,900,920,940,960,980,1000}; 
+const static double bins_50_0_1500[] = {0,30,60,90,120,150,180,210,240,270,300,330,360,390,420,450,480,510,540,570,600,630,660,690,720,750,780,810,840,870,900,930,960,990,1020,1050,1080,1110,1140,1170,1200,1230,1260,1290,1320,1350,1380,1410,1440,1470,1500}; 
 const static int n_50 = 50;
 
+const static double bins_11_0_10[] = {-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5,10.5}; 
 
+///Class to print the Status
+template<typename T>
+class Status : public Processor<T> {
+  public:
+    Status(std::string n):Processor<T>(n){}
+    virtual bool Process(T*t,Long64_t i,Long64_t n,double);
+};
+template <typename T>
+bool Status<T>::Process(T*t, Long64_t i, Long64_t n, double w)
+{
+   const int times = 10;
+   if (i==0)             std::cout <<"   > "<< n << " events: \n" << std::flush;
+   char barspin[4] = {'-','\\','|','/'};
+   if (n&&(n/times)&&(i%(n/times))==0) std::cout << "   "<<barspin[i%4]<<" "<<i/(n/times)*times << "% \r"<< std::flush;
+   //if (n&&(n/times)&&(i%(n/times))==0) std::cout << "   "<<i/(n/times)*times << "% \r"<< std::flush;
+   if (i==n-1)           std::cout<<std::endl;
+   return true;
+}
 
 ///data helper class for the Plotter
 class Histograms {
@@ -253,9 +274,9 @@ class MyYields
 
 ///Class for the closure
 template<typename T>
-class Closure : public Plotter<T> {
+class Closure : public Processor<T> {
   public:
-    Closure(std::string n):Plotter<T>(n),denominator_(0),nominator_(0),sigYields_(0){
+    Closure(std::string n):Processor<T>(n),denominator_(0),nominator_(0),sigYields_(0){
       //yields_ = new ControlYieldsMET(n);
     }
     virtual void Init();
@@ -299,6 +320,7 @@ class Closure : public Plotter<T> {
     MyYields * sigYields_;
 
     std::map<std::string,MyYields*> yields_, sig_;
+    double weight_;
     
     void BookHistogram(const std::string& s, const std::string title, const double * bins, int nbins){
       //myYields_ = new MyYields(title);  
@@ -323,21 +345,29 @@ void Closure<T>::Book()
   BookHistogram("met_trans","closure",metbins, n_metbins+1);
   BookHistogram("met_paral","closure",metbins, n_metbins+1);
   BookHistogram("ht", "closure",htbins,  n_htbins+1);
-  BookHistogram("met_const", "closure", stdbinning, n_stdbins);
-  BookHistogram("met_phi", "closure", metphibins, n_metphibins);
-  BookHistogram("met_signif", "closure", bins_50_0_100, n_50);
-  //BookHistogram("mht", "closure", stdbinning, n_stdbins);
-  BookHistogram("em1_pt", "closure", stdbinning, n_stdbins);
-  BookHistogram("em1_ptstar", "closure", stdbinning, n_stdbins);
-  BookHistogram("em1_phi", "closure", bins_64_nPi_Pi, n_64);
-  BookHistogram("weight", "closure", weightbins, n_weightbins );
-  BookHistogram("phi_met_em1", "closure", bins_64_nPi_Pi, n_64);
+  BookHistogram("met_const", "closure", bins_50_0_1000, n_50+1);
+  BookHistogram("met_corr", "closure", bins_50_0_1000, n_50+1);
+  BookHistogram("met_phi", "closure", metphibins, n_metphibins+1);
+  BookHistogram("met_signif", "closure", bins_50_0_100, n_50+1);
+  BookHistogram("mht", "closure", stdbinning, n_stdbins);
+  BookHistogram("em1_pt", "closure", bins_50_0_1000, n_50+1);
+  BookHistogram("em1_ptstar", "closure", bins_50_0_1000, n_50+1);
+  BookHistogram("em1_phi", "closure", bins_64_nPi_Pi, n_64+1);
+  BookHistogram("weight", "closure", weightbins, n_weightbins+1 );
+  BookHistogram("phi_met_em1", "closure", bins_64_nPi_Pi, n_64+1);
+  BookHistogram("phi_recoil_em1", "closure", bins_64_nPi_Pi, n_64+1);
+  BookHistogram("recoil_ht", "closure",bins_50_0_1000, n_50+1);
+  BookHistogram("recoil_pt", "closure",bins_50_0_1500, n_50+1);
+  BookHistogram("recoil_phi", "closure",bins_64_nPi_Pi, n_64+1);
+  BookHistogram("n_jet", "closure",bins_11_0_10, 12);
+  BookHistogram("n_loose", "closure",bins_11_0_10, 12);
+  BookHistogram("n_tight", "closure",bins_11_0_10, 12);
   
   if (!denominator_ || !nominator_) return;
   for (int b=0; b<nominator_->GetNBins(); ++b) {
     double d = denominator_->Weighted( b );
     weights_.push_back( (d==0?1.0:nominator_->Weighted( b ) / d) );
-    std::cout << "  Summary Closure '"<<Plotter<T>::name_<<"' weight (bin=" <<b<<") = "<< weights_.back() << std::endl;
+    std::cout << "  Summary Closure '"<<Processor<T>::name_<<"' weight (bin=" <<b<<") = "<< weights_.back() << std::endl;
   }  
 }
 
@@ -353,35 +383,43 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
 {
   if (denominator_ && nominator_){
     int bin = nominator_->GetBin( t->met,0,0 ); //nominator_->GetBin( t->met,t->photons_pt[0],t->ht );
-    Plotter<T>::weight_ = weights_[bin];
+    weight_ = weights_[bin];
   } else 
-    Plotter<T>::weight_ = 1.0;
+    weight_ = 1.0;
   //int bin = yields_->GetBin( t->met,0,0 );
   //yields_->GetYield( bin )->Add( 1, Plotter<T>::weight_ * w );
   
   //int mybin = myYields_->GetBin("met",t->met);
   //myYields_->Add("met", myYields_->GetBin("met",t->met), 1, Plotter<T>::weight_ * w  );
 
-  double weight = Plotter<T>::weight_ * w ;
+  double weight = weight_ * w ;
   
   
   Fill("met",       t->met, weight);
-  Fill("met_trans", transverse_met(t), weight);
-  Fill("met_paral", parallel_met(t), weight);
+  Fill("met_trans", CalcTransMet(t->met,t->metPhi-kPI,t->photons_phi[t->photons_]), weight);
+  Fill("met_paral", CalcParalMet(t->met,t->metPhi-kPI,t->photons_phi[t->photons_]), weight);
   Fill("ht",        t->ht,  weight);
   Fill("met_const", t->met, weight);
   Fill("met_phi",   t->metPhi, weight);
   Fill("met_signif",t->metSig, weight);
-  //Fill("mht",	    t->mht, weight );
+  Fill("mht",	    Mht(t->jets_pt[t->photons_matchedJetIndex[t->photons_]] ,t->jets_eta[t->photons_matchedJetIndex[t->photons_]], t->jets_phi[t->photons_matchedJetIndex[t->photons_]], t->jets_pt, t->jets_eta, t->jets_phi, t->kMaxjets ), weight );
   Fill("em1_pt",    t->photons_pt[t->photons_], weight);
   Fill("em1_ptstar",t->photons__ptJet[t->photons_], weight);
   Fill("em1_phi",   t->photons_phi[t->photons_], weight);
   Fill("weight",    weight, 1. );
   Fill("phi_met_em1", DeltaPhi(t->metPhi-kPI, t->photons_phi[t->photons_]), weight);
+  ROOT::Math::PtEtaPhiEVector recoil = Recoil(t->photons_pt[t->photons_], t->photons_eta[t->photons_], t->photons_phi[t->photons_], t->jets_pt, t->jets_eta, t->jets_phi, t->kMaxjets );
+  Fill("recoil_ht",   Recoil_ht(t->photons_pt[t->photons_], t->photons_eta[t->photons_], t->photons_phi[t->photons_], t->jets_pt, t->jets_eta, t->jets_phi, t->kMaxjets ), weight );
+  Fill("recoil_pt",   Recoil_pt(  &recoil ), weight );
+  Fill("recoil_phi",  Recoil_phi( &recoil ), weight );
+  Fill("phi_recoil_em1", DeltaPhi( Recoil_phi( &recoil ), t->photons_phi[t->photons_]), weight);
+  if (t->photons_matchedJetIndex[t->photons_]>=0) Fill("met_corr", CorectedMet(t->met,t->metPhi-kPI,t->photons_pt[t->photons_], t->photons_eta[t->photons_], t->photons_phi[t->photons_], t->jets_pt[t->photons_matchedJetIndex[t->photons_]] ,t->jets_eta[t->photons_matchedJetIndex[t->photons_]], t->jets_phi[t->photons_matchedJetIndex[t->photons_]] ), weight);
+  else   Fill("met_corr", t->met, weight);
+//  Fill("n_jet",       JetMult(t->photons_pt[t->photons_], t->photons_eta[t->photons_], t->photons_phi[t->photons_], t->jets_pt, t->jets_eta, t->jets_phi, t->kMaxjets), weight);
+//  Fill("n_loose",     LooseMult(t->kMaxphotons,t->photons_pt, t->photons__ptJet, t->photons_phi, t->photons_eta,t->photons_hadTowOverEm,t->photons_sigmaIetaIeta,t->photons_chargedIso,t->photons_neutralIso,t->photons_photonIso,t->photons_pixelseed), weight);
+//  Fill("n_tight",     TightMult(t->kMaxphotons,t->photons_pt, t->photons__ptJet, t->photons_phi, t->photons_eta,t->photons_hadTowOverEm,t->photons_sigmaIetaIeta,t->photons_chargedIso,t->photons_neutralIso,t->photons_photonIso,t->photons_pixelseed), weight);
   
-  //std::cout << "old bin = "<<bin<<", mybin = "<<mybin<<std::endl;
-  
-  return true; //Plotter<T>::Process(t,i,n,w);
+  return true;//Processor<T>::Process(t,i,n,w);
 }
 
 
@@ -410,7 +448,7 @@ void Closure<T>::Write()
     if (sig_[it->first]) {
       sighist = sig_[it->first]->GetPlot( it->first );  
       sighist->SetTitle("Direct simulation");    
-      RatioPlot(sighist, pred, Closure<T>::name_+"_"+it->first, Plotter<T>::name_);
+      RatioPlot(sighist, pred, Closure<T>::name_+"_"+it->first, Processor<T>::name_);
     }  
   }
 }
@@ -426,7 +464,11 @@ class Cutter : public Processor<T> {
     virtual bool Process(T*t,Long64_t i,Long64_t n,double w) {
       ++i_tot;
       d_tot += w;
-      if (t->photons__ptJet[0]<110.) {
+      //ROOT::Math::PtEtaPhiEVector recoil = Recoil(t->photons_pt[t->photons_], t->photons_eta[t->photons_], t->photons_phi[t->photons_], t->jets_pt, t->jets_eta, t->jets_phi, t->kMaxjets );
+      if ( (t->photons__ptJet[t->photons_]>0?t->photons__ptJet[0]:t->photons_pt[t->photons_])<110. 
+         //||
+         // Recoil_pt(  &recoil )<150.
+	 ) {
 	return false;
       }	
       ++i_pass;
@@ -455,15 +497,23 @@ class Cutter_looseID : public Cutter<T> {
       ++Cutter<T>::i_tot;
       Cutter<T>::d_tot += w;
       
-      bool found = false;
+      double found_pt = 0;
       for (int i=0; i<t->kMaxphotons;++i) {
-        found = (found || loose_isolated(t->photons_pt[i], t->photons__ptJet[i], t->photons_phi[i], t->photons_eta[i],
-                           t->photons_pixelseed[i],t->photons_hadTowOverEm[i],t->photons_sigmaIetaIeta[i],
+        if ( loose_isolated(t->photons_pt[i], t->photons__ptJet[i], t->photons_phi[i], t->photons_eta[i],
+                           t->photons_hadTowOverEm[i],t->photons_sigmaIetaIeta[i],
 			   t->photons_chargedIso[i],t->photons_neutralIso[i],t->photons_photonIso[i])
-	        );
-	if (found) {t->photons_ = i; break;}	
+		   && t->photons_pixelseed[i]==0		
+	   ) 
+	{
+	   double pt = (t->photons__ptJet[i]>0?t->photons__ptJet[i]:t->photons_pt[i]);
+  	   if (pt>found_pt) {found_pt=pt; t->photons_ = i; } 
+	}   	
       }	
-      if (!found) return false;
+      if (found_pt==0 
+          //|| 
+          //!LeptonVeto(t->kMaxelectrons, t->electrons_pt, t->electrons_eta,t->kMaxmuons, t->muons_pt, t->muons_eta)
+         ) 
+	 return false;
       ++Cutter<T>::i_pass;
       Cutter<T>::d_pass += w;
       return true;
@@ -481,15 +531,23 @@ class Cutter_tightID : public Cutter<T> {
       ++Cutter<T>::i_tot;
       Cutter<T>::d_tot += w;
       
-      bool found = false;
+      double found_pt = 0;
       for (int i=0; i<t->kMaxphotons;++i) {
-        found = (found || tight_isolated(t->photons_pt[i], t->photons__ptJet[i], t->photons_phi[i], t->photons_eta[i],
-                           t->photons_pixelseed[i],t->photons_hadTowOverEm[i],t->photons_sigmaIetaIeta[i],
+        if ( tight_isolated(t->photons_pt[i], t->photons__ptJet[i], t->photons_phi[i], t->photons_eta[i],
+                           t->photons_hadTowOverEm[i],t->photons_sigmaIetaIeta[i],
 			   t->photons_chargedIso[i],t->photons_neutralIso[i],t->photons_photonIso[i])
-	        );
-	if (found) {t->photons_ = i; break;}	
+             && t->photons_pixelseed[i]==0		
+	   ) 
+	{
+	   double pt = (t->photons__ptJet[i]>0?t->photons__ptJet[i]:t->photons_pt[i]);
+  	   if (pt>found_pt) {found_pt=pt; t->photons_ = i; } 
+	}   	
       }	
-      if (!found) return false;
+      if (found_pt==0 
+          //|| 
+          //!LeptonVeto(t->kMaxelectrons, t->electrons_pt, t->electrons_eta,t->kMaxmuons, t->muons_pt, t->muons_eta)
+         ) 
+	 return false;
       ++Cutter<T>::i_pass;
       Cutter<T>::d_pass += w;
       return true;
