@@ -5,7 +5,7 @@
 #include "TChain.h"
 #include "TError.h"
 
-const static bool ONLY_QCD = true;
+const static bool ONLY_QCD = false;
 const static std::string version = "V03.16";
 
 template <typename T>
@@ -166,7 +166,7 @@ int Reader()
   Cutter               <QCD_Jet>   cut_qcd(    "Cutter");
   DoubleCountFilter    <QCD_Jet>   double_qcd( "DoublicateFilter_QCD");
   Cutter_looseID       <QCD_Jet>   looseID_qcd("LoosePhotonId_QCD");
-  double_qcd.Set( double_qcd_g.Get() );
+  //double_qcd.Set( double_qcd_g.Get() );
   vc_qcd_j.push_back( &status_qcd_j );
   vc_qcd_j.push_back( &looseID_qcd );
   vc_qcd_j.push_back( &double_qcd );
