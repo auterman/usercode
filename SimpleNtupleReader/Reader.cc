@@ -5,7 +5,7 @@
 #include "TChain.h"
 #include "TError.h"
 
-const static bool ONLY_QCD = false;
+const static bool ONLY_QCD = true;
 const static std::string version = "V03.16";
 
 template <typename T>
@@ -54,6 +54,7 @@ int Reader()
   Process<GJets_Photon>("photonTree",v_gjets_g,"data/"+version+"/GJets_200_400_"+version+"_tree.root",0.32466417277);
   Process<GJets_Photon>("photonTree",v_gjets_g,"data/"+version+"/GJets_400_inf_"+version+"_tree.root",0.0502103290278 );
   gjets_g.Write();
+  direct_gj.Write();
   tight_g.Add( weights_gj_g.GetYields() );
   }
   
@@ -77,8 +78,9 @@ int Reader()
   v_qcd_g.push_back( &direct_qcd );
   Process<QCD_Photon>("photonTree",v_qcd_g,"data/"+version+"/QCD_250_500_"+version+"_tree.root",201.935697478);
   Process<QCD_Photon>("photonTree",v_qcd_g,"data/"+version+"/QCD_500_1000_"+version+"_tree.root",5.45224379701 );
-  Process<QCD_Photon>("photonTree",v_qcd_g,"data/"+version+"/QCD_1000_inf_"+version+"_tree.root",0.291768273061);
+//  Process<QCD_Photon>("photonTree",v_qcd_g,"data/"+version+"/QCD_1000_inf_"+version+"_tree.root",0.291768273061);
   qcd_g.Write();
+  direct_qcd.Write();
   tight_g.Add( weights_qcd_g.GetYields() );
   
   std::cout << "\nPhoton-Jet Jet Tree\n======================" <<std::endl;
@@ -122,7 +124,7 @@ int Reader()
   v_qcd_j.push_back( &weights_qcd_j );
   Process<QCD_Jet>("photonJetTree",v_qcd_j,"data/"+version+"/QCD_250_500_"+version+"_tree.root",201.935697478);
   Process<QCD_Jet>("photonJetTree",v_qcd_j,"data/"+version+"/QCD_500_1000_"+version+"_tree.root",5.45224379701 );
-  Process<QCD_Jet>("photonJetTree",v_qcd_j,"data/"+version+"/QCD_1000_inf_"+version+"_tree.root",0.291768273061);
+//  Process<QCD_Jet>("photonJetTree",v_qcd_j,"data/"+version+"/QCD_1000_inf_"+version+"_tree.root",0.291768273061);
   qcd_j.Write();
   loose_g.Add( weights_qcd_j.GetYields() );
 
@@ -133,13 +135,11 @@ int Reader()
   Closure<QCD_Jet> closure("plots/"+version,"Closure_Combined");
   Closure<QCD_Jet> closure_qcd("plots/"+version,"Closure_QCD");
   Closure<GJets_Jet> closure_gj("plots/"+version,"Closure_GJets");
-  direct_gj.Write();
   closure_gj.SetNominator( weights_gj_g.GetYields());   //Zähler, tight isolated
   closure_gj.SetDenominator( weights_gj_j.GetYields()); //Nenner, loose isolated
   closure_gj.AddSignalYields( direct_gj.GetYields());   //Signal
   closure_gj.Book();
 
-  direct_qcd.Write();
   closure_qcd.SetNominator( weights_qcd_g.GetYields() );   //Zähler, tight isolated
   closure_qcd.SetDenominator( weights_qcd_j.GetYields() ); //Nenner, loose isolated
   closure_qcd.AddSignalYields( direct_qcd.GetYields() );   //Signal
@@ -174,7 +174,7 @@ int Reader()
   vc_qcd_j.push_back( &closure_qcd );
   Process<QCD_Jet>("photonJetTree",vc_qcd_j,"data/"+version+"/QCD_250_500_"+version+"_tree.root",201.935697478);
   Process<QCD_Jet>("photonJetTree",vc_qcd_j,"data/"+version+"/QCD_500_1000_"+version+"_tree.root",5.45224379701 );
-  Process<QCD_Jet>("photonJetTree",vc_qcd_j,"data/"+version+"/QCD_1000_inf_"+version+"_tree.root",0.291768273061);
+//  Process<QCD_Jet>("photonJetTree",vc_qcd_j,"data/"+version+"/QCD_1000_inf_"+version+"_tree.root",0.291768273061);
 
   closure_qcd.Write();
   if (!ONLY_QCD) {

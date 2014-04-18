@@ -3,6 +3,7 @@
 
 #include "Interface.h"
 #include "TH1F.h"
+#include "TH2F.h"
 #include "TCanvas.h"
 #include "TPad.h"
 
@@ -15,6 +16,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <sstream>
 
 
 const static double metbins[] = {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 160, 200, 270, 350, 500}; 
@@ -155,6 +157,7 @@ class Yield{
 class Binnings {
  public:
   Binnings(const double *b, int n){binning_ = new std::vector<double>(b,b+n);}
+    double* GetArray(){double * bins = new double(binning_->size());for(int i=0;i<binning_->size();++i)bins[i]=binning_->at(i);return bins;}
     virtual int GetNBins(){return binning_->size();}
     virtual double GetBinBorder(int v){return binning_->at(v);}
     virtual int GetBin(double v){
@@ -176,7 +179,7 @@ class Yields{
       /// QCD Reweighting binning definition
       ///
       /// ------------------------------------------------------------
-      //binning_["photon_ptstar"] = new Binnings(bins_50_0_1000, n_50+1);
+      binning_["photon_ptstar"] = new Binnings(bins_50_0_1000, n_50+1);
       binning_["recoil_pt"] = new Binnings(bins_50_0_1500, n_50+1);
       /// ------------------------------------------------------------
       /// ------------------------------------------------------------
@@ -189,9 +192,10 @@ class Yields{
                        float g_pt, float g_eta, float g_phi, 
                        int njets, float *jets_pt, float *jets_eta, float *jets_phi)
 		       {
-      //return  binning_["photon_ptstar"]->GetBin( g_pt );
+      int bin = binning_["photon_ptstar"]->GetBin( g_pt );
       ROOT::Math::PtEtaPhiEVector recoil = Recoil(g_pt, g_eta, g_phi, jets_pt, jets_eta, jets_phi, njets );
-      return  binning_["recoil_pt"]->GetBin( Recoil_pt(  &recoil ) );
+      bin += binning_["photon_ptstar"]->GetNBins() * binning_["recoil_pt"]->GetBin( Recoil_pt(  &recoil ) );
+      return bin;
     }
     virtual int GetNBins(){
       int n=1;
@@ -199,6 +203,8 @@ class Yields{
         n *= it->second->GetNBins();
       return n;
     }
+    int WeightsDimension(){return binning_.size();}
+    std::map<std::string,Binnings*> * GetBinning(){return &binning_;}
     
     double Weighted(int b){return yield[b].weighted();}
     unsigned Unweighted(int b){return yield[b].unweighted();}
@@ -219,12 +225,12 @@ class Weighter : public Processor<T> {
     }
     //virtual void Init(){};
     virtual bool Process(T*t,Long64_t i,Long64_t n,double);
-    virtual void Terminate(){std::cout << "  Summary Weighter '"<<Processor<T>::name_<<"': "<<yields_->Weighted(0)<<" +- "<<yields_->Error(0)<<"  ("<<yields_->Unweighted(0)<<")"<<std::endl;};
+    virtual void Terminate();//{std::cout << "  Summary Weighter '"<<Processor<T>::name_<<"': "<<yields_->Weighted(0)<<" +- "<<yields_->Error(0)<<"  ("<<yields_->Unweighted(0)<<")"<<std::endl;};
 
     Yields* GetYields(){return yields_;}
 
   private:
-    Yields * yields_;
+    Yields* yields_;
 };
 
 template<typename T>
@@ -235,7 +241,6 @@ bool Weighter<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   if (t->met<100.) 
     yields_->GetYield( 
       yields_->GetBin(
-        //t->met,t->photons_pt[t->ThePhoton],t->ht) 
         t->met,t->metPhi,t->ht,t->metSig,
         t->photons_pt[t->ThePhoton], t->photons_eta[t->ThePhoton], t->photons_phi[t->ThePhoton], 
         t->jets_, t->jets_pt, t->jets_eta, t->jets_phi
@@ -245,6 +250,66 @@ bool Weighter<T>::Process(T*t,Long64_t i,Long64_t n,double w)
 
   return true;
 }
+
+template<typename T>
+void Weighter<T>::Terminate()
+{  
+  std::cout << "  Summary Weighter '"<<Processor<T>::name_<<"': "<<yields_->Weighted(0)<<" +- "<<yields_->Error(0)<<"  ("<<yields_->Unweighted(0)<<")"<<std::endl;
+/*
+  std::map<std::string,Binnings*> * binning = yields_->GetBinning();
+  std::string axis[3];
+  int i=0;
+  for (std::map<std::string,Binnings*>::iterator it=binning->begin();(it!=binning->end()&&i!=3);++it)
+    axis[i++]=it->first;
+    
+  if (yields_->WeightsDimension()==1) {
+    TH1 * w = new TH1F( ((std::string)"h1_weight_"+Processor<T>::name_).c_str(),
+                    ((std::string)"QCD weighting;"+axis[0]+";weight").c_str(),
+                    (*binning)[axis[0]]->GetNBins(),(*binning)[axis[0]]->GetArray()
+		  );
+    TH1 * we = (TH1F*)w->Clone();		  
+    for (int x=0; x<(*binning)[axis[0]]->GetNBins(); ++x){
+        w->SetBinContent(x,GetYields()->Weighted(x) );
+        we->SetBinContent(x,GetYields()->Error(x) );
+    }
+    struct stat st={0};
+    if(stat(dir_.c_str(),&st)==-1)
+       mkdir(dir_.c_str(), 0700);
+    if(stat(((std::string)dir_+"/log/").c_str(),&st)==-1)
+       mkdir(((std::string)dir_+"/log/").c_str(), 0700);
+    TCanvas * c1 = new TCanvas("","",600,600);
+    gPad->SetLogy(0);
+    it->second->SetMinimum(0);
+    it->second->Draw("he");
+    c1->SaveAs(((std::string)dir_+"/log/h1_weight_"+Processor<T>::name_+".pdf").c_str());
+    delete c1; 
+  }
+  else if (yields_->WeightsDimension()==2) {
+    TH2 * w = new TH1F( ((std::string)"h2_weight_"+Processor<T>::name_).c_str(),
+                    ((std::string)"QCD weighting;"+axis[0]+";"+axis[1]).c_str(),
+                    (*binning)[axis[0]]->GetNBins(),(*binning)[axis[0]]->GetArray(),
+                    (*binning)[axis[1]]->GetNBins(),(*binning)[axis[1]]->GetArray()
+		  );
+    TH2 * we = (TH2F*)w->Clone();		  
+    for (int x=0; x<(*binning)[axis[0]]->GetNBins(); ++x)
+      for (int y=0; y<(*binning)[axis[1]]->GetNBins(); ++y){
+        w->SetBinContent(x,y,GetYields()->Weighted(x+y*(*binning)[axis[0]]->GetNBins()) );
+        we->SetBinContent(x,y,GetYields()->Error(x+y*(*binning)[axis[0]]->GetNBins()) );
+      }
+    struct stat st={0};
+    if(stat(dir_.c_str(),&st)==-1)
+       mkdir(dir_.c_str(), 0700);
+    if(stat(((std::string)dir_+"/log/").c_str(),&st)==-1)
+       mkdir(((std::string)dir_+"/log/").c_str(), 0700);
+    TCanvas * c1 = new TCanvas("","",600,600);
+    gPad->SetLogy(0);
+    it->second->SetMinimum(0);
+    it->second->Draw("he");
+    c1->SaveAs(((std::string)dir_+"/log/h2_weight_"+Processor<T>::name_+".pdf").c_str());
+    delete c1; 
+  }
+*/
+};
 
 
 ///Closure test class ==============================================================================
@@ -358,7 +423,7 @@ class Closure : public Processor<T> {
 	   * nominator_;   //Zähler: MET<100, tight isolated
     //ControlYieldsMET * signal_;  //signal region MET>100, tight 
     //Histograms * sighists_; 	   
-    std::vector<double> weights_; //lookuptable for weights to speed up process
+    std::vector<double> weights_,weighterrors_; //lookuptable for weights to speed up process
     
     
     //MyYields * myYields_;
@@ -385,6 +450,8 @@ template<typename T>
 void Closure<T>::Book()
 {
   //Plotter<T>::Book();
+
+std::cout << "void Closure<T>::Book()" << std::endl;
 
   BookHistogram("met","closure",metbins, n_metbins+1);
   BookHistogram("met_trans","closure",metbins, n_metbins+1);
@@ -415,9 +482,14 @@ void Closure<T>::Book()
   
   if (!denominator_ || !nominator_) return;
   for (int b=0; b<nominator_->GetNBins(); ++b) {
-    double d = denominator_->Weighted( b );
-    weights_.push_back( (d==0?1.0:nominator_->Weighted( b ) / d) );
-    std::cout << "  Summary Closure '"<<Processor<T>::name_<<"' weight (bin=" <<b<<") = "<< weights_.back() << std::endl;
+    double d = denominator_->Weighted( b ); //loose
+    double de = denominator_->Error( b ); //loose
+    double n = nominator_->Weighted( b ); //tight
+    double ne = nominator_->Error( b );
+    weights_.push_back( (d==0?1.0:n / d) );
+    weighterrors_.push_back( (d==0?1.0: sqrt( ne*ne/(d*d) + de*de*n*n/(d*d*d*d) ) ) );
+    std::cout << "  Summary Closure '"<<Processor<T>::name_<<"' weight (bin=" <<b<<") = "
+              << weights_.back() << " +- "<< weighterrors_.back()<<std::endl;
   }  
 }
 
@@ -518,6 +590,68 @@ void Closure<T>::Write()
       RatioPlot(sighist, pred, dir_, Closure<T>::name_+"_"+it->first, Processor<T>::name_);
     }  
   }
+
+  if (!denominator_ || !nominator_) return;
+
+  std::map<std::string,Binnings*> * binning = denominator_->GetBinning();
+  std::string axis[3];
+  int i=0;
+  for (std::map<std::string,Binnings*>::iterator it=binning->begin();(it!=binning->end()&&i!=3);++it)
+    axis[i++]=it->first;
+    
+std::cout <<"void Closure<T>::Write() dim="<< denominator_->WeightsDimension()<<std::endl;
+  if (denominator_->WeightsDimension()==1) {
+    std::stringstream ss;
+    ss  <<"h1_weight_"<<Processor<T>::name_<<"_" << plotnr++;
+    TH1 * w = new TH1F( ss.str().c_str(),
+                    ((std::string)"QCD weighting;"+axis[0]+";weight").c_str(),
+                    (*binning)[axis[0]]->GetNBins(),(*binning)[axis[0]]->GetArray()
+		  );
+    for (int x=0; x<(*binning)[axis[0]]->GetNBins(); ++x){
+        w->SetBinContent(x,weights_[x] );
+        w->SetBinError(x,weighterrors_[x] );
+    }
+    struct stat st={0};
+    if(stat(dir_.c_str(),&st)==-1)
+       mkdir(dir_.c_str(), 0700);
+    if(stat(((std::string)dir_+"/log/").c_str(),&st)==-1)
+       mkdir(((std::string)dir_+"/log/").c_str(), 0700);
+    TCanvas * c1 = new TCanvas("","",600,600);
+    gPad->SetLogy(0);
+    w->Draw("he");
+    c1->SaveAs(((std::string)dir_+"/log/h1_weight_"+Processor<T>::name_+".pdf").c_str());
+    delete w;
+    delete c1; 
+  }
+  else if (denominator_->WeightsDimension()==2) {
+    std::stringstream ss;
+    ss  <<"h2_weight_"<<Processor<T>::name_<<"_" << plotnr++;
+    TH2F * w = new TH2F( ss.str().c_str(),
+                    ((std::string)"QCD weighting;"+axis[0]+";"+axis[1]).c_str(),
+                    (*binning)[axis[0]]->GetNBins(),(*binning)[axis[0]]->GetArray(),
+                    (*binning)[axis[1]]->GetNBins(),(*binning)[axis[1]]->GetArray()
+		  );
+    TH2F * we = (TH2F*)w->Clone();		  
+    for (int x=0; x<(*binning)[axis[0]]->GetNBins(); ++x)
+      for (int y=0; y<(*binning)[axis[1]]->GetNBins(); ++y){
+        w->SetBinContent(x,y,weights_[x+y*(*binning)[axis[0]]->GetNBins() ]);
+        we->SetBinContent(x,y,weighterrors_[x+y*(*binning)[axis[0]]->GetNBins() ]);
+      }
+    struct stat st={0};
+    if(stat(dir_.c_str(),&st)==-1)
+       mkdir(dir_.c_str(), 0700);
+    if(stat(((std::string)dir_+"/log/").c_str(),&st)==-1)
+       mkdir(((std::string)dir_+"/log/").c_str(), 0700);
+    TCanvas * c1 = new TCanvas("","",600,600);
+    gPad->SetLogy(0);
+    w->Draw("Colz");
+    c1->SaveAs(((std::string)dir_+"/log/h2_weight_"+Processor<T>::name_+".pdf").c_str());
+    we->Draw("Colz");
+    c1->SaveAs(((std::string)dir_+"/log/h2_weight_"+Processor<T>::name_+".pdf").c_str());
+    delete c1; 
+  }
+std::cout <<"void Closure<T>::Write() dim="<< std::endl;
+
 }
 
 

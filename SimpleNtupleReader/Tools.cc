@@ -4,7 +4,6 @@
 #include "TLine.h"
 #include "TLegend.h"
 
-#include <sstream>
 
 
 void Histograms::Book()
