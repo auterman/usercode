@@ -176,7 +176,8 @@ class Yields{
       /// QCD Reweighting binning definition
       ///
       /// ------------------------------------------------------------
-      binning_["photon_ptstar"] = new Binnings(bins_50_0_1000, n_50+1);
+      //binning_["photon_ptstar"] = new Binnings(bins_50_0_1000, n_50+1);
+      binning_["recoil_pt"] = new Binnings(bins_50_0_1500, n_50+1);
       /// ------------------------------------------------------------
       /// ------------------------------------------------------------
     }
@@ -188,7 +189,9 @@ class Yields{
                        float g_pt, float g_eta, float g_phi, 
                        int njets, float *jets_pt, float *jets_eta, float *jets_phi)
 		       {
-      return  binning_["photon_ptstar"]->GetBin( g_pt );
+      //return  binning_["photon_ptstar"]->GetBin( g_pt );
+      ROOT::Math::PtEtaPhiEVector recoil = Recoil(g_pt, g_eta, g_phi, jets_pt, jets_eta, jets_phi, njets );
+      return  binning_["recoil_pt"]->GetBin( Recoil_pt(  &recoil ) );
     }
     virtual int GetNBins(){
       int n=1;
