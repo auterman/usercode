@@ -12,8 +12,9 @@
 #include <cmath>
 #include <vector>
 #include <numeric>
-
-
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 
 const static double metbins[] = {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 160, 200, 270, 350, 500}; 
@@ -49,7 +50,7 @@ class Status : public Processor<T> {
     Status(std::string name):Processor<T>(name){}
     virtual bool Process(T*t,Long64_t i,Long64_t n,double w){
       if (i==0)             std::cout <<"   > "<< n << " events: \n" << std::flush;
-      if (n&&(n/times)&&(i%(n/times))==0) std::cout << "   "<<barspin[(i%(n/times))%4]<<" "<<i/(n/times) << "% \r"<< std::flush;
+      if (n&&(n/times)&&(i%(n/times))==0) std::cout << "   "<<barspin[(i/(n/times))%4]<<" "<<i/(n/times) << "% \r"<< std::flush;
       return true;
     }
   private:
@@ -59,7 +60,7 @@ class Status : public Processor<T> {
 ///data helper class for the Plotter
 class Histograms {
   public:
-    Histograms(const std::string& l):label_(l){}
+    Histograms(const std::string& d,const std::string& l):dir_(d),label_(l){}
     void Add(Histograms* r);
     virtual void Book();
     void Fill(const std::string&s,double c, double w=1.);
@@ -68,14 +69,14 @@ class Histograms {
     void Write();
   
   private:
-    std::string label_;
+    std::string dir_,label_;
     std::map<std::string, TH1*> h_;    
 };
 
 template<typename T>
 class Plotter : public Processor<T> {
   public:
-    Plotter(std::string n):Processor<T>(n),weight_(1.0){h_=new Histograms(n);}
+    Plotter(std::string dir,std::string n):Processor<T>(n),dir_(dir),weight_(1.0){h_=new Histograms(dir,n);}
     //virtual void Init(){};
     virtual bool Process(T*t,Long64_t i,Long64_t n,double);
     virtual void Terminate(){};
@@ -86,6 +87,7 @@ class Plotter : public Processor<T> {
 
 
   protected:
+    std::string dir_;
     double weight_;
     Histograms * h_;
 };
@@ -272,7 +274,7 @@ class MyYields
 template<typename T>
 class Closure : public Processor<T> {
   public:
-    Closure(std::string n):Processor<T>(n),denominator_(0),nominator_(0),sigYields_(0){
+    Closure(std::string d,std::string n):Processor<T>(n),dir_(d),denominator_(0),nominator_(0){
       //yields_ = new ControlYieldsMET(n);
     }
     virtual void Init();
@@ -304,6 +306,7 @@ class Closure : public Processor<T> {
     std::map<std::string,MyYields*> * GetYields(){  return &yields_;}
 
   private:
+    std::string dir_;
     //ControlYieldsMET * yields_;      //control region MET>100, loose
     Yields * denominator_, //Nenner: MET<100, loose isolated 
 	   * nominator_;   //Zähler: MET<100, tight isolated
@@ -312,8 +315,8 @@ class Closure : public Processor<T> {
     std::vector<double> weights_; //lookuptable for weights to speed up process
     
     
-    MyYields * myYields_;
-    MyYields * sigYields_;
+    //MyYields * myYields_;
+    //MyYields * sigYields_;
 
     std::map<std::string,MyYields*> yields_, sig_;
     double weight_;
@@ -346,11 +349,16 @@ void Closure<T>::Book()
   BookHistogram("met_phi", "closure", metphibins, n_metphibins+1);
   BookHistogram("met_signif", "closure", bins_50_0_100, n_50+1);
   BookHistogram("mht", "closure", bins_50_0_1000, n_50+1);
+  BookHistogram("mht_trans", "closure", bins_50_0_1000, n_50+1);
+  BookHistogram("mht_paral", "closure", bins_50_0_1000, n_50+1);
+  BookHistogram("mht_phi", "closure", metphibins, n_metphibins+1);
   BookHistogram("em1_pt", "closure", bins_50_0_1000, n_50+1);
   BookHistogram("em1_ptstar", "closure", bins_50_0_1000, n_50+1);
   BookHistogram("em1_phi", "closure", bins_64_nPi_Pi, n_64+1);
   BookHistogram("weight", "closure", weightbins, n_weightbins+1 );
   BookHistogram("phi_met_em1", "closure", bins_64_nPi_Pi, n_64+1);
+  BookHistogram("phi_mht_em1", "closure", bins_64_nPi_Pi, n_64+1);
+  BookHistogram("phi_mht_recoil", "closure", bins_64_nPi_Pi, n_64+1);
   BookHistogram("phi_recoil_em1", "closure", bins_64_nPi_Pi, n_64+1);
   BookHistogram("recoil_ht", "closure",bins_50_0_1500, n_50+1);
   BookHistogram("recoil_pt", "closure",bins_50_0_1500, n_50+1);
@@ -409,22 +417,30 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   Fill("weight",    weight, 1. );
   Fill("phi_met_em1", DeltaPhi(t->metPhi-kPI, t->photons_phi[t->ThePhoton]), weight);
 
-
-  int jet_i = t->photons_matchedJetIndex[t->ThePhoton];
-  if (jet_i<=t->jets_ && jet_i>=0) {
-
   ROOT::Math::PtEtaPhiEVector recoil = Recoil(t->photons_pt[t->ThePhoton], t->photons_eta[t->ThePhoton], t->photons_phi[t->ThePhoton], t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ );
   Fill("recoil_ht",   Recoil_ht(t->photons_pt[t->ThePhoton], t->photons_eta[t->ThePhoton], t->photons_phi[t->ThePhoton], t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ ), weight );
   Fill("recoil_pt",   Recoil_pt(  &recoil ), weight );
   Fill("recoil_phi",  Recoil_phi( &recoil ), weight );
   Fill("phi_recoil_em1", DeltaPhi( Recoil_phi( &recoil ), t->photons_phi[t->ThePhoton]), weight);
 
-    Fill("mht",Mht(t->jets_pt[jet_i],t->jets_eta[jet_i], t->jets_phi[jet_i], t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ ), weight );
+  int jet_i = t->photons_matchedJetIndex[t->ThePhoton];
+  float g_pt  = (jet_i<=t->jets_&&jet_i>=0?t->jets_pt[ jet_i]:t->photons_pt[t->ThePhoton]);
+  float g_eta = (jet_i<=t->jets_&&jet_i>=0?t->jets_eta[jet_i]:t->photons_eta[t->ThePhoton]);
+  float g_phi = (jet_i<=t->jets_&&jet_i>=0?t->jets_phi[jet_i]:t->photons_phi[t->ThePhoton]);
+  float mht = Mht(g_pt,g_eta,g_phi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ );
+  float mht_phi = MhtPhi(g_pt,g_eta,g_phi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ );
+  Fill("mht",mht, weight );
+  Fill("mht_phi",mht_phi, weight );
+  Fill("mht_trans", CalcTransMet(mht,mht_phi,t->photons_phi[t->ThePhoton]), weight);
+  Fill("mht_paral", CalcParalMet(mht,mht_phi,t->photons_phi[t->ThePhoton]), weight);
+  Fill("phi_mht_em1",   DeltaPhi(mht_phi, t->photons_phi[t->ThePhoton]), weight);
+  Fill("phi_mht_recoil",DeltaPhi(mht_phi, t->photons_phi[t->ThePhoton]), weight);
+  
+  if (jet_i<=t->jets_ && jet_i>=0) {
     Fill("met_corr", CorectedMet(t->met,t->metPhi-kPI,t->photons_pt[t->ThePhoton], t->photons_eta[t->ThePhoton], t->photons_phi[t->ThePhoton], t->jets_pt[jet_i] ,t->jets_eta[jet_i], t->jets_phi[jet_i] ), weight);
   }
   else {
-//    Fill("mht",Mht(t->photons_pt[t->ThePhoton], t->photons_eta[t->ThePhoton], t->photons_phi[t->ThePhoton], t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ ), weight );
-//    Fill("met_corr", t->met, weight);
+    Fill("met_corr", t->met, weight);
     //std::cerr<<"ERROR: jet_i="<<jet_i<<" !<= t->jets_="<<t->jets_<<std::endl;
   }
   //Fill("n_jet",       JetMult(t->photons_pt[t->ThePhoton], t->photons_eta[t->ThePhoton], t->photons_phi[t->ThePhoton], t->jets_pt, t->jets_eta, t->jets_phi, t->jets_), weight);
@@ -437,7 +453,7 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
 }
 
 
-void RatioPlot(TH1*a, TH1*b, const std::string& file, const std::string& t);
+void RatioPlot(TH1*a, TH1*b, const std::string& dir, const std::string& file, const std::string& t);
 
 template<typename T>
 void Closure<T>::Write()
@@ -449,7 +465,7 @@ void Closure<T>::Write()
     if (sig_[it->first]) {
       sighist = sig_[it->first]->GetPlot( it->first );  
       sighist->SetTitle("Direct simulation");    
-      RatioPlot(sighist, pred, Closure<T>::name_+"_"+it->first, Processor<T>::name_);
+      RatioPlot(sighist, pred, dir_, Closure<T>::name_+"_"+it->first, Processor<T>::name_);
     }  
   }
 }

@@ -126,6 +126,20 @@ double Mht(float g_pt, float g_eta, float g_phi, float *jets_pt, float* jets_eta
   return mht.Pt();
 }
 
+double MhtPhi(float g_pt, float g_eta, float g_phi, float *jets_pt, float* jets_eta, float *jets_phi, int njets )
+{
+  ROOT::Math::PtEtaPhiEVector mht(g_pt,g_eta,g_phi, g_pt*cos(2.*atan(exp(-g_eta))));
+  for (int i=0; i<njets; ++i){
+//std::cout << i<<" / "<<njets
+//          <<" jet pt="<<jets_pt[i]<<", eta="<<jets_eta[i]<<", phi="<<jets_phi[i]<<std::endl;
+    if (jets_pt[i]<30. || fabs(jets_eta[i])>3.0 || deltaR(g_eta,g_phi,jets_eta[i],jets_phi[i])<0.5 ) continue;
+    double E=jets_pt[i] * cos( 2.*atan( exp(-jets_eta[i]) ));
+    ROOT::Math::PtEtaPhiEVector jet(jets_pt[i],jets_eta[i],jets_phi[i],E);
+    mht += jet;
+  }
+  return mht.Phi();
+}
+
 double Recoil_ht(float g_pt, float g_eta, float g_phi, float *jets_pt, float* jets_eta, float *jets_phi, int njets )
 {
   double ht=0;

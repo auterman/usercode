@@ -35,9 +35,9 @@ int Reader()
   std::cout << "\nPhoton-Jet Photon Tree\n======================" <<std::endl;
   std::vector<Processor<GJets_Photon>*> v_gjets_g;
   Status<GJets_Photon> status_gjets_g("Status GJets_Photon");
-  Plotter<GJets_Photon> gjets_g("plots/"+version+"/GJets_Photon");
+  Plotter<GJets_Photon> gjets_g("plots/"+version,"GJets_Photon");
   Weighter<GJets_Photon> weights_gj_g("GJets_Photon");
-  Closure<GJets_Photon> direct_gj("Direct_GJets");
+  Closure<GJets_Photon> direct_gj("","Direct_GJets");
   Cutter<GJets_Photon> presel_gj_g("Presel_GJets_Photon");
   DoubleCountFilter<GJets_Photon> double_gj_g("DoublicateFilter_GJets_Photon");
   Cutter_tightID<GJets_Photon> tightID_gj_g("TightPhotonId_GJets_Photon");
@@ -60,9 +60,9 @@ int Reader()
   std::cout << "\nQCD Photon Tree\n======================" <<std::endl;
   std::vector<Processor<QCD_Photon>*> v_qcd_g;
   Status<QCD_Photon> status_qcd_g("Status QCD_Photon");
-  Plotter<QCD_Photon> qcd_g("plots/"+version+"/Qcd_Photon");
+  Plotter<QCD_Photon> qcd_g("plots/"+version,"Qcd_Photon");
   Weighter<QCD_Photon> weights_qcd_g("Qcd_Photon");
-  Closure<QCD_Photon> direct_qcd("Direct_QCD");
+  Closure<QCD_Photon> direct_qcd("","Direct_QCD");
   Cutter<QCD_Photon> presel_qcd_g("Presel_QCD_Photon");
   DoubleCountFilter<QCD_Photon> double_qcd_g("DoublicateFilter_QCD_Photon");
   Cutter_tightID<QCD_Photon> tightID_qcd_g("TightPhotonId_QCD_Photon");
@@ -84,7 +84,7 @@ int Reader()
   std::cout << "\nPhoton-Jet Jet Tree\n======================" <<std::endl;
   std::vector<Processor<GJets_Jet>*> v_gjets_j;
   Status<GJets_Jet> status_gjets_j("Status GJets_Jet");
-  Plotter<GJets_Jet> gjets_j("plots/"+version+"/GJets_Jet");
+  Plotter<GJets_Jet> gjets_j("plots/"+version,"GJets_Jet");
   Weighter<GJets_Jet> weights_gj_j("GJets_Jet");
   Cutter<GJets_Jet> presel_gj_j("Presel_GJets_Jet");
   DoubleCountFilter<GJets_Jet> double_gj_j("DoublicateFilter_GJets_Jet");
@@ -107,7 +107,7 @@ int Reader()
   std::cout << "\nQCD Jet Tree\n======================" <<std::endl;
   std::vector<Processor<QCD_Jet>*> v_qcd_j;
   Status<QCD_Jet> status_qcd_j("Status QCD_Jet");
-  Plotter<QCD_Jet> qcd_j("plots/"+version+"/Qcd_Jet");
+  Plotter<QCD_Jet> qcd_j("plots/"+version,"Qcd_Jet");
   Weighter<QCD_Jet> weights_qcd_j("Qcd_Jet");
   Cutter<QCD_Jet> presel_qcd_j("Presel_QCD_Jet");
   DoubleCountFilter<QCD_Jet> double_qcd_j("DoublicateFilter_QCD_Jet");
@@ -130,9 +130,9 @@ int Reader()
   ///Closure 2nd pass ---------------------------------------------------------------------------------
     
 
-  Closure<QCD_Jet> closure("plots/"+version+"/Closure_Combined");
-  Closure<QCD_Jet> closure_qcd("plots/"+version+"/Closure_QCD");
-  Closure<GJets_Jet> closure_gj("plots/"+version+"/Closure_GJets");
+  Closure<QCD_Jet> closure("plots/"+version,"Closure_Combined");
+  Closure<QCD_Jet> closure_qcd("plots/"+version,"Closure_QCD");
+  Closure<GJets_Jet> closure_gj("plots/"+version,"Closure_GJets");
   direct_gj.Write();
   closure_gj.SetNominator( weights_gj_g.GetYields());   //Zähler, tight isolated
   closure_gj.SetDenominator( weights_gj_j.GetYields()); //Nenner, loose isolated
@@ -196,9 +196,9 @@ int do_data(){
   std::cout << "\nData Photon Tree\n======================" <<std::endl;
   std::vector<Processor<Data_Photon>*> v_Data_g;
   Status<Data_Photon> status_data_g("Status Data_Photon");
-  Plotter<Data_Photon> Data_g("plots/"+version+"/Data_Photon");
+  Plotter<Data_Photon> Data_g("plots/"+version,"Data_Photon");
   Weighter<Data_Photon> weights_gj_g("Data_Photon");
-  Closure<Data_Photon> direct_gj("Direct_Data");
+  Closure<Data_Photon> direct_gj("","Direct_Data");
   Cutter<Data_Photon> presel_gj_g("Presel_Data_Photon");
   DoubleCountFilter<Data_Photon> double_gj_g("DoublicateFilter_Data_Photon");
   Cutter_tightID<Data_Photon> tightID_gj_g("TightPhotonId_Data_Photon");
@@ -220,7 +220,7 @@ int do_data(){
   std::cout << "\nData Jet Tree\n======================" <<std::endl;
   std::vector<Processor<Data_Jet>*> v_Data_j;
   Status<Data_Jet> status_data_j("Status Data_Jet");
-  Plotter<Data_Jet> Data_j("plots/"+version+"/Data_Jet");
+  Plotter<Data_Jet> Data_j("plots/"+version,"Data_Jet");
   Weighter<Data_Jet> weights_gj_j("Data_Jet");
   Cutter<Data_Jet> presel_gj_j("Presel_Data_Jet");
   DoubleCountFilter<Data_Jet> double_gj_j("DoublicateFilter_Data_Jet");

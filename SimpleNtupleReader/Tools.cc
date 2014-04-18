@@ -48,16 +48,23 @@ void Histograms::Fill(const std::string&s,double c, double w)
 
 void Histograms::Write()
 {
+   struct stat st={0};
+   if(stat(dir_.c_str(),&st)==-1)
+      mkdir(dir_.c_str(), 0700);
+   if(stat(((std::string)dir_+"/log/").c_str(),&st)==-1)
+      mkdir(((std::string)dir_+"/log/").c_str(), 0700);
+   if(stat(((std::string)dir_+"/linear/").c_str(),&st)==-1)
+      mkdir(((std::string)dir_+"/linear/").c_str(), 0700);
    TCanvas * c1 = new TCanvas("","",600,600);
    for (std::map<std::string, TH1*>::iterator it=h_.begin(); it!=h_.end(); ++it)
    {
      gPad->SetLogy(1);
      it->second->Draw("he");
-     c1->SaveAs(((std::string)label_+"_"+it->first+"_log.pdf").c_str());
+     c1->SaveAs(((std::string)dir_+"/log/"+label_+"_"+it->first+"_log.pdf").c_str());
      gPad->SetLogy(0);
      it->second->SetMinimum(0);
      it->second->Draw("he");
-     c1->SaveAs(((std::string)label_+"_"+it->first+".pdf").c_str());
+     c1->SaveAs(((std::string)dir_+"/linear/"+label_+"_"+it->first+".pdf").c_str());
    }
    delete c1;
 }
@@ -103,7 +110,7 @@ TH1 * MyYields::GetPlot(const std::string& s)
 
 
 
-void ratio(TH1*h1, TH1*h2, const std::string& file,const std::string& legtitle, bool log) {
+void ratio(TH1*h1, TH1*h2, const std::string& dir, const std::string& file,const std::string& legtitle, bool log) {
    std::stringstream ss;
    ss<<plotnr++;
    TCanvas *c1 = new TCanvas(((std::string)"c_"+ss.str()).c_str(),"example",600,600);
@@ -160,8 +167,8 @@ void ratio(TH1*h1, TH1*h2, const std::string& file,const std::string& legtitle, 
    line->SetLineStyle(2);
    line->Draw("same");
    c1->cd();
-   if (log) c1->SaveAs((file+"_log.pdf").c_str());
-   else     c1->SaveAs((file+".pdf").c_str());
+   if (log) c1->SaveAs((dir+"/log/"+file+"_log.pdf").c_str());
+   else     c1->SaveAs((dir+"/linear/"+file+".pdf").c_str());
    delete pad2;
    delete pad1;
    delete c1;
@@ -169,24 +176,31 @@ void ratio(TH1*h1, TH1*h2, const std::string& file,const std::string& legtitle, 
    delete h2;
 }
 
-void RatioPlot(TH1*a, TH1*b, const std::string& file, const std::string& t)
+void RatioPlot(TH1*a, TH1*b, const std::string& dir,  const std::string& file, const std::string& t)
 {
   //a: signal (direct simulation), can be 0
   //b: prediction
   b->SetLineColor(2);
   b->SetLineWidth(3);
+  struct stat st={0};
+  if(stat(dir.c_str(),&st)==-1)
+     mkdir(dir.c_str(), 0700);
+  if(stat(((std::string)dir+"/log/").c_str(),&st)==-1)
+     mkdir(((std::string)dir+"/log/").c_str(), 0700);
+  if(stat(((std::string)dir+"/linear/").c_str(),&st)==-1)
+     mkdir(((std::string)dir+"/linear/").c_str(), 0700);
   if (!a) {
     TCanvas * c1 = new TCanvas("","",600,600);  
     gPad->SetLogy(0);
     b->Draw("he");
-    c1->SaveAs((file+".pdf").c_str());
+    c1->SaveAs((dir+"/linear/"+file+".pdf").c_str());
     gPad->SetLogy(1);
     b->Draw("he");
-    c1->SaveAs((file+"_log.pdf").c_str());
+    c1->SaveAs((file+"/log/"+"_log.pdf").c_str());
     return;
   }
   a->SetMarkerStyle(8);
-  ratio((TH1F*)a->Clone(),(TH1F*)b->Clone(),file,t,true);
-  ratio((TH1F*)a->Clone(),(TH1F*)b->Clone(),file,t,false);
+  ratio((TH1F*)a->Clone(),(TH1F*)b->Clone(),dir,file,t,true);
+  ratio((TH1F*)a->Clone(),(TH1F*)b->Clone(),dir,file,t,false);
 }
 

@@ -37,15 +37,6 @@ static int plotnr = 0;
 
 double CalcTransMet(double met, double phi_met, double phi_photon);
 double CalcParalMet(double met, double phi_met, double phi_photon);
-double transverse_met(GJets_Photon*t);
-double transverse_met(GJets_Jet*t);
-double transverse_met(QCD_Photon*t);
-double transverse_met(QCD_Jet*t);
-
-double parallel_met(GJets_Photon*t);
-double parallel_met(GJets_Jet*t);
-double parallel_met(QCD_Photon*t);
-double parallel_met(QCD_Jet*t);
 
 bool tight_isolated(double pt, double ptstar, double phi, double eta, double HoE, 
                     double sigmaIetaOeta, double chaIso, double neuIso, double phoIso);
@@ -56,6 +47,7 @@ bool LeptonVeto(int n_e, float * e_pt, float * e_eta, int n_m, float *m_pt, floa
 ROOT::Math::PtEtaPhiEVector Recoil(float g_pt, float g_eta, float g_phi, float *jets_pt, float* jets_eta, float *jets_phi, int njets );
 
 double Mht(float g_pt, float g_eta, float g_phi, float *jets_pt, float* jets_eta, float *jets_phi, int njets );
+double MhtPhi(float g_pt, float g_eta, float g_phi, float *jets_pt, float* jets_eta, float *jets_phi, int njets );
 double Recoil_ht(float g_pt, float g_eta, float g_phi, float *jets_pt, float* jets_eta, float *jets_phi, int njets );
 double Recoil_pt(  ROOT::Math::PtEtaPhiEVector * );
 double Recoil_phi( ROOT::Math::PtEtaPhiEVector * );
