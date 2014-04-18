@@ -36,8 +36,8 @@ int Reader()
   std::vector<Processor<GJets_Photon>*> v_gjets_g;
   Status<GJets_Photon> status_gjets_g("Status GJets_Photon");
   Plotter<GJets_Photon> gjets_g("plots/"+version,"GJets_Photon");
-  Weighter<GJets_Photon> weights_gj_g("GJets_Photon");
-  Closure<GJets_Photon> direct_gj("","Direct_GJets");
+  Weighter<GJets_Photon> weights_gj_g("Weighter_GJets_Photon");
+  Closure<GJets_Photon> direct_gj("","Closure_Direct_GJets");
   Cutter<GJets_Photon> presel_gj_g("Presel_GJets_Photon");
   DoubleCountFilter<GJets_Photon> double_gj_g("DoublicateFilter_GJets_Photon");
   Cutter_tightID<GJets_Photon> tightID_gj_g("TightPhotonId_GJets_Photon");

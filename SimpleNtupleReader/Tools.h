@@ -152,19 +152,50 @@ class Yield{
     std::vector<double> w;
 };
 
+class Binnings {
+ public:
+  Binnings(const double *b, int n){binning_ = new std::vector<double>(b,b+n);}
+    virtual int GetNBins(){return binning_->size();}
+    virtual double GetBinBorder(int v){return binning_->at(v);}
+    virtual int GetBin(double v){
+      return std::upper_bound(binning_->begin(),binning_->end(),v)-binning_->begin();
+    }
+  protected:
+    std::vector<double>* binning_;
+};
+
 ///Yields class is the data structure for the weighter class; it contains different bins
 ///of event yields e.g. used for the QCD weighting
 ///this class also defines the binning of the QCD weigting stuff (GetBin)
 class Yields{
  public:
     Yields(){}
-    Yields(const std::string& s):label_(s){}
+    Yields(const std::string& s):label_(s){
+      /// ------------------------------------------------------------
+      ///
+      /// QCD Reweighting binning definition
+      ///
+      /// ------------------------------------------------------------
+      binning_["photon_ptstar"] = new Binnings(bins_50_0_1000, n_50+1);
+      /// ------------------------------------------------------------
+      /// ------------------------------------------------------------
+    }
 
     void Add(Yields*r);
     std::map<int,Yield> * GetYields(){return &yield;}
     Yield * GetYield(int bin){return &yield[bin];}
-    virtual int GetBin(double met, double pt, double ht){return 0;}//i.e. just one single bin for now.
-    virtual int GetNBins(){return 1;}
+    virtual int GetBin(float met,float metPhi,float ht,float Sig,
+                       float g_pt, float g_eta, float g_phi, 
+                       int njets, float *jets_pt, float *jets_eta, float *jets_phi)
+		       {
+      return  binning_["photon_ptstar"]->GetBin( g_pt );
+    }
+    virtual int GetNBins(){
+      int n=1;
+      for (std::map<std::string,Binnings*>::iterator it=binning_.begin();it!=binning_.end();++it)
+        n *= it->second->GetNBins();
+      return n;
+    }
     
     double Weighted(int b){return yield[b].weighted();}
     unsigned Unweighted(int b){return yield[b].unweighted();}
@@ -173,13 +204,16 @@ class Yields{
  protected: 
     std::string label_;
     std::map<int,Yield> yield;    
+    std::map<std::string,Binnings*> binning_;
 };
 
 ///class to collect event yields used for the QCD weighting
 template<typename T>
 class Weighter : public Processor<T> {
   public:
-    Weighter(std::string n):Processor<T>(n){yields_=new Yields(); }
+    Weighter(std::string n):Processor<T>(n){
+      yields_=new Yields("QCD_weighting"); 
+    }
     //virtual void Init(){};
     virtual bool Process(T*t,Long64_t i,Long64_t n,double);
     virtual void Terminate(){std::cout << "  Summary Weighter '"<<Processor<T>::name_<<"': "<<yields_->Weighted(0)<<" +- "<<yields_->Error(0)<<"  ("<<yields_->Unweighted(0)<<")"<<std::endl;};
@@ -193,11 +227,20 @@ class Weighter : public Processor<T> {
 template<typename T>
 bool Weighter<T>::Process(T*t,Long64_t i,Long64_t n,double w)
 {
-  bool res = Processor<T>::Process(t,i,n,w);
+  //bool res = Processor<T>::Process(t,i,n,w);
+  //std::cout<< "Weighter<T>::Process(T*t,Long64_t i,Long64_t n,double w)"<<std::endl;
+  if (t->met<100.) 
+    yields_->GetYield( 
+      yields_->GetBin(
+        //t->met,t->photons_pt[t->ThePhoton],t->ht) 
+        t->met,t->metPhi,t->ht,t->metSig,
+        t->photons_pt[t->ThePhoton], t->photons_eta[t->ThePhoton], t->photons_phi[t->ThePhoton], 
+        t->jets_, t->jets_pt, t->jets_eta, t->jets_phi
+       )
+     )->Add( 1, w );
+  //std::cout<< "Weighter<T>::Process(T*t,Long64_t i,Long64_t n,double w) DONE!"<<std::endl;
 
-  if (t->met<100.) yields_->GetYield( yields_->GetBin(t->met,t->photons_pt[t->ThePhoton],t->ht) )->Add( 1, w );
-
-  return res;
+  return true;
 }
 
 
@@ -386,7 +429,11 @@ template<typename T>
 bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
 {
   if (denominator_ && nominator_){
-    int bin = nominator_->GetBin( t->met,0,0 ); //nominator_->GetBin( t->met,t->photons_pt[t->ThePhoton],t->ht );
+    int bin = nominator_->GetBin(       
+           t->met,t->metPhi,t->ht,t->metSig,
+           t->photons_pt[t->ThePhoton], t->photons_eta[t->ThePhoton], t->photons_phi[t->ThePhoton], 
+           t->jets_, t->jets_pt, t->jets_eta, t->jets_phi
+         ); 
     weight_ = weights_[bin];
   } else 
     weight_ = 1.0;
