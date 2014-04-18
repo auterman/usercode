@@ -5,7 +5,7 @@
 #include "TChain.h"
 #include "TError.h"
 
-const static bool ONLY_QCD = false;
+const static bool ONLY_QCD = true;
 const static std::string version = "V03.16";
 
 template <typename T>

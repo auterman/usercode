@@ -157,7 +157,7 @@ class Yield{
 class Binnings {
  public:
   Binnings(const double *b, int n){binning_ = new std::vector<double>(b,b+n);}
-    double* GetArray(){double * bins = new double(binning_->size());for(int i=0;i<binning_->size();++i)bins[i]=binning_->at(i);return bins;}
+    std::vector<double>* GetArray(){return binning_;}
     virtual int GetNBins(){return binning_->size();}
     virtual double GetBinBorder(int v){return binning_->at(v);}
     virtual int GetBin(double v){
@@ -488,8 +488,8 @@ std::cout << "void Closure<T>::Book()" << std::endl;
     double ne = nominator_->Error( b );
     weights_.push_back( (d==0?1.0:n / d) );
     weighterrors_.push_back( (d==0?1.0: sqrt( ne*ne/(d*d) + de*de*n*n/(d*d*d*d) ) ) );
-    std::cout << "  Summary Closure '"<<Processor<T>::name_<<"' weight (bin=" <<b<<") = "
-              << weights_.back() << " +- "<< weighterrors_.back()<<std::endl;
+    //std::cout << "  Summary Closure '"<<Processor<T>::name_<<"' weight (bin=" <<b<<") = "
+    //          << weights_.back() << " +- "<< weighterrors_.back()<<std::endl;
   }  
 }
 
@@ -599,13 +599,17 @@ void Closure<T>::Write()
   for (std::map<std::string,Binnings*>::iterator it=binning->begin();(it!=binning->end()&&i!=3);++it)
     axis[i++]=it->first;
     
-std::cout <<"void Closure<T>::Write() dim="<< denominator_->WeightsDimension()<<std::endl;
+//std::cout <<"void Closure<T>::Write() dim="<< denominator_->WeightsDimension()<<std::endl;
   if (denominator_->WeightsDimension()==1) {
     std::stringstream ss;
     ss  <<"h1_weight_"<<Processor<T>::name_<<"_" << plotnr++;
+    std::vector<double>* v1 = (*binning)[axis[0]]->GetArray();
+    int n1=v1->size();
+    double a1[n1];
+    for (int i=0; i<n1; ++i)a1[i]=(*v1)[i];
     TH1 * w = new TH1F( ss.str().c_str(),
                     ((std::string)"QCD weighting;"+axis[0]+";weight").c_str(),
-                    (*binning)[axis[0]]->GetNBins(),(*binning)[axis[0]]->GetArray()
+                    n1-1,a1
 		  );
     for (int x=0; x<(*binning)[axis[0]]->GetNBins(); ++x){
         w->SetBinContent(x,weights_[x] );
@@ -617,6 +621,7 @@ std::cout <<"void Closure<T>::Write() dim="<< denominator_->WeightsDimension()<<
     if(stat(((std::string)dir_+"/log/").c_str(),&st)==-1)
        mkdir(((std::string)dir_+"/log/").c_str(), 0700);
     TCanvas * c1 = new TCanvas("","",600,600);
+    c1->cd();
     gPad->SetLogy(0);
     w->Draw("he");
     c1->SaveAs(((std::string)dir_+"/log/h1_weight_"+Processor<T>::name_+".pdf").c_str());
@@ -624,12 +629,21 @@ std::cout <<"void Closure<T>::Write() dim="<< denominator_->WeightsDimension()<<
     delete c1; 
   }
   else if (denominator_->WeightsDimension()==2) {
+
     std::stringstream ss;
     ss  <<"h2_weight_"<<Processor<T>::name_<<"_" << plotnr++;
+    std::vector<double>* v1 = (*binning)[axis[0]]->GetArray();
+    int n1=v1->size();
+    double a1[n1];
+    for (int i=0; i<n1; ++i)a1[i]=(*v1)[i];
+    std::vector<double>* v2 = (*binning)[axis[1]]->GetArray();
+    int n2=v2->size();
+    double a2[n2];
+    for (int i=0; i<n2; ++i)a2[i]=(*v2)[i];
+
     TH2F * w = new TH2F( ss.str().c_str(),
                     ((std::string)"QCD weighting;"+axis[0]+";"+axis[1]).c_str(),
-                    (*binning)[axis[0]]->GetNBins(),(*binning)[axis[0]]->GetArray(),
-                    (*binning)[axis[1]]->GetNBins(),(*binning)[axis[1]]->GetArray()
+                    n1,a1,n2,a2
 		  );
     TH2F * we = (TH2F*)w->Clone();		  
     for (int x=0; x<(*binning)[axis[0]]->GetNBins(); ++x)
@@ -642,17 +656,19 @@ std::cout <<"void Closure<T>::Write() dim="<< denominator_->WeightsDimension()<<
        mkdir(dir_.c_str(), 0700);
     if(stat(((std::string)dir_+"/log/").c_str(),&st)==-1)
        mkdir(((std::string)dir_+"/log/").c_str(), 0700);
-    TCanvas * c1 = new TCanvas("","",600,600);
+    TCanvas * c1 = new TCanvas("cw1","cw1",600,600);
+    c1->cd();
     gPad->SetLogy(0);
     w->Draw("Colz");
     c1->SaveAs(((std::string)dir_+"/log/h2_weight_"+Processor<T>::name_+".pdf").c_str());
     we->Draw("Colz");
     c1->SaveAs(((std::string)dir_+"/log/h2_weighterror_"+Processor<T>::name_+".pdf").c_str());
-    delete w;
     delete we;
+    delete w;
     delete c1; 
+
   }
-std::cout <<"void Closure<T>::Write() dim="<< std::endl;
+//std::cout <<"void Closure<T>::Write() dim="<< std::endl;
 
 }
 
