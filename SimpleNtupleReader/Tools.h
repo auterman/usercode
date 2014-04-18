@@ -693,7 +693,7 @@ class Cutter : public Processor<T> {
       //ROOT::Math::PtEtaPhiEVector recoil = Recoil(t->photons_pt[t->ThePhoton], t->photons_eta[t->ThePhoton], t->photons_phi[t->ThePhoton], t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ );
       if ( (t->photons__ptJet[t->ThePhoton]>0?t->photons__ptJet[0]:t->photons_pt[t->ThePhoton])<110. 
          //||
-	 || t->photons__ptJet[t->ThePhoton]<=0
+	// || t->photons__ptJet[t->ThePhoton]<=0
          // Recoil_pt(  &recoil )<150.
 	 ) {
 	return false;
