@@ -647,7 +647,9 @@ std::cout <<"void Closure<T>::Write() dim="<< denominator_->WeightsDimension()<<
     w->Draw("Colz");
     c1->SaveAs(((std::string)dir_+"/log/h2_weight_"+Processor<T>::name_+".pdf").c_str());
     we->Draw("Colz");
-    c1->SaveAs(((std::string)dir_+"/log/h2_weight_"+Processor<T>::name_+".pdf").c_str());
+    c1->SaveAs(((std::string)dir_+"/log/h2_weighterror_"+Processor<T>::name_+".pdf").c_str());
+    delete w;
+    delete we;
     delete c1; 
   }
 std::cout <<"void Closure<T>::Write() dim="<< std::endl;
