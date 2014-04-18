@@ -201,7 +201,7 @@ class Yields{
       //int bin = binning_["photon_ptstar"]->GetBin( g_pt );
       int bin = binning_["recoil_pt"]->GetBin( Recoil_pt(  &recoil ) );
       //bin += binning_["photon_ptstar"]->GetNBins() * binning_["recoil_pt"]->GetBin( Recoil_pt(  &recoil ) );
-      bin += binning_["photon_ptstar"]->GetNBins() * binning_["phi_recoil_em1"]->GetBin( DeltaPhi( Recoil_phi( &recoil ), g_phi) );
+      bin += binning_["recoil_pt"]->GetNBins() * binning_["phi_recoil_em1"]->GetBin( DeltaPhi( Recoil_phi( &recoil ), g_phi) );
       return bin;
     }
     virtual int GetNBins(){
