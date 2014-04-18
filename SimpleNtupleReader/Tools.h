@@ -443,9 +443,9 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
     Fill("met_corr", t->met, weight);
     //std::cerr<<"ERROR: jet_i="<<jet_i<<" !<= t->jets_="<<t->jets_<<std::endl;
   }
-  //Fill("n_jet",       JetMult(t->photons_pt[t->ThePhoton], t->photons_eta[t->ThePhoton], t->photons_phi[t->ThePhoton], t->jets_pt, t->jets_eta, t->jets_phi, t->jets_), weight);
-  //Fill("n_loose",     LooseMult(t->photons_,t->photons_pt, t->photons__ptJet, t->photons_phi, t->photons_eta,t->photons_hadTowOverEm,t->photons_sigmaIetaIeta,t->photons_chargedIso,t->photons_neutralIso,t->photons_photonIso,t->photons_pixelseed), weight);
-  //Fill("n_tight",     TightMult(t->photons_,t->photons_pt, t->photons__ptJet, t->photons_phi, t->photons_eta,t->photons_hadTowOverEm,t->photons_sigmaIetaIeta,t->photons_chargedIso,t->photons_neutralIso,t->photons_photonIso,t->photons_pixelseed), weight);
+  Fill("n_jet",       JetMult(t->photons_pt[t->ThePhoton], t->photons_eta[t->ThePhoton], t->photons_phi[t->ThePhoton], t->jets_pt, t->jets_eta, t->jets_phi, t->jets_), weight);
+  Fill("n_loose",     LooseMult(t->photons_,t->photons_pt, t->photons__ptJet, t->photons_phi, t->photons_eta,t->photons_hadTowOverEm,t->photons_sigmaIetaIeta,t->photons_chargedIso,t->photons_neutralIso,t->photons_photonIso,t->photons_pixelseed), weight);
+  Fill("n_tight",     TightMult(t->photons_,t->photons_pt, t->photons__ptJet, t->photons_phi, t->photons_eta,t->photons_hadTowOverEm,t->photons_sigmaIetaIeta,t->photons_chargedIso,t->photons_neutralIso,t->photons_photonIso,t->photons_pixelseed), weight);
 
   //std::cout << "Closure<T>::Process(T*t,Long64_t i="<<i<<",Long64_t n="<<n<<",double w="<<w<<") Done!"<<std::endl;
   
@@ -484,6 +484,7 @@ class Cutter : public Processor<T> {
       //ROOT::Math::PtEtaPhiEVector recoil = Recoil(t->photons_pt[t->ThePhoton], t->photons_eta[t->ThePhoton], t->photons_phi[t->ThePhoton], t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ );
       if ( (t->photons__ptJet[t->ThePhoton]>0?t->photons__ptJet[0]:t->photons_pt[t->ThePhoton])<110. 
          //||
+	 || t->photons__ptJet[t->ThePhoton]<=0
          // Recoil_pt(  &recoil )<150.
 	 ) {
 	return false;
