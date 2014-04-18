@@ -196,9 +196,10 @@ class Yields{
                        float g_pt, float g_eta, float g_phi, 
                        int njets, float *jets_pt, float *jets_eta, float *jets_phi)
 		       {
+      ROOT::Math::PtEtaPhiEVector recoil = Recoil(g_pt, g_eta, g_phi, jets_pt, jets_eta, jets_phi, njets );
+
       //int bin = binning_["photon_ptstar"]->GetBin( g_pt );
       int bin = binning_["recoil_pt"]->GetBin( Recoil_pt(  &recoil ) );
-      ROOT::Math::PtEtaPhiEVector recoil = Recoil(g_pt, g_eta, g_phi, jets_pt, jets_eta, jets_phi, njets );
       //bin += binning_["photon_ptstar"]->GetNBins() * binning_["recoil_pt"]->GetBin( Recoil_pt(  &recoil ) );
       bin += binning_["photon_ptstar"]->GetNBins() * binning_["phi_recoil_em1"]->GetBin( DeltaPhi( Recoil_phi( &recoil ), g_phi) );
       return bin;
