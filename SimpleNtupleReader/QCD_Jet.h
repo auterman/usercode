@@ -19,6 +19,9 @@ class QCD_Jet : public TSelector {
 public :
 // Fixed size dimensions of array or collections stored in the TTree if any.
 int ThePhoton;
+float ThePhotonPt;
+float ThePhotonPhi;
+float ThePhotonEta;
 
 const static Int_t kMaxphotons = 10;
 const static Int_t kMaxjets = 20;
