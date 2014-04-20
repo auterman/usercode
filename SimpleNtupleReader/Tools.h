@@ -737,19 +737,20 @@ class Cutter_looseID : public Cutter<T> {
 		   && t->photons_pixelseed[i]==0		
 	   ) 
 	{
-	   double pt = (t->photons__ptJet[i]>0?t->photons__ptJet[i]:t->photons_pt[i]);
+	   //double pt = (t->photons__ptJet[i]>0?t->photons__ptJet[i]:t->photons_pt[i]);
+  	   double pt = t->photons_pt[i];
   	   if (pt>found_pt) {
 	     found_pt=pt; 
 	     t->ThePhoton = i; 
 	     t->ThePhotonPt = pt; 
-	     if (t->photons__ptJet[i]>0) {
-	       assert(t->photons_matchedJetIndex[i]>=0 && t->photons_matchedJetIndex[i]<t->jets_);
-	       t->ThePhotonPhi = t->jets_phi[t->photons_matchedJetIndex[i]]; 
-	       t->ThePhotonEta = t->jets_eta[t->photons_matchedJetIndex[i]];
-	     } else {
+//	     if (t->photons__ptJet[i]>0) {
+//	       assert(t->photons_matchedJetIndex[i]>=0 && t->photons_matchedJetIndex[i]<t->jets_);
+//	       t->ThePhotonPhi = t->jets_phi[t->photons_matchedJetIndex[i]]; 
+//	       t->ThePhotonEta = t->jets_eta[t->photons_matchedJetIndex[i]];
+//	     } else {
 	       t->ThePhotonPhi = t->photons_phi[i]; 
 	       t->ThePhotonEta = t->photons_eta[i];
-	     }
+//	     }
 	   } 
 	}   	
       }	
@@ -783,19 +784,20 @@ class Cutter_tightID : public Cutter<T> {
              && t->photons_pixelseed[i]==0		
 	   ) 
 	{
-	   double pt = (t->photons__ptJet[i]>0?t->photons__ptJet[i]:t->photons_pt[i]);
+//	   double pt = (t->photons__ptJet[i]>0?t->photons__ptJet[i]:t->photons_pt[i]);
+	   double pt = t->photons_pt[i];
   	   if (pt>found_pt) {
 	     found_pt=pt; 
 	     t->ThePhoton = i; 
 	     t->ThePhotonPt = pt; 
-	     if (t->photons__ptJet[i]>0) {
-	       assert(t->photons_matchedJetIndex[i]>=0 && t->photons_matchedJetIndex[i]<t->jets_);
-	       t->ThePhotonPhi = t->jets_phi[t->photons_matchedJetIndex[i]]; 
-	       t->ThePhotonEta = t->jets_eta[t->photons_matchedJetIndex[i]];
-	     } else {
+//	     if (t->photons__ptJet[i]>0) {
+//	       assert(t->photons_matchedJetIndex[i]>=0 && t->photons_matchedJetIndex[i]<t->jets_);
+//	       t->ThePhotonPhi = t->jets_phi[t->photons_matchedJetIndex[i]]; 
+//	       t->ThePhotonEta = t->jets_eta[t->photons_matchedJetIndex[i]];
+//	     } else {
 	       t->ThePhotonPhi = t->photons_phi[i]; 
 	       t->ThePhotonEta = t->photons_eta[i];
-	     }
+//	     }
 	   } 
 	}   	
       }	
