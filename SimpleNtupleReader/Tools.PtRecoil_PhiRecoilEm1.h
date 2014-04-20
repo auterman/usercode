@@ -696,9 +696,7 @@ class Cutter : public Processor<T> {
          //||
 	// || t->photons__ptJet[t->ThePhoton]<=0
          // Recoil_pt(  &recoil )<150.
-      if ( t->ThePhotonPt<110.  
-           || t->photons__ptJet[t->ThePhoton]<=0
-         ) {
+      if ( t->ThePhotonPt<110.  ) {
 	return false;
       }	
       ++i_pass;
