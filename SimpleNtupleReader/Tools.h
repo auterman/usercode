@@ -255,7 +255,10 @@ bool Weighter<T>::Process(T*t,Long64_t i,Long64_t n,double w)
 {
   //bool res = Processor<T>::Process(t,i,n,w);
   //std::cout<< "Weighter<T>::Process(T*t,Long64_t i,Long64_t n,double w)"<<std::endl;
-  if (t->met<100.) 
+  float mht = Mht(t->ThePhotonPt,t->ThePhotonEta,t->ThePhotonPhi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ );
+
+//  if (t->met<100.) 
+  if (mht<150.) 
     yields_->GetYield( 
       yields_->GetBin(
         t->met,t->metPhi,t->ht,t->metSig,
