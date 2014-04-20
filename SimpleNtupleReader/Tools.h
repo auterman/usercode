@@ -17,19 +17,20 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <sstream>
+#include <cassert>
 
 
 const static double metbins[] = {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 160, 200, 270, 350, 500}; 
 const static int n_metbins = 16;
 
-const static double metphibins[] = {0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 3.0, 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9, 4.0, 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8, 4.9, 5.0, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.8, 5.9, 6.0, 6.1, 6.2}; 
+const static double metphibins[] = {0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 3.0, 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9, 4.0, 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8, 4.9, 5.0, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.8, 5.9, 6.0, 6.1, 6.2, 6.3, 6.4}; 
 const static int n_metphibins = 64;
 
 const static double htbins[] = {500,600,700,800,900,1000,1100,1200,1300,1400,1500,1700,2000}; 
 const static int n_htbins = 12;
 
 const static double weightbins[] = {0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.5, 2.0, 3, 5, 10, 20}; 
-const static int n_weightbins = 17;
+const static int n_weightbins = 16;
 
 const static double stdbinning[] = {0,100,200,300,400,500,600,700,800,900,1000}; 
 const static int n_stdbins = 11;
@@ -110,9 +111,10 @@ bool Plotter<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   h_->Fill( "em1_pt", t->photons_pt[t->ThePhoton], w );
   h_->Fill( "weight", w );
   
-  h_->Fill("em1_phi", t->photons_phi[t->ThePhoton], w);
-  h_->Fill("em1_eta", t->photons_phi[t->ThePhoton], w);
+  h_->Fill("em1_phi", t->ThePhotonPhi, w);
+  h_->Fill("em1_eta", t->ThePhotonEta, w);
   h_->Fill("em1_ptstar" , t->photons__ptJet[t->ThePhoton], w);
+  h_->Fill("em1_thePt" ,  t->ThePhotonPt, w);
   h_->Fill("em1_sigmaIphiIphi", t->photons_sigmaIphiIphi[t->ThePhoton], w);
   h_->Fill("em1_sigmaIetaIeta", t->photons_sigmaIetaIeta[t->ThePhoton], w);
   h_->Fill("em1_r9", t->photons_r9[t->ThePhoton], w);
@@ -179,7 +181,7 @@ class Yields{
       /// QCD Reweighting binning definition
       ///
       /// ------------------------------------------------------------
-      binning_["photon_ptstar"] = new Binnings(bins_50_0_1000, n_50+1);
+      //binning_["photon_ptstar"] = new Binnings(bins_50_0_1000, n_50+1);
       binning_["recoil_pt"] = new Binnings(bins_50_0_1500, n_50+1);
       //binning_["phi_met_em1"] = new Binnings(bins_64_nPi_Pi, n_64+1);
       //binning_["phi_mht_em1"] = new Binnings( bins_64_nPi_Pi, n_64+1);
@@ -196,6 +198,7 @@ class Yields{
                        float g_pt, float g_eta, float g_phi, 
                        int njets, float *jets_pt, float *jets_eta, float *jets_phi)
 		       {
+//std::cout <<"    virtual int GetBin(float met,float metPhi,float ht,float Sig," <<std::endl;
       ROOT::Math::PtEtaPhiEVector recoil = Recoil(g_pt, g_eta, g_phi, jets_pt, jets_eta, jets_phi, njets );
 
       //int bin = binning_["photon_ptstar"]->GetBin( g_pt );
@@ -203,9 +206,10 @@ class Yields{
       //bin += binning_["photon_ptstar"]->GetNBins() * binning_["recoil_pt"]->GetBin( Recoil_pt(  &recoil ) );
       bin += binning_["recoil_pt"]->GetNBins() * 
              binning_["phi_recoil_em1"]->GetBin( DeltaPhi( Recoil_phi( &recoil ), g_phi) );
-      bin += binning_["recoil_pt"]->GetNBins() * 
-             binning_["phi_recoil_em1"]->GetNBins() * 
-             binning_["photon_ptstar"]->GetBin( g_pt );
+      //bin += binning_["recoil_pt"]->GetNBins() * 
+      //       binning_["phi_recoil_em1"]->GetNBins() * 
+      //       binning_["photon_ptstar"]->GetBin( g_pt );
+//std::cout <<" DONE   virtual int GetBin(float met,float metPhi,float ht,float Sig," <<std::endl;
       return bin;
     }
     virtual int GetNBins(){
@@ -253,7 +257,7 @@ bool Weighter<T>::Process(T*t,Long64_t i,Long64_t n,double w)
     yields_->GetYield( 
       yields_->GetBin(
         t->met,t->metPhi,t->ht,t->metSig,
-        t->photons_pt[t->ThePhoton], t->photons_eta[t->ThePhoton], t->photons_phi[t->ThePhoton], 
+        t->ThePhotonPt, t->ThePhotonEta, t->ThePhotonPhi, 
         t->jets_, t->jets_pt, t->jets_eta, t->jets_phi
        )
      )->Add( 1, w );
@@ -477,6 +481,7 @@ std::cout << "void Closure<T>::Book()" << std::endl;
   BookHistogram("mht_paral", "closure", bins_50_0_1000, n_50+1);
   BookHistogram("mht_phi", "closure", metphibins, n_metphibins+1);
   BookHistogram("em1_pt", "closure", bins_50_0_1000, n_50+1);
+  BookHistogram("em1_thePt", "closure", bins_50_0_1000, n_50+1);
   BookHistogram("em1_ptstar", "closure", bins_50_0_1000, n_50+1);
   BookHistogram("em1_phi", "closure", bins_64_nPi_Pi, n_64+1);
   BookHistogram("weight", "closure", weightbins, n_weightbins+1 );
@@ -517,7 +522,7 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   if (denominator_ && nominator_){
     int bin = nominator_->GetBin(       
            t->met,t->metPhi,t->ht,t->metSig,
-           t->photons_pt[t->ThePhoton], t->photons_eta[t->ThePhoton], t->photons_phi[t->ThePhoton], 
+           t->ThePhotonPt, t->ThePhotonEta, t->ThePhotonPhi, 
            t->jets_, t->jets_pt, t->jets_eta, t->jets_phi
          ); 
     weight_ = weights_[bin];
@@ -538,45 +543,38 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
  
   
   Fill("met",       t->met, weight);
-  Fill("met_trans", CalcTransMet(t->met,t->metPhi-kPI,t->photons_phi[t->ThePhoton]), weight);
-  Fill("met_paral", CalcParalMet(t->met,t->metPhi-kPI,t->photons_phi[t->ThePhoton]), weight);
+  Fill("met_trans", CalcTransMet(t->met,t->metPhi-kPI,t->ThePhotonPhi), weight);
+  Fill("met_paral", CalcParalMet(t->met,t->metPhi-kPI,t->ThePhotonPhi), weight);
   Fill("ht",        t->ht,  weight);
   Fill("met_const", t->met, weight);
   Fill("met_phi",   t->metPhi, weight);
   Fill("met_signif",t->metSig, weight);
   Fill("em1_pt",    t->photons_pt[t->ThePhoton], weight);
-  Fill("em1_ptstar",(t->photons__ptJet[t->ThePhoton]>0.?t->photons__ptJet[t->ThePhoton]:t->photons_pt[t->ThePhoton]), weight);
-  Fill("em1_phi",   t->photons_phi[t->ThePhoton], weight);
+  Fill("em1_thePt", t->ThePhotonPt, weight);
+  Fill("em1_ptstar",t->photons__ptJet[t->ThePhoton], weight);
+  Fill("em1_phi",   t->ThePhotonPhi, weight);
   Fill("weight",    weight, 1. );
-  Fill("phi_met_em1", DeltaPhi(t->metPhi-kPI, t->photons_phi[t->ThePhoton]), weight);
+  Fill("phi_met_em1", DeltaPhi(t->metPhi-kPI, t->ThePhotonPhi), weight);
 
-  ROOT::Math::PtEtaPhiEVector recoil = Recoil(t->photons_pt[t->ThePhoton], t->photons_eta[t->ThePhoton], t->photons_phi[t->ThePhoton], t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ );
-  Fill("recoil_ht",   Recoil_ht(t->photons_pt[t->ThePhoton], t->photons_eta[t->ThePhoton], t->photons_phi[t->ThePhoton], t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ ), weight );
+  ROOT::Math::PtEtaPhiEVector recoil = Recoil(t->ThePhotonPt, t->ThePhotonEta, t->ThePhotonPhi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ );
+  Fill("recoil_ht",   Recoil_ht(t->ThePhotonPt, t->ThePhotonEta, t->ThePhotonPhi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ ), weight );
   Fill("recoil_pt",   Recoil_pt(  &recoil ), weight );
   Fill("recoil_phi",  Recoil_phi( &recoil ), weight );
-  Fill("phi_recoil_em1", DeltaPhi( Recoil_phi( &recoil ), t->photons_phi[t->ThePhoton]), weight);
+  Fill("phi_recoil_em1", DeltaPhi( Recoil_phi( &recoil ), t->ThePhotonPhi), weight);
 
-  int jet_i = t->photons_matchedJetIndex[t->ThePhoton];
-  float g_pt  = (jet_i<=t->jets_&&jet_i>=0?t->jets_pt[ jet_i]:t->photons_pt[t->ThePhoton]);
-  float g_eta = (jet_i<=t->jets_&&jet_i>=0?t->jets_eta[jet_i]:t->photons_eta[t->ThePhoton]);
-  float g_phi = (jet_i<=t->jets_&&jet_i>=0?t->jets_phi[jet_i]:t->photons_phi[t->ThePhoton]);
+  float g_pt  = t->ThePhotonPt;
+  float g_eta = t->ThePhotonEta;
+  float g_phi = t->ThePhotonPhi;
   float mht = Mht(g_pt,g_eta,g_phi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ );
   float mht_phi = MhtPhi(g_pt,g_eta,g_phi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ );
   Fill("mht",mht, weight );
   Fill("mht_phi",mht_phi, weight );
-  Fill("mht_trans", CalcTransMet(mht,mht_phi,t->photons_phi[t->ThePhoton]), weight);
-  Fill("mht_paral", CalcParalMet(mht,mht_phi,t->photons_phi[t->ThePhoton]), weight);
-  Fill("phi_mht_em1",   DeltaPhi(mht_phi, t->photons_phi[t->ThePhoton]), weight);
+  Fill("mht_trans", CalcTransMet(mht,mht_phi,g_phi), weight);
+  Fill("mht_paral", CalcParalMet(mht,mht_phi,g_phi), weight);
+  Fill("phi_mht_em1",   DeltaPhi(mht_phi, g_phi), weight);
   Fill("phi_mht_recoil",DeltaPhi(mht_phi, Recoil_phi( &recoil )), weight);
-  
-  if (jet_i<=t->jets_ && jet_i>=0) {
-    Fill("met_corr", CorectedMet(t->met,t->metPhi-kPI,t->photons_pt[t->ThePhoton], t->photons_eta[t->ThePhoton], t->photons_phi[t->ThePhoton], t->jets_pt[jet_i] ,t->jets_eta[jet_i], t->jets_phi[jet_i] ), weight);
-  }
-  else {
-    Fill("met_corr", t->met, weight);
-    //std::cerr<<"ERROR: jet_i="<<jet_i<<" !<= t->jets_="<<t->jets_<<std::endl;
-  }
-  Fill("n_jet",       JetMult(t->photons_pt[t->ThePhoton], t->photons_eta[t->ThePhoton], t->photons_phi[t->ThePhoton], t->jets_pt, t->jets_eta, t->jets_phi, t->jets_), weight);
+  Fill("met_corr",    CorectedMet(t->met,t->metPhi-kPI,t->photons_pt[t->ThePhoton], t->photons_eta[t->ThePhoton], t->photons_phi[t->ThePhoton], g_pt ,g_eta, g_phi ), weight);
+  Fill("n_jet",       JetMult(  g_pt, g_eta, g_phi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_), weight);
   Fill("n_loose",     LooseMult(t->photons_,t->photons_pt, t->photons__ptJet, t->photons_phi, t->photons_eta,t->photons_hadTowOverEm,t->photons_sigmaIetaIeta,t->photons_chargedIso,t->photons_neutralIso,t->photons_photonIso,t->photons_pixelseed), weight);
   Fill("n_tight",     TightMult(t->photons_,t->photons_pt, t->photons__ptJet, t->photons_phi, t->photons_eta,t->photons_hadTowOverEm,t->photons_sigmaIetaIeta,t->photons_chargedIso,t->photons_neutralIso,t->photons_photonIso,t->photons_pixelseed), weight);
 
@@ -694,12 +692,11 @@ class Cutter : public Processor<T> {
     virtual bool Process(T*t,Long64_t i,Long64_t n,double w) {
       ++i_tot;
       d_tot += w;
-      //ROOT::Math::PtEtaPhiEVector recoil = Recoil(t->photons_pt[t->ThePhoton], t->photons_eta[t->ThePhoton], t->photons_phi[t->ThePhoton], t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ );
-      if ( (t->photons__ptJet[t->ThePhoton]>0?t->photons__ptJet[0]:t->photons_pt[t->ThePhoton])<110. 
+      //ROOT::Math::PtEtaPhiEVector recoil = Recoil(t->ThePhotonPt, t->ThePhotonEta, t->ThePhotonPhi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ );
          //||
 	// || t->photons__ptJet[t->ThePhoton]<=0
          // Recoil_pt(  &recoil )<150.
-	 ) {
+      if ( t->ThePhotonPt<110.  ) {
 	return false;
       }	
       ++i_pass;
@@ -737,7 +734,19 @@ class Cutter_looseID : public Cutter<T> {
 	   ) 
 	{
 	   double pt = (t->photons__ptJet[i]>0?t->photons__ptJet[i]:t->photons_pt[i]);
-  	   if (pt>found_pt) {found_pt=pt; t->ThePhoton = i; } 
+  	   if (pt>found_pt) {
+	     found_pt=pt; 
+	     t->ThePhoton = i; 
+	     t->ThePhotonPt = pt; 
+	     if (t->photons__ptJet[i]>0) {
+	       assert(t->photons_matchedJetIndex[i]>=0 && t->photons_matchedJetIndex[i]<t->jets_);
+	       t->ThePhotonPhi = t->jets_phi[t->photons_matchedJetIndex[i]]; 
+	       t->ThePhotonEta = t->jets_eta[t->photons_matchedJetIndex[i]];
+	     } else {
+	       t->ThePhotonPhi = t->photons_phi[i]; 
+	       t->ThePhotonEta = t->photons_eta[i];
+	     }
+	   } 
 	}   	
       }	
       if (found_pt==0 
@@ -771,7 +780,19 @@ class Cutter_tightID : public Cutter<T> {
 	   ) 
 	{
 	   double pt = (t->photons__ptJet[i]>0?t->photons__ptJet[i]:t->photons_pt[i]);
-  	   if (pt>found_pt) {found_pt=pt; t->ThePhoton = i; } 
+  	   if (pt>found_pt) {
+	     found_pt=pt; 
+	     t->ThePhoton = i; 
+	     t->ThePhotonPt = pt; 
+	     if (t->photons__ptJet[i]>0) {
+	       assert(t->photons_matchedJetIndex[i]>=0 && t->photons_matchedJetIndex[i]<t->jets_);
+	       t->ThePhotonPhi = t->jets_phi[t->photons_matchedJetIndex[i]]; 
+	       t->ThePhotonEta = t->jets_eta[t->photons_matchedJetIndex[i]];
+	     } else {
+	       t->ThePhotonPhi = t->photons_phi[i]; 
+	       t->ThePhotonEta = t->photons_eta[i];
+	     }
+	   } 
 	}   	
       }	
       if (found_pt==0 

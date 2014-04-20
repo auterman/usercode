@@ -23,9 +23,7 @@ void Process(const std::string& str_chain, std::vector<Processor<T>*>& proc, con
 
 
 int Reader()
-{ 
-  gErrorIgnoreLevel = 5000;
-  
+{  
   ///todo: -full repro all samples
   ///      -ggf weighting in phi(met,g), recoil, ...
   
@@ -159,6 +157,7 @@ int Reader()
   vc_gjets_j.push_back( &closure_gj );
   Process<GJets_Jet>("photonJetTree",vc_gjets_j,"data/"+version+"/GJets_200_400_"+version+"_tree.root",0.32466417277);
   Process<GJets_Jet>("photonJetTree",vc_gjets_j,"data/"+version+"/GJets_400_inf_"+version+"_tree.root",0.0502103290278 );
+  closure_gj.Write();
   }
     
   std::cout << "\nQCD Jet Tree (2nd pass for closure)\n===================================" <<std::endl;
@@ -178,7 +177,6 @@ int Reader()
 
   closure_qcd.Write();
   if (!ONLY_QCD) {
-   closure_gj.Write();
    closure.SetNominator(    &tight_g );   //Zähler, tight isolated
    closure.SetDenominator(  &loose_g );   //Nenner, loose isolated
    closure.AddSignalYields( direct_qcd.GetYields() ); 
@@ -197,20 +195,20 @@ int do_data(){
   std::vector<Processor<Data_Photon>*> v_Data_g;
   Status<Data_Photon> status_data_g("Status Data_Photon");
   Plotter<Data_Photon> Data_g("plots/"+version,"Data_Photon");
-  Weighter<Data_Photon> weights_gj_g("Data_Photon");
-  Closure<Data_Photon> direct_gj("","Direct_Data");
-  Cutter<Data_Photon> presel_gj_g("Presel_Data_Photon");
-  DoubleCountFilter<Data_Photon> double_gj_g("DoublicateFilter_Data_Photon");
-  Cutter_tightID<Data_Photon> tightID_gj_g("TightPhotonId_Data_Photon");
-  direct_gj.Book();
+  Weighter<Data_Photon> weights_data_g("Data_Photon");
+  Closure<Data_Photon> direct_data("","Direct_Data");
+  Cutter<Data_Photon> presel_data_g("Presel_Data_Photon");
+  DoubleCountFilter<Data_Photon> double_data_g("DoublicateFilter_Data_Photon");
+  Cutter_tightID<Data_Photon> tightID_data_g("TightPhotonId_Data_Photon");
+  direct_data.Book();
   Data_g.Book();
   v_Data_g.push_back( &status_data_g );
-  v_Data_g.push_back( &tightID_gj_g );
-  v_Data_g.push_back( &double_gj_g );
-  v_Data_g.push_back( &presel_gj_g );
+  v_Data_g.push_back( &tightID_data_g );
+  v_Data_g.push_back( &double_data_g );
+  v_Data_g.push_back( &presel_data_g );
   v_Data_g.push_back( &Data_g );
-  v_Data_g.push_back( &weights_gj_g );
-  v_Data_g.push_back( &direct_gj );
+  v_Data_g.push_back( &weights_data_g );
+  v_Data_g.push_back( &direct_data );
   Process<Data_Photon>("photonTree",v_Data_g,"data/"+version+"/PhotonHadA_"+version+"_tree.root",1.0);
   Process<Data_Photon>("photonTree",v_Data_g,"data/"+version+"/PhotonHadB_"+version+"_tree.root",1.0);
   Process<Data_Photon>("photonTree",v_Data_g,"data/"+version+"/PhotonHadC_"+version+"_tree.root",1.0);
@@ -221,29 +219,55 @@ int do_data(){
   std::vector<Processor<Data_Jet>*> v_Data_j;
   Status<Data_Jet> status_data_j("Status Data_Jet");
   Plotter<Data_Jet> Data_j("plots/"+version,"Data_Jet");
-  Weighter<Data_Jet> weights_gj_j("Data_Jet");
-  Cutter<Data_Jet> presel_gj_j("Presel_Data_Jet");
-  DoubleCountFilter<Data_Jet> double_gj_j("DoublicateFilter_Data_Jet");
-  Cutter_looseID<Data_Jet> looseID_gj_j("LoosePhotonId_Data_Jet");
-  double_gj_j.Set( double_gj_g.Get() );
+  Weighter<Data_Jet> weights_data_j("Data_Jet");
+  Cutter<Data_Jet> presel_data_j("Presel_Data_Jet");
+  DoubleCountFilter<Data_Jet> double_data_j("DoublicateFilter_Data_Jet");
+  Cutter_looseID<Data_Jet> looseID_data_j("LoosePhotonId_Data_Jet");
+  double_data_j.Set( double_data_g.Get() );
   Data_j.Book();
   v_Data_j.push_back( &status_data_j );
-  v_Data_j.push_back( &looseID_gj_j );
-  v_Data_j.push_back( &double_gj_j );
-  v_Data_j.push_back( &presel_gj_j );
+  v_Data_j.push_back( &looseID_data_j );
+  v_Data_j.push_back( &double_data_j );
+  v_Data_j.push_back( &presel_data_j );
   v_Data_j.push_back( &Data_j );
-  v_Data_j.push_back( &weights_gj_j );
-  Process<Data_Jet>("photonTree",v_Data_j,"data/"+version+"/PhotonHadA_"+version+"_tree.root",1.0);
-  Process<Data_Jet>("photonTree",v_Data_j,"data/"+version+"/PhotonHadB_"+version+"_tree.root",1.0);
-  Process<Data_Jet>("photonTree",v_Data_j,"data/"+version+"/PhotonHadC_"+version+"_tree.root",1.0);
-  Process<Data_Jet>("photonTree",v_Data_j,"data/"+version+"/PhotonHadD_"+version+"_tree.root",1.0);
+  v_Data_j.push_back( &weights_data_j );
+  Process<Data_Jet>("photonJetTree",v_Data_j,"data/"+version+"/PhotonHadA_"+version+"_tree.root",1.0);
+  Process<Data_Jet>("photonJetTree",v_Data_j,"data/"+version+"/PhotonHadB_"+version+"_tree.root",1.0);
+  Process<Data_Jet>("photonJetTree",v_Data_j,"data/"+version+"/PhotonHadC_"+version+"_tree.root",1.0);
+  Process<Data_Jet>("photonJetTree",v_Data_j,"data/"+version+"/PhotonHadD_"+version+"_tree.root",1.0);
   Data_j.Write();
+
+
+  std::cout << "\nPhoton-Jet Jet Tree (2nd pass for closure)\n===================================" <<std::endl;
+  Closure<Data_Jet> closure_data("plots/"+version,"Closure_Data");
+  closure_data.SetNominator( weights_data_g.GetYields());   //Zähler, tight isolated
+  closure_data.SetDenominator( weights_data_j.GetYields()); //Nenner, loose isolated
+  closure_data.AddSignalYields( direct_data.GetYields());   //Signal
+  closure_data.Book();
+  std::vector<Processor<Data_Jet>*> vc_data_j;
+  Cutter               <Data_Jet>   cut_data(    "Cutter");
+  DoubleCountFilter    <Data_Jet>   double_data( "DoublicateFilter_Data");
+  Cutter_looseID       <Data_Jet>   looseID_data("LoosePhotonId_Data");
+  //double_data.Set( double_data_g.Get() );
+  vc_data_j.push_back( &status_data_j );
+  vc_data_j.push_back( &looseID_data );
+  vc_data_j.push_back( &double_data );
+  vc_data_j.push_back( &cut_data );
+  vc_data_j.push_back( &closure_data );
+  Process<Data_Jet>("photonJetTree",vc_data_j,"data/"+version+"/PhotonHadA_"+version+"_tree.root",1.);
+  Process<Data_Jet>("photonJetTree",vc_data_j,"data/"+version+"/PhotonHadB_"+version+"_tree.root",1.);
+  Process<Data_Jet>("photonJetTree",vc_data_j,"data/"+version+"/PhotonHadC_"+version+"_tree.root",1.);
+  Process<Data_Jet>("photonJetTree",vc_data_j,"data/"+version+"/PhotonHadD_"+version+"_tree.root",1.);
+  closure_data.Write();
 
   return 0;
 }
 
 int main()
 {
-  //for (int i=0; i<=1000; i+=20) std::cout<<i<<","; std::cout<<std::endl;
-  return Reader();
+  gErrorIgnoreLevel = 5000;
+ 
+   //for (int i=0; i<=1000; i+=20) std::cout<<i<<","; std::cout<<std::endl;
+  //return Reader();
+  return do_data();
 }

@@ -13,6 +13,7 @@ void Histograms::Book()
   h_["mht"]       = new TH1F(((std::string)"h_mht"+label_).c_str(),";MHT [GeV];events",20,0,1000);
   h_["ht" ]       = new TH1F(((std::string)"h_ht"+label_).c_str(),";HT [GeV];events",20,400,1500);
   h_["em1_pt" ]   = new TH1F(((std::string)"h_em1_pt"+label_).c_str(),";p_{T}^{em}_1 [GeV];events",20,0,500);
+  h_["em1_thePt" ]   = new TH1F(((std::string)"h_em1_thePt"+label_).c_str(),";the p_{T}^{em,*}_1 [GeV];events",20,0,500);
   h_["weight" ]   = new TH1F(((std::string)"weight"+label_).c_str(),";weight;events",20,0,4);
 
   h_["em1_phi" ]   = new TH1F(((std::string)"h_em1_phi"+label_).c_str(),";#phi^{em}_1;events",20,-3.2,3.2);
