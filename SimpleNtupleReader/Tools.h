@@ -181,11 +181,11 @@ class Yields{
       /// QCD Reweighting binning definition
       ///
       /// ------------------------------------------------------------
-      binning_["photon_ptstar"] = new Binnings(bins_50_0_1000, n_50+1);
-      binning_["recoil_pt"] = new Binnings(bins_50_0_1500, n_50+1);
+      //binning_["photon_ptstar"] = new Binnings(bins_50_0_1000, n_50+1);
+      //binning_["recoil_pt"] = new Binnings(bins_50_0_1500, n_50+1);
       //binning_["phi_met_em1"] = new Binnings(bins_64_nPi_Pi, n_64+1);
-      //binning_["phi_mht_em1"] = new Binnings( bins_64_nPi_Pi, n_64+1);
-      //binning_["phi_mht_recoil"] = new Binnings( bins_64_nPi_Pi, n_64+1);
+      binning_["phi_mht_em1"] = new Binnings( bins_64_nPi_Pi, n_64+1);
+      binning_["phi_mht_recoil"] = new Binnings( bins_64_nPi_Pi, n_64+1);
       //binning_["phi_recoil_em1"] = new Binnings( bins_64_nPi_Pi, n_64+1);
       
 //      double single_bin[0] = {};
@@ -203,16 +203,21 @@ class Yields{
 		       {
 //std::cout <<"    virtual int GetBin(float met,float metPhi,float ht,float Sig," <<std::endl;
       ROOT::Math::PtEtaPhiEVector recoil = Recoil(g_pt, g_eta, g_phi, jets_pt, jets_eta, jets_phi, njets );
+      float mht_phi = MhtPhi(g_pt,g_eta,g_phi, jets_pt, jets_eta, jets_phi, njets );
 
       //int bin = binning_["photon_ptstar"]->GetBin( g_pt );
-      int bin = binning_["recoil_pt"]->GetBin( Recoil_pt(  &recoil ) );
       //bin += binning_["photon_ptstar"]->GetNBins() * binning_["recoil_pt"]->GetBin( Recoil_pt(  &recoil ) );
 
 //      bin += binning_["recoil_pt"]->GetNBins() * 
 //             binning_["phi_recoil_em1"]->GetBin( DeltaPhi( Recoil_phi( &recoil ), g_phi) );
 
-      bin += binning_["recoil_pt"]->GetNBins() * 
-             binning_["photon_ptstar"]->GetBin( g_pt );
+//      int bin = binning_["recoil_pt"]->GetBin( Recoil_pt(  &recoil ) );
+//      bin += binning_["recoil_pt"]->GetNBins() * 
+//             binning_["photon_ptstar"]->GetBin( g_pt );
+
+      int bin = binning_["phi_mht_em1"]->GetBin( DeltaPhi(mht_phi, g_phi) );
+      bin += binning_["phi_mht_em1"]->GetNBins() * 
+             binning_["phi_mht_recoil"]->GetBin( DeltaPhi(mht_phi, Recoil_phi( &recoil )) );
 
 //std::cout <<" DONE   virtual int GetBin(float met,float metPhi,float ht,float Sig," <<std::endl;
       return bin;
@@ -266,10 +271,10 @@ bool Weighter<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   float r_phi = Recoil_phi( &recoil );
   float phi_r_g = DeltaPhi( Recoil_phi( &recoil ), t->ThePhotonPhi);
 
-//  if (t->met<100.) 
+  if (t->met<100.) 
 //  if (mht<150.) 
 //    if (r_ht<500.) 
-      if (t->ht<800.) 
+//      if (t->ht<800.) 
     yields_->GetYield( 
       yields_->GetBin(
         t->met,t->metPhi,t->ht,t->metSig,
