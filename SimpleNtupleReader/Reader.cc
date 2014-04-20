@@ -268,6 +268,8 @@ int main()
   gErrorIgnoreLevel = 5000;
  
    //for (int i=0; i<=1000; i+=20) std::cout<<i<<","; std::cout<<std::endl;
-  //return Reader();
-  return do_data();
+  Reader();
+  do_data();
+  
+  return 0;
 }
