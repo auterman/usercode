@@ -412,6 +412,9 @@ void Closure<T>::Book()
 
 std::cout << "void Closure<T>::Book()" << std::endl;
 
+  BookHistogram("n_jet", "closure",bins_11_0_10, 12);
+  BookHistogram("n_loose", "closure",bins_11_0_10, 12);
+  BookHistogram("n_tight", "closure",bins_11_0_10, 12);
   BookHistogram("met","closure",metbins, n_metbins+1);
   BookHistogram("met_trans","closure",metbins, n_metbins+1);
   BookHistogram("met_paral","closure",metbins, n_metbins+1);
@@ -436,6 +439,7 @@ std::cout << "void Closure<T>::Book()" << std::endl;
   BookHistogram("recoil_ht", "closure",bins_50_0_1500, n_50+1);
   BookHistogram("recoil_pt", "closure",bins_50_0_1500, n_50+1);
   BookHistogram("recoil_phi", "closure",bins_64_nPi_Pi, n_64+1);
+
   BookHistogram("PtEm1_Over_Ptrecoil", "closure",bins_50_0_2p5, n_50+1);
   BookHistogram("PtEm1_Over_MHT", "closure",bins_50_0_2p5, n_50+1);
   BookHistogram("Ptrecoil_Over_MHT", "closure",bins_50_0_2p5, n_50+1);
@@ -450,10 +454,23 @@ std::cout << "void Closure<T>::Book()" << std::endl;
   BookHistogram("Mht_Over_PhiMhtRecoil", "closure",bins_50_0_2p5, n_50+1);
   BookHistogram("PhiMhtEm1_Over_PhiMhtRecoil", "closure",bins_50_0_2p5, n_50+1);
   BookHistogram("PhiMhtEm1_Over_PhiEm1Recoil", "closure",bins_50_0_2p5, n_50+1);
-  BookHistogram("n_jet", "closure",bins_11_0_10, 12);
-  BookHistogram("n_loose", "closure",bins_11_0_10, 12);
-  BookHistogram("n_tight", "closure",bins_11_0_10, 12);
   
+/*
+  BookHistogram("corr_PtEm1_Over_Ptrecoil", "closure",bins_50_0_1000, n_50+1);
+  BookHistogram("corr_PtEm1_Over_MHT", "closure",bins_50_0_1000, n_50+1);
+  BookHistogram("corr_Ptrecoil_Over_MHT", "closure",bins_50_0_1000, n_50+1);
+  BookHistogram("corr_Ptrecoil_Over_PhiMhtEm1", "closure",bins_50_0_1000, n_50+1);
+  BookHistogram("corr_Ptrecoil_Over_PhiEm1Recoil", "closure",bins_50_0_1000, n_50+1);
+  BookHistogram("corr_Ptrecoil_Over_PhiMhtRecoil", "closure",bins_50_0_1000, n_50+1);
+  BookHistogram("corr_PtEm1_Over_PhiMhtEm1", "closure",bins_50_0_1000, n_50+1);
+  BookHistogram("corr_PtEm1_Over_PhiEm1Recoil", "closure",bins_50_0_1000, n_50+1);
+  BookHistogram("corr_PtEm1_Over_PhiMhtRecoil", "closure",bins_50_0_1000, n_50+1);
+  BookHistogram("corr_Mht_Over_PhiMhtEm1", "closure",bins_50_0_1000, n_50+1);
+  BookHistogram("corr_Mht_Over_PhiEm1Recoil", "closure",bins_50_0_1000, n_50+1);
+  BookHistogram("corr_Mht_Over_PhiMhtRecoil", "closure",bins_50_0_1000, n_50+1);
+  BookHistogram("corr_PhiMhtEm1_Over_PhiMhtRecoil", "closure",bins_50_0_1000, n_50+1);
+  BookHistogram("corr_PhiMhtEm1_Over_PhiEm1Recoil", "closure",bins_50_0_1000, n_50+1);
+*/  
   ///To save time, pre-calculate the weights once:
   if (!denominator_ || !nominator_) return;
   for (int b=0; b<nominator_->GetNBins(); ++b) {
@@ -552,7 +569,22 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   Fill("Mht_Over_PhiMhtRecoil",		(phi_mht_recoil==0?1.: mht/phi_mht_recoil), weight);
   Fill("PhiMhtEm1_Over_PhiMhtRecoil",	(phi_mht_recoil==0?1.: phi_mht_em1/phi_mht_recoil), weight);
   Fill("PhiMhtEm1_Over_PhiEm1Recoil",	(phi_recoil_em1==0?1.: phi_mht_em1/phi_recoil_em1), weight);
-
+/*
+  Fill("corr_PtEm1_Over_Ptrecoil",   		(recoil_pt==0?1.: g_pt/recoil_pt), weight);
+  Fill("corr_PtEm1_Over_MHT",			(mht==0?1.: g_pt/recoil_pt), weight);
+  Fill("corr_Ptrecoil_Over_MHT",		(mht==0?1.: recoil_pt/mht), weight);
+  Fill("corr_Ptrecoil_Over_PhiMhtEm1",		(phi_mht_em1==0?1.:    recoil_pt/phi_mht_em1), weight);
+  Fill("corr_Ptrecoil_Over_PhiEm1Recoil",	(phi_recoil_em1==0?1.: recoil_pt/phi_recoil_em1), weight);
+  Fill("corr_Ptrecoil_Over_PhiMhtRecoil",	(phi_mht_recoil==0?1.: recoil_pt/phi_mht_recoil), weight);
+  Fill("corr_PtEm1_Over_PhiMhtEm1",		(phi_mht_em1==0?1.:    g_pt/phi_mht_em1), weight);
+  Fill("corr_PtEm1_Over_PhiEm1Recoil",		(phi_recoil_em1==0?1.: g_pt/phi_recoil_em1), weight);
+  Fill("corr_PtEm1_Over_PhiMhtRecoil",		(phi_mht_recoil==0?1.: g_pt/phi_mht_recoil), weight);
+  Fill("corr_Mht_Over_PhiMhtEm1",		(phi_mht_em1==0?1.:    mht/phi_mht_em1), weight);
+  Fill("corr_Mht_Over_PhiEm1Recoil",		(phi_recoil_em1==0?1.: mht/phi_recoil_em1), weight);
+  Fill("corr_Mht_Over_PhiMhtRecoil",		(phi_mht_recoil==0?1.: mht/phi_mht_recoil), weight);
+  Fill("corr_PhiMhtEm1_Over_PhiMhtRecoil",	(phi_mht_recoil==0?1.: phi_mht_em1/phi_mht_recoil), weight);
+  Fill("corr_PhiMhtEm1_Over_PhiEm1Recoil",	(phi_recoil_em1==0?1.: phi_mht_em1/phi_recoil_em1), weight);
+*/
   Fill("n_jet",       JetMult(  g_pt, g_eta, g_phi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_), weight);
   Fill("n_loose",     LooseMult(t->photons_,t->photons_pt, t->photons__ptJet, t->photons_phi, t->photons_eta,t->photons_hadTowOverEm,t->photons_sigmaIetaIeta,t->photons_chargedIso,t->photons_neutralIso,t->photons_photonIso,t->photons_pixelseed), weight);
   Fill("n_tight",     TightMult(t->photons_,t->photons_pt, t->photons__ptJet, t->photons_phi, t->photons_eta,t->photons_hadTowOverEm,t->photons_sigmaIetaIeta,t->photons_chargedIso,t->photons_neutralIso,t->photons_photonIso,t->photons_pixelseed), weight);
