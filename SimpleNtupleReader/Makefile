@@ -31,7 +31,7 @@ clean:
 		@rm -f Reader
 
 cp:
-		mkdir plots/V03.16
+		#mkdir -f plots/V03.16
 		scp -r "portal.physik.rwth-aachen.de:~/GIT/usercode/SimpleNtupleReader/plots/V03.16/*" plots/V03.16/.
 
 commit:

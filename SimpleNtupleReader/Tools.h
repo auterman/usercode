@@ -436,7 +436,20 @@ std::cout << "void Closure<T>::Book()" << std::endl;
   BookHistogram("recoil_ht", "closure",bins_50_0_1500, n_50+1);
   BookHistogram("recoil_pt", "closure",bins_50_0_1500, n_50+1);
   BookHistogram("recoil_phi", "closure",bins_64_nPi_Pi, n_64+1);
-  BookHistogram("respPtEm1_Over_Ptrecoil", "closure",bins_50_0_2p5, n_50+1);
+  BookHistogram("PtEm1_Over_Ptrecoil", "closure",bins_50_0_2p5, n_50+1);
+  BookHistogram("PtEm1_Over_MHT", "closure",bins_50_0_2p5, n_50+1);
+  BookHistogram("Ptrecoil_Over_MHT", "closure",bins_50_0_2p5, n_50+1);
+  BookHistogram("Ptrecoil_Over_PhiMhtEm1", "closure",bins_50_0_2p5, n_50+1);
+  BookHistogram("Ptrecoil_Over_PhiEm1Recoil", "closure",bins_50_0_2p5, n_50+1);
+  BookHistogram("Ptrecoil_Over_PhiMhtRecoil", "closure",bins_50_0_2p5, n_50+1);
+  BookHistogram("PtEm1_Over_PhiMhtEm1", "closure",bins_50_0_2p5, n_50+1);
+  BookHistogram("PtEm1_Over_PhiEm1Recoil", "closure",bins_50_0_2p5, n_50+1);
+  BookHistogram("PtEm1_Over_PhiMhtRecoil", "closure",bins_50_0_2p5, n_50+1);
+  BookHistogram("Mht_Over_PhiMhtEm1", "closure",bins_50_0_2p5, n_50+1);
+  BookHistogram("Mht_Over_PhiEm1Recoil", "closure",bins_50_0_2p5, n_50+1);
+  BookHistogram("Mht_Over_PhiMhtRecoil", "closure",bins_50_0_2p5, n_50+1);
+  BookHistogram("PhiMhtEm1_Over_PhiMhtRecoil", "closure",bins_50_0_2p5, n_50+1);
+  BookHistogram("PhiMhtEm1_Over_PhiEm1Recoil", "closure",bins_50_0_2p5, n_50+1);
   BookHistogram("n_jet", "closure",bins_11_0_10, 12);
   BookHistogram("n_loose", "closure",bins_11_0_10, 12);
   BookHistogram("n_tight", "closure",bins_11_0_10, 12);
@@ -507,7 +520,6 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   Fill("recoil_ht",   Recoil_ht(t->ThePhotonPt, t->ThePhotonEta, t->ThePhotonPhi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ ), weight );
   Fill("recoil_pt",   recoil_pt, weight );
   Fill("recoil_phi",  Recoil_phi( &recoil ), weight );
-  Fill("phi_recoil_em1", DeltaPhi( Recoil_phi( &recoil ), t->ThePhotonPhi), weight);
 
   float g_pt  = t->ThePhotonPt;
   float g_eta = t->ThePhotonEta;
@@ -518,10 +530,29 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   Fill("mht_phi",mht_phi, weight );
   Fill("mht_trans", CalcTransMet(mht,mht_phi,g_phi), weight);
   Fill("mht_paral", CalcParalMet(mht,mht_phi,g_phi), weight);
-  Fill("phi_mht_em1",   DeltaPhi(mht_phi, g_phi), weight);
-  Fill("phi_mht_recoil",DeltaPhi(mht_phi, Recoil_phi( &recoil )), weight);
+  float phi_recoil_em1 = DeltaPhi( Recoil_phi( &recoil ), t->ThePhotonPhi);
+  float phi_mht_em1    = DeltaPhi(mht_phi, g_phi);
+  float phi_mht_recoil = DeltaPhi(mht_phi, Recoil_phi( &recoil ));
+  Fill("phi_recoil_em1", phi_recoil_em1, weight);
+  Fill("phi_mht_em1",    phi_mht_em1, weight);
+  Fill("phi_mht_recoil", phi_mht_recoil, weight);
   Fill("met_corr",    CorectedMet(t->met,t->metPhi-kPI,t->photons_pt[t->ThePhoton], t->photons_eta[t->ThePhoton], t->photons_phi[t->ThePhoton], g_pt ,g_eta, g_phi ), weight);
-  Fill("respPtEm1_Over_Ptrecoil",   (recoil_pt==0?1.: g_pt/recoil_pt), weight);
+
+  Fill("PtEm1_Over_Ptrecoil",   	(recoil_pt==0?1.: g_pt/recoil_pt), weight);
+  Fill("PtEm1_Over_MHT",		(mht==0?1.: g_pt/recoil_pt), weight);
+  Fill("Ptrecoil_Over_MHT",		(mht==0?1.: recoil_pt/mht), weight);
+  Fill("Ptrecoil_Over_PhiMhtEm1",	(phi_mht_em1==0?1.:    recoil_pt/phi_mht_em1), weight);
+  Fill("Ptrecoil_Over_PhiEm1Recoil",	(phi_recoil_em1==0?1.: recoil_pt/phi_recoil_em1), weight);
+  Fill("Ptrecoil_Over_PhiMhtRecoil",	(phi_mht_recoil==0?1.: recoil_pt/phi_mht_recoil), weight);
+  Fill("PtEm1_Over_PhiMhtEm1",		(phi_mht_em1==0?1.:    g_pt/phi_mht_em1), weight);
+  Fill("PtEm1_Over_PhiEm1Recoil",	(phi_recoil_em1==0?1.: g_pt/phi_recoil_em1), weight);
+  Fill("PtEm1_Over_PhiMhtRecoil",	(phi_mht_recoil==0?1.: g_pt/phi_mht_recoil), weight);
+  Fill("Mht_Over_PhiMhtEm1",		(phi_mht_em1==0?1.:    mht/phi_mht_em1), weight);
+  Fill("Mht_Over_PhiEm1Recoil",		(phi_recoil_em1==0?1.: mht/phi_recoil_em1), weight);
+  Fill("Mht_Over_PhiMhtRecoil",		(phi_mht_recoil==0?1.: mht/phi_mht_recoil), weight);
+  Fill("PhiMhtEm1_Over_PhiMhtRecoil",	(phi_mht_recoil==0?1.: phi_mht_em1/phi_mht_recoil), weight);
+  Fill("PhiMhtEm1_Over_PhiEm1Recoil",	(phi_recoil_em1==0?1.: phi_mht_em1/phi_recoil_em1), weight);
+
   Fill("n_jet",       JetMult(  g_pt, g_eta, g_phi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_), weight);
   Fill("n_loose",     LooseMult(t->photons_,t->photons_pt, t->photons__ptJet, t->photons_phi, t->photons_eta,t->photons_hadTowOverEm,t->photons_sigmaIetaIeta,t->photons_chargedIso,t->photons_neutralIso,t->photons_photonIso,t->photons_pixelseed), weight);
   Fill("n_tight",     TightMult(t->photons_,t->photons_pt, t->photons__ptJet, t->photons_phi, t->photons_eta,t->photons_hadTowOverEm,t->photons_sigmaIetaIeta,t->photons_chargedIso,t->photons_neutralIso,t->photons_photonIso,t->photons_pixelseed), weight);
@@ -667,9 +698,9 @@ void Closure<T>::Write()
     c1->SaveAs(((std::string)dir_+"/log/h2_denominator_"+Processor<T>::name_+".pdf").c_str());
     gPad->SetLogz(0);
     
-    corr_x->Draw("he");
+    corr_x->Draw("pe");
     c1->SaveAs(((std::string)dir_+"/log/h1_correlationX_"+Processor<T>::name_+".pdf").c_str());
-    corr_y->Draw("he");
+    corr_y->Draw("pe");
     c1->SaveAs(((std::string)dir_+"/log/h1_correlationY_"+Processor<T>::name_+".pdf").c_str());
 
     delete we;
