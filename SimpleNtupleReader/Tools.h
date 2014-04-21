@@ -678,15 +678,19 @@ void Closure<T>::Write()
     std::vector<double>* v1 = (*binning)[axis[0]]->GetArray();
     int n1=v1->size();
     double a1[n1];
-    for (int i=0; i<n1; ++i)a1[i]=(*v1)[i];
+    for (int i=0; i<n1; ++i){a1[i]=(*v1)[i];
+    std::cout<<"X bin "<<i<<": "<<a1[i]<<std::endl;
+    }
     std::vector<double>* v2 = (*binning)[axis[1]]->GetArray();
     int n2=v2->size();
     double a2[n2];
-    for (int i=0; i<n2; ++i)a2[i]=(*v2)[i];
+    for (int i=0; i<n2; ++i){a2[i]=(*v2)[i];
+    std::cout<<"Y bin "<<i<<": "<<a2[i]<<std::endl;
+    }
 
     TH2F * w = new TH2F( ss.str().c_str(),
                     ((std::string)"QCD weighting;"+axis[0]+";"+axis[1]).c_str(),
-                    n1,a1,n2,a2
+                    n1-1,a1,n2-1,a2
 		  );
     TH2F * we = (TH2F*)w->Clone();		  
     for (int x=0; x<(*binning)[axis[0]]->GetNBins(); ++x)
