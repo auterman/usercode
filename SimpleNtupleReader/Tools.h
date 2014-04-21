@@ -175,6 +175,7 @@ class Binnings {
 class Yields{
  public:
     Yields(){}
+    std::string GetLabel(){return label_;}
     Yields(const std::string& s):label_(s){
       /// ------------------------------------------------------------
       ///
@@ -260,7 +261,7 @@ template<typename T>
 class Weighter : public Processor<T> {
   public:
     Weighter(std::string n):Processor<T>(n){
-      yields_=new Yields("QCD_weighting"); 
+      yields_=new Yields("QCD weighting: "+n); 
     }
     //virtual void Init(){};
     virtual bool Process(T*t,Long64_t i,Long64_t n,double);
@@ -304,82 +305,10 @@ template<typename T>
 void Weighter<T>::Terminate()
 {  
   std::cout << "  Summary Weighter '"<<Processor<T>::name_<<"': "<<yields_->Weighted(0)<<" +- "<<yields_->Error(0)<<"  ("<<yields_->Unweighted(0)<<")"<<std::endl;
-/*
-  std::map<std::string,Binnings*> * binning = yields_->GetBinning();
-  std::string axis[3];
-  int i=0;
-  for (std::map<std::string,Binnings*>::iterator it=binning->begin();(it!=binning->end()&&i!=3);++it)
-    axis[i++]=it->first;
-    
-  if (yields_->WeightsDimension()==1) {
-    TH1 * w = new TH1F( ((std::string)"h1_weight_"+Processor<T>::name_).c_str(),
-                    ((std::string)"QCD weighting;"+axis[0]+";weight").c_str(),
-                    (*binning)[axis[0]]->GetNBins(),(*binning)[axis[0]]->GetArray()
-		  );
-    TH1 * we = (TH1F*)w->Clone();		  
-    for (int x=0; x<(*binning)[axis[0]]->GetNBins(); ++x){
-        w->SetBinContent(x,GetYields()->Weighted(x) );
-        we->SetBinContent(x,GetYields()->Error(x) );
-    }
-    struct stat st={0};
-    if(stat(dir_.c_str(),&st)==-1)
-       mkdir(dir_.c_str(), 0700);
-    if(stat(((std::string)dir_+"/log/").c_str(),&st)==-1)
-       mkdir(((std::string)dir_+"/log/").c_str(), 0700);
-    TCanvas * c1 = new TCanvas("","",600,600);
-    gPad->SetLogy(0);
-    it->second->SetMinimum(0);
-    it->second->Draw("he");
-    c1->SaveAs(((std::string)dir_+"/log/h1_weight_"+Processor<T>::name_+".pdf").c_str());
-    delete c1; 
-  }
-  else if (yields_->WeightsDimension()==2) {
-    TH2 * w = new TH1F( ((std::string)"h2_weight_"+Processor<T>::name_).c_str(),
-                    ((std::string)"QCD weighting;"+axis[0]+";"+axis[1]).c_str(),
-                    (*binning)[axis[0]]->GetNBins(),(*binning)[axis[0]]->GetArray(),
-                    (*binning)[axis[1]]->GetNBins(),(*binning)[axis[1]]->GetArray()
-		  );
-    TH2 * we = (TH2F*)w->Clone();		  
-    for (int x=0; x<(*binning)[axis[0]]->GetNBins(); ++x)
-      for (int y=0; y<(*binning)[axis[1]]->GetNBins(); ++y){
-        w->SetBinContent(x,y,GetYields()->Weighted(x+y*(*binning)[axis[0]]->GetNBins()) );
-        we->SetBinContent(x,y,GetYields()->Error(x+y*(*binning)[axis[0]]->GetNBins()) );
-      }
-    struct stat st={0};
-    if(stat(dir_.c_str(),&st)==-1)
-       mkdir(dir_.c_str(), 0700);
-    if(stat(((std::string)dir_+"/log/").c_str(),&st)==-1)
-       mkdir(((std::string)dir_+"/log/").c_str(), 0700);
-    TCanvas * c1 = new TCanvas("","",600,600);
-    gPad->SetLogy(0);
-    it->second->SetMinimum(0);
-    it->second->Draw("he");
-    c1->SaveAs(((std::string)dir_+"/log/h2_weight_"+Processor<T>::name_+".pdf").c_str());
-    delete c1; 
-  }
-*/
 };
 
 
 ///Closure test class ==============================================================================
-
-/*
-class ControlYieldsMET : public Yields
-{
-  public:
-    ControlYieldsMET(const std::string& s):Yields(s){ 
-      h_ = new TH1F("hc_met","",n_metbins,metbins);}
-    virtual int GetBin(double met, double pt, double ht){
-      return std::upper_bound(m_b.begin(),m_b.end(),met)-m_b.begin();
-      //return h_->GetXaxis()->FindBin(met);
-    }
-  
-  protected:
-    TH1 * h_;
-    
-};
-*/
-
 class YieldDataClass : public Yields
 {
   public:
@@ -434,17 +363,12 @@ class MyYields
 template<typename T>
 class Closure : public Processor<T> {
   public:
-    Closure(std::string d,std::string n):Processor<T>(n),dir_(d),denominator_(0),nominator_(0){
-      //yields_ = new ControlYieldsMET(n);
-    }
+    Closure(std::string d,std::string n):Processor<T>(n),dir_(d),denominator_(0),nominator_(0){    }
     virtual void Init();
     virtual bool Process(T*t,Long64_t i,Long64_t n,double);
     virtual void Write();
     virtual void Book();
 
-    //Yields* GetYields(){  return yields_;}
-    //std::map<std::string, YieldDataClass*>* GetRef(){  return myYields_->GetRef();}
-    //void AddRef(std::map<std::string, YieldDataClass*>* ref){  return myYields_->AddRef(ref);}
     void AddRef(std::map<std::string,MyYields*> *y){   
         for (std::map<std::string,MyYields*>::iterator it=y->begin();it!=y->end();++it)
           yields_[it->first]->AddRef( it->second->GetRef() );
@@ -452,11 +376,6 @@ class Closure : public Processor<T> {
     
     void SetDenominator(Yields*y){ denominator_=y;}
     void SetNominator(Yields*y){   nominator_=y;}
-    //void SetSignalYields(ControlYieldsMET*y){   signal_=y;}
-    //ControlYieldsMET* GetSignalYields(){  return signal_;}
-    //void SetSignalHists(Histograms *y){   sighists_=y;}
-    //Histograms * GetHists(){  return Plotter<T>::h_;}
-    //void SetSignalYields(MyYields *y){   sigYields_=y;}
     void AddSignalYields(std::map<std::string,MyYields*> *y){   
       if (!sig_.size()) sig_= *y;
       else if (y) 
@@ -467,24 +386,14 @@ class Closure : public Processor<T> {
 
   private:
     std::string dir_;
-    //ControlYieldsMET * yields_;      //control region MET>100, loose
     Yields * denominator_, //Nenner: MET<100, loose isolated 
 	   * nominator_;   //Zähler: MET<100, tight isolated
-    //ControlYieldsMET * signal_;  //signal region MET>100, tight 
-    //Histograms * sighists_; 	   
     std::vector<double> weights_,weighterrors_; //lookuptable for weights to speed up process
     
-    
-    //MyYields * myYields_;
-    //MyYields * sigYields_;
-
     std::map<std::string,MyYields*> yields_, sig_;
     double weight_;
     
     void BookHistogram(const std::string& s, const std::string title, const double * bins, int nbins){
-      //myYields_ = new MyYields(title);  
-      //myYields_->Add(s, new YieldDataClass(s));
-      //myYields_->SetBinning(s, bins, nbins);
       yields_[s] = new MyYields(title);  
       yields_[s]->Add(s, new YieldDataClass(s));
       yields_[s]->SetBinning(s, bins, nbins);
@@ -530,6 +439,7 @@ std::cout << "void Closure<T>::Book()" << std::endl;
   BookHistogram("n_loose", "closure",bins_11_0_10, 12);
   BookHistogram("n_tight", "closure",bins_11_0_10, 12);
   
+  ///To save time, pre-calculate the weights once:
   if (!denominator_ || !nominator_) return;
   for (int b=0; b<nominator_->GetNBins(); ++b) {
     double d = denominator_->Weighted( b ); //loose
@@ -679,25 +589,61 @@ void Closure<T>::Write()
     int n1=v1->size();
     double a1[n1];
     for (int i=0; i<n1; ++i){a1[i]=(*v1)[i];
-    std::cout<<"X bin "<<i<<": "<<a1[i]<<std::endl;
+    //std::cout<<"X bin "<<i<<": "<<a1[i]<<std::endl;
     }
     std::vector<double>* v2 = (*binning)[axis[1]]->GetArray();
     int n2=v2->size();
     double a2[n2];
     for (int i=0; i<n2; ++i){a2[i]=(*v2)[i];
-    std::cout<<"Y bin "<<i<<": "<<a2[i]<<std::endl;
+    //std::cout<<"Y bin "<<i<<": "<<a2[i]<<std::endl;
     }
 
     TH2F * w = new TH2F( ss.str().c_str(),
                     ((std::string)"QCD weighting;"+axis[0]+";"+axis[1]).c_str(),
                     n1-1,a1,n2-1,a2
 		  );
+    TH1F * corr_x = new TH1F(((std::string)"h_corr_x_"+Processor<T>::name_).c_str(),
+                             ((std::string)"Correlation;"+axis[0]+";"+axis[1]).c_str(),
+			     n1-1,a1);		  
+    TH1F * corr_y = new TH1F(((std::string)"h_corr_y_"+Processor<T>::name_).c_str(),
+                             ((std::string)"Correlation;"+axis[1]+";"+axis[0]).c_str(),
+			     n2-1,a2);		  
     TH2F * we = (TH2F*)w->Clone();		  
-    for (int x=0; x<(*binning)[axis[0]]->GetNBins(); ++x)
+    TH2F * nom = (TH2F*)w->Clone();
+    nom->SetTitle( nominator_->GetLabel().c_str() );		  
+    TH2F * denom = (TH2F*)w->Clone();		  
+    denom->SetTitle( denominator_->GetLabel().c_str() );		  
+    for (int x=0; x<(*binning)[axis[0]]->GetNBins(); ++x){
+      Yield yn, yd;
       for (int y=0; y<(*binning)[axis[1]]->GetNBins(); ++y){
         w->SetBinContent(x,y,weights_[x+y*(*binning)[axis[0]]->GetNBins() ]);
         we->SetBinContent(x,y,weighterrors_[x+y*(*binning)[axis[0]]->GetNBins() ]);
+        nom->SetBinContent(x,y,nominator_->Weighted(x+y*(*binning)[axis[0]]->GetNBins() ));
+        denom->SetBinContent(x,y,denominator_->Weighted(x+y*(*binning)[axis[0]]->GetNBins() ));
+	
+	yn.Add( nominator_->GetYield(  x+y*(*binning)[axis[0]]->GetNBins() )->Get() );
+	yd.Add( denominator_->GetYield(x+y*(*binning)[axis[0]]->GetNBins() )->Get() );
       }
+      float n=yn.weighted();
+      float d=yd.weighted();
+      float ne=yn.error();
+      float de=yd.error();      
+      corr_x->SetBinContent( x, (d==0?1.0:n / d) );
+      corr_x->SetBinError(   x, (d==0?1.0: sqrt( ne*ne/(d*d) + de*de*n*n/(d*d*d*d) ) ) );
+    }  
+    for (int y=0; y<(*binning)[axis[1]]->GetNBins(); ++y){
+      Yield yn, yd;
+      for (int x=0; x<(*binning)[axis[0]]->GetNBins(); ++x){
+	yn.Add( nominator_->GetYield(  x+y*(*binning)[axis[0]]->GetNBins() )->Get() );
+	yd.Add( denominator_->GetYield(x+y*(*binning)[axis[0]]->GetNBins() )->Get() );
+      }
+      float n=yn.weighted();
+      float d=yd.weighted();
+      float ne=yn.error();
+      float de=yd.error();      
+      corr_y->SetBinContent( y, (d==0?1.0:n / d) );
+      corr_y->SetBinError(   y, (d==0?1.0: sqrt( ne*ne/(d*d) + de*de*n*n/(d*d*d*d) ) ) );
+    }  
     struct stat st={0};
     if(stat(dir_.c_str(),&st)==-1)
        mkdir(dir_.c_str(), 0700);
@@ -706,14 +652,29 @@ void Closure<T>::Write()
     TCanvas * c1 = new TCanvas("cw1","cw1",600,600);
     c1->cd();
     gPad->SetLogy(0);
+    gPad->SetLogz(1);
     w->Draw("Colz");
     c1->SaveAs(((std::string)dir_+"/log/h2_weight_"+Processor<T>::name_+".pdf").c_str());
     we->Draw("Colz");
     c1->SaveAs(((std::string)dir_+"/log/h2_weighterror_"+Processor<T>::name_+".pdf").c_str());
+    nom->Draw("Colz");
+    c1->SaveAs(((std::string)dir_+"/log/h2_nominator_"+Processor<T>::name_+".pdf").c_str());
+    denom->Draw("Colz");
+    c1->SaveAs(((std::string)dir_+"/log/h2_denominator_"+Processor<T>::name_+".pdf").c_str());
+    gPad->SetLogz(0);
+    
+    corr_x->Draw("he");
+    c1->SaveAs(((std::string)dir_+"/log/h1_correlationX_"+Processor<T>::name_+".pdf").c_str());
+    corr_y->Draw("he");
+    c1->SaveAs(((std::string)dir_+"/log/h1_correlationY_"+Processor<T>::name_+".pdf").c_str());
+
     delete we;
     delete w;
+    delete nom;
+    delete denom;
+    delete corr_x;
+    delete corr_y;
     delete c1; 
-
   }
 //std::cout <<"void Closure<T>::Write() dim="<< std::endl;
 
