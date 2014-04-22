@@ -206,10 +206,10 @@ class Yields{
 //      double single_bin[0] = {};
 //      binning_["singleBin"] = new Binnings( single_bin, 1);
 
-//       AddBinning("photon_ptstar",bins_50_0_1000, n_50+1, b_PtPhoton);
-//       AddBinning("recoil_pt",    bins_50_0_1500, n_50+1, b_PtRecoil);
+       AddBinning("photon_ptstar",bins_50_0_1000, n_50+1, b_PtPhoton);
+       AddBinning("recoil_pt",    bins_50_0_1500, n_50+1, b_PtRecoil);
 //       AddBinning("ht",    bins_50_0_1500, n_50+1, b_HT);
-       AddBinning("PtEm1_Over_Ptrecoil",    bins_200_0_10, n_50+1, b_Ptem1_Ptrecoil);
+//       AddBinning("PtEm1_Over_Ptrecoil",    bins_200_0_10, n_50+1, b_Ptem1_Ptrecoil);
 
       /// ------------------------------------------------------------
       /// ------------------------------------------------------------
@@ -499,6 +499,9 @@ std::cout << "void Closure<T>::Book()" << std::endl;
   BookHistogram("Mht_Over_PhiMhtRecoil",    "Mht_Over_PhiMhtRecoil","events", "closure",bins_50_0_100, n_50+1);
   BookHistogram("PhiMhtEm1_Over_PhiMhtRecoil",  "PhiMhtEm1_Over_PhiMhtRecoil","events", "closure",bins_50_0_5, n_50+1);
   BookHistogram("PhiMhtEm1_Over_PhiEm1Recoil",  "PhiMhtEm1_Over_PhiEm1Recoil","events", "closure",bins_50_0_5, n_50+1);
+
+  BookHistogram("PtEm1_Over_PtEm1Gen", "p_{T} Photon / p_{T} Generator-Photon","events", "closure",bins_50_0_5, n_50+1);
+  BookHistogram("DR_PtEm1_PtEm1Gen",   "#Delta R(#gamma, #gamma_{GEN})","events", "closure",bins_50_0_5, n_50+1);
   
   BookCorrHistogram("corr_PtEm1_Over_Ptrecoil_vs_MHT", "MHT [GeV]", "EM1 Pt / Recoil Pt", "closure",bins_50_0_1000, n_50+1);
   BookCorrHistogram("corr_PtEm1_Over_MHT_vs_MHT",      "MHT [GeV]", "EM1 Pt / MHT", "closure",bins_50_0_1000, n_50+1);
@@ -609,6 +612,9 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   Fill("phi_mht_em1",    phi_mht_em1, weight);
   Fill("phi_mht_recoil", phi_mht_recoil, weight);
   Fill("met_corr",    CorectedMet(t->met,t->metPhi-kPI,t->photons_pt[t->ThePhoton], t->photons_eta[t->ThePhoton], t->photons_phi[t->ThePhoton], g_pt ,g_eta, g_phi ), weight);
+
+  Fill("PtEm1_Over_PtEm1Gen",   (t->genPhotons_pt[0]==0?1.: g_pt/t->genPhotons_pt[0]), weight);
+  Fill("DR_PtEm1_PtEm1Gen",   	DeltaR(g_eta,g_phi,t->genPhotons_eta[0],t->genPhotons_phi[0]), weight);
 
   Fill("PtEm1_Over_Ptrecoil",   	(recoil_pt==0?1.: g_pt/recoil_pt), weight);
   Fill("PtEm1_Over_MHT",		(mht==0?1.: g_pt/recoil_pt), weight);
