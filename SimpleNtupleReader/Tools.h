@@ -39,9 +39,11 @@ const static double bins_64_nPi_Pi[] = {-3.2,-3.1,-3.0,-2.9,-2.8,-2.7,-2.6,-2.5,
 const static int n_64 = 64;
 
 const static double bins_50_0_100[]  = {0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62,64,66,68,70,72,74,76,78,80,82,84,86,88,90,92,94,96,98,100}; 
+const static double bins_50_0_500[]  = {0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300,310,320,330,340,350,360,370,380,390,400,410,420,430,440,450,460,470,480,490,500}; 
 const static double bins_50_0_1000[] = {0,20,40,60,80,100,120,140,160,180,200,220,240,260,280,300,320,340,360,380,400,420,440,460,480,500,520,540,560,580,600,620,640,660,680,700,720,740,760,780,800,820,840,860,880,900,920,940,960,980,1000}; 
 const static double bins_50_0_1500[] = {0,30,60,90,120,150,180,210,240,270,300,330,360,390,420,450,480,510,540,570,600,630,660,690,720,750,780,810,840,870,900,930,960,990,1020,1050,1080,1110,1140,1170,1200,1230,1260,1290,1320,1350,1380,1410,1440,1470,1500}; 
 const static double bins_50_0_2p5[]  = {0,0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.85,0.9,0.95,1,1.05,1.1,1.15,1.2,1.25,1.3,1.35,1.4,1.45,1.5,1.55,1.6,1.65,1.7,1.75,1.8,1.85,1.9,1.95,2,2.05,2.1,2.15,2.2,2.25,2.3,2.35,2.4,2.45,2.5};
+const static double bins_50_0_5[]    = {0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2,2.1,2.2,2.3,2.4,2.5,2.6,2.7,2.8,2.9,3,3.1,3.2,3.3,3.4,3.5,3.6,3.7,3.8,3.9,4,4.1,4.2,4.3,4.4,4.5,4.6,4.7,4.8,4.9,5};
 const static int n_50 = 50;
 
 const static double bins_11_0_10[] = {-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5,10.5}; 
@@ -203,8 +205,10 @@ class Yields{
 //      double single_bin[0] = {};
 //      binning_["singleBin"] = new Binnings( single_bin, 1);
 
-       AddBinning("photon_ptstar",bins_50_0_1000, n_50+1, b_PtPhoton);
-       AddBinning("recoil_pt",    bins_50_0_1500, n_50+1, b_PtRecoil);
+//       AddBinning("photon_ptstar",bins_50_0_1000, n_50+1, b_PtPhoton);
+//       AddBinning("recoil_pt",    bins_50_0_1500, n_50+1, b_PtRecoil);
+//       AddBinning("ht",    bins_50_0_1500, n_50+1, b_HT);
+       AddBinning("PtEm1_Over_Ptrecoil",    bins_50_0_5, n_50+1, b_Ptem1_Ptrecoil);
 
       /// ------------------------------------------------------------
       /// ------------------------------------------------------------
@@ -367,30 +371,26 @@ class MyYields
 {
   public:
     MyYields(const std::string& s):label_(s){} 
-    //MyYields(const std::string& s, const std::string& x):label_(s),xaxis_(x),yaxis_("events"){} 
-    //MyYields(const std::string& s, const std::string& x, const std::string& y):label_(s),xaxis_(x),yaxis_(y){} 
     
     void Add(const std::string& s, YieldDataClass* d){y_[s]=d;}
     void Add(const std::string& s, int bin, int n, double w){y_[s]->GetYield(bin)->Add(n,w);}
     void AddRef(std::map<std::string, YieldDataClass*>* ref){
       for (std::map<std::string, YieldDataClass*>::iterator it=ref->begin();it!=ref->end();++it){
         y_[it->first]->Add( it->second );
-      }
-    }
+      }    }
     void SetBinning(const std::string& s,const double *b,int n){y_[s]->SetBinning(b,n);}
-    
     YieldDataClass* GetYieldsRef(const std::string& s){return y_[s];}
     std::map<std::string, YieldDataClass*> * GetRef(){return &y_;}
 
-    int GetNBins(const std::string& s){return y_[s]->GetNBins();}
-    int GetBin(  const std::string& s, double v){return y_[s]->GetBin(v);}
-    double GetBinBorder(const std::string& s, int v){return y_[s]->GetBinBorder(v);}
-    TH1 * GetPlot(const std::string& s);
-    double Weighted(const std::string& s, int b){return y_[s]->Weighted(b);}
-    int  Unweighted(const std::string& s, int b){return y_[s]->Unweighted(b);}
-    double Error(   const std::string& s, int b){return y_[s]->Error(b);}
-    void SetCorrelation(const std::string& s, bool corr){y_[s]->SetCorrelation(corr);}
-    bool GetCorrelation(const std::string& s){return y_[s]->GetCorrelation();}
+    int    GetNBins(      const std::string& s)          {return y_[s]->GetNBins();}
+    int    GetBin(        const std::string& s, double v){return y_[s]->GetBin(v);}
+    double GetBinBorder(  const std::string& s, int v)   {return y_[s]->GetBinBorder(v);}
+    TH1 *  GetPlot(       const std::string& s);
+    double Weighted(      const std::string& s, int b)   {return y_[s]->Weighted(b);}
+    int    Unweighted(    const std::string& s, int b)   {return y_[s]->Unweighted(b);}
+    double Error(         const std::string& s, int b)   {return y_[s]->Error(b);}
+    void   SetCorrelation(const std::string& s, bool corr){y_[s]->SetCorrelation(corr);}
+    bool   GetCorrelation(const std::string& s)          {return y_[s]->GetCorrelation();}
       
   protected:
     std::string label_; 
@@ -484,20 +484,20 @@ std::cout << "void Closure<T>::Book()" << std::endl;
   BookHistogram("recoil_pt",  "Recoil p_{T} [GeV]","events", "closure",bins_50_0_1500, n_50+1);
   BookHistogram("recoil_phi",  "#phi Recoil","events", "closure",bins_64_nPi_Pi, n_64+1);
 
-  BookHistogram("PtEm1_Over_Ptrecoil",  "p_{T} Photon / p_{T} Recoil","events", "closure",bins_50_0_2p5, n_50+1);
-  BookHistogram("PtEm1_Over_MHT",  "p_{T} Photon / MHT","events", "closure",bins_50_0_2p5, n_50+1);
-  BookHistogram("Ptrecoil_Over_MHT",  "p_{T} Recoil / MHT","events", "closure",bins_50_0_2p5, n_50+1);
-  BookHistogram("Ptrecoil_Over_PhiMhtEm1",  "p_{T} Recoil / #phi(MHT,photon)","events", "closure",bins_50_0_2p5, n_50+1);
-  BookHistogram("Ptrecoil_Over_PhiEm1Recoil",  "p_{T} Recoil / #phi(photon,recoil)","events", "closure",bins_50_0_2p5, n_50+1);
-  BookHistogram("Ptrecoil_Over_PhiMhtRecoil",  "p_{T} Recoil / #phi(MHT,recoil)","events", "closure",bins_50_0_2p5, n_50+1);
-  BookHistogram("PtEm1_Over_PhiMhtEm1",     "PtEm1_Over_PhiMhtEm1","events", "closure",bins_50_0_2p5, n_50+1);
-  BookHistogram("PtEm1_Over_PhiEm1Recoil",  "PtEm1_Over_PhiEm1Recoil","events", "closure",bins_50_0_2p5, n_50+1);
-  BookHistogram("PtEm1_Over_PhiMhtRecoil",  "PtEm1_Over_PhiMhtRecoil","events", "closure",bins_50_0_2p5, n_50+1);
-  BookHistogram("Mht_Over_PhiMhtEm1",       "Mht_Over_PhiMhtEm1","events", "closure",bins_50_0_2p5, n_50+1);
-  BookHistogram("Mht_Over_PhiEm1Recoil",    "Mht_Over_PhiEm1Recoil","events", "closure",bins_50_0_2p5, n_50+1);
-  BookHistogram("Mht_Over_PhiMhtRecoil",    "Mht_Over_PhiMhtRecoil","events", "closure",bins_50_0_2p5, n_50+1);
-  BookHistogram("PhiMhtEm1_Over_PhiMhtRecoil",  "PhiMhtEm1_Over_PhiMhtRecoil","events", "closure",bins_50_0_2p5, n_50+1);
-  BookHistogram("PhiMhtEm1_Over_PhiEm1Recoil",  "PhiMhtEm1_Over_PhiEm1Recoil","events", "closure",bins_50_0_2p5, n_50+1);
+  BookHistogram("PtEm1_Over_Ptrecoil",  "p_{T} Photon / p_{T} Recoil","events", "closure",bins_50_0_5, n_50+1);
+  BookHistogram("PtEm1_Over_MHT",  "p_{T} Photon / MHT","events", "closure",bins_50_0_5, n_50+1);
+  BookHistogram("Ptrecoil_Over_MHT",  "p_{T} Recoil / MHT","events", "closure",bins_50_0_5, n_50+1);
+  BookHistogram("Ptrecoil_Over_PhiMhtEm1",  "p_{T} Recoil / #phi(MHT,photon)","events", "closure",bins_50_0_500, n_50+1);
+  BookHistogram("Ptrecoil_Over_PhiEm1Recoil",  "p_{T} Recoil / #phi(photon,recoil)","events", "closure",bins_50_0_500, n_50+1);
+  BookHistogram("Ptrecoil_Over_PhiMhtRecoil",  "p_{T} Recoil / #phi(MHT,recoil)","events", "closure",bins_50_0_500, n_50+1);
+  BookHistogram("PtEm1_Over_PhiMhtEm1",     "PtEm1_Over_PhiMhtEm1","events", "closure",bins_50_0_100, n_50+1);
+  BookHistogram("PtEm1_Over_PhiEm1Recoil",  "PtEm1_Over_PhiEm1Recoil","events", "closure",bins_50_0_100, n_50+1);
+  BookHistogram("PtEm1_Over_PhiMhtRecoil",  "PtEm1_Over_PhiMhtRecoil","events", "closure",bins_50_0_100, n_50+1);
+  BookHistogram("Mht_Over_PhiMhtEm1",       "Mht_Over_PhiMhtEm1","events", "closure",bins_50_0_100, n_50+1);
+  BookHistogram("Mht_Over_PhiEm1Recoil",    "Mht_Over_PhiEm1Recoil","events", "closure",bins_50_0_100, n_50+1);
+  BookHistogram("Mht_Over_PhiMhtRecoil",    "Mht_Over_PhiMhtRecoil","events", "closure",bins_50_0_100, n_50+1);
+  BookHistogram("PhiMhtEm1_Over_PhiMhtRecoil",  "PhiMhtEm1_Over_PhiMhtRecoil","events", "closure",bins_50_0_5, n_50+1);
+  BookHistogram("PhiMhtEm1_Over_PhiEm1Recoil",  "PhiMhtEm1_Over_PhiEm1Recoil","events", "closure",bins_50_0_5, n_50+1);
   
   BookCorrHistogram("corr_PtEm1_Over_Ptrecoil_vs_MHT", "MHT [GeV]", "EM1 Pt / Recoil Pt", "closure",bins_50_0_1000, n_50+1);
   BookCorrHistogram("corr_PtEm1_Over_MHT_vs_MHT",      "MHT [GeV]", "EM1 Pt / MHT", "closure",bins_50_0_1000, n_50+1);

@@ -65,10 +65,18 @@ inline float b_PtPhoton(float met,float metPhi,float ht,float Sig,float g_pt, fl
 inline float b_Mht(float met,float metPhi,float ht,float Sig,float g_pt, float g_eta, float g_phi, int njets, float *jets_pt, float *jets_eta, float *jets_phi){
   return Mht(g_pt,g_eta,g_phi,jets_pt,jets_eta,jets_phi,njets); }
   
+inline float b_HT(float met,float metPhi,float ht,float Sig,float g_pt, float g_eta, float g_phi, int njets, float *jets_pt, float *jets_eta, float *jets_phi){
+  return ht; }
+  
 inline float b_PtRecoil(float met,float metPhi,float ht,float Sig,float g_pt, float g_eta, float g_phi, int njets, float *jets_pt, float *jets_eta, float *jets_phi){
   ROOT::Math::PtEtaPhiEVector recoil = Recoil(g_pt,g_eta,g_phi,jets_pt,jets_eta,jets_phi,njets);
   return Recoil_pt(&recoil); }
   
+inline float b_Ptem1_Ptrecoil(float met,float metPhi,float ht,float Sig,float g_pt, float g_eta, float g_phi, int njets, float *jets_pt, float *jets_eta, float *jets_phi){
+  ROOT::Math::PtEtaPhiEVector recoil = Recoil(g_pt,g_eta,g_phi,jets_pt,jets_eta,jets_phi,njets);
+  float rec=Recoil_pt(&recoil);
+  return (rec!=0?g_pt/rec:1.0); }
+
   
 template <typename T> 
 class Processor {

@@ -39,5 +39,9 @@ commit:
 		git commit -m "auto-commit by Makefile"	
 		git push	
 
+sync:
+		rsync  -rtvc --exclude '*.o Reader *.root'  -e ssh  ~/GIT/usercode/SimpleNtupleReader  portal.physik.rwth-aachen.de:~/GIT/usercode/
+		rsync  -rtvc --exclude '*.o Reader *.root'  -e ssh  portal.physik.rwth-aachen.de:~/GIT/usercode/SimpleNtupleReader/plots ~/GIT/usercode/SimpleNtupleReader/ 
+
 nedit:
 		nedit Makefile GJets_Jet.h Reader.h Reader.cc Interface.h Interface.cc Tools.h Tools.cc &
