@@ -342,7 +342,7 @@ class YieldDataClass : public Yields
 {
   public:
     YieldDataClass():Yields(),corr_(false){ }
-    YieldDataClass(const std::string& s):Yields(s),corr_(false){ }
+    YieldDataClass(const std::string& s,const std::string & xaxis,const std::string yaxis):Yields(s),title_(s),xaxis_(xaxis),yaxis_(yaxis),corr_(false){ }
     virtual ~YieldDataClass(){delete binning_;}
     void SetBinning(const double *b,int n){binning_ = new std::vector<double>(b,b+n);}
     virtual int GetNBins(){return binning_->size();}
@@ -353,8 +353,11 @@ class YieldDataClass : public Yields
     }
     void SetCorrelation(bool corr){corr_=corr;}
     bool GetCorrelation(){return corr_;}
-
+    std::string GetXaxisTitle(){return xaxis_;}
+    std::string GetYaxisTitle(){return yaxis_;}
+    
   protected:
+    std::string title_,xaxis_,yaxis_; 
     std::vector<double>* binning_;
     bool corr_;
 };
@@ -363,9 +366,9 @@ class YieldDataClass : public Yields
 class MyYields
 {
   public:
-    MyYields(const std::string& s):label_(s),xaxis_(s),yaxis_("events"){} 
-    MyYields(const std::string& s, const std::string& x):label_(s),xaxis_(x),yaxis_("events"){} 
-    MyYields(const std::string& s, const std::string& x, const std::string& y):label_(s),xaxis_(x),yaxis_(y){} 
+    MyYields(const std::string& s):label_(s){} 
+    //MyYields(const std::string& s, const std::string& x):label_(s),xaxis_(x),yaxis_("events"){} 
+    //MyYields(const std::string& s, const std::string& x, const std::string& y):label_(s),xaxis_(x),yaxis_(y){} 
     
     void Add(const std::string& s, YieldDataClass* d){y_[s]=d;}
     void Add(const std::string& s, int bin, int n, double w){y_[s]->GetYield(bin)->Add(n,w);}
@@ -390,7 +393,7 @@ class MyYields
     bool GetCorrelation(const std::string& s){return y_[s]->GetCorrelation();}
       
   protected:
-    std::string label_,xaxis_,yaxis_; 
+    std::string label_; 
     std::map<std::string, YieldDataClass*> y_;
   
 };
@@ -430,13 +433,13 @@ class Closure : public Processor<T> {
     double weight_;
     
     void BookHistogram(const std::string& s, const std::string& x, const std::string& y, const std::string title, const double * bins, int nbins){
-      yields_[s] = new MyYields(title,x,y);  
-      yields_[s]->Add(s, new YieldDataClass(s));
+      yields_[s] = new MyYields(title);  
+      yields_[s]->Add(s, new YieldDataClass(s,x,y));
       yields_[s]->SetBinning(s, bins, nbins);
     }
     void BookCorrHistogram(const std::string& s, const std::string& x, const std::string& y, const std::string title, const double * bins, int nbins){
-      yields_[s] = new MyYields(title,x,y);  
-      yields_[s]->Add(s, new YieldDataClass(s));
+      yields_[s] = new MyYields(title);  
+      yields_[s]->Add(s, new YieldDataClass(s,x,y));
       yields_[s]->SetBinning(s, bins, nbins);
       yields_[s]->SetCorrelation(s,true);
     }
