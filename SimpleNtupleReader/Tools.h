@@ -336,8 +336,9 @@ class YieldDataClass : public Yields
 class MyYields
 {
   public:
-    MyYields(const std::string& s):label_(s){} 
-    MyYields(const std::string& s, const std::string& x):label_(s),xaxis_(x){} 
+    MyYields(const std::string& s):label_(s),xaxis_(s),yaxis_("events"){} 
+    MyYields(const std::string& s, const std::string& x):label_(s),xaxis_(x),yaxis_("events"){} 
+    MyYields(const std::string& s, const std::string& x, const std::string& y):label_(s),xaxis_(x),yaxis_(y){} 
     
     void Add(const std::string& s, YieldDataClass* d){y_[s]=d;}
     void Add(const std::string& s, int bin, int n, double w){y_[s]->GetYield(bin)->Add(n,w);}
@@ -362,7 +363,7 @@ class MyYields
     bool GetCorrelation(const std::string& s){return y_[s]->GetCorrelation();}
       
   protected:
-    std::string label_,xaxis_; 
+    std::string label_,xaxis_,yaxis_; 
     std::map<std::string, YieldDataClass*> y_;
   
 };
@@ -406,8 +407,8 @@ class Closure : public Processor<T> {
       yields_[s]->Add(s, new YieldDataClass(s));
       yields_[s]->SetBinning(s, bins, nbins);
     }
-    void BookCorrHistogram(const std::string& s, const std::string& x, const std::string title, const double * bins, int nbins){
-      yields_[s] = new MyYields(title,x);  
+    void BookCorrHistogram(const std::string& s, const std::string& x, const std::string& y, const std::string title, const double * bins, int nbins){
+      yields_[s] = new MyYields(title,x,y);  
       yields_[s]->Add(s, new YieldDataClass(s));
       yields_[s]->SetBinning(s, bins, nbins);
       yields_[s]->SetCorrelation(s,true);
@@ -468,21 +469,18 @@ std::cout << "void Closure<T>::Book()" << std::endl;
   BookHistogram("PhiMhtEm1_Over_PhiMhtRecoil", "closure",bins_50_0_2p5, n_50+1);
   BookHistogram("PhiMhtEm1_Over_PhiEm1Recoil", "closure",bins_50_0_2p5, n_50+1);
   
-  BookCorrHistogram("corr_PtEm1_Over_Ptrecoil_vs_MHT", "MHT [GeV]", "closure",bins_50_0_1000, n_50+1);
-  BookCorrHistogram("corr_PtEm1_Over_MHT_vs_MHT", "MHT [GeV]", "closure",bins_50_0_1000, n_50+1);
-  BookCorrHistogram("corr_Ptrecoil_Over_MHT_vs_MHT", "MHT [GeV]", "closure",bins_50_0_1000, n_50+1);
-
-  BookCorrHistogram("corr_PtEm1_Over_Ptrecoil_vs_MET", "MET [GeV]", "closure",bins_50_0_1000, n_50+1);
-  BookCorrHistogram("corr_PtEm1_Over_MHT_vs_MET", "MET [GeV]", "closure",bins_50_0_1000, n_50+1);
-  BookCorrHistogram("corr_Ptrecoil_Over_MHT_vs_MET", "MET [GeV]", "closure",bins_50_0_1000, n_50+1);
-
-  BookCorrHistogram("corr_PtEm1_Over_Ptrecoil_vs_recoil", "Recoil Pt [GeV]", "closure",bins_50_0_1500, n_50+1);
-  BookCorrHistogram("corr_PtEm1_Over_MHT_vs_recoil", "Recoil Pt [GeV]", "closure",bins_50_0_1500, n_50+1);
-  BookCorrHistogram("corr_Ptrecoil_Over_MHT_vs_recoil", "Recoil Pt [GeV]", "closure",bins_50_0_1500, n_50+1);
-
-  BookCorrHistogram("corr_PtEm1_Over_Ptrecoil_vs_em1pt", "EM1 Pt [GeV]", "closure",bins_50_0_1000, n_50+1);
-  BookCorrHistogram("corr_PtEm1_Over_MHT_vs_em1pt", "EM1 Pt [GeV]", "closure",bins_50_0_1000, n_50+1);
-  BookCorrHistogram("corr_Ptrecoil_Over_MHT_vs_em1pt", "EM1 Pt [GeV]", "closure",bins_50_0_1000, n_50+1);
+  BookCorrHistogram("corr_PtEm1_Over_Ptrecoil_vs_MHT", "MHT [GeV]", "EM1 Pt / Recoil Pt", "closure",bins_50_0_1000, n_50+1);
+  BookCorrHistogram("corr_PtEm1_Over_MHT_vs_MHT",      "MHT [GeV]", "EM1 Pt / MHT", "closure",bins_50_0_1000, n_50+1);
+  BookCorrHistogram("corr_Ptrecoil_Over_MHT_vs_MHT",   "MHT [GeV]", "Recoil Pt / MHT", "closure",bins_50_0_1000, n_50+1);
+  BookCorrHistogram("corr_PtEm1_Over_Ptrecoil_vs_MET", "MET [GeV]", "EM1 Pt / Recoil Pt", "closure",bins_50_0_1000, n_50+1);
+  BookCorrHistogram("corr_PtEm1_Over_MHT_vs_MET",      "MET [GeV]", "EM1 Pt / MHT", "closure",bins_50_0_1000, n_50+1);
+  BookCorrHistogram("corr_Ptrecoil_Over_MHT_vs_MET",   "MET [GeV]", "Recoil Pt / MHT", "closure",bins_50_0_1000, n_50+1);
+  BookCorrHistogram("corr_PtEm1_Over_Ptrecoil_vs_recoil", "Recoil Pt [GeV]", "EM1 Pt / Recoil Pt", "closure",bins_50_0_1500, n_50+1);
+  BookCorrHistogram("corr_PtEm1_Over_MHT_vs_recoil",      "Recoil Pt [GeV]", "EM1 Pt / MHT", "closure",bins_50_0_1500, n_50+1);
+  BookCorrHistogram("corr_Ptrecoil_Over_MHT_vs_recoil",   "Recoil Pt [GeV]", "Recoil Pt / MHT", "closure",bins_50_0_1500, n_50+1);
+  BookCorrHistogram("corr_PtEm1_Over_Ptrecoil_vs_em1pt", "EM1 Pt [GeV]", "EM1 Pt / Recoil Pt", "closure",bins_50_0_1000, n_50+1);
+  BookCorrHistogram("corr_PtEm1_Over_MHT_vs_em1pt",      "EM1 Pt [GeV]", "EM1 Pt / MHT", "closure",bins_50_0_1000, n_50+1);
+  BookCorrHistogram("corr_Ptrecoil_Over_MHT_vs_em1pt",   "EM1 Pt [GeV]", "Recoil Pt / MHT", "closure",bins_50_0_1000, n_50+1);
 
 /*
   BookCorrHistogram("corr_Ptrecoil_Over_PhiMhtEm1", "MHT [GeV]", "closure",bins_50_0_1000, n_50+1);
@@ -599,15 +597,12 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   Fill("corr_PtEm1_Over_Ptrecoil_vs_MHT",   	mht, (recoil_pt==0?1.: g_pt/recoil_pt));
   Fill("corr_PtEm1_Over_MHT_vs_MHT",		mht, (mht==0?1.: g_pt/recoil_pt));
   Fill("corr_Ptrecoil_Over_MHT_vs_MHT",		mht, (mht==0?1.: recoil_pt/mht));
-
   Fill("corr_PtEm1_Over_Ptrecoil_vs_MET",   	t->met, (recoil_pt==0?1.: g_pt/recoil_pt));
   Fill("corr_PtEm1_Over_MHT_vs_MET",		t->met, (mht==0?1.: g_pt/recoil_pt));
   Fill("corr_Ptrecoil_Over_MHT_vs_MET",		t->met, (mht==0?1.: recoil_pt/mht));
-
   Fill("corr_PtEm1_Over_Ptrecoil_vs_recoil",   	recoil_pt, (recoil_pt==0?1.: g_pt/recoil_pt));
   Fill("corr_PtEm1_Over_MHT_vs_recoil",		recoil_pt, (mht==0?1.: g_pt/recoil_pt));
   Fill("corr_Ptrecoil_Over_MHT_vs_recoil",	recoil_pt, (mht==0?1.: recoil_pt/mht));
-
   Fill("corr_PtEm1_Over_Ptrecoil_vs_em1pt",   	g_pt, (recoil_pt==0?1.: g_pt/recoil_pt));
   Fill("corr_PtEm1_Over_MHT_vs_em1pt",		g_pt, (mht==0?1.: g_pt/recoil_pt));
   Fill("corr_Ptrecoil_Over_MHT_vs_em1pt",	g_pt, (mht==0?1.: recoil_pt/mht));

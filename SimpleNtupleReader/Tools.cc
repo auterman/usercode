@@ -93,8 +93,7 @@ TH1 * MyYields::GetPlot(const std::string& s)
     bins[i]=GetBinBorder(s,i);
     //std::cout << "bin "<<i<<", lower border: "<<bins[i]<<std::endl;  
   }
-  std::string x=(xaxis_==""?s:xaxis_);
-  TH1 * r = new TH1F(ss.str().c_str(),(";"+x+";events").c_str(),nbins-1,bins);
+  TH1 * r = new TH1F(ss.str().c_str(),(";"+xaxis_+";"+yaxis_).c_str(),nbins-1,bins);
  
   //std::map<int,Yield> * mp = GetYieldsRef(s)->GetYields();
   bool corr = GetYieldsRef(s)->GetCorrelation();

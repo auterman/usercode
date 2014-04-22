@@ -31,8 +31,8 @@ clean:
 		@rm -f Reader
 
 cp:
-		#mkdir -f plots/V03.16
-		scp -r "portal.physik.rwth-aachen.de:~/GIT/usercode/SimpleNtupleReader/plots/V03.16/*" plots/V03.16/.
+		@rm -rf -f plots/V03.16
+		scp -r "portal.physik.rwth-aachen.de:~/GIT/usercode/SimpleNtupleReader/plots/V03.16" plots/.
 
 commit:
 		git add Makefile *.h *.cc
@@ -40,4 +40,4 @@ commit:
 		git push	
 
 nedit:
-		 nedit Makefile GJets_Jet.h Reader.h Reader.cc Interface.h Interface.cc Tools.h Tools.cc &
+		nedit Makefile GJets_Jet.h Reader.h Reader.cc Interface.h Interface.cc Tools.h Tools.cc &
