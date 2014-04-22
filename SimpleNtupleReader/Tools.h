@@ -160,6 +160,8 @@ class Yield{
 class Binnings {
  public:
   Binnings(const double *b, int n){binning_ = new std::vector<double>(b,b+n);}
+  Binnings(const double *b, int n,float(*eval)(float/*met*/,float/*metPhi*/,float/*ht*/,float/*Sig*/,float/*g_pt*/, float/*g_eta*/, float/*g_phi*/, int/*njets*/, float* /*jets_pt*/, float* /*jets_eta*/, float* /*jet_phi*/))
+           :eval_(eval){binning_ = new std::vector<double>(b,b+n);}
     std::vector<double>* GetArray(){return binning_;}
     virtual int GetNBins(){return binning_->size();}
     virtual double GetBinBorder(int v){return binning_->at(v);}
@@ -168,6 +170,8 @@ class Binnings {
     }
   protected:
     std::vector<double>* binning_;
+   float(*eval_)(float/*met*/,float/*metPhi*/,float/*ht*/,float/*Sig*/,float/*g_pt*/, float/*g_eta*/, float/*g_phi*/, int/*njets*/, float* /*jets_pt*/, float* /*jets_eta*/, float* /*jet_phi*/);
+
 };
 
 ///Yields class is the data structure for the weighter class; it contains different bins
@@ -184,21 +188,22 @@ class Yields{
       ///
       /// ------------------------------------------------------------
       binning_["photon_ptstar"] = new Binnings(bins_50_0_1000, n_50+1);
-      //binning_["recoil_pt"] = new Binnings(bins_50_0_1500, n_50+1);
+      binning_["recoil_pt"] = new Binnings(bins_50_0_1500, n_50+1);
       //binning_["phi_met_em1"] = new Binnings(bins_64_nPi_Pi, n_64+1);
       //binning_["phi_mht_em1"] = new Binnings( bins_64_nPi_Pi, n_64+1);
       //binning_["phi_mht_recoil"] = new Binnings( bins_64_nPi_Pi, n_64+1);
       //binning_["phi_recoil_em1"] = new Binnings( bins_64_nPi_Pi, n_64+1);
-      binning_["ht"] = new Binnings(bins_50_0_1500, n_50+1);
+      //binning_["ht"] = new Binnings(bins_50_0_1500, n_50+1);
       
 //      double single_bin[0] = {};
 //      binning_["singleBin"] = new Binnings( single_bin, 1);
       /// ------------------------------------------------------------
       /// ------------------------------------------------------------
     }
-    void AddBinning(const std::string& n, double*bins, int nbins){
+    void AddBinning(const std::string& n, double*bins, int nbins,
+                    float(*eval)(float/*met*/,float/*metPhi*/,float/*ht*/,float/*Sig*/,float/*g_pt*/, float/*g_eta*/, float/*g_phi*/, int/*njets*/, float* /*jets_pt*/, float* /*jets_eta*/, float* /*jet_phi*/) ){
       if (binning_.find(n)==binning_.end())
-        binning_[n] = new Binnings(bins,nbins);
+        binning_[n] = new Binnings(bins,nbins,eval);
       else throw "Yields::AddBinnings("+n+") added more than Once!";	
     };
     void Add(Yields*r);
@@ -216,9 +221,9 @@ class Yields{
       //bin += binning_["photon_ptstar"]->GetNBins() * binning_["recoil_pt"]->GetBin( Recoil_pt(  &recoil ) );
 
 
-//      int bin = binning_["recoil_pt"]->GetBin( Recoil_pt(  &recoil ) );
-//      bin += binning_["recoil_pt"]->GetNBins() * 
-//             binning_["photon_ptstar"]->GetBin( g_pt );
+      int bin = binning_["recoil_pt"]->GetBin( Recoil_pt(  &recoil ) );
+      bin += binning_["recoil_pt"]->GetNBins() * 
+             binning_["photon_ptstar"]->GetBin( g_pt );
 
 //      int bin = binning_["phi_mht_em1"]->GetBin( DeltaPhi(mht_phi, g_phi) );
 //      bin += binning_["phi_mht_em1"]->GetNBins() * 
@@ -236,9 +241,9 @@ class Yields{
 //      bin += binning_["recoil_pt"]->GetNBins() * 
 //             binning_["phi_mht_recoil"]->GetBin( DeltaPhi(mht_phi, Recoil_phi( &recoil )) );
 
-      int bin = binning_["ht"]->GetBin( ht );
-      bin += binning_["ht"]->GetNBins() * 
-             binning_["photon_ptstar"]->GetBin( g_pt );
+//      int bin = binning_["ht"]->GetBin( ht );
+//      bin += binning_["ht"]->GetNBins() * 
+//             binning_["photon_ptstar"]->GetBin( g_pt );
 
 //std::cout <<" DONE   virtual int GetBin(float met,float metPhi,float ht,float Sig," <<std::endl;
       return bin;
