@@ -429,8 +429,8 @@ class Closure : public Processor<T> {
     std::map<std::string,MyYields*> yields_, sig_;
     double weight_;
     
-    void BookHistogram(const std::string& s, const std::string title, const double * bins, int nbins){
-      yields_[s] = new MyYields(title);  
+    void BookHistogram(const std::string& s, const std::string& x, const std::string& y, const std::string title, const double * bins, int nbins){
+      yields_[s] = new MyYields(title,x,y);  
       yields_[s]->Add(s, new YieldDataClass(s));
       yields_[s]->SetBinning(s, bins, nbins);
     }
@@ -453,48 +453,48 @@ void Closure<T>::Book()
 
 std::cout << "void Closure<T>::Book()" << std::endl;
 
-  BookHistogram("n_jet", "closure",bins_11_0_10, 12);
-  BookHistogram("n_loose", "closure",bins_11_0_10, 12);
-  BookHistogram("n_tight", "closure",bins_11_0_10, 12);
-  BookHistogram("met","closure",metbins, n_metbins+1);
-  BookHistogram("met_trans","closure",metbins, n_metbins+1);
-  BookHistogram("met_paral","closure",metbins, n_metbins+1);
-  BookHistogram("ht", "closure",htbins,  n_htbins+1);
-  BookHistogram("met_const", "closure", bins_50_0_1000, n_50+1);
-  BookHistogram("met_corr", "closure", bins_50_0_1000, n_50+1);
-  BookHistogram("met_phi", "closure", metphibins, n_metphibins+1);
-  BookHistogram("met_signif", "closure", bins_50_0_100, n_50+1);
-  BookHistogram("mht", "closure", bins_50_0_1000, n_50+1);
-  BookHistogram("mht_trans", "closure", bins_50_0_1000, n_50+1);
-  BookHistogram("mht_paral", "closure", bins_50_0_1000, n_50+1);
-  BookHistogram("mht_phi", "closure", metphibins, n_metphibins+1);
-  BookHistogram("em1_pt", "closure", bins_50_0_1000, n_50+1);
-  BookHistogram("em1_thePt", "closure", bins_50_0_1000, n_50+1);
-  BookHistogram("em1_ptstar", "closure", bins_50_0_1000, n_50+1);
-  BookHistogram("em1_phi", "closure", bins_64_nPi_Pi, n_64+1);
-  BookHistogram("weight", "closure", weightbins, n_weightbins+1 );
-  BookHistogram("phi_met_em1", "closure", bins_64_nPi_Pi, n_64+1);
-  BookHistogram("phi_mht_em1", "closure", bins_64_nPi_Pi, n_64+1);
-  BookHistogram("phi_mht_recoil", "closure", bins_64_nPi_Pi, n_64+1);
-  BookHistogram("phi_recoil_em1", "closure", bins_64_nPi_Pi, n_64+1);
-  BookHistogram("recoil_ht", "closure",bins_50_0_1500, n_50+1);
-  BookHistogram("recoil_pt", "closure",bins_50_0_1500, n_50+1);
-  BookHistogram("recoil_phi", "closure",bins_64_nPi_Pi, n_64+1);
+  BookHistogram("n_jet", "jet multiplicity","events", "closure",bins_11_0_10, 12);
+  BookHistogram("n_loose",  "loose photon multiplicity","events", "closure",bins_11_0_10, 12);
+  BookHistogram("n_tight",  "tight photon multiplicity","events", "closure",bins_11_0_10, 12);
+  BookHistogram("met", "MET [GeV]","events", "closure",metbins, n_metbins+1);
+  BookHistogram("met_trans", "transversal MET [GeV]","events", "closure",metbins, n_metbins+1);
+  BookHistogram("met_paral", "parallel MET [GeV]","events", "closure",metbins, n_metbins+1);
+  BookHistogram("ht",  "Ht [GeV]","events", "closure",htbins,  n_htbins+1);
+  BookHistogram("met_const",  "MET [GeV]","events", "closure", bins_50_0_1000, n_50+1);
+  BookHistogram("met_corr",  "corrected MET [GeV]","events", "closure", bins_50_0_1000, n_50+1);
+  BookHistogram("met_phi",  "#phi_{MET}","events", "closure", metphibins, n_metphibins+1);
+  BookHistogram("met_signif",  "MET Significance","events", "closure", bins_50_0_100, n_50+1);
+  BookHistogram("mht",  "MHT [GeV]","events", "closure", bins_50_0_1000, n_50+1);
+  BookHistogram("mht_trans",  "Transverse MHT [GeV]","events", "closure", bins_50_0_1000, n_50+1);
+  BookHistogram("mht_paral",  "Parallel MHT [GeV]","events", "closure", bins_50_0_1000, n_50+1);
+  BookHistogram("mht_phi",  "#phi_{MHT}","events", "closure", metphibins, n_metphibins+1);
+  BookHistogram("em1_pt",  "Photon p_{T} [GeV]","events", "closure", bins_50_0_1000, n_50+1);
+  BookHistogram("em1_thePt",  "Photon p_{T}^{*} [GeV]","events", "closure", bins_50_0_1000, n_50+1);
+  BookHistogram("em1_ptstar",  "Photon p_{T}^{*} [GeV]","events", "closure", bins_50_0_1000, n_50+1);
+  BookHistogram("em1_phi",  "#Phi Photon","events", "closure", bins_64_nPi_Pi, n_64+1);
+  BookHistogram("weight",  "weight","events", "closure", weightbins, n_weightbins+1 );
+  BookHistogram("phi_met_em1",  "#phi(MET, Photon)","events", "closure", bins_64_nPi_Pi, n_64+1);
+  BookHistogram("phi_mht_em1",  "#phi(MHT, Photon)","events", "closure", bins_64_nPi_Pi, n_64+1);
+  BookHistogram("phi_mht_recoil",  "#phi(MHT, Recoil)","events", "closure", bins_64_nPi_Pi, n_64+1);
+  BookHistogram("phi_recoil_em1",  "#phi(Recoil, Photon)","events", "closure", bins_64_nPi_Pi, n_64+1);
+  BookHistogram("recoil_ht",  "Recoil HT [GeV]","events", "closure",bins_50_0_1500, n_50+1);
+  BookHistogram("recoil_pt",  "Recoil p_{T} [GeV]","events", "closure",bins_50_0_1500, n_50+1);
+  BookHistogram("recoil_phi",  "#phi Recoil","events", "closure",bins_64_nPi_Pi, n_64+1);
 
-  BookHistogram("PtEm1_Over_Ptrecoil", "closure",bins_50_0_2p5, n_50+1);
-  BookHistogram("PtEm1_Over_MHT", "closure",bins_50_0_2p5, n_50+1);
-  BookHistogram("Ptrecoil_Over_MHT", "closure",bins_50_0_2p5, n_50+1);
-  BookHistogram("Ptrecoil_Over_PhiMhtEm1", "closure",bins_50_0_2p5, n_50+1);
-  BookHistogram("Ptrecoil_Over_PhiEm1Recoil", "closure",bins_50_0_2p5, n_50+1);
-  BookHistogram("Ptrecoil_Over_PhiMhtRecoil", "closure",bins_50_0_2p5, n_50+1);
-  BookHistogram("PtEm1_Over_PhiMhtEm1", "closure",bins_50_0_2p5, n_50+1);
-  BookHistogram("PtEm1_Over_PhiEm1Recoil", "closure",bins_50_0_2p5, n_50+1);
-  BookHistogram("PtEm1_Over_PhiMhtRecoil", "closure",bins_50_0_2p5, n_50+1);
-  BookHistogram("Mht_Over_PhiMhtEm1", "closure",bins_50_0_2p5, n_50+1);
-  BookHistogram("Mht_Over_PhiEm1Recoil", "closure",bins_50_0_2p5, n_50+1);
-  BookHistogram("Mht_Over_PhiMhtRecoil", "closure",bins_50_0_2p5, n_50+1);
-  BookHistogram("PhiMhtEm1_Over_PhiMhtRecoil", "closure",bins_50_0_2p5, n_50+1);
-  BookHistogram("PhiMhtEm1_Over_PhiEm1Recoil", "closure",bins_50_0_2p5, n_50+1);
+  BookHistogram("PtEm1_Over_Ptrecoil",  "p_{T} Photon / p_{T} Recoil","events", "closure",bins_50_0_2p5, n_50+1);
+  BookHistogram("PtEm1_Over_MHT",  "p_{T} Photon / MHT","events", "closure",bins_50_0_2p5, n_50+1);
+  BookHistogram("Ptrecoil_Over_MHT",  "p_{T} Recoil / MHT","events", "closure",bins_50_0_2p5, n_50+1);
+  BookHistogram("Ptrecoil_Over_PhiMhtEm1",  "p_{T} Recoil / #phi(MHT,photon)","events", "closure",bins_50_0_2p5, n_50+1);
+  BookHistogram("Ptrecoil_Over_PhiEm1Recoil",  "p_{T} Recoil / #phi(photon,recoil)","events", "closure",bins_50_0_2p5, n_50+1);
+  BookHistogram("Ptrecoil_Over_PhiMhtRecoil",  "p_{T} Recoil / #phi(MHT,recoil)","events", "closure",bins_50_0_2p5, n_50+1);
+  BookHistogram("PtEm1_Over_PhiMhtEm1",     "PtEm1_Over_PhiMhtEm1","events", "closure",bins_50_0_2p5, n_50+1);
+  BookHistogram("PtEm1_Over_PhiEm1Recoil",  "PtEm1_Over_PhiEm1Recoil","events", "closure",bins_50_0_2p5, n_50+1);
+  BookHistogram("PtEm1_Over_PhiMhtRecoil",  "PtEm1_Over_PhiMhtRecoil","events", "closure",bins_50_0_2p5, n_50+1);
+  BookHistogram("Mht_Over_PhiMhtEm1",       "Mht_Over_PhiMhtEm1","events", "closure",bins_50_0_2p5, n_50+1);
+  BookHistogram("Mht_Over_PhiEm1Recoil",    "Mht_Over_PhiEm1Recoil","events", "closure",bins_50_0_2p5, n_50+1);
+  BookHistogram("Mht_Over_PhiMhtRecoil",    "Mht_Over_PhiMhtRecoil","events", "closure",bins_50_0_2p5, n_50+1);
+  BookHistogram("PhiMhtEm1_Over_PhiMhtRecoil",  "PhiMhtEm1_Over_PhiMhtRecoil","events", "closure",bins_50_0_2p5, n_50+1);
+  BookHistogram("PhiMhtEm1_Over_PhiEm1Recoil",  "PhiMhtEm1_Over_PhiEm1Recoil","events", "closure",bins_50_0_2p5, n_50+1);
   
   BookCorrHistogram("corr_PtEm1_Over_Ptrecoil_vs_MHT", "MHT [GeV]", "EM1 Pt / Recoil Pt", "closure",bins_50_0_1000, n_50+1);
   BookCorrHistogram("corr_PtEm1_Over_MHT_vs_MHT",      "MHT [GeV]", "EM1 Pt / MHT", "closure",bins_50_0_1000, n_50+1);
