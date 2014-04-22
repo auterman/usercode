@@ -614,7 +614,7 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   Fill("met_corr",    CorectedMet(t->met,t->metPhi-kPI,t->photons_pt[t->ThePhoton], t->photons_eta[t->ThePhoton], t->photons_phi[t->ThePhoton], g_pt ,g_eta, g_phi ), weight);
 
   Fill("PtEm1_Over_PtEm1Gen",   (t->genPhotons_pt[0]==0?1.: g_pt/t->genPhotons_pt[0]), weight);
-  Fill("DR_PtEm1_PtEm1Gen",   	DeltaR(g_eta,g_phi,t->genPhotons_eta[0],t->genPhotons_phi[0]), weight);
+  Fill("DR_PtEm1_PtEm1Gen",   	deltaR(g_eta,g_phi,t->genPhotons_eta[0],t->genPhotons_phi[0]), weight);
 
   Fill("PtEm1_Over_Ptrecoil",   	(recoil_pt==0?1.: g_pt/recoil_pt), weight);
   Fill("PtEm1_Over_MHT",		(mht==0?1.: g_pt/recoil_pt), weight);
