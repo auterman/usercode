@@ -109,7 +109,7 @@ TH1 * MyYields::GetPlot(const std::string& s)
       float d=Unweighted(s,i);
       float ne=Error(s,i);
       r->SetBinContent( i, (d==0?1.0:n / d) );
-      r->SetBinError(   i, (d==0?1.0: sqrt( ne*ne/(d*d) + n*n/(d*d*d) ) ) );
+      r->SetBinError(   i, (d==0?1.0:sqrt( ne*ne/(d*d) + n*n/(d*d*d) ) ) );
     }  
     //std::cout << " my bin "<<i<<": > "<<bins[i]
     //          << " contents: "<< r->GetBinContent(i)<<" +- "<<r->GetBinError(i)
