@@ -93,13 +93,24 @@ TH1 * MyYields::GetPlot(const std::string& s)
     bins[i]=GetBinBorder(s,i);
     //std::cout << "bin "<<i<<", lower border: "<<bins[i]<<std::endl;  
   }
-  TH1 * r = new TH1F(ss.str().c_str(),(";"+s+";events").c_str(),nbins-1,bins);
+  std::string x=(xaxis_==""?s:xaxis_);
+  TH1 * r = new TH1F(ss.str().c_str(),(";"+x+";events").c_str(),nbins-1,bins);
  
   //std::map<int,Yield> * mp = GetYieldsRef(s)->GetYields();
- 
+  bool corr = GetYieldsRef(s)->GetCorrelation();
   for (int i=0; i<nbins; ++i) {
-    r->SetBinContent(i, Weighted(s,i) );
-    r->SetBinError(  i, Error(s,i) );
+    if (!corr) {
+      //std plot
+      r->SetBinContent(i, Weighted(s,i) );
+      r->SetBinError(  i, Error(s,i) );
+    } else {
+      //correlation plot
+      float n=Weighted(s,i);
+      float d=Unweighted(s,i);
+      float ne=Error(s,i);
+      r->SetBinContent( i, (d==0?1.0:n / d) );
+      r->SetBinError(   i, (d==0?1.0: sqrt( ne*ne/(d*d) + n*n/(d*d*d) ) ) );
+    }  
     //std::cout << " my bin "<<i<<": > "<<bins[i]
     //          << " contents: "<< r->GetBinContent(i)<<" +- "<<r->GetBinError(i)
     //	      << " map[]: "<<(*mp)[i].weighted()<<" +- "<<(*mp)[i].error()
