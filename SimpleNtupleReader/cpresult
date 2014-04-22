@@ -1,0 +1,3 @@
+mv plots/V03.16 plots/$1
+mkdir plots/V03.16
+cp tools.h plots/$1/.
