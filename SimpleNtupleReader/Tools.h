@@ -159,7 +159,7 @@ class Yield{
 
 class Binnings {
  public:
-  Binnings(const double *b, int n){binning_ = new std::vector<double>(b,b+n);}
+  //Binnings(const double *b, int n){binning_ = new std::vector<double>(b,b+n);}
   Binnings(const double *b, int n,float(*eval)(float/*met*/,float/*metPhi*/,float/*ht*/,float/*Sig*/,float/*g_pt*/, float/*g_eta*/, float/*g_phi*/, int/*njets*/, float* /*jets_pt*/, float* /*jets_eta*/, float* /*jet_phi*/))
            :eval_(eval){binning_ = new std::vector<double>(b,b+n);}
     std::vector<double>* GetArray(){return binning_;}
@@ -168,6 +168,11 @@ class Binnings {
     virtual int GetBin(double v){
       return std::upper_bound(binning_->begin(),binning_->end(),v)-binning_->begin();
     }
+    virtual int GetBin(float met,float metPhi,float ht,float Sig,
+                       float g_pt, float g_eta, float g_phi, 
+                       int njets, float *jets_pt, float *jets_eta, float *jets_phi){
+      return GetBin( eval_(met,metPhi,ht,Sig,g_pt,g_eta,g_phi,njets,jets_pt,jets_eta,jets_phi) );
+    }		       
   protected:
     std::vector<double>* binning_;
    float(*eval_)(float/*met*/,float/*metPhi*/,float/*ht*/,float/*Sig*/,float/*g_pt*/, float/*g_eta*/, float/*g_phi*/, int/*njets*/, float* /*jets_pt*/, float* /*jets_eta*/, float* /*jet_phi*/);
@@ -187,8 +192,8 @@ class Yields{
       /// QCD Reweighting binning definition
       ///
       /// ------------------------------------------------------------
-      binning_["photon_ptstar"] = new Binnings(bins_50_0_1000, n_50+1);
-      binning_["recoil_pt"] = new Binnings(bins_50_0_1500, n_50+1);
+      //binning_["photon_ptstar"] = new Binnings(bins_50_0_1000, n_50+1);
+      //binning_["recoil_pt"] = new Binnings(bins_50_0_1500, n_50+1);
       //binning_["phi_met_em1"] = new Binnings(bins_64_nPi_Pi, n_64+1);
       //binning_["phi_mht_em1"] = new Binnings( bins_64_nPi_Pi, n_64+1);
       //binning_["phi_mht_recoil"] = new Binnings( bins_64_nPi_Pi, n_64+1);
@@ -197,10 +202,14 @@ class Yields{
       
 //      double single_bin[0] = {};
 //      binning_["singleBin"] = new Binnings( single_bin, 1);
+
+       AddBinning("photon_ptstar",bins_50_0_1000, n_50+1, b_PtPhoton);
+       AddBinning("recoil_pt",    bins_50_0_1500, n_50+1, b_PtRecoil);
+
       /// ------------------------------------------------------------
       /// ------------------------------------------------------------
     }
-    void AddBinning(const std::string& n, double*bins, int nbins,
+    void AddBinning(const std::string& n, const double*bins, int nbins,
                     float(*eval)(float/*met*/,float/*metPhi*/,float/*ht*/,float/*Sig*/,float/*g_pt*/, float/*g_eta*/, float/*g_phi*/, int/*njets*/, float* /*jets_pt*/, float* /*jets_eta*/, float* /*jet_phi*/) ){
       if (binning_.find(n)==binning_.end())
         binning_[n] = new Binnings(bins,nbins,eval);
@@ -213,17 +222,24 @@ class Yields{
                        float g_pt, float g_eta, float g_phi, 
                        int njets, float *jets_pt, float *jets_eta, float *jets_phi)
 		       {
+      int bin=0;
+      int factor=1;		       
+      for (std::map<std::string,Binnings*>::iterator it=binning_.begin();it!=binning_.end();++it){
+	bin += factor * it->second->GetBin( met,metPhi,ht,Sig,g_pt,g_eta,g_phi, 
+                                            njets,jets_pt,jets_eta,jets_phi );
+	factor *= it->second->GetNBins();				    
+      }      		       
 //std::cout <<"    virtual int GetBin(float met,float metPhi,float ht,float Sig," <<std::endl;
-      ROOT::Math::PtEtaPhiEVector recoil = Recoil(g_pt, g_eta, g_phi, jets_pt, jets_eta, jets_phi, njets );
-      float mht_phi = MhtPhi(g_pt,g_eta,g_phi, jets_pt, jets_eta, jets_phi, njets );
+      //ROOT::Math::PtEtaPhiEVector recoil = Recoil(g_pt, g_eta, g_phi, jets_pt, jets_eta, jets_phi, njets );
+      //float mht_phi = MhtPhi(g_pt,g_eta,g_phi, jets_pt, jets_eta, jets_phi, njets );
 
       //int bin = binning_["photon_ptstar"]->GetBin( g_pt );
       //bin += binning_["photon_ptstar"]->GetNBins() * binning_["recoil_pt"]->GetBin( Recoil_pt(  &recoil ) );
 
 
-      int bin = binning_["recoil_pt"]->GetBin( Recoil_pt(  &recoil ) );
-      bin += binning_["recoil_pt"]->GetNBins() * 
-             binning_["photon_ptstar"]->GetBin( g_pt );
+      //int bin = binning_["recoil_pt"]->GetBin( Recoil_pt(  &recoil ) );
+      //bin += binning_["recoil_pt"]->GetNBins() * 
+      //       binning_["photon_ptstar"]->GetBin( g_pt );
 
 //      int bin = binning_["phi_mht_em1"]->GetBin( DeltaPhi(mht_phi, g_phi) );
 //      bin += binning_["phi_mht_em1"]->GetNBins() * 

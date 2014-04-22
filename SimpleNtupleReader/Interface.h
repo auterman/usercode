@@ -58,6 +58,18 @@ int LooseMult(int n_g,float *g_pt, float *g_ptJet, float *g_phi, float *g_eta,fl
 int TightMult(int n_g,float *g_pt, float *g_ptJet, float *g_phi, float *g_eta,float *g_hadTowOverEm,float *g_sigmaIetaIeta,float *g_chargedIso,float *g_neutralIso,float *g_photonIso,int *g_pixelseed);
 
 
+
+inline float b_PtPhoton(float met,float metPhi,float ht,float Sig,float g_pt, float g_eta, float g_phi, int njets, float *jets_pt, float *jets_eta, float *jets_phi){
+  return g_pt; }
+  
+inline float b_Mht(float met,float metPhi,float ht,float Sig,float g_pt, float g_eta, float g_phi, int njets, float *jets_pt, float *jets_eta, float *jets_phi){
+  return Mht(g_pt,g_eta,g_phi,jets_pt,jets_eta,jets_phi,njets); }
+  
+inline float b_PtRecoil(float met,float metPhi,float ht,float Sig,float g_pt, float g_eta, float g_phi, int njets, float *jets_pt, float *jets_eta, float *jets_phi){
+  ROOT::Math::PtEtaPhiEVector recoil = Recoil(g_pt,g_eta,g_phi,jets_pt,jets_eta,jets_phi,njets);
+  return Recoil_pt(&recoil); }
+  
+  
 template <typename T> 
 class Processor {
  public:
