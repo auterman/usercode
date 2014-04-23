@@ -218,7 +218,8 @@ class Yields{
 //       AddBinning("PtEm1_Over_Ptrecoil",    bins_200_0_10, n_50+1, b_Ptem1_Ptrecoil);
 
        AddBinning("photon_ptstar",fak1p5_bins, n_fak1p5_bins+1, b_PtPhoton);
-       AddBinning("ht",           fak1p5_bins, n_fak1p5_bins+1, b_HT);
+       //AddBinning("ht",           fak1p5_bins, n_fak1p5_bins+1, b_HT);
+       AddBinning("recoil_pt",    fak1p5_bins, n_fak1p5_bins+1, b_PtRecoil);
 
       /// ------------------------------------------------------------
       /// ------------------------------------------------------------
