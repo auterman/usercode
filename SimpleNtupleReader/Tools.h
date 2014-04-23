@@ -193,7 +193,7 @@ class Binnings {
 ///this class also defines the binning of the QCD weigting stuff (GetBin)
 class Yields{
  public:
-    Yields(){}
+    //Yields(){}
     std::string GetLabel(){return label_;}
     Yields(const std::string& s):label_(s){
       /// ------------------------------------------------------------
@@ -218,7 +218,7 @@ class Yields{
 //       AddBinning("PtEm1_Over_Ptrecoil",    bins_200_0_10, n_50+1, b_Ptem1_Ptrecoil);
 
        AddBinning("photon_ptstar",fak1p5_bins, n_fak1p5_bins+1, b_PtPhoton);
-       AddBinning("ht",    fak1p5_bins, n_fak1p5_bins+1, b_HT);
+       AddBinning("ht",           fak1p5_bins, n_fak1p5_bins+1, b_HT);
 
       /// ------------------------------------------------------------
       /// ------------------------------------------------------------
@@ -322,7 +322,7 @@ void Weighter<T>::Terminate()
 class YieldDataClass : public Yields
 {
   public:
-    YieldDataClass():Yields(),corr_(false){ }
+//    YieldDataClass():Yields(),corr_(false){ }
     YieldDataClass(const std::string& s,const std::string & xaxis,const std::string yaxis):Yields(s),title_(s),xaxis_(xaxis),yaxis_(yaxis),corr_(false){ }
     virtual ~YieldDataClass(){delete binning_;}
     void SetBinning(const double *b,int n){binning_ = new std::vector<double>(b,b+n);}

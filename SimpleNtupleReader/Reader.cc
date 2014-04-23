@@ -270,7 +270,7 @@ int main()
   int n=0;
   for (float i=1; i<2000; i*=1.5) {std::cout<<i<<","; ++n;}
   std::cout <<"\n n="<<n<<std::endl;
-  //Reader();
+  Reader();
   do_data();
   
   return 0;
