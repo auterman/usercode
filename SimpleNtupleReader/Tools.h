@@ -601,7 +601,7 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   
   Fill("PtEm1_Over_Ptrecoil",   	(recoil_pt==0?1.: g_pt/recoil_pt), weight, we);
   Fill("PtEm1_Over_MHT",		(mht==0?1.: g_pt/mht), weight, we);
-  Fill("PtEm1_Over_MET",		(met==0?1.: g_pt/met), weight, we);
+  Fill("PtEm1_Over_MET",		(t->met==0?1.: g_pt/t->met), weight, we);
   Fill("Ptrecoil_Over_MHT",		(mht==0?1.: recoil_pt/mht), weight, we);
   Fill("Ptrecoil_Over_PhiMhtEm1",	(phi_mht_em1==0?1.:    recoil_pt/phi_mht_em1), weight, we);
   Fill("Ptrecoil_Over_PhiEm1Recoil",	(phi_recoil_em1==0?1.: recoil_pt/phi_recoil_em1), weight, we);
