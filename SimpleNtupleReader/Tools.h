@@ -56,7 +56,7 @@ class Status : public Processor<T> {
   public:
     Status(std::string name):Processor<T>(name){}
     virtual bool Process(T*t,Long64_t i,Long64_t n,double w){
-      if (i==0)             std::cout <<"   > "<< n << " events: \n" << std::flush;
+      if (i==0) std::cout <<"   > "<< n << " events: \n" << std::flush;
       if (n&&(n/times)&&(i%(n/times))==0) std::cout << "   "<<barspin[(i/(n/times))%4]<<" "<<i/(n/times) << "% \r"<< std::flush;
       return true;
     }
@@ -427,7 +427,7 @@ void Closure<T>::Book()
 {
   //Plotter<T>::Book();
 
-std::cout << "void Closure<T>::Book()" << std::endl;
+//std::cout << "void Closure<T>::Book()" << std::endl;
 
   BookHistogram("n_jet", "jet multiplicity","events", "closure",bins_11_0_10, 12);
   BookHistogram("n_loose",  "loose photon multiplicity","events", "closure",bins_11_0_10, 12);
@@ -509,7 +509,7 @@ std::cout << "void Closure<T>::Book()" << std::endl;
     double n = nominator_->Weighted( b ); //tight
     double ne = nominator_->Error( b );
     weights_.push_back( (d==0?1.0:n / d) );
-    weighterrors_.push_back( (d==0?1.0: sqrt( ne*ne/(d*d) + de*de*n*n/(d*d*d*d) ) ) );
+    weighterrors_.push_back( (d==0?0.0: sqrt( ne*ne/(d*d) + de*de*n*n/(d*d*d*d) ) ) );
     //std::cout << "  Summary Closure '"<<Processor<T>::name_<<"' weight (bin=" <<b<<") = "
     //          << weights_.back() << " +- "<< weighterrors_.back()<<std::endl;
   }  
@@ -807,14 +807,13 @@ class Cutter : public Processor<T> {
     virtual bool Process(T*t,Long64_t i,Long64_t n,double w) {
       ++i_tot;
       d_tot += w;
-      ROOT::Math::PtEtaPhiEVector recoil = Recoil(t->ThePhotonPt, t->ThePhotonEta, t->ThePhotonPhi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ );
-      float ptrecoil = Recoil_pt (&recoil);
+      //ROOT::Math::PtEtaPhiEVector recoil = Recoil(t->ThePhotonPt, t->ThePhotonEta, t->ThePhotonPhi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ );
+      //float ptrecoil = Recoil_pt (&recoil);
          //||
 	// || t->photons__ptJet[t->ThePhoton]<=0
          // Recoil_pt(  &recoil )<150.
       if ( t->ThePhotonPt<110.  
          //  || t->photons__ptJet[t->ThePhoton]<=0
-	  || (ptrecoil?t->ThePhotonPt/ptrecoil<0.7:false) 
          ) {
 	return false;
       }	
