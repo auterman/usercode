@@ -19,6 +19,8 @@
 #include <sstream>
 #include <cassert>
 
+const static double fak1p5_bins[] = {0,1,1.5,2.25,3.375,5.0625,7.59375,11.3906,17.0859,25.6289,38.4434,57.665,86.4976,129.746,194.62,291.929,437.894,656.841,985.261,1477.89,2000};
+const static int n_fak1p5_bins = 20;
 
 const static double metbins[] = {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 160, 200, 270, 350, 500}; 
 const static int n_metbins = 16;
@@ -210,10 +212,13 @@ class Yields{
 //      double single_bin[0] = {};
 //      binning_["singleBin"] = new Binnings( single_bin, 1);
 
-       AddBinning("photon_ptstar",bins_50_0_1000, n_50+1, b_PtPhoton);
+//       AddBinning("photon_ptstar",bins_50_0_1000, n_50+1, b_PtPhoton);
 //       AddBinning("recoil_pt",    bins_50_0_1500, n_50+1, b_PtRecoil);
-       AddBinning("ht",    bins_50_0_1500, n_50+1, b_HT);
+//       AddBinning("ht",    bins_50_0_1500, n_50+1, b_HT);
 //       AddBinning("PtEm1_Over_Ptrecoil",    bins_200_0_10, n_50+1, b_Ptem1_Ptrecoil);
+
+       AddBinning("photon_ptstar",fak1p5_bins, n_fak1p5_bins+1, b_PtPhoton);
+       AddBinning("ht",    fak1p5_bins, n_fak1p5_bins+1, b_HT);
 
       /// ------------------------------------------------------------
       /// ------------------------------------------------------------
@@ -459,6 +464,7 @@ void Closure<T>::Book()
 
   BookHistogram("PtEm1_Over_Ptrecoil",  "p_{T} Photon / p_{T} Recoil","events", "closure",bins_50_0_5, n_50+1);
   BookHistogram("PtEm1_Over_MHT",  "p_{T} Photon / MHT","events", "closure",bins_50_0_5, n_50+1);
+  BookHistogram("PtEm1_Over_MET",  "p_{T} Photon / MET","events", "closure",bins_50_0_5, n_50+1);
   BookHistogram("Ptrecoil_Over_MHT",  "p_{T} Recoil / MHT","events", "closure",bins_50_0_5, n_50+1);
   BookHistogram("Ptrecoil_Over_PhiMhtEm1",  "p_{T} Recoil / #phi(MHT,photon)","events", "closure",bins_50_0_500, n_50+1);
   BookHistogram("Ptrecoil_Over_PhiEm1Recoil",  "p_{T} Recoil / #phi(photon,recoil)","events", "closure",bins_50_0_500, n_50+1);
@@ -595,6 +601,7 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   
   Fill("PtEm1_Over_Ptrecoil",   	(recoil_pt==0?1.: g_pt/recoil_pt), weight, we);
   Fill("PtEm1_Over_MHT",		(mht==0?1.: g_pt/mht), weight, we);
+  Fill("PtEm1_Over_MET",		(met==0?1.: g_pt/met), weight, we);
   Fill("Ptrecoil_Over_MHT",		(mht==0?1.: recoil_pt/mht), weight, we);
   Fill("Ptrecoil_Over_PhiMhtEm1",	(phi_mht_em1==0?1.:    recoil_pt/phi_mht_em1), weight, we);
   Fill("Ptrecoil_Over_PhiEm1Recoil",	(phi_recoil_em1==0?1.: recoil_pt/phi_recoil_em1), weight, we);

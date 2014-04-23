@@ -262,9 +262,9 @@ void RatioPlot(TH1*a, TH1*b,TH1*we, const std::string& dir,  const std::string& 
     return;
   }
   a->SetMarkerStyle(8);
-//  ratio((TH1F*)a->Clone(),(TH1F*)b->Clone(),(TH1F*)we->Clone(),dir,file,t,true);
-//  ratio((TH1F*)a->Clone(),(TH1F*)b->Clone(),(TH1F*)we->Clone(),dir,file,t,false);
-  ratio((TH1F*)a->Clone(),(TH1F*)b->Clone(),0,dir,file,t,true);
-  ratio((TH1F*)a->Clone(),(TH1F*)b->Clone(),0,dir,file,t,false);
+  ratio((TH1F*)a->Clone(),(TH1F*)b->Clone(),(TH1F*)we->Clone(),dir,file,t,true);
+  ratio((TH1F*)a->Clone(),(TH1F*)b->Clone(),(TH1F*)we->Clone(),dir,file,t,false);
+//  ratio((TH1F*)a->Clone(),(TH1F*)b->Clone(),0,dir,file,t,true);
+//  ratio((TH1F*)a->Clone(),(TH1F*)b->Clone(),0,dir,file,t,false);
 }
 

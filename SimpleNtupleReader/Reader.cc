@@ -267,8 +267,10 @@ int main()
 {
   gErrorIgnoreLevel = 5000;
  
-  //for (float i=0; i<=10; i+=(10./200)) std::cout<<i<<","; std::cout<<std::endl;
-  Reader();
+  int n=0;
+  for (float i=1; i<2000; i*=1.5) {std::cout<<i<<","; ++n;}
+  std::cout <<"\n n="<<n<<std::endl;
+  //Reader();
   do_data();
   
   return 0;
