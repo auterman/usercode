@@ -75,8 +75,10 @@ void Histograms::Write()
 void Yields::Add(Yields*r)
 {
     std::map<int,Yield> * ryield = r->GetYields();
-    for (std::map<int,Yield>::iterator it=ryield->begin(); it!=ryield->end(); ++it)
-      yield[it->first].Add( it->second.Get() );
+    for (std::map<int,Yield>::iterator it=ryield->begin(); it!=ryield->end(); ++it){
+      yield[it->first].AddWeight( it->second.GetWeights() );
+      yield[it->first].AddWeightError( it->second.GetWeightErrors() );
+    }  
 }
 
 
@@ -119,8 +121,25 @@ TH1 * MyYields::GetPlot(const std::string& s)
 }
 
 
+TH1 * MyYields::GetWeightErrorPlot(const std::string& s)
+{
+  std::stringstream ss;
+  ss  <<"we_"<< s << "_" << plotnr++;
+  int nbins=GetNBins(s);
+  double bins[nbins];
+  for (int i=0; i<nbins; ++i) { 
+    bins[i]=GetBinBorder(s,i);
+  }
+  TH1 * r = new TH1F(ss.str().c_str(),(";"+GetYieldsRef(s)->GetXaxisTitle()+";"+GetYieldsRef(s)->GetYaxisTitle()).c_str(),nbins-1,bins);
+  for (int i=0; i<nbins; ++i) {
+      r->SetBinContent(i, WeightError(s,i) );
+  }
+  return r;
+}
 
-void ratio(TH1*h1, TH1*h2, const std::string& dir, const std::string& file,const std::string& legtitle, bool log) {
+
+
+void ratio(TH1*h1, TH1*h2, TH1*we,const std::string& dir, const std::string& file,const std::string& legtitle, bool log) {
    std::stringstream ss;
    ss<<plotnr++;
    TCanvas *c1 = new TCanvas(((std::string)"c_"+ss.str()).c_str(),"example",600,600);
@@ -129,25 +148,45 @@ void ratio(TH1*h1, TH1*h2, const std::string& dir, const std::string& file,const
    pad1->SetLogy(log);
    pad1->Draw();
    pad1->cd();
-   TLegend * leg = new TLegend(0.5,0.7,0.89,0.92);
+   we->SetLineColor(2);
+   we->SetFillColor(2);
+   we->SetFillStyle( 3354 );
+   TH1F* cover = (TH1F*)we->Clone();
+   cover->SetLineColor(2);
+   cover->SetFillColor( 10 );
+   cover->SetFillStyle( 1001 );
+   we->SetTitle("");
+   we->GetYaxis()->SetTitleSize(0.05);
+   we->GetYaxis()->SetLabelSize(0.05);
+   TH1F* hleg = (TH1F*)we->Clone();
+   hleg->SetLineWidth(2);
+   TLegend * leg = new TLegend(0.5,0.7,0.89,0.89);
    leg->SetFillColor(0);
    leg->SetBorderSize(0);
    leg->AddEntry(h1,h1->GetTitle(),"pe");
-   leg->AddEntry(h2,h2->GetTitle(),"l");
+   leg->AddEntry(hleg,h2->GetTitle(),"lef");
    leg->SetHeader(legtitle.c_str());
-   h1->SetTitle("");
-   h1->GetYaxis()->SetTitleSize(0.05);
-   h1->GetYaxis()->SetLabelSize(0.05);
+   for (int i=1; i<=we->GetXaxis()->GetNbins();++i){
+     cover->SetBinContent(i, h2->GetBinContent(i)-we->GetBinContent(i));
+     we->SetBinContent(   i, h2->GetBinContent(i)+we->GetBinContent(i));
+     we->SetBinError(i,0);
+     cover->SetBinError(i,0);
+   }
    h1->GetYaxis()->SetTitleOffset(1.1);
-   if (!log) h1->SetMinimum(0);
-   if (!log && h2->GetMaximum()>h1->GetMaximum()) h1->SetMaximum(h2->GetMaximum()+sqrt(h2->GetMaximum()));
-   if (log  && h2->GetMaximum()>h1->GetMaximum()) h1->SetMaximum(5.*h2->GetMaximum());   
+   if (!log) we->SetMinimum(0);
+   if (!log && h1->GetMaximum()>we->GetMaximum()) we->SetMaximum(h1->GetMaximum()+sqrt(h1->GetMaximum()));
+   if (log  && h1->GetMaximum()>we->GetMaximum()) we->SetMaximum(5.*h1->GetMaximum());   
    h1->SetStats(0);
    h2->SetStats(0);
-   h1->DrawCopy("pe");
-   h2->Draw("l,same");
-   c1->cd();
+   we->SetStats(0);
+   cover->SetStats(0);
+   we->DrawCopy("h");
+   cover->DrawCopy("hf,same");
+   h2->DrawCopy("l,same");
+   h1->DrawCopy("pe,same");
    leg->Draw("same");
+   pad1->RedrawAxis();
+   c1->cd();
    TPad *pad2 = new TPad(((std::string)"padb_"+ss.str()).c_str(),"padb",0,0,1,0.3);
    pad2->SetTopMargin(0);
    pad2->SetBottomMargin(0.5);
@@ -156,26 +195,35 @@ void ratio(TH1*h1, TH1*h2, const std::string& dir, const std::string& file,const
    pad2->SetFrameBorderMode(0);
    pad2->Draw();
    pad2->cd();
+   //we->Sumw2();
+   we->Divide(h2);
+   cover->Divide(h2);
    h1->Sumw2();
    h1->Divide(h2);
-   h1->SetMinimum(0.);
-   h1->SetMaximum(2.4);
-   h1->GetXaxis()->SetNdivisions(505);
-   h1->GetYaxis()->SetTitle("Direct/Pred.");
-   h1->GetYaxis()->SetTitleSize(0.125);
-   h1->GetYaxis()->SetLabelSize(0.125);
-   h1->GetXaxis()->SetTitleSize(0.125);
-   h1->GetXaxis()->SetLabelSize(0.125);
-   h1->GetYaxis()->SetNdivisions(503);
+   h2->Sumw2();
+   h2->Divide(h2);
+   we->SetMinimum(0.);
+   we->SetMaximum(2.4);
+   we->GetXaxis()->SetNdivisions(505);
+   we->GetYaxis()->SetTitle("Direct/Pred.");
+   we->GetYaxis()->SetTitleSize(0.125);
+   we->GetYaxis()->SetLabelSize(0.125);
+   we->GetXaxis()->SetTitleSize(0.125);
+   we->GetXaxis()->SetLabelSize(0.125);
+   we->GetYaxis()->SetNdivisions(503);
    h1->SetMarkerStyle(20);
    h1->SetMarkerSize(1);
    h1->SetMarkerColor(1);
    h1->SetLineColor(1);
-   h1->Draw("E X0");
+   we->Draw("h X0");
+   cover->Draw("h,X0,same");
+   h2->Draw("E X0,same");
+   h1->Draw("E X0,same");
    TLine *line = new TLine(h1->GetXaxis()->GetXmin(), 1, h1->GetXaxis()->GetXmax(), 1);
    line->SetLineColor(1);
    line->SetLineStyle(2);
    line->Draw("same");
+   pad2->RedrawAxis();
    c1->cd();
    if (log) c1->SaveAs((dir+"/log/"+file+"_log.pdf").c_str());
    else     c1->SaveAs((dir+"/linear/"+file+".pdf").c_str());
@@ -184,9 +232,12 @@ void ratio(TH1*h1, TH1*h2, const std::string& dir, const std::string& file,const
    delete c1;
    delete h1;
    delete h2;
+   delete hleg;
+   delete cover;
+   delete we;
 }
 
-void RatioPlot(TH1*a, TH1*b, const std::string& dir,  const std::string& file, const std::string& t)
+void RatioPlot(TH1*a, TH1*b,TH1*we, const std::string& dir,  const std::string& file, const std::string& t)
 {
   //a: signal (direct simulation), can be 0
   //b: prediction
@@ -210,7 +261,7 @@ void RatioPlot(TH1*a, TH1*b, const std::string& dir,  const std::string& file, c
     return;
   }
   a->SetMarkerStyle(8);
-  ratio((TH1F*)a->Clone(),(TH1F*)b->Clone(),dir,file,t,true);
-  ratio((TH1F*)a->Clone(),(TH1F*)b->Clone(),dir,file,t,false);
+  ratio((TH1F*)a->Clone(),(TH1F*)b->Clone(),(TH1F*)we->Clone(),dir,file,t,true);
+  ratio((TH1F*)a->Clone(),(TH1F*)b->Clone(),(TH1F*)we->Clone(),dir,file,t,false);
 }
 
