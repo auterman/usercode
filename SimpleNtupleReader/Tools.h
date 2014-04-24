@@ -367,7 +367,7 @@ class MyYields
     MyYields(const std::string& s):label_(s){} 
     
     void Add(const std::string& s, YieldDataClass* d){y_[s]=d;}
-    void Add(const std::string& s, int bin, int n, double w, double we){y_[s]->GetYield(bin)->Add(n,w,we,bin);}
+    void Add(const std::string& s, int bin, int n, double w, double we, int wbin){y_[s]->GetYield(bin)->Add(n,w,we,wbin);}
     void AddRef(std::map<std::string, YieldDataClass*>* ref){
       for (std::map<std::string, YieldDataClass*>::iterator it=ref->begin();it!=ref->end();++it){
         y_[it->first]->Add( it->second );
@@ -438,8 +438,8 @@ class Closure : public Processor<T> {
       yields_[s]->SetBinning(s, bins, nbins);
       yields_[s]->SetCorrelation(s,true);
     }
-    void Fill(const std::string& s, double var, double w, double we){
-      yields_[s]->Add(s, yields_[s]->GetBin(s,var), 1, w, we );
+    void Fill(const std::string& s, double var, double w, double we, int wbin){
+      yields_[s]->Add(s, yields_[s]->GetBin(s,var), 1, w, we, wbin );
     }
 };
 
@@ -549,8 +549,9 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
 {
 
   double we = 0;
+  int bin = 0;
   if (denominator_ && nominator_){
-    int bin = nominator_->GetBin(       
+    bin = nominator_->GetBin(       
            t->met,t->metPhi,t->ht,t->metSig,
            t->ThePhotonPt, t->ThePhotonEta, t->ThePhotonPhi, 
            t->jets_, t->jets_pt, t->jets_eta, t->jets_phi
@@ -573,76 +574,76 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   if (t->ThePhoton<0||t->ThePhoton>t->photons_) std::cerr<<"t->ThePhoton="<<t->ThePhoton<<" but t->photons_="<<t->photons_<<std::endl;
  
   
-  Fill("met",       t->met, weight, we);
-  Fill("met_trans", CalcTransMet(t->met,t->metPhi-kPI,t->ThePhotonPhi), weight, we);
-  Fill("met_paral", CalcParalMet(t->met,t->metPhi-kPI,t->ThePhotonPhi), weight, we);
-  Fill("ht",        t->ht,  weight, we);
-  Fill("met_const", t->met, weight, we);
-  Fill("met_phi",   t->metPhi, weight, we);
-  Fill("met_signif",t->metSig, weight, we);
-  Fill("em1_pt",    t->photons_pt[t->ThePhoton], weight, we);
-  Fill("em1_thePt", t->ThePhotonPt, weight, we);
-  Fill("em1_ptstar",t->photons__ptJet[t->ThePhoton], weight, we);
-  Fill("em1_phi",   t->ThePhotonPhi, weight, we);
-  Fill("weight",    weight, 1., we );
-  Fill("phi_met_em1", DeltaPhi(t->metPhi-kPI, t->ThePhotonPhi), weight, we);
+  Fill("met",       t->met, weight, we, bin);
+  Fill("met_trans", CalcTransMet(t->met,t->metPhi-kPI,t->ThePhotonPhi), weight, we, bin);
+  Fill("met_paral", CalcParalMet(t->met,t->metPhi-kPI,t->ThePhotonPhi), weight, we, bin);
+  Fill("ht",        t->ht,  weight, we, bin);
+  Fill("met_const", t->met, weight, we, bin);
+  Fill("met_phi",   t->metPhi, weight, we, bin);
+  Fill("met_signif",t->metSig, weight, we, bin);
+  Fill("em1_pt",    t->photons_pt[t->ThePhoton], weight, we, bin);
+  Fill("em1_thePt", t->ThePhotonPt, weight, we, bin);
+  Fill("em1_ptstar",t->photons__ptJet[t->ThePhoton], weight, we, bin);
+  Fill("em1_phi",   t->ThePhotonPhi, weight, we, bin);
+  Fill("weight",    weight, 1., we, bin );
+  Fill("phi_met_em1", DeltaPhi(t->metPhi-kPI, t->ThePhotonPhi), weight, we, bin);
 
   ROOT::Math::PtEtaPhiEVector recoil = Recoil(t->ThePhotonPt, t->ThePhotonEta, t->ThePhotonPhi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ );
   float recoil_pt =  Recoil_pt(  &recoil );
-  Fill("recoil_ht",   Recoil_ht(t->ThePhotonPt, t->ThePhotonEta, t->ThePhotonPhi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ ), weight, we );
-  Fill("recoil_pt",   recoil_pt, weight, we );
-  Fill("recoil_phi",  Recoil_phi( &recoil ), weight, we );
+  Fill("recoil_ht",   Recoil_ht(t->ThePhotonPt, t->ThePhotonEta, t->ThePhotonPhi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ ), weight, we, bin );
+  Fill("recoil_pt",   recoil_pt, weight, we, bin );
+  Fill("recoil_phi",  Recoil_phi( &recoil ), weight, we, bin );
 
   float g_pt  = t->ThePhotonPt;
   float g_eta = t->ThePhotonEta;
   float g_phi = t->ThePhotonPhi;
   float mht = Mht(g_pt,g_eta,g_phi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ );
   float mht_phi = MhtPhi(g_pt,g_eta,g_phi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ );
-  Fill("mht",mht, weight, we );
-  Fill("mht_phi",mht_phi, weight, we );
-  Fill("mht_trans", CalcTransMet(mht,mht_phi,g_phi), weight, we);
-  Fill("mht_paral", CalcParalMet(mht,mht_phi,g_phi), weight, we);
+  Fill("mht",mht, weight, we, bin );
+  Fill("mht_phi",mht_phi, weight, we, bin );
+  Fill("mht_trans", CalcTransMet(mht,mht_phi,g_phi), weight, we, bin);
+  Fill("mht_paral", CalcParalMet(mht,mht_phi,g_phi), weight, we, bin);
   float phi_recoil_em1 = DeltaPhi( Recoil_phi( &recoil ), t->ThePhotonPhi);
   float phi_mht_em1    = DeltaPhi(mht_phi, g_phi);
   float phi_mht_recoil = DeltaPhi(mht_phi, Recoil_phi( &recoil ));
-  Fill("phi_recoil_em1", phi_recoil_em1, weight, we);
-  Fill("phi_mht_em1",    phi_mht_em1, weight, we);
-  Fill("phi_mht_recoil", phi_mht_recoil, weight, we);
-  Fill("met_corr",    CorectedMet(t->met,t->metPhi-kPI,t->photons_pt[t->ThePhoton], t->photons_eta[t->ThePhoton], t->photons_phi[t->ThePhoton], g_pt ,g_eta, g_phi ), weight, we);
+  Fill("phi_recoil_em1", phi_recoil_em1, weight, we, bin);
+  Fill("phi_mht_em1",    phi_mht_em1, weight, we, bin);
+  Fill("phi_mht_recoil", phi_mht_recoil, weight, we, bin);
+  Fill("met_corr",    CorectedMet(t->met,t->metPhi-kPI,t->photons_pt[t->ThePhoton], t->photons_eta[t->ThePhoton], t->photons_phi[t->ThePhoton], g_pt ,g_eta, g_phi ), weight, we, bin);
 
   if (t->genPhotons_){
-  Fill("PtEm1_Over_PtEm1Gen",   (t->genPhotons_pt[0]==0?1.: g_pt/t->genPhotons_pt[0]), weight, we);
-  Fill("DR_PtEm1_PtEm1Gen",   	deltaR(g_eta,g_phi,t->genPhotons_eta[0],t->genPhotons_phi[0]), weight, we);
+  Fill("PtEm1_Over_PtEm1Gen",   (t->genPhotons_pt[0]==0?1.: g_pt/t->genPhotons_pt[0]), weight, we, bin);
+  Fill("DR_PtEm1_PtEm1Gen",   	deltaR(g_eta,g_phi,t->genPhotons_eta[0],t->genPhotons_phi[0]), weight, we, bin);
   }
   
-  Fill("PtEm1_Over_Ptrecoil",   	(recoil_pt==0?1.: g_pt/recoil_pt), weight, we);
-  Fill("PtEm1_Over_MHT",		(mht==0?1.: g_pt/mht), weight, we);
-  Fill("PtEm1_Over_MET",		(t->met==0?1.: g_pt/t->met), weight, we);
-  Fill("Ptrecoil_Over_MHT",		(mht==0?1.: recoil_pt/mht), weight, we);
-  Fill("Ptrecoil_Over_PhiMhtEm1",	(phi_mht_em1==0?1.:    recoil_pt/phi_mht_em1), weight, we);
-  Fill("Ptrecoil_Over_PhiEm1Recoil",	(phi_recoil_em1==0?1.: recoil_pt/phi_recoil_em1), weight, we);
-  Fill("Ptrecoil_Over_PhiMhtRecoil",	(phi_mht_recoil==0?1.: recoil_pt/phi_mht_recoil), weight, we);
-  Fill("PtEm1_Over_PhiMhtEm1",		(phi_mht_em1==0?1.:    g_pt/phi_mht_em1), weight, we);
-  Fill("PtEm1_Over_PhiEm1Recoil",	(phi_recoil_em1==0?1.: g_pt/phi_recoil_em1), weight, we);
-  Fill("PtEm1_Over_PhiMhtRecoil",	(phi_mht_recoil==0?1.: g_pt/phi_mht_recoil), weight, we);
-  Fill("Mht_Over_PhiMhtEm1",		(phi_mht_em1==0?1.:    mht/phi_mht_em1), weight, we);
-  Fill("Mht_Over_PhiEm1Recoil",		(phi_recoil_em1==0?1.: mht/phi_recoil_em1), weight, we);
-  Fill("Mht_Over_PhiMhtRecoil",		(phi_mht_recoil==0?1.: mht/phi_mht_recoil), weight, we);
-  Fill("PhiMhtEm1_Over_PhiMhtRecoil",	(phi_mht_recoil==0?1.: phi_mht_em1/phi_mht_recoil), weight, we);
-  Fill("PhiMhtEm1_Over_PhiEm1Recoil",	(phi_recoil_em1==0?1.: phi_mht_em1/phi_recoil_em1), weight, we);
+  Fill("PtEm1_Over_Ptrecoil",   	(recoil_pt==0?1.: g_pt/recoil_pt), weight, we, bin);
+  Fill("PtEm1_Over_MHT",		(mht==0?1.: g_pt/mht), weight, we, bin);
+  Fill("PtEm1_Over_MET",		(t->met==0?1.: g_pt/t->met), weight, we, bin);
+  Fill("Ptrecoil_Over_MHT",		(mht==0?1.: recoil_pt/mht), weight, we, bin);
+  Fill("Ptrecoil_Over_PhiMhtEm1",	(phi_mht_em1==0?1.:    recoil_pt/phi_mht_em1), weight, we, bin);
+  Fill("Ptrecoil_Over_PhiEm1Recoil",	(phi_recoil_em1==0?1.: recoil_pt/phi_recoil_em1), weight, we, bin);
+  Fill("Ptrecoil_Over_PhiMhtRecoil",	(phi_mht_recoil==0?1.: recoil_pt/phi_mht_recoil), weight, we, bin);
+  Fill("PtEm1_Over_PhiMhtEm1",		(phi_mht_em1==0?1.:    g_pt/phi_mht_em1), weight, we, bin);
+  Fill("PtEm1_Over_PhiEm1Recoil",	(phi_recoil_em1==0?1.: g_pt/phi_recoil_em1), weight, we, bin);
+  Fill("PtEm1_Over_PhiMhtRecoil",	(phi_mht_recoil==0?1.: g_pt/phi_mht_recoil), weight, we, bin);
+  Fill("Mht_Over_PhiMhtEm1",		(phi_mht_em1==0?1.:    mht/phi_mht_em1), weight, we, bin);
+  Fill("Mht_Over_PhiEm1Recoil",		(phi_recoil_em1==0?1.: mht/phi_recoil_em1), weight, we, bin);
+  Fill("Mht_Over_PhiMhtRecoil",		(phi_mht_recoil==0?1.: mht/phi_mht_recoil), weight, we, bin);
+  Fill("PhiMhtEm1_Over_PhiMhtRecoil",	(phi_mht_recoil==0?1.: phi_mht_em1/phi_mht_recoil), weight, we, bin);
+  Fill("PhiMhtEm1_Over_PhiEm1Recoil",	(phi_recoil_em1==0?1.: phi_mht_em1/phi_recoil_em1), weight, we, bin);
 
-  Fill("corr_PtEm1_Over_Ptrecoil_vs_MHT",   	mht, (recoil_pt==0?1.: g_pt/recoil_pt), 0);
-  Fill("corr_PtEm1_Over_MHT_vs_MHT",		mht, (mht==0?1.: g_pt/recoil_pt), 0);
-  Fill("corr_Ptrecoil_Over_MHT_vs_MHT",		mht, (mht==0?1.: recoil_pt/mht), 0);
-  Fill("corr_PtEm1_Over_Ptrecoil_vs_MET",   	t->met, (recoil_pt==0?1.: g_pt/recoil_pt), 0);
-  Fill("corr_PtEm1_Over_MHT_vs_MET",		t->met, (mht==0?1.: g_pt/recoil_pt), 0);
-  Fill("corr_Ptrecoil_Over_MHT_vs_MET",		t->met, (mht==0?1.: recoil_pt/mht), 0);
-  Fill("corr_PtEm1_Over_Ptrecoil_vs_recoil",   	recoil_pt, (recoil_pt==0?1.: g_pt/recoil_pt), 0);
-  Fill("corr_PtEm1_Over_MHT_vs_recoil",		recoil_pt, (mht==0?1.: g_pt/recoil_pt), 0);
-  Fill("corr_Ptrecoil_Over_MHT_vs_recoil",	recoil_pt, (mht==0?1.: recoil_pt/mht), 0);
-  Fill("corr_PtEm1_Over_Ptrecoil_vs_em1pt",   	g_pt, (recoil_pt==0?1.: g_pt/recoil_pt), 0);
-  Fill("corr_PtEm1_Over_MHT_vs_em1pt",		g_pt, (mht==0?1.: g_pt/recoil_pt), 0);
-  Fill("corr_Ptrecoil_Over_MHT_vs_em1pt",	g_pt, (mht==0?1.: recoil_pt/mht), 0);
+  Fill("corr_PtEm1_Over_Ptrecoil_vs_MHT",   	mht, (recoil_pt==0?1.: g_pt/recoil_pt), 0, 0);
+  Fill("corr_PtEm1_Over_MHT_vs_MHT",		mht, (mht==0?1.: g_pt/recoil_pt), 0, 0);
+  Fill("corr_Ptrecoil_Over_MHT_vs_MHT",		mht, (mht==0?1.: recoil_pt/mht), 0, 0);
+  Fill("corr_PtEm1_Over_Ptrecoil_vs_MET",   	t->met, (recoil_pt==0?1.: g_pt/recoil_pt), 0, 0);
+  Fill("corr_PtEm1_Over_MHT_vs_MET",		t->met, (mht==0?1.: g_pt/recoil_pt), 0, 0);
+  Fill("corr_Ptrecoil_Over_MHT_vs_MET",		t->met, (mht==0?1.: recoil_pt/mht), 0, 0);
+  Fill("corr_PtEm1_Over_Ptrecoil_vs_recoil",   	recoil_pt, (recoil_pt==0?1.: g_pt/recoil_pt), 0, 0);
+  Fill("corr_PtEm1_Over_MHT_vs_recoil",		recoil_pt, (mht==0?1.: g_pt/recoil_pt), 0, 0);
+  Fill("corr_Ptrecoil_Over_MHT_vs_recoil",	recoil_pt, (mht==0?1.: recoil_pt/mht), 0, 0);
+  Fill("corr_PtEm1_Over_Ptrecoil_vs_em1pt",   	g_pt, (recoil_pt==0?1.: g_pt/recoil_pt), 0, 0);
+  Fill("corr_PtEm1_Over_MHT_vs_em1pt",		g_pt, (mht==0?1.: g_pt/recoil_pt), 0, 0);
+  Fill("corr_Ptrecoil_Over_MHT_vs_em1pt",	g_pt, (mht==0?1.: recoil_pt/mht), 0, 0);
 /*
   Fill("corr_Ptrecoil_Over_PhiMhtEm1",		mht, (phi_mht_em1==0?1.:    recoil_pt/phi_mht_em1));
   Fill("corr_Ptrecoil_Over_PhiEm1Recoil",	mht, (phi_recoil_em1==0?1.: recoil_pt/phi_recoil_em1));
@@ -656,9 +657,9 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   Fill("corr_PhiMhtEm1_Over_PhiMhtRecoil",	mht, (phi_mht_recoil==0?1.: phi_mht_em1/phi_mht_recoil));
   Fill("corr_PhiMhtEm1_Over_PhiEm1Recoil",	mht, (phi_recoil_em1==0?1.: phi_mht_em1/phi_recoil_em1));
 */
-  Fill("n_jet",       JetMult(  g_pt, g_eta, g_phi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_), weight, we);
-  Fill("n_loose",     LooseMult(t->photons_,t->photons_pt, t->photons__ptJet, t->photons_phi, t->photons_eta,t->photons_hadTowOverEm,t->photons_sigmaIetaIeta,t->photons_chargedIso,t->photons_neutralIso,t->photons_photonIso,t->photons_pixelseed), weight, we);
-  Fill("n_tight",     TightMult(t->photons_,t->photons_pt, t->photons__ptJet, t->photons_phi, t->photons_eta,t->photons_hadTowOverEm,t->photons_sigmaIetaIeta,t->photons_chargedIso,t->photons_neutralIso,t->photons_photonIso,t->photons_pixelseed), weight, we);
+  Fill("n_jet",       JetMult(  g_pt, g_eta, g_phi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_), weight, we, bin);
+  Fill("n_loose",     LooseMult(t->photons_,t->photons_pt, t->photons__ptJet, t->photons_phi, t->photons_eta,t->photons_hadTowOverEm,t->photons_sigmaIetaIeta,t->photons_chargedIso,t->photons_neutralIso,t->photons_photonIso,t->photons_pixelseed), weight, we, bin);
+  Fill("n_tight",     TightMult(t->photons_,t->photons_pt, t->photons__ptJet, t->photons_phi, t->photons_eta,t->photons_hadTowOverEm,t->photons_sigmaIetaIeta,t->photons_chargedIso,t->photons_neutralIso,t->photons_photonIso,t->photons_pixelseed), weight, we, bin);
 
   //std::cout << "Closure<T>::Process(T*t,Long64_t i="<<i<<",Long64_t n="<<n<<",double w="<<w<<") Done!"<<std::endl;
   
