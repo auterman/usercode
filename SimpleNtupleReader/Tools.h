@@ -151,14 +151,18 @@ class Yield{
   //Set
   Yield(unsigned n, double weight){Add(n,weight,0);}
   Yield(unsigned n, double weight, double we){Add(n,weight,we);}
-  void Add(unsigned n, double weight, double weighterror){for (unsigned i=0;i<n;++i){w.push_back(weight);we.push_back(weighterror);}}
+  void Add(unsigned n, double weight, double weighterror){
+           for (unsigned i=0;i<n;++i){
+	     w.push_back(weight);
+	     we.push_back(weighterror);
+       }   }
   void AddWeight(std::vector<double> * r){w.insert(w.end(),r->begin(),r->end());}
   void AddWeightError(std::vector<double> * r){we.insert(we.end(),r->begin(),r->end());}
   //Get
   unsigned unweighted(){return w.size();}
   double weighted(){    return std::accumulate(w.begin(),w.end(),0.);}
   double weighterror(){ return std::accumulate(we.begin(),we.end(),0.);}
-  double error(){       return sqrt( std::accumulate(w.begin(),w.end(),0.,square<double>()) );}
+  double error(){       return sqrt(std::accumulate(w.begin(),w.end(),0.,square<double>()));}
   std::vector<double> * GetWeights(){return &w;} 
   std::vector<double> * GetWeightErrors(){return &we;} 
 
@@ -508,17 +512,16 @@ void Closure<T>::Book()
   BookCorrHistogram("corr_PhiMhtEm1_Over_PhiMhtRecoil", "MHT [GeV]", "closure",bins_50_0_1000, n_50+1);
   BookCorrHistogram("corr_PhiMhtEm1_Over_PhiEm1Recoil", "MHT [GeV]", "closure",bins_50_0_1000, n_50+1);
 */ 
+
   ///To save time, pre-calculate the weights once:
   if (!denominator_ || !nominator_) return;
   for (int b=0; b<nominator_->GetNBins(); ++b) {
     double d = denominator_->Weighted( b ); //loose
-    double de = denominator_->Error( b ); //loose
-    double n = nominator_->Weighted( b ); //tight
-    double ne = nominator_->Error( b );
+    double de = denominator_->Error( b );   //loose error
+    double n = nominator_->Weighted( b );   //tight
+    double ne = nominator_->Error( b );     //tight error
     weights_.push_back( (d==0?1.0:n / d) );
     weighterrors_.push_back( (d==0?0.0: sqrt( ne*ne/(d*d) + de*de*n*n/(d*d*d*d) ) ) );
-    //std::cout << "  Summary Closure '"<<Processor<T>::name_<<"' weight (bin=" <<b<<") = "
-    //          << weights_.back() << " +- "<< weighterrors_.back()<<std::endl;
   }  
 }
 
