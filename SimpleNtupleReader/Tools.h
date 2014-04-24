@@ -144,31 +144,40 @@ template<typename T> struct square
         return (Left + Right*Right);
     }
 };
+struct pair_square
+{
+    double operator()(double Left, const std::pair<int,double>& Right) const {   
+        return (Left + Right.second*Right.second);
+    }
+};
 
 ///Yield class can calculate statistical uncertaities for a set of weighted events
 class Yield{ 
  public:
   Yield(){}
   //Set
-  Yield(unsigned n, double weight){Add(n,weight,0);}
-  Yield(unsigned n, double weight, double we){Add(n,weight,we);}
-  void Add(unsigned n, double weight, double weighterror){
+  Yield(unsigned n, double weight){Add(n,weight,0,0);}
+  Yield(unsigned n, double weight, double we, int bin){Add(n,weight,we,bin);}
+  void Add(unsigned n, double weight, double weighterror, int bin){
            for (unsigned i=0;i<n;++i){
 	     w.push_back(weight);
-	     we.push_back(weighterror);
+	     we[bin]+=weighterror; //add syst. errors of same "bin" linearly
        }   }
   void AddWeight(std::vector<double> * r){w.insert(w.end(),r->begin(),r->end());}
-  void AddWeightError(std::vector<double> * r){we.insert(we.end(),r->begin(),r->end());}
+  void AddWeightError(std::map<int,double> * r){
+           for (std::map<int,double>::iterator it=r->begin();it!=r->end();++it) 
+	     we[it->first]+=it->second;}
   //Get
-  unsigned unweighted(){return w.size();}
-  double weighted(){    return std::accumulate(w.begin(),w.end(),0.);}
-  double weighterror(){ return std::accumulate(we.begin(),we.end(),0.);}
-  double error(){       return sqrt(std::accumulate(w.begin(),w.end(),0.,square<double>()));}
-  std::vector<double> * GetWeights(){return &w;} 
-  std::vector<double> * GetWeightErrors(){return &we;} 
+  unsigned unweighted(){ return w.size();}
+  double weighted(){     return      std::accumulate(w.begin(), w.end(), 0.);}
+  double weighterror(){  return sqrt(std::accumulate(we.begin(),we.end(),0.,pair_square()));}
+  double error(){        return sqrt(std::accumulate(w.begin(), w.end(), 0.,square<double>()));}
+  std::vector<double>  * GetWeights(){     return &w;} 
+  std::map<int,double> * GetWeightErrors(){return &we;} 
 
  private:
-    std::vector<double> w,we;
+    std::vector<double> w;
+    std::map<int,double> we;
 };
 
 class Binnings {
@@ -222,9 +231,9 @@ class Yields{
 //       AddBinning("ht",    bins_50_0_1500, n_50+1, b_HT);
 //       AddBinning("PtEm1_Over_Ptrecoil",    bins_200_0_10, n_50+1, b_Ptem1_Ptrecoil);
 
-//       AddBinning("photon_ptstar",fak1p5_bins, n_fak1p5_bins+1, b_PtPhoton);
+       //AddBinning("photon_ptstar",fak1p5_bins, n_fak1p5_bins+1, b_PtPhoton);
        //AddBinning("ht",           fak1p5_bins, n_fak1p5_bins+1, b_HT);
-//       AddBinning("recoil_pt",    fak1p5_bins, n_fak1p5_bins+1, b_PtRecoil);
+       //AddBinning("recoil_pt",    fak1p5_bins, n_fak1p5_bins+1, b_PtRecoil);
        AddBinning("singleBin",    single_bin, 1, b_zero);
 
       /// ------------------------------------------------------------
@@ -250,7 +259,8 @@ class Yields{
                                             njets,jets_pt,jets_eta,jets_phi );
 	factor *= it->second->GetNBins();				    
       }      		       
-      return bin;
+      //return bin;
+      return 0;
     }
     virtual int GetNBins(){
       int n=1;
@@ -311,7 +321,7 @@ bool Weighter<T>::Process(T*t,Long64_t i,Long64_t n,double w)
         t->ThePhotonPt, t->ThePhotonEta, t->ThePhotonPhi, 
         t->jets_, t->jets_pt, t->jets_eta, t->jets_phi
        )
-     )->Add( 1, w, 0 );
+     )->Add( 1, w, 0, 0);
   //std::cout<< "Weighter<T>::Process(T*t,Long64_t i,Long64_t n,double w) DONE!"<<std::endl;
 
   return true;
@@ -357,7 +367,7 @@ class MyYields
     MyYields(const std::string& s):label_(s){} 
     
     void Add(const std::string& s, YieldDataClass* d){y_[s]=d;}
-    void Add(const std::string& s, int bin, int n, double w, double we){y_[s]->GetYield(bin)->Add(n,w,we);}
+    void Add(const std::string& s, int bin, int n, double w, double we){y_[s]->GetYield(bin)->Add(n,w,we,bin);}
     void AddRef(std::map<std::string, YieldDataClass*>* ref){
       for (std::map<std::string, YieldDataClass*>::iterator it=ref->begin();it!=ref->end();++it){
         y_[it->first]->Add( it->second );
