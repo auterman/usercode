@@ -59,6 +59,9 @@ int TightMult(int n_g,float *g_pt, float *g_ptJet, float *g_phi, float *g_eta,fl
 
 
 
+inline float b_zero(float met,float metPhi,float ht,float Sig,float g_pt, float g_eta, float g_phi, int njets, float *jets_pt, float *jets_eta, float *jets_phi){
+  return 0; }
+  
 inline float b_PtPhoton(float met,float metPhi,float ht,float Sig,float g_pt, float g_eta, float g_phi, int njets, float *jets_pt, float *jets_eta, float *jets_phi){
   return g_pt; }
   

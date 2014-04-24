@@ -50,6 +50,7 @@ const static double bins_200_0_10[]  = {0,0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.
 const static int n_50 = 50;
 
 const static double bins_11_0_10[] = {-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5,10.5}; 
+const static double single_bin[] = {0}; 
 
 ///Class to print the Status
 const static char barspin[4] = {'-','\\','|','/'};
@@ -221,9 +222,10 @@ class Yields{
 //       AddBinning("ht",    bins_50_0_1500, n_50+1, b_HT);
 //       AddBinning("PtEm1_Over_Ptrecoil",    bins_200_0_10, n_50+1, b_Ptem1_Ptrecoil);
 
-       AddBinning("photon_ptstar",fak1p5_bins, n_fak1p5_bins+1, b_PtPhoton);
+//       AddBinning("photon_ptstar",fak1p5_bins, n_fak1p5_bins+1, b_PtPhoton);
        //AddBinning("ht",           fak1p5_bins, n_fak1p5_bins+1, b_HT);
-       AddBinning("recoil_pt",    fak1p5_bins, n_fak1p5_bins+1, b_PtRecoil);
+//       AddBinning("recoil_pt",    fak1p5_bins, n_fak1p5_bins+1, b_PtRecoil);
+       AddBinning("singleBin",    single_bin, 1, b_zero);
 
       /// ------------------------------------------------------------
       /// ------------------------------------------------------------
@@ -427,7 +429,7 @@ class Closure : public Processor<T> {
       yields_[s]->SetCorrelation(s,true);
     }
     void Fill(const std::string& s, double var, double w, double we){
-      yields_[s]->Add(s, yields_[s]->GetBin(s,var), 1, w, we  );
+      yields_[s]->Add(s, yields_[s]->GetBin(s,var), 1, w, we );
     }
 };
 
@@ -517,9 +519,9 @@ void Closure<T>::Book()
   if (!denominator_ || !nominator_) return;
   for (int b=0; b<nominator_->GetNBins(); ++b) {
     double d = denominator_->Weighted( b ); //loose
-    double de = denominator_->Error( b );   //loose error
+    double de = denominator_->Error( b );   //loose stat. error
     double n = nominator_->Weighted( b );   //tight
-    double ne = nominator_->Error( b );     //tight error
+    double ne = nominator_->Error( b );     //tight stat. error
     weights_.push_back( (d==0?1.0:n / d) );
     weighterrors_.push_back( (d==0?0.0: sqrt( ne*ne/(d*d) + de*de*n*n/(d*d*d*d) ) ) );
   }  
