@@ -7,8 +7,8 @@
 #include <string>
 #include <iostream>
 
-//#include "Files/MySelector.h"
-//#include "Files/PhotonSelector.h"
+#include "Files/MySelector.h"
+#include "Files/PhotonSelector.h"
 
 #define PROOF false
 

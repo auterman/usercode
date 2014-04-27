@@ -3,7 +3,6 @@
 
 ########################################################
 # The rest of the makefile does not need to be modified
-
 ROOTLIBS      = -L$(ROOTSYS)/lib -lHist -lTree -lGpad
 ROOTGLIBS     = -lGpad -lGui -lGX11 -lX3d
 
@@ -19,10 +18,11 @@ TARGETSO = $(TARGETSRC:.cc=_cc.so)
 # Linux/gcc-2.96 version
 CWD 	      = $(shell pwd)
 CXX           = c++
-CXXFLAGS      = -O -Wall -fPIC -I$(ROOTSYS)/include
+CXXFLAGS      = -O -Wall -fPIC -Wno-deprecated -I$(ROOTSYS)/include
 LD            = c++
-LDFLAGS       = -g
-SOFLAGS       = -Wl -shared
+LDFLAGS       = -g 
+SOFLAGS       = -Wl -shared  -dynamiclib -single_module -undefined dynamic_lookup 
+EXEFLAGS      = -single_module -undefined dynamic_lookup 
 LIBS          = $(ROOTLIBS) -lm -ldl -rdynamic 
 EXELIBS       = -L$(CWD)/Files -lPhotonSelector_cc -lMySelector_cc -lProof -lProofPlayer
 
@@ -41,8 +41,15 @@ all: $(TARGETSO) $(EXECUTABLE)
 	$(LD) $(SOFLAGS) $(LDFLAGS) $(@:.so=.o) $(@:_cc.so=Cint.o) $(TOOLSO) $(LIBS) -o $@
 
 $(EXECUTABLE): $(EXECUTABLE).cc $(TARGETSO) 
-	$(LD) $(CXXFLAGS) $(LDFLAGS) $(LIBS) $(EXELIBS) $(EXECUTABLE).cc -o $(EXECUTABLE)
+	$(LD)  $(EXEFLAGS) $(CXXFLAGS) $(LDFLAGS) $(LIBS) $(EXELIBS) $(EXECUTABLE).cc -o $(EXECUTABLE)
 
 clean:
 	@rm -f $(EXECUTABLE) $(TARGETO) $(TARGETCINTO) $(TARGETCINT) $(TARGETSRC:.cc=Cint.h) $(TARGETSO) $(TARGETSO:.so=.d)
 
+nedit:
+	nedit QcdAnalysis.cc Makefile Files/MySelector.h Files/MySelector.cc &
+
+commit:
+	git add QcdAnalysis.cc Makefile Files/MySelector.h Files/MySelector.cc Tools/*.h Tools/*.cc
+	git commit -m "auto commit by Makefile"
+	git push
