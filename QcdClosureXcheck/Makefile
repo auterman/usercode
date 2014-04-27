@@ -21,10 +21,21 @@ CXX           = c++
 CXXFLAGS      = -O -Wall -fPIC -Wno-deprecated -I$(ROOTSYS)/include
 LD            = c++
 LDFLAGS       = -g 
-SOFLAGS       = -Wl -shared  -dynamiclib -single_module -undefined dynamic_lookup 
-EXEFLAGS      = -single_module -undefined dynamic_lookup 
+#SOFLAGS       = -Wl -shared  -dynamiclib -single_module -undefined dynamic_lookup 
+#EXEFLAGS      = -single_module -undefined dynamic_lookup 
 LIBS          = $(ROOTLIBS) -lm -ldl -rdynamic 
 EXELIBS       = -L$(CWD)/Files -lPhotonSelector_cc -lMySelector_cc -lProof -lProofPlayer
+
+SYSTEM=$(shell python -c "from platform import platform; print platform()")
+ifeq (${SYSTEM},Darwin-13.1.0-x86_64-i386-64bit) 
+	SOFLAGS       = -Wl -shared  -dynamiclib -single_module -undefined dynamic_lookup 
+	EXEFLAGS      = -single_module -undefined dynamic_lookup 
+else 
+	SOFLAGS       = -Wl -shared  -dynamiclib #-single_module -undefined dynamic_lookup 
+	EXEFLAGS      = #-single_module -undefined dynamic_lookup 
+endif
+
+
 
 all: $(TARGETSO) $(EXECUTABLE)
 
