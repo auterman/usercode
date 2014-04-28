@@ -25,13 +25,13 @@ float ThePhotonEta;
 float metPhi;
 float metSig;
 
-const static Int_t kMaxphotons = 10;
-const static Int_t kMaxjets = 20;
-const static Int_t kMaxelectrons = 5;
-const static Int_t kMaxmuons = 5;
-const static Int_t kMaxgenPhotons = 5;
-const static Int_t kMaxgenElectrons = 5;
-   TTree          *fChain;   //!pointer to the analyzed TTree or TChain
+const static Int_t kMaxphotons = 30;
+const static Int_t kMaxjets = 60;
+const static Int_t kMaxelectrons = 25;
+const static Int_t kMaxmuons = 25;
+const static Int_t kMaxgenPhotons = 25;
+const static Int_t kMaxgenElectrons = 25;
+  TTree          *fChain;   //!pointer to the analyzed TTree or TChain
 
    // Declaration of leaf types
    Int_t           photons_;
