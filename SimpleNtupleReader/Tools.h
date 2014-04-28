@@ -109,6 +109,7 @@ template<typename T>
 bool Plotter<T>::Process(T*t,Long64_t i,Long64_t n,double w)
 {
   w *= weight_;
+  w *= t->weight;
   bool res = Processor<T>::Process(t,i,n,w);
   
   if (h_) {
@@ -569,6 +570,8 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
 
   //std::cout << "Closure<T>::Process(T*t,Long64_t i="<<i<<",Long64_t n="<<n<<",double w="<<w<<")"<<std::endl;
   double weight = weight_ * w ;
+  weight *= t->weight;
+
   
   if (t->photons_>t->kMaxphotons) std::cerr<<"t->photons_="<<t->photons_<<" > t->kMaxphotons="<<t->kMaxphotons<<std::endl;
   if (t->jets_>t->kMaxjets) std::cerr<<"t->jets_="<<t->jets_<<" > t->kMaxjets="<<t->kMaxjets<<std::endl;
