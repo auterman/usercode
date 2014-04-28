@@ -137,7 +137,17 @@ TH1 * MyYields::GetWeightErrorPlot(const std::string& s)
   return r;
 }
 
-
+void Print(TH1*h1, TH1*h2, TH1*we){
+  if (!h1 || !h2 || !we) return;
+  for (int i=0; i<=h1->GetXaxis()->GetNbins(); ++i) {
+  
+    std::cout << "Bin "<<i<<"\n"
+              << "Direct simulation: "<<h1->GetBinContent(i)<<" +- "<<h1->GetBinError(i)<<"\n"
+	      << "Prediction:        "<<h2->GetBinContent(i)<<" +- "<<h2->GetBinError(i)<<"(stat) +- "
+	                              <<we->GetBinContent(i)<<"\n"
+	      <<std::endl;			      
+  }
+}
 
 void ratio(TH1*h1, TH1*h2, TH1*we,const std::string& dir, const std::string& file,const std::string& legtitle, bool log) {
    std::stringstream ss;
@@ -266,5 +276,7 @@ void RatioPlot(TH1*a, TH1*b,TH1*we, const std::string& dir,  const std::string& 
   ratio((TH1F*)a->Clone(),(TH1F*)b->Clone(),(TH1F*)we->Clone(),dir,file,t,false);
 //  ratio((TH1F*)a->Clone(),(TH1F*)b->Clone(),0,dir,file,t,true);
 //  ratio((TH1F*)a->Clone(),(TH1F*)b->Clone(),0,dir,file,t,false);
+  if (file=="Closure_Combined_met") Print(a,b,we);
+
 }
 
