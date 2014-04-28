@@ -304,6 +304,8 @@ class Weighter : public Processor<T> {
 template<typename T>
 bool Weighter<T>::Process(T*t,Long64_t i,Long64_t n,double w)
 {
+  w *= t->weight;
+
   //bool res = Processor<T>::Process(t,i,n,w);
   //std::cout<< "Weighter<T>::Process(T*t,Long64_t i,Long64_t n,double w)"<<std::endl;
   float mht = Mht(t->ThePhotonPt,t->ThePhotonEta,t->ThePhotonPhi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ );
@@ -313,8 +315,8 @@ bool Weighter<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   float r_phi = Recoil_phi( &recoil );
   float phi_r_g = DeltaPhi( Recoil_phi( &recoil ), t->ThePhotonPhi);
 
-//  if (t->met<100.) 
-  if (mht<150.) 
+  if (t->met<100.) 
+//  if (mht<150.) 
 //    if (r_ht<500.) 
 //      if (t->ht<800.) 
     yields_->GetYield( 
