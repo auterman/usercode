@@ -6,7 +6,7 @@
 #include "TError.h"
 
 const static bool ONLY_QCD = false;
-const static std::string version = "V03.16";
+const static std::string version = "V03.06_slim";
 
 template <typename T>
 void Process(const std::string& str_chain, std::vector<Processor<T>*>& proc, const std::string& file, double w)
@@ -274,7 +274,10 @@ int main()
   
   
   Reader();
-  do_data();
+  //do_data();
   
   return 0;
 }
+
+
+
