@@ -867,7 +867,15 @@ class Cutter_looseID : public Cutter<T> {
     virtual bool Process(T*t,Long64_t i,Long64_t n,double w) {
       ++Cutter<T>::i_tot;
       Cutter<T>::d_tot += w;
-      
+
+
+      if (!t->photons_) return false;
+      t->ThePhotonPt  = (t->photons__ptJet[0]>0?t->photons__ptJet[0]:t->photons_pt[0]);
+      t->ThePhotonPhi = t->photons_phi[0]; 
+      t->ThePhotonEta = t->photons_eta[0];
+      t->ThePhoton = 0; 
+
+/*      
       double found_pt = 0;
       for (int i=0; i<t->photons_;++i) {
         if ( loose_isolated(t->photons_pt[i], t->photons__ptJet[i], t->photons_phi[i], t->photons_eta[i],
@@ -898,6 +906,7 @@ class Cutter_looseID : public Cutter<T> {
           !LeptonVeto(t->electrons_, t->electrons_pt, t->electrons_eta,t->muons_, t->muons_pt, t->muons_eta)
          ) 
 	 return false;
+*/
       ++Cutter<T>::i_pass;
       Cutter<T>::d_pass += w;
       return true;
@@ -915,6 +924,13 @@ class Cutter_tightID : public Cutter<T> {
       ++Cutter<T>::i_tot;
       Cutter<T>::d_tot += w;
       
+      if (!t->photons_) return false;
+      t->ThePhotonPt  = (t->photons__ptJet[0]>0?t->photons__ptJet[0]:t->photons_pt[0]);
+      t->ThePhotonPhi = t->photons_phi[0]; 
+      t->ThePhotonEta = t->photons_eta[0];
+      t->ThePhoton = 0; 
+
+/*      
       double found_pt = 0;
       for (int i=0; i<t->photons_;++i) {
         if ( tight_isolated(t->photons_pt[i], t->photons__ptJet[i], t->photons_phi[i], t->photons_eta[i],
@@ -945,6 +961,7 @@ class Cutter_tightID : public Cutter<T> {
           !LeptonVeto(t->electrons_, t->electrons_pt, t->electrons_eta,t->muons_, t->muons_pt, t->muons_eta)
          ) 
 	 return false;
+*/	 
       ++Cutter<T>::i_pass;
       Cutter<T>::d_pass += w;
       return true;
