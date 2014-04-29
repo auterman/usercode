@@ -80,6 +80,11 @@ inline float b_Ptem1_Ptrecoil(float met,float metPhi,float ht,float Sig,float g_
   float rec=Recoil_pt(&recoil);
   return (rec!=0?g_pt/rec:1.0); }
 
+inline float b_PhiRecoilEm1(float met,float metPhi,float ht,float Sig,float g_pt, float g_eta, float g_phi, int njets, float *jets_pt, float *jets_eta, float *jets_phi){
+  ROOT::Math::PtEtaPhiEVector recoil = Recoil(g_pt,g_eta,g_phi,jets_pt,jets_eta,jets_phi,njets);
+  return DeltaPhi(recoil.phi(), g_phi); }
+  
+
   
 template <typename T> 
 class Processor {
