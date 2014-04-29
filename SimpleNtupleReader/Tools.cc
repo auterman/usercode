@@ -217,8 +217,8 @@ void ratio(TH1*h1, TH1*h2, TH1*we,const std::string& dir, const std::string& fil
    h1->Divide(h2);
    h2->Sumw2();
    h2->Divide(h2);
-   we->SetMinimum(0.);
-   we->SetMaximum(2.4);
+   we->SetMinimum(0.6);
+   we->SetMaximum(1.2);
    we->GetXaxis()->SetNdivisions(505);
    we->GetYaxis()->SetTitle("Direct/Pred.");
    we->GetYaxis()->SetTitleSize(0.125);
