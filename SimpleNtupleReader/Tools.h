@@ -924,6 +924,8 @@ class Cutter_looseID : public Cutter<T> {
       t->ThePhotonPhi = t->photons_phi[0]; 
       t->ThePhotonEta = t->photons_eta[0];
       t->ThePhoton = 0; 
+      t->metPhi=0;
+      t->metSig=0; 
 
 /*      
       double found_pt = 0;
@@ -978,7 +980,9 @@ class Cutter_tightID : public Cutter<T> {
       t->ThePhotonPt  = (t->photons__ptJet[0]>0?t->photons__ptJet[0]:t->photons_pt[0]);
       t->ThePhotonPhi = t->photons_phi[0]; 
       t->ThePhotonEta = t->photons_eta[0];
-      t->ThePhoton = 0; 
+      t->ThePhoton = 0;
+      t->metPhi=0;
+      t->metSig=0; 
 
 /*      
       double found_pt = 0;
