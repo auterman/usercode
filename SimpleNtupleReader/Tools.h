@@ -246,10 +246,10 @@ class Yields{
 //       AddBinning("recoil_pt",    fak1p5_bins, n_fak1p5_bins+1, b_PtRecoil);
 
 //       AddBinning("singleBin",    single_bin, 1, b_zero);
-//       AddBinning("photon_ptstar",bins_test_ptstar, n_test_ptstar+1, b_PtPhoton);
-//       AddBinning("ht",           bins_test_ht, n_test_ht+1, b_HT);
-       AddBinning("photon_ptstar",bins_50_0_1000, n_50+1, b_PtPhoton);
-       AddBinning("ht",           bins_50_0_1500, n_50+1, b_HT);
+       AddBinning("photon_ptstar",bins_test_ptstar, n_test_ptstar+1, b_PtPhoton);
+       AddBinning("ht",           bins_test_ht, n_test_ht+1, b_HT);
+//       AddBinning("photon_ptstar",bins_50_0_1000, n_50+1, b_PtPhoton);
+//       AddBinning("ht",           bins_50_0_1500, n_50+1, b_HT);
 
       /// ------------------------------------------------------------
       /// ------------------------------------------------------------
@@ -604,14 +604,8 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
 //std::cout<<"1"<<std::endl;
   
   Fill("met",       t->met, weight, we, bin);
-//std::cout<<"1a"<<std::endl;
-//  Fill("met_trans", CalcTransMet(t->met,t->metPhi-kPI,t->ThePhotonPhi), weight, we, bin);
-//std::cout<<"1b"<<std::endl;
-//  Fill("met_paral", CalcParalMet(t->met,t->metPhi-kPI,t->ThePhotonPhi), weight, we, bin);
-//std::cout<<"1c"<<std::endl;
   Fill("ht",        t->ht,  weight, we, bin);
   Fill("met_const", t->met, weight, we, bin);
-//  Fill("met_phi",   t->metPhi, weight, we, bin);
   Fill("met_signif",t->metSig, weight, we, bin);
   Fill("em1_pt",    t->photons_pt[t->ThePhoton], weight, we, bin);
   Fill("em1_thePt", t->ThePhotonPt, weight, we, bin);
@@ -620,31 +614,38 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   Fill("weight",    weight, 1., we, bin );
   Fill("phi_met_em1", DeltaPhi(t->metPhi-kPI, t->ThePhotonPhi), weight, we, bin);
 
+//  Fill("met_trans", CalcTransMet(t->met,t->metPhi-kPI,t->ThePhotonPhi), weight, we, bin);
+//  Fill("met_paral", CalcParalMet(t->met,t->metPhi-kPI,t->ThePhotonPhi), weight, we, bin);
+
 //std::cout<<"2"<<std::endl;
 
-  ROOT::Math::PtEtaPhiEVector recoil = Recoil(t->ThePhotonPt, t->ThePhotonEta, t->ThePhotonPhi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ );
-  float recoil_pt =  Recoil_pt(  &recoil );
-  Fill("recoil_ht",   Recoil_ht(t->ThePhotonPt, t->ThePhotonEta, t->ThePhotonPhi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ ), weight, we, bin );
-  Fill("recoil_pt",   recoil_pt, weight, we, bin );
-  Fill("recoil_phi",  Recoil_phi( &recoil ), weight, we, bin );
-
 //std::cout<<"3"<<std::endl;
+/*
   float g_pt  = t->ThePhotonPt;
   float g_eta = t->ThePhotonEta;
   float g_phi = t->ThePhotonPhi;
   float mht = Mht(g_pt,g_eta,g_phi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ );
   float mht_phi = MhtPhi(g_pt,g_eta,g_phi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ );
-  Fill("mht",mht, weight, we, bin );
-  Fill("mht_phi",mht_phi, weight, we, bin );
-  Fill("mht_trans", CalcTransMet(mht,mht_phi,g_phi), weight, we, bin);
-  Fill("mht_paral", CalcParalMet(mht,mht_phi,g_phi), weight, we, bin);
+  ROOT::Math::PtEtaPhiEVector recoil = Recoil(t->ThePhotonPt, t->ThePhotonEta, t->ThePhotonPhi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ );
+  float recoil_pt =  Recoil_pt(  &recoil );
   float phi_recoil_em1 = DeltaPhi( Recoil_phi( &recoil ), t->ThePhotonPhi);
   float phi_mht_em1    = DeltaPhi(mht_phi, g_phi);
   float phi_mht_recoil = DeltaPhi(mht_phi, Recoil_phi( &recoil ));
+
+  Fill("recoil_ht",   Recoil_ht(t->ThePhotonPt, t->ThePhotonEta, t->ThePhotonPhi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ ), weight, we, bin );
+  Fill("recoil_pt",   recoil_pt, weight, we, bin );
+  Fill("recoil_phi",  Recoil_phi( &recoil ), weight, we, bin );
   Fill("phi_recoil_em1", phi_recoil_em1, weight, we, bin);
   Fill("phi_mht_em1",    phi_mht_em1, weight, we, bin);
   Fill("phi_mht_recoil", phi_mht_recoil, weight, we, bin);
   Fill("met_corr",    CorectedMet(t->met,t->metPhi-kPI,t->photons_pt[t->ThePhoton], t->photons_eta[t->ThePhoton], t->photons_phi[t->ThePhoton], g_pt ,g_eta, g_phi ), weight, we, bin);
+
+  Fill("mht",mht, weight, we, bin );
+  Fill("mht_phi",mht_phi, weight, we, bin );
+  Fill("mht_trans", CalcTransMet(mht,mht_phi,g_phi), weight, we, bin);
+  Fill("mht_paral", CalcParalMet(mht,mht_phi,g_phi), weight, we, bin);
+
+*/
 
 //std::cout<<"4"<<std::endl;
 
@@ -703,7 +704,7 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   Fill("n_loose",     LooseMult(t->photons_,t->photons_pt, t->photons__ptJet, t->photons_phi, t->photons_eta,t->photons_hadTowOverEm,t->photons_sigmaIetaIeta,t->photons_chargedIso,t->photons_neutralIso,t->photons_photonIso,t->photons_pixelseed), weight, we, bin);
   Fill("n_tight",     TightMult(t->photons_,t->photons_pt, t->photons__ptJet, t->photons_phi, t->photons_eta,t->photons_hadTowOverEm,t->photons_sigmaIetaIeta,t->photons_chargedIso,t->photons_neutralIso,t->photons_photonIso,t->photons_pixelseed), weight, we, bin);
 */
-  if (we * w * t->weight) Fill("met_systerr", t->met,  we * w * t->weight, 0, 0);
+//  if (we * w * t->weight) Fill("met_systerr", t->met,  we * w * t->weight, 0, 0);
 
 //  std::cout << "Closure<T>::Process(T*t,Long64_t i="<<i<<",Long64_t n="<<n<<",double w="<<w<<") Done!"<<std::endl;
   
