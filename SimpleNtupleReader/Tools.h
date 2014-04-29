@@ -246,7 +246,7 @@ class Yields{
 
        AddBinning("photon_ptstar",fak1p5_bins, n_fak1p5_bins+1, b_PtPhoton);
        AddBinning("ht",           fak1p5_bins, n_fak1p5_bins+1, b_HT);
-       //AddBinning("recoil_pt",    fak1p5_bins, n_fak1p5_bins+1, b_PtRecoil);
+       AddBinning("recoil_pt",    fak1p5_bins, n_fak1p5_bins+1, b_PtRecoil);
 
 //       AddBinning("singleBin",    single_bin, 1, b_zero);
        //AddBinning("photon_ptstar",bins_test_ptstar, n_test_ptstar+1, b_PtPhoton);
@@ -555,7 +555,7 @@ void Closure<T>::Book()
     double n = nominator_->Weighted( b );   //tight
     double ne = nominator_->Error( b );     //tight stat. error
     weights_.push_back( (d==0?1.0:n / d) );
-    weighterrors_.push_back( (d==0?0.0: sqrt( ne*ne/(d*d) + de*de*n*n/(d*d*d*d) ) ) );
+    weighterrors_.push_back( (d==0?1.0: sqrt( ne*ne/(d*d) + de*de*n*n/(d*d*d*d) ) ) );
     
     if (d) std::cout << "QCD-rewighting bin "<<b
               << ": weight = "<<n<<" +- "<<ne<< " / "<<d<<" +- "<<de<<" = "<<n/d<<" +- "<<sqrt( ne*ne/(d*d) + de*de*n*n/(d*d*d*d) )
