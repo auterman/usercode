@@ -244,7 +244,7 @@ class Yields{
 
 
 
-       AddBinning("photon_ptstar",fak1p5_bins, n_fak1p5_bins+1, b_PtPhoton);
+       //AddBinning("photon_ptstar",fak1p5_bins, n_fak1p5_bins+1, b_PtPhoton);
        AddBinning("ht",           fak1p5_bins, n_fak1p5_bins+1, b_HT);
        AddBinning("recoil_pt",    fak1p5_bins, n_fak1p5_bins+1, b_PtRecoil);
 
