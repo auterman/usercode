@@ -39,6 +39,9 @@ const static int n_stdbins = 11;
 
 const static double bins_64_nPi_Pi[] = {-3.2,-3.1,-3.0,-2.9,-2.8,-2.7,-2.6,-2.5,-2.4,-2.3,-2.2,-2.1,-2.0,-1.9,-1.8,-1.7,-1.6,-1.5,-1.4,-1.3,-1.2,-1.1,-1.0,-0.9,-0.8,-0.7,-0.6,-0.5,-0.4,-0.3,-0.2,-0.1,0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 3.0, 3.1, 3.2}; 
 const static int n_64 = 64;
+const static double bins_16_nPi_Pi[] = {-3.2,-2.8,-2.4,-2.0,-1.6,-1.2,-0.8,-0.4,0,0.4,0.8,1.2,1.6,2.0,2.4,2.8,3.2}; 
+const static double bins_8_nPi_Pi[] = {-3.2,-2.4,-1.6,-0.8,0,0.8,1.6,2.4,3.2}; 
+const static int n_8 = 8;
 
 const static double bins_50_0_100[]  = {0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62,64,66,68,70,72,74,76,78,80,82,84,86,88,90,92,94,96,98,100}; 
 const static double bins_50_0_500[]  = {0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300,310,320,330,340,350,360,370,380,390,400,410,420,430,440,450,460,470,480,490,500}; 
@@ -241,16 +244,16 @@ class Yields{
 
 
 
-//       AddBinning("photon_ptstar",fak1p5_bins, n_fak1p5_bins+1, b_PtPhoton);
-       //AddBinning("ht",           fak1p5_bins, n_fak1p5_bins+1, b_HT);
-//       AddBinning("recoil_pt",    fak1p5_bins, n_fak1p5_bins+1, b_PtRecoil);
+       AddBinning("photon_ptstar",fak1p5_bins, n_fak1p5_bins+1, b_PtPhoton);
+       AddBinning("ht",           fak1p5_bins, n_fak1p5_bins+1, b_HT);
+       //AddBinning("recoil_pt",    fak1p5_bins, n_fak1p5_bins+1, b_PtRecoil);
 
 //       AddBinning("singleBin",    single_bin, 1, b_zero);
-       AddBinning("photon_ptstar",bins_test_ptstar, n_test_ptstar+1, b_PtPhoton);
-       AddBinning("ht",           bins_test_ht, n_test_ht+1, b_HT);
+       //AddBinning("photon_ptstar",bins_test_ptstar, n_test_ptstar+1, b_PtPhoton);
+       //AddBinning("ht",           bins_test_ht, n_test_ht+1, b_HT);
 //       AddBinning("photon_ptstar",bins_50_0_1000, n_50+1, b_PtPhoton);
 //       AddBinning("ht",           bins_50_0_1500, n_50+1, b_HT);
-       AddBinning("phi_met_em1",           bins_64_nPi_Pi, n_64+1, b_HT);
+       AddBinning("phi_met_em1",           bins_8_nPi_Pi, n_8+1, b_HT);
 
       /// ------------------------------------------------------------
       /// ------------------------------------------------------------
@@ -620,33 +623,35 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
 
 //std::cout<<"2"<<std::endl;
 
-//std::cout<<"3"<<std::endl;
-/*
+//std::cout<<"1"<<std::endl;
+
   float g_pt  = t->ThePhotonPt;
   float g_eta = t->ThePhotonEta;
   float g_phi = t->ThePhotonPhi;
+//std::cout<<"2"<<std::endl;
   float mht = Mht(g_pt,g_eta,g_phi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ );
   float mht_phi = MhtPhi(g_pt,g_eta,g_phi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ );
   ROOT::Math::PtEtaPhiEVector recoil = Recoil(t->ThePhotonPt, t->ThePhotonEta, t->ThePhotonPhi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ );
+//std::cout<<"3"<<std::endl;
   float recoil_pt =  Recoil_pt(  &recoil );
   float phi_recoil_em1 = DeltaPhi( Recoil_phi( &recoil ), t->ThePhotonPhi);
   float phi_mht_em1    = DeltaPhi(mht_phi, g_phi);
   float phi_mht_recoil = DeltaPhi(mht_phi, Recoil_phi( &recoil ));
+//std::cout<<"4"<<std::endl;
 
-  Fill("recoil_ht",   Recoil_ht(t->ThePhotonPt, t->ThePhotonEta, t->ThePhotonPhi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ ), weight, we, bin );
+  Fill("recoil_ht",   Recoil_ht(g_pt, g_eta, g_phi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ ), weight, we, bin );
   Fill("recoil_pt",   recoil_pt, weight, we, bin );
   Fill("recoil_phi",  Recoil_phi( &recoil ), weight, we, bin );
   Fill("phi_recoil_em1", phi_recoil_em1, weight, we, bin);
   Fill("phi_mht_em1",    phi_mht_em1, weight, we, bin);
   Fill("phi_mht_recoil", phi_mht_recoil, weight, we, bin);
-  Fill("met_corr",    CorectedMet(t->met,t->metPhi-kPI,t->photons_pt[t->ThePhoton], t->photons_eta[t->ThePhoton], t->photons_phi[t->ThePhoton], g_pt ,g_eta, g_phi ), weight, we, bin);
+  //Fill("met_corr",    CorectedMet(t->met,t->metPhi-kPI,t->photons_pt[t->ThePhoton], t->photons_eta[t->ThePhoton], t->photons_phi[t->ThePhoton], g_pt ,g_eta, g_phi ), weight, we, bin);
 
   Fill("mht",mht, weight, we, bin );
   Fill("mht_phi",mht_phi, weight, we, bin );
   Fill("mht_trans", CalcTransMet(mht,mht_phi,g_phi), weight, we, bin);
   Fill("mht_paral", CalcParalMet(mht,mht_phi,g_phi), weight, we, bin);
 
-*/
 
 //std::cout<<"4"<<std::endl;
 
