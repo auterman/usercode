@@ -1,11 +1,11 @@
 //////////////////////////////////////////////////////////
 // This class has been automatically generated on
-// Tue Apr 15 10:48:16 2014 by ROOT version 5.34/18
+// Tue Apr 29 17:50:38 2014 by ROOT version 5.34/18
 // from TChain photonTree/
 //////////////////////////////////////////////////////////
 
-#ifndef QCD_Photon_h
-#define QCD_Photon_h
+#ifndef Signal_Photon_h
+#define Signal_Photon_h
 
 #include <TROOT.h>
 #include <TChain.h>
@@ -14,9 +14,9 @@
 
 // Header file for the classes stored in the TTree if any.
 
-class QCD_Photon : public TSelector {
-public :
 
+class Signal_Photon : public TSelector {
+public :
 // Fixed size dimensions of array or collections stored in the TTree if any.
 int ThePhoton;
 float ThePhotonPt;
@@ -24,12 +24,11 @@ float ThePhotonPhi;
 float ThePhotonEta;
 
 const static Int_t kMaxphotons = 10;
-const static Int_t kMaxjets = 20;
-const static Int_t kMaxelectrons = 5;
-const static Int_t kMaxmuons = 5;
-const static Int_t kMaxgenPhotons = 5;
-const static Int_t kMaxgenElectrons = 5;
-
+const static Int_t kMaxjets = 30;
+const static Int_t kMaxelectrons = 25;
+const static Int_t kMaxmuons = 25;
+const static Int_t kMaxgenPhotons = 25;
+const static Int_t kMaxgenElectrons = 25;
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
 
    // Declaration of leaf types
@@ -154,8 +153,8 @@ const static Int_t kMaxgenElectrons = 5;
    TBranch        *b_eventNumber;   //!
    TBranch        *b_luminosityBlockNumber;   //!
 
-   QCD_Photon(TTree * /*tree*/ =0) : fChain(0) { }
-   virtual ~QCD_Photon() { }
+   Signal_Photon(TTree * /*tree*/ =0) : fChain(0) { }
+   virtual ~Signal_Photon() { }
    virtual Int_t   Version() const { return 2; }
    virtual void    Begin(TTree *tree);
    virtual void    SlaveBegin(TTree *tree);
@@ -170,13 +169,13 @@ const static Int_t kMaxgenElectrons = 5;
    virtual void    SlaveTerminate();
    virtual void    Terminate();
 
-   //ClassDef(QCD_Photon,0);
+   //ClassDef(Signal_Photon,0);
 };
 
 #endif
 
-#ifdef QCD_Photon_cxx
-void QCD_Photon::Init(TTree *tree)
+#ifdef Signal_Photon_cxx
+void Signal_Photon::Init(TTree *tree)
 {
    // The Init() function is called when the selector needs to initialize
    // a new tree or chain. Typically here the branch addresses and branch
@@ -224,21 +223,21 @@ void QCD_Photon::Init(TTree *tree)
    fChain->SetBranchAddress("jets.chargedMuEnergy", jets_chargedMuEnergy, &b_jets_chargedMuEnergy);
    fChain->SetBranchAddress("jets.neutralEmEnergy", jets_neutralEmEnergy, &b_jets_neutralEmEnergy);
    fChain->SetBranchAddress("electrons", &electrons_, &b_electrons_);
-   fChain->SetBranchAddress("electrons.pt", &electrons_pt, &b_electrons_pt);
-   fChain->SetBranchAddress("electrons.eta", &electrons_eta, &b_electrons_eta);
-   fChain->SetBranchAddress("electrons.phi", &electrons_phi, &b_electrons_phi);
+   fChain->SetBranchAddress("electrons.pt", electrons_pt, &b_electrons_pt);
+   fChain->SetBranchAddress("electrons.eta", electrons_eta, &b_electrons_eta);
+   fChain->SetBranchAddress("electrons.phi", electrons_phi, &b_electrons_phi);
    fChain->SetBranchAddress("muons", &muons_, &b_muons_);
-   fChain->SetBranchAddress("muons.pt", &muons_pt, &b_muons_pt);
-   fChain->SetBranchAddress("muons.eta", &muons_eta, &b_muons_eta);
-   fChain->SetBranchAddress("muons.phi", &muons_phi, &b_muons_phi);
+   fChain->SetBranchAddress("muons.pt", muons_pt, &b_muons_pt);
+   fChain->SetBranchAddress("muons.eta", muons_eta, &b_muons_eta);
+   fChain->SetBranchAddress("muons.phi", muons_phi, &b_muons_phi);
    fChain->SetBranchAddress("genPhotons", &genPhotons_, &b_genPhotons_);
    fChain->SetBranchAddress("genPhotons.pt", genPhotons_pt, &b_genPhotons_pt);
    fChain->SetBranchAddress("genPhotons.eta", genPhotons_eta, &b_genPhotons_eta);
    fChain->SetBranchAddress("genPhotons.phi", genPhotons_phi, &b_genPhotons_phi);
    fChain->SetBranchAddress("genElectrons", &genElectrons_, &b_genElectrons_);
-   fChain->SetBranchAddress("genElectrons.pt", &genElectrons_pt, &b_genElectrons_pt);
-   fChain->SetBranchAddress("genElectrons.eta", &genElectrons_eta, &b_genElectrons_eta);
-   fChain->SetBranchAddress("genElectrons.phi", &genElectrons_phi, &b_genElectrons_phi);
+   fChain->SetBranchAddress("genElectrons.pt", genElectrons_pt, &b_genElectrons_pt);
+   fChain->SetBranchAddress("genElectrons.eta", genElectrons_eta, &b_genElectrons_eta);
+   fChain->SetBranchAddress("genElectrons.phi", genElectrons_phi, &b_genElectrons_phi);
    fChain->SetBranchAddress("met", &met, &b_met);
    fChain->SetBranchAddress("metSig", &metSig, &b_metSig);
    fChain->SetBranchAddress("metPhi", &metPhi, &b_metPhi);
@@ -252,7 +251,7 @@ void QCD_Photon::Init(TTree *tree)
    fChain->SetBranchAddress("luminosityBlockNumber", &luminosityBlockNumber, &b_luminosityBlockNumber);
 }
 
-Bool_t QCD_Photon::Notify()
+Bool_t Signal_Photon::Notify()
 {
    // The Notify() function is called when a new file is opened. This
    // can be either for a new TTree in a TChain or when when a new TTree
@@ -263,4 +262,4 @@ Bool_t QCD_Photon::Notify()
    return kTRUE;
 }
 
-#endif // #ifdef QCD_Photon_cxx
+#endif // #ifdef Signal_Photon_cxx
