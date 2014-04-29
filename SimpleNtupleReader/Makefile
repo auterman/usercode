@@ -32,7 +32,7 @@ clean:
 
 cp:
 		@rm -rf -f plots/V03.16
-		scp -r "portal.physik.rwth-aachen.de:~/GIT/usercode/SimpleNtupleReader/plots/V03.06_slim" plots/.
+		scp -r "portal.physik.rwth-aachen.de:~/GIT/usercode/SimpleNtupleReader/plots/V03.16" plots/.
 
 commit:
 		git add Makefile *.h *.cc

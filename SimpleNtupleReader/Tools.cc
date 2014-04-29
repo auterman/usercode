@@ -280,8 +280,8 @@ void RatioPlot(TH1*a, TH1*b,TH1*we, const std::string& dir,  const std::string& 
   ratio((TH1F*)a->Clone(),(TH1F*)b->Clone(),(TH1F*)we->Clone(),dir,file,t,false);
 //  ratio((TH1F*)a->Clone(),(TH1F*)b->Clone(),0,dir,file,t,true);
 //  ratio((TH1F*)a->Clone(),(TH1F*)b->Clone(),0,dir,file,t,false);
-  if (file=="Closure_Combined_met") Print(a,b,we);
-  if (file=="Closure_QCD_met") Print(a,b,we);
+//  if (file=="Closure_Combined_met") Print(a,b,we);
+//  if (file=="Closure_QCD_met") Print(a,b,we);
 
 }
 
