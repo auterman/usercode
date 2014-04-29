@@ -71,7 +71,7 @@ int Reader()
   qcd_g.Book();
   v_qcd_g.push_back( &status_qcd_g );
   v_qcd_g.push_back( &tightID_qcd_g );
-  v_qcd_g.push_back( &double_qcd_g );
+//  v_qcd_g.push_back( &double_qcd_g );
   v_qcd_g.push_back( &presel_qcd_g );
   v_qcd_g.push_back( &qcd_g );
   v_qcd_g.push_back( &weights_qcd_g );
@@ -123,7 +123,7 @@ int Reader()
   qcd_j.Book();
   v_qcd_j.push_back( &status_qcd_j );
   v_qcd_j.push_back( &looseID_qcd_j );
-  v_qcd_j.push_back( &double_qcd_j );
+//  v_qcd_j.push_back( &double_qcd_j );
   v_qcd_j.push_back( &presel_qcd_j );
   v_qcd_j.push_back( &qcd_j );
   v_qcd_j.push_back( &weights_qcd_j );
@@ -180,7 +180,7 @@ int Reader()
   //double_qcd.Set( double_qcd_g.Get() );
   vc_qcd_j.push_back( &status_qcd_j );
   vc_qcd_j.push_back( &looseID_qcd );
-  vc_qcd_j.push_back( &double_qcd );
+//  vc_qcd_j.push_back( &double_qcd );
   vc_qcd_j.push_back( &cut_qcd );
   vc_qcd_j.push_back( &closure_qcd );
 //  Process<QCD_Jet>("photonJetTree",vc_qcd_j,"data/"+version+"/QCD_250_500_"+version+"_tree.root",201.935697478);

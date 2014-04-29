@@ -168,7 +168,8 @@ class Yield{
   void Add(unsigned n, double weight, double weighterror, int bin){
            for (unsigned i=0;i<n;++i){
 	     w.push_back(weight);
-	     we[bin]+=weighterror; //add syst. errors of same "bin" linearly
+	     //we[bin]+=weighterror; //add syst. errors of same "bin" linearly
+	     we[ 0 ]+=weighterror; //add syst. errors of *ALL* "bin" linearly (for x-check with Knut)
        }   }
   void AddWeight(std::vector<double> * r){w.insert(w.end(),r->begin(),r->end());}
   void AddWeightError(std::map<int,double> * r){
@@ -239,13 +240,14 @@ class Yields{
 //       AddBinning("PtEm1_Over_Ptrecoil",    bins_200_0_10, 200+1, b_Ptem1_Ptrecoil);
 
 
-       AddBinning("photon_ptstar",bins_test_ptstar, n_test_ptstar+1, b_PtPhoton);
-       AddBinning("ht",           bins_test_ht, n_test_ht+1, b_HT);
 
 //       AddBinning("photon_ptstar",fak1p5_bins, n_fak1p5_bins+1, b_PtPhoton);
        //AddBinning("ht",           fak1p5_bins, n_fak1p5_bins+1, b_HT);
 //       AddBinning("recoil_pt",    fak1p5_bins, n_fak1p5_bins+1, b_PtRecoil);
-//       AddBinning("singleBin",    single_bin, 1, b_zero);
+
+       AddBinning("singleBin",    single_bin, 1, b_zero);
+//       AddBinning("photon_ptstar",bins_test_ptstar, n_test_ptstar+1, b_PtPhoton);
+//       AddBinning("ht",           bins_test_ht, n_test_ht+1, b_HT);
 
       /// ------------------------------------------------------------
       /// ------------------------------------------------------------
@@ -270,8 +272,8 @@ class Yields{
                                             njets,jets_pt,jets_eta,jets_phi );
 	factor *= it->second->GetNBins();				    
       }      		       
-      return bin;
-      //return 0;
+      //return bin;
+      return 0;
     }
     virtual int GetNBins(){
       int n=1;
@@ -468,6 +470,7 @@ void Closure<T>::Book()
   BookHistogram("n_loose",  "loose photon multiplicity","events", "closure",bins_11_0_10, 12);
   BookHistogram("n_tight",  "tight photon multiplicity","events", "closure",bins_11_0_10, 12);
   BookHistogram("met", "MET [GeV]","events", "closure",metbins, n_metbins+1);
+  BookHistogram("met_systerr", "syst. unc. vs MET [GeV]","events", "closure",metbins, n_metbins+1);
   BookHistogram("met_trans", "transversal MET [GeV]","events", "closure",metbins, n_metbins+1);
   BookHistogram("met_paral", "parallel MET [GeV]","events", "closure",metbins, n_metbins+1);
   BookHistogram("ht",  "Ht [GeV]","events", "closure",htbins,  n_htbins+1);
@@ -547,6 +550,10 @@ void Closure<T>::Book()
     double ne = nominator_->Error( b );     //tight stat. error
     weights_.push_back( (d==0?1.0:n / d) );
     weighterrors_.push_back( (d==0?0.0: sqrt( ne*ne/(d*d) + de*de*n*n/(d*d*d*d) ) ) );
+    
+    if (d) std::cout << "QCD-rewighting bin "<<b
+              << ": weight = "<<n<<" +- "<<ne<< " / "<<d<<" +- "<<de<<" = "<<n/d<<" +- "<<sqrt( ne*ne/(d*d) + de*de*n*n/(d*d*d*d) )
+	      <<std::endl;
   }  
 }
 
@@ -579,22 +586,30 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   //int mybin = myYields_->GetBin("met",t->met);
   //myYields_->Add("met", myYields_->GetBin("met",t->met), 1, Plotter<T>::weight_ * w  );
 
-  //std::cout << "Closure<T>::Process(T*t,Long64_t i="<<i<<",Long64_t n="<<n<<",double w="<<w<<")"<<std::endl;
   double weight = weight_ * w ;
   weight *= t->weight;
+  we *= (w * t->weight);
+
+//  std::cout << "Closure<T>::Process(T*t,Long64_t i="<<i<<",Long64_t n="<<n<<",double w="<<w<<")"
+//            << "  weight = "<<weight<<", we = "<<we
+//	    <<std::endl;
 
   
   if (t->photons_>t->kMaxphotons) std::cerr<<"t->photons_="<<t->photons_<<" > t->kMaxphotons="<<t->kMaxphotons<<std::endl;
   if (t->jets_>t->kMaxjets) std::cerr<<"t->jets_="<<t->jets_<<" > t->kMaxjets="<<t->kMaxjets<<std::endl;
-  if (t->ThePhoton<0||t->ThePhoton>t->photons_) std::cerr<<"t->ThePhoton="<<t->ThePhoton<<" but t->photons_="<<t->photons_<<std::endl;
- 
+  if (t->ThePhoton<0||t->ThePhoton>t->photons_) std::cerr<<"t->ThePhoton="<<t->ThePhoton<<" but t->photons_="<<t->photons_<<std::endl; 
+
+//std::cout<<"1"<<std::endl;
   
   Fill("met",       t->met, weight, we, bin);
-  Fill("met_trans", CalcTransMet(t->met,t->metPhi-kPI,t->ThePhotonPhi), weight, we, bin);
-  Fill("met_paral", CalcParalMet(t->met,t->metPhi-kPI,t->ThePhotonPhi), weight, we, bin);
+//std::cout<<"1a"<<std::endl;
+//  Fill("met_trans", CalcTransMet(t->met,t->metPhi-kPI,t->ThePhotonPhi), weight, we, bin);
+//std::cout<<"1b"<<std::endl;
+//  Fill("met_paral", CalcParalMet(t->met,t->metPhi-kPI,t->ThePhotonPhi), weight, we, bin);
+//std::cout<<"1c"<<std::endl;
   Fill("ht",        t->ht,  weight, we, bin);
   Fill("met_const", t->met, weight, we, bin);
-  Fill("met_phi",   t->metPhi, weight, we, bin);
+//  Fill("met_phi",   t->metPhi, weight, we, bin);
   Fill("met_signif",t->metSig, weight, we, bin);
   Fill("em1_pt",    t->photons_pt[t->ThePhoton], weight, we, bin);
   Fill("em1_thePt", t->ThePhotonPt, weight, we, bin);
@@ -603,12 +618,15 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   Fill("weight",    weight, 1., we, bin );
   Fill("phi_met_em1", DeltaPhi(t->metPhi-kPI, t->ThePhotonPhi), weight, we, bin);
 
+//std::cout<<"2"<<std::endl;
+
   ROOT::Math::PtEtaPhiEVector recoil = Recoil(t->ThePhotonPt, t->ThePhotonEta, t->ThePhotonPhi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ );
   float recoil_pt =  Recoil_pt(  &recoil );
   Fill("recoil_ht",   Recoil_ht(t->ThePhotonPt, t->ThePhotonEta, t->ThePhotonPhi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ ), weight, we, bin );
   Fill("recoil_pt",   recoil_pt, weight, we, bin );
   Fill("recoil_phi",  Recoil_phi( &recoil ), weight, we, bin );
 
+//std::cout<<"3"<<std::endl;
   float g_pt  = t->ThePhotonPt;
   float g_eta = t->ThePhotonEta;
   float g_phi = t->ThePhotonPhi;
@@ -626,11 +644,15 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   Fill("phi_mht_recoil", phi_mht_recoil, weight, we, bin);
   Fill("met_corr",    CorectedMet(t->met,t->metPhi-kPI,t->photons_pt[t->ThePhoton], t->photons_eta[t->ThePhoton], t->photons_phi[t->ThePhoton], g_pt ,g_eta, g_phi ), weight, we, bin);
 
+//std::cout<<"4"<<std::endl;
+
+/*
   if (t->genPhotons_){
   Fill("PtEm1_Over_PtEm1Gen",   (t->genPhotons_pt[0]==0?1.: g_pt/t->genPhotons_pt[0]), weight, we, bin);
   Fill("DR_PtEm1_PtEm1Gen",   	deltaR(g_eta,g_phi,t->genPhotons_eta[0],t->genPhotons_phi[0]), weight, we, bin);
   }
-  
+*/
+/*  
   Fill("PtEm1_Over_Ptrecoil",   	(recoil_pt==0?1.: g_pt/recoil_pt), weight, we, bin);
   Fill("PtEm1_Over_MHT",		(mht==0?1.: g_pt/mht), weight, we, bin);
   Fill("PtEm1_Over_MET",		(t->met==0?1.: g_pt/t->met), weight, we, bin);
@@ -646,7 +668,8 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   Fill("Mht_Over_PhiMhtRecoil",		(phi_mht_recoil==0?1.: mht/phi_mht_recoil), weight, we, bin);
   Fill("PhiMhtEm1_Over_PhiMhtRecoil",	(phi_mht_recoil==0?1.: phi_mht_em1/phi_mht_recoil), weight, we, bin);
   Fill("PhiMhtEm1_Over_PhiEm1Recoil",	(phi_recoil_em1==0?1.: phi_mht_em1/phi_recoil_em1), weight, we, bin);
-
+*/
+/*
   Fill("corr_PtEm1_Over_Ptrecoil_vs_MHT",   	mht, (recoil_pt==0?1.: g_pt/recoil_pt), 0, 0);
   Fill("corr_PtEm1_Over_MHT_vs_MHT",		mht, (mht==0?1.: g_pt/recoil_pt), 0, 0);
   Fill("corr_Ptrecoil_Over_MHT_vs_MHT",		mht, (mht==0?1.: recoil_pt/mht), 0, 0);
@@ -659,6 +682,7 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   Fill("corr_PtEm1_Over_Ptrecoil_vs_em1pt",   	g_pt, (recoil_pt==0?1.: g_pt/recoil_pt), 0, 0);
   Fill("corr_PtEm1_Over_MHT_vs_em1pt",		g_pt, (mht==0?1.: g_pt/recoil_pt), 0, 0);
   Fill("corr_Ptrecoil_Over_MHT_vs_em1pt",	g_pt, (mht==0?1.: recoil_pt/mht), 0, 0);
+*/
 /*
   Fill("corr_Ptrecoil_Over_PhiMhtEm1",		mht, (phi_mht_em1==0?1.:    recoil_pt/phi_mht_em1));
   Fill("corr_Ptrecoil_Over_PhiEm1Recoil",	mht, (phi_recoil_em1==0?1.: recoil_pt/phi_recoil_em1));
@@ -672,11 +696,14 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   Fill("corr_PhiMhtEm1_Over_PhiMhtRecoil",	mht, (phi_mht_recoil==0?1.: phi_mht_em1/phi_mht_recoil));
   Fill("corr_PhiMhtEm1_Over_PhiEm1Recoil",	mht, (phi_recoil_em1==0?1.: phi_mht_em1/phi_recoil_em1));
 */
+/*
   Fill("n_jet",       JetMult(  g_pt, g_eta, g_phi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_), weight, we, bin);
   Fill("n_loose",     LooseMult(t->photons_,t->photons_pt, t->photons__ptJet, t->photons_phi, t->photons_eta,t->photons_hadTowOverEm,t->photons_sigmaIetaIeta,t->photons_chargedIso,t->photons_neutralIso,t->photons_photonIso,t->photons_pixelseed), weight, we, bin);
   Fill("n_tight",     TightMult(t->photons_,t->photons_pt, t->photons__ptJet, t->photons_phi, t->photons_eta,t->photons_hadTowOverEm,t->photons_sigmaIetaIeta,t->photons_chargedIso,t->photons_neutralIso,t->photons_photonIso,t->photons_pixelseed), weight, we, bin);
+*/
+  if (we * w * t->weight) Fill("met_systerr", t->met,  we * w * t->weight, 0, 0);
 
-  //std::cout << "Closure<T>::Process(T*t,Long64_t i="<<i<<",Long64_t n="<<n<<",double w="<<w<<") Done!"<<std::endl;
+//  std::cout << "Closure<T>::Process(T*t,Long64_t i="<<i<<",Long64_t n="<<n<<",double w="<<w<<") Done!"<<std::endl;
   
   return true;//Processor<T>::Process(t,i,n,w);
 }
