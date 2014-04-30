@@ -341,10 +341,10 @@ bool Weighter<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   float r_phi = Recoil_phi( &recoil );
   float phi_r_g = DeltaPhi( Recoil_phi( &recoil ), t->ThePhotonPhi);
 
-//  if (t->met<100.) 
+  if (t->met<100.) 
 //  if (mht<150.) 
 //    if (r_ht<500.) 
-      if (t->ht<800.) 
+//      if (t->ht<800.) 
     yields_->GetYield( 
       yields_->GetBin(
         t->met,t->metPhi,t->ht,t->metSig,
