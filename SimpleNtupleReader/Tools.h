@@ -25,6 +25,12 @@ const static int n_fak1p5_bins = 20;
 const static double metbins[] = {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 160, 200, 270, 350, 500}; 
 const static int n_metbins = 16;
 
+const static double newmetbins[] = {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 150, 200, 260, 340, 430, 550}; 
+const static int n_newmetbins = 17;
+
+const static double fibonacci[] = {0,5,10,15,25,40,65,105,170,285,455,740}; 
+const static int n_fibonacci = 11;
+
 const static double metphibins[] = {0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 3.0, 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9, 4.0, 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8, 4.9, 5.0, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.8, 5.9, 6.0, 6.1, 6.2, 6.3, 6.4}; 
 const static int n_metphibins = 64;
 
@@ -122,6 +128,7 @@ bool Plotter<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   
   if (h_) {
   h_->Fill( "met", t->met, w );
+  h_->Fill( "idxphoton", t->ThePhoton, w );
   h_->Fill( "met_const", t->met, w );
   //h_->Fill( "mht", t->mht, w );
   h_->Fill( "ht", t->ht, w );
@@ -247,6 +254,7 @@ class Yields{
        AddBinning("photon_ptstar",fak1p5_bins, n_fak1p5_bins+1, b_PtPhoton);
        //AddBinning("ht",           fak1p5_bins, n_fak1p5_bins+1, b_HT);
        AddBinning("recoil_pt",    fak1p5_bins, n_fak1p5_bins+1, b_PtRecoil);
+//       AddBinning("phi_Rec_Em1",  bins_16_nPi_Pi, 16+1, b_PhiRecoilEm1);
 
 //       AddBinning("singleBin",    single_bin, 1, b_zero);
        //AddBinning("photon_ptstar",bins_test_ptstar, n_test_ptstar+1, b_PtPhoton);
@@ -294,6 +302,7 @@ class Yields{
     double WeightError(int b){return yield[b].weighterror();}
     unsigned Unweighted(int b){return yield[b].unweighted();}
     double Error(int b){return yield[b].error();}
+    double Integral(){double res=0; for(std::map<int,Yield>::iterator it=yield.begin();it!=yield.end();++it)res+=it->second.weighted();return res;}
 
  protected: 
     std::string label_;
@@ -396,7 +405,7 @@ class MyYields
     void SetBinning(const std::string& s,const double *b,int n){y_[s]->SetBinning(b,n);}
     YieldDataClass* GetYieldsRef(const std::string& s){return y_[s];}
     std::map<std::string, YieldDataClass*> * GetRef(){return &y_;}
-    TH1 *  GetWeightErrorPlot(const std::string& s);
+    TH1 *  GetWeightErrorPlot(const std::string& s, TH1*h=0);
     TH1 *  GetPlot(       const std::string& s);
     int    GetNBins(      const std::string& s)          {return y_[s]->GetNBins();}
     int    GetBin(        const std::string& s, double v){return y_[s]->GetBin(v);}
@@ -407,18 +416,21 @@ class MyYields
     double Error(         const std::string& s, int b)   {return y_[s]->Error(b);}
     void   SetCorrelation(const std::string& s, bool corr){y_[s]->SetCorrelation(corr);}
     bool   GetCorrelation(const std::string& s)          {return y_[s]->GetCorrelation();}
+    std::string Name(){return label_;}
+    int FillColor(int c=-1){ return fillcolor_=(c>=0?c:fillcolor_);}
+    int LineColor(int c=-1){ return linecolor_=(c>=0?c:linecolor_);}
       
   protected:
     std::string label_; 
     std::map<std::string, YieldDataClass*> y_;
-  
+    int fillcolor_, linecolor_;
 };
 
 ///Class for the closure
 template<typename T>
 class Closure : public Processor<T> {
   public:
-    Closure(std::string d,std::string n):Processor<T>(n),dir_(d),denominator_(0),nominator_(0){    }
+    Closure(std::string d,std::string n,std::string titel=""):Processor<T>(n),dir_(d),titel_(titel),denominator_(0),nominator_(0),weighterror_(0){    }
     virtual void Init();
     virtual bool Process(T*t,Long64_t i,Long64_t n,double);
     virtual void Write();
@@ -431,21 +443,35 @@ class Closure : public Processor<T> {
     
     void SetDenominator(Yields*y){ denominator_=y;}
     void SetNominator(Yields*y){   nominator_=y;}
+    void AddDirectYields(std::map<std::string,MyYields*> *y){   
+      if (!direct_.size()) direct_= *y;
+      else if (y) for (std::map<std::string,MyYields*>::iterator it=y->begin();it!=y->end();++it)
+          direct_[it->first]->AddRef( it->second->GetRef() );
+    }
     void AddSignalYields(std::map<std::string,MyYields*> *y){   
-      if (!sig_.size()) sig_= *y;
-      else if (y) 
         for (std::map<std::string,MyYields*>::iterator it=y->begin();it!=y->end();++it)
-          sig_[it->first]->AddRef( it->second->GetRef() );
+          signal_[it->first].push_back( it->second );
+    }
+    void AddOtherYields(std::map<std::string,MyYields*> *y){   
+        for (std::map<std::string,MyYields*>::iterator it=y->begin();it!=y->end();++it)
+          other_[it->first].push_back( it->second );
     }
     std::map<std::string,MyYields*> * GetYields(){  return &yields_;}
+    void FillColor(int c){for(std::map<std::string,MyYields*>::iterator it=yields_.begin();it!=yields_.end();++it)it->second->FillColor(c);}
+    void LineColor(int c){for(std::map<std::string,MyYields*>::iterator it=yields_.begin();it!=yields_.end();++it)it->second->LineColor(c);}
+    void SetLegTitel(std::string titel){legtitel_=titel;};
+  
+  protected:
+    double weighterror_;
 
   private:
-    std::string dir_;
+    std::string dir_, titel_, legtitel_;
     Yields * denominator_, //Nenner: MET<100, loose isolated 
 	   * nominator_;   //Zähler: MET<100, tight isolated
     std::vector<double> weights_,weighterrors_; //lookuptable for weights to speed up process
     
-    std::map<std::string,MyYields*> yields_, sig_;
+    std::map<std::string,MyYields*> yields_, direct_;
+    std::map<std::string,std::vector<MyYields*> > signal_, other_;
     double weight_;
     
     void BookHistogram(const std::string& s, const std::string& x, const std::string& y, const std::string title, const double * bins, int nbins){
@@ -472,94 +498,98 @@ void Closure<T>::Book()
 
 //std::cout << "void Closure<T>::Book()" << std::endl;
 
-  BookHistogram("n_jet", "jet multiplicity","events", "closure",bins_11_0_10, 12);
-  BookHistogram("n_loose",  "loose photon multiplicity","events", "closure",bins_11_0_10, 12);
-  BookHistogram("n_tight",  "tight photon multiplicity","events", "closure",bins_11_0_10, 12);
-  BookHistogram("met", "MET [GeV]","events", "closure",metbins, n_metbins+1);
-  BookHistogram("met_systerr", "syst. unc. vs MET [GeV]","events", "closure",metbins, n_metbins+1);
-  BookHistogram("met_trans", "transversal MET [GeV]","events", "closure",metbins, n_metbins+1);
-  BookHistogram("met_paral", "parallel MET [GeV]","events", "closure",metbins, n_metbins+1);
-  BookHistogram("ht",  "Ht [GeV]","events", "closure",htbins,  n_htbins+1);
-  BookHistogram("met_const",  "MET [GeV]","events", "closure", bins_50_0_1000, n_50+1);
-  BookHistogram("met_corr",  "corrected MET [GeV]","events", "closure", bins_50_0_1000, n_50+1);
-  BookHistogram("met_phi",  "#phi_{MET}","events", "closure", metphibins, n_metphibins+1);
-  BookHistogram("met_signif",  "MET Significance","events", "closure", bins_50_0_100, n_50+1);
-  BookHistogram("mht",  "MHT [GeV]","events", "closure", bins_50_0_1000, n_50+1);
-  BookHistogram("mht_trans",  "Transverse MHT [GeV]","events", "closure", bins_50_0_1000, n_50+1);
-  BookHistogram("mht_paral",  "Parallel MHT [GeV]","events", "closure", bins_50_0_1000, n_50+1);
-  BookHistogram("mht_phi",  "#phi_{MHT}","events", "closure", metphibins, n_metphibins+1);
-  BookHistogram("em1_pt",  "Photon p_{T} [GeV]","events", "closure", bins_50_0_1000, n_50+1);
-  BookHistogram("em1_thePt",  "Photon p_{T}^{*} [GeV]","events", "closure", bins_50_0_1000, n_50+1);
-  BookHistogram("em1_ptstar",  "Photon p_{T}^{*} [GeV]","events", "closure", bins_50_0_1000, n_50+1);
-  BookHistogram("em1_phi",  "#Phi Photon","events", "closure", bins_64_nPi_Pi, n_64+1);
-  BookHistogram("weight",  "weight","events", "closure", weightbins, n_weightbins+1 );
-  BookHistogram("phi_met_em1",  "#phi(MET, Photon)","events", "closure", bins_64_nPi_Pi, n_64+1);
-  BookHistogram("phi_mht_em1",  "#phi(MHT, Photon)","events", "closure", bins_64_nPi_Pi, n_64+1);
-  BookHistogram("phi_mht_recoil",  "#phi(MHT, Recoil)","events", "closure", bins_64_nPi_Pi, n_64+1);
-  BookHistogram("phi_recoil_em1",  "#phi(Recoil, Photon)","events", "closure", bins_64_nPi_Pi, n_64+1);
-  BookHistogram("recoil_ht",  "Recoil HT [GeV]","events", "closure",bins_50_0_1500, n_50+1);
-  BookHistogram("recoil_pt",  "Recoil p_{T} [GeV]","events", "closure",bins_50_0_1500, n_50+1);
-  BookHistogram("recoil_phi",  "#phi Recoil","events", "closure",bins_64_nPi_Pi, n_64+1);
+  BookHistogram("n_jet", "jet multiplicity","events", titel_,bins_11_0_10, 12);
+  BookHistogram("n_loose",  "loose photon multiplicity","events", titel_,bins_11_0_10, 12);
+  BookHistogram("n_tight",  "tight photon multiplicity","events", titel_,bins_11_0_10, 12);
+  BookHistogram("met", "MET [GeV]","events", titel_,metbins, n_metbins+1);
+  BookHistogram("met_new", "MET [GeV]","events", titel_,newmetbins, n_newmetbins+1);
+  BookHistogram("met_fibo", "MET [GeV]","events", titel_,fibonacci, n_fibonacci+1);
+  BookHistogram("met_systerr", "syst. unc. vs MET [GeV]","events", titel_,metbins, n_metbins+1);
+  BookHistogram("met_trans", "transversal MET [GeV]","events", titel_,metbins, n_metbins+1);
+  BookHistogram("met_paral", "parallel MET [GeV]","events", titel_,metbins, n_metbins+1);
+  BookHistogram("ht",  "Ht [GeV]","events", titel_,htbins,  n_htbins+1);
+  BookHistogram("met_const",  "MET [GeV]","events", titel_, bins_50_0_1000, n_50+1);
+  BookHistogram("met_corr",  "corrected MET [GeV]","events", titel_, bins_50_0_1000, n_50+1);
+  BookHistogram("met_phi",  "#phi_{MET}","events", titel_, metphibins, n_metphibins+1);
+  BookHistogram("met_signif",  "MET Significance","events", titel_, bins_50_0_100, n_50+1);
+  BookHistogram("mht",  "MHT [GeV]","events", titel_, bins_50_0_1000, n_50+1);
+  BookHistogram("mht_trans",  "Transverse MHT [GeV]","events", titel_, bins_50_0_1000, n_50+1);
+  BookHistogram("mht_paral",  "Parallel MHT [GeV]","events", titel_, bins_50_0_1000, n_50+1);
+  BookHistogram("mht_phi",  "#phi_{MHT}","events", titel_, metphibins, n_metphibins+1);
+  BookHistogram("em1_pt",  "Photon p_{T} [GeV]","events", titel_, bins_50_0_1000, n_50+1);
+  BookHistogram("em1_thePt",  "Photon p_{T}^{*} [GeV]","events", titel_, bins_50_0_1000, n_50+1);
+  BookHistogram("em1_ptstar",  "Photon p_{T}^{*} [GeV]","events", titel_, bins_50_0_1000, n_50+1);
+  BookHistogram("em1_phi",  "#Phi Photon","events", titel_, bins_64_nPi_Pi, n_64+1);
+  BookHistogram("weight",  "weight","events", titel_, weightbins, n_weightbins+1 );
+  BookHistogram("phi_met_em1",  "#phi(MET, Photon)","events", titel_, bins_64_nPi_Pi, n_64+1);
+  BookHistogram("phi_mht_em1",  "#phi(MHT, Photon)","events", titel_, bins_64_nPi_Pi, n_64+1);
+  BookHistogram("phi_mht_recoil",  "#phi(MHT, Recoil)","events", titel_, bins_64_nPi_Pi, n_64+1);
+  BookHistogram("phi_recoil_em1",  "#phi(Recoil, Photon)","events", titel_, bins_64_nPi_Pi, n_64+1);
+  BookHistogram("recoil_ht",  "Recoil HT [GeV]","events", titel_,bins_50_0_1500, n_50+1);
+  BookHistogram("recoil_pt",  "Recoil p_{T} [GeV]","events", titel_,bins_50_0_1500, n_50+1);
+  BookHistogram("recoil_phi",  "#phi Recoil","events", titel_,bins_64_nPi_Pi, n_64+1);
 
-  BookHistogram("PtEm1_Over_Ptrecoil",  "p_{T} Photon / p_{T} Recoil","events", "closure",bins_50_0_5, n_50+1);
-  BookHistogram("PtEm1_Over_MHT",  "p_{T} Photon / MHT","events", "closure",bins_50_0_5, n_50+1);
-  BookHistogram("PtEm1_Over_MET",  "p_{T} Photon / MET","events", "closure",bins_50_0_5, n_50+1);
-  BookHistogram("Ptrecoil_Over_MHT",  "p_{T} Recoil / MHT","events", "closure",bins_50_0_5, n_50+1);
-  BookHistogram("Ptrecoil_Over_PhiMhtEm1",  "p_{T} Recoil / #phi(MHT,photon)","events", "closure",bins_50_0_500, n_50+1);
-  BookHistogram("Ptrecoil_Over_PhiEm1Recoil",  "p_{T} Recoil / #phi(photon,recoil)","events", "closure",bins_50_0_500, n_50+1);
-  BookHistogram("Ptrecoil_Over_PhiMhtRecoil",  "p_{T} Recoil / #phi(MHT,recoil)","events", "closure",bins_50_0_500, n_50+1);
-  BookHistogram("PtEm1_Over_PhiMhtEm1",     "PtEm1_Over_PhiMhtEm1","events", "closure",bins_50_0_100, n_50+1);
-  BookHistogram("PtEm1_Over_PhiEm1Recoil",  "PtEm1_Over_PhiEm1Recoil","events", "closure",bins_50_0_100, n_50+1);
-  BookHistogram("PtEm1_Over_PhiMhtRecoil",  "PtEm1_Over_PhiMhtRecoil","events", "closure",bins_50_0_100, n_50+1);
-  BookHistogram("Mht_Over_PhiMhtEm1",       "Mht_Over_PhiMhtEm1","events", "closure",bins_50_0_100, n_50+1);
-  BookHistogram("Mht_Over_PhiEm1Recoil",    "Mht_Over_PhiEm1Recoil","events", "closure",bins_50_0_100, n_50+1);
-  BookHistogram("Mht_Over_PhiMhtRecoil",    "Mht_Over_PhiMhtRecoil","events", "closure",bins_50_0_100, n_50+1);
-  BookHistogram("PhiMhtEm1_Over_PhiMhtRecoil",  "PhiMhtEm1_Over_PhiMhtRecoil","events", "closure",bins_50_0_5, n_50+1);
-  BookHistogram("PhiMhtEm1_Over_PhiEm1Recoil",  "PhiMhtEm1_Over_PhiEm1Recoil","events", "closure",bins_50_0_5, n_50+1);
+  BookHistogram("PtEm1_Over_Ptrecoil",  "p_{T} Photon / p_{T} Recoil","events", titel_,bins_50_0_5, n_50+1);
+  BookHistogram("PtEm1_Over_MHT",  "p_{T} Photon / MHT","events", titel_,bins_50_0_5, n_50+1);
+  BookHistogram("PtEm1_Over_MET",  "p_{T} Photon / MET","events", titel_,bins_50_0_5, n_50+1);
+  BookHistogram("Ptrecoil_Over_MHT",  "p_{T} Recoil / MHT","events", titel_,bins_50_0_5, n_50+1);
+  BookHistogram("Ptrecoil_Over_PhiMhtEm1",  "p_{T} Recoil / #phi(MHT,photon)","events", titel_,bins_50_0_500, n_50+1);
+  BookHistogram("Ptrecoil_Over_PhiEm1Recoil",  "p_{T} Recoil / #phi(photon,recoil)","events", titel_,bins_50_0_500, n_50+1);
+  BookHistogram("Ptrecoil_Over_PhiMhtRecoil",  "p_{T} Recoil / #phi(MHT,recoil)","events", titel_,bins_50_0_500, n_50+1);
+  BookHistogram("PtEm1_Over_PhiMhtEm1",     "PtEm1_Over_PhiMhtEm1","events", titel_,bins_50_0_100, n_50+1);
+  BookHistogram("PtEm1_Over_PhiEm1Recoil",  "PtEm1_Over_PhiEm1Recoil","events", titel_,bins_50_0_100, n_50+1);
+  BookHistogram("PtEm1_Over_PhiMhtRecoil",  "PtEm1_Over_PhiMhtRecoil","events", titel_,bins_50_0_100, n_50+1);
+  BookHistogram("Mht_Over_PhiMhtEm1",       "Mht_Over_PhiMhtEm1","events", titel_,bins_50_0_100, n_50+1);
+  BookHistogram("Mht_Over_PhiEm1Recoil",    "Mht_Over_PhiEm1Recoil","events", titel_,bins_50_0_100, n_50+1);
+  BookHistogram("Mht_Over_PhiMhtRecoil",    "Mht_Over_PhiMhtRecoil","events", titel_,bins_50_0_100, n_50+1);
+  BookHistogram("PhiMhtEm1_Over_PhiMhtRecoil",  "PhiMhtEm1_Over_PhiMhtRecoil","events", titel_,bins_50_0_5, n_50+1);
+  BookHistogram("PhiMhtEm1_Over_PhiEm1Recoil",  "PhiMhtEm1_Over_PhiEm1Recoil","events", titel_,bins_50_0_5, n_50+1);
 
-  BookHistogram("PtEm1_Over_PtEm1Gen", "p_{T} Photon / p_{T} Generator-Photon","events", "closure",bins_50_0_5, n_50+1);
-  BookHistogram("DR_PtEm1_PtEm1Gen",   "#Delta R(#gamma, #gamma_{GEN})","events", "closure",bins_50_0_5, n_50+1);
+  BookHistogram("PtEm1_Over_PtEm1Gen", "p_{T} Photon / p_{T} Generator-Photon","events", titel_,bins_50_0_5, n_50+1);
+  BookHistogram("DR_PtEm1_PtEm1Gen",   "#Delta R(#gamma, #gamma_{GEN})","events", titel_,bins_50_0_5, n_50+1);
   
-  BookCorrHistogram("corr_PtEm1_Over_Ptrecoil_vs_MHT", "MHT [GeV]", "EM1 Pt / Recoil Pt", "closure",bins_50_0_1000, n_50+1);
-  BookCorrHistogram("corr_PtEm1_Over_MHT_vs_MHT",      "MHT [GeV]", "EM1 Pt / MHT", "closure",bins_50_0_1000, n_50+1);
-  BookCorrHistogram("corr_Ptrecoil_Over_MHT_vs_MHT",   "MHT [GeV]", "Recoil Pt / MHT", "closure",bins_50_0_1000, n_50+1);
-  BookCorrHistogram("corr_PtEm1_Over_Ptrecoil_vs_MET", "MET [GeV]", "EM1 Pt / Recoil Pt", "closure",bins_50_0_1000, n_50+1);
-  BookCorrHistogram("corr_PtEm1_Over_MHT_vs_MET",      "MET [GeV]", "EM1 Pt / MHT", "closure",bins_50_0_1000, n_50+1);
-  BookCorrHistogram("corr_Ptrecoil_Over_MHT_vs_MET",   "MET [GeV]", "Recoil Pt / MHT", "closure",bins_50_0_1000, n_50+1);
-  BookCorrHistogram("corr_PtEm1_Over_Ptrecoil_vs_recoil", "Recoil Pt [GeV]", "EM1 Pt / Recoil Pt", "closure",bins_50_0_1500, n_50+1);
-  BookCorrHistogram("corr_PtEm1_Over_MHT_vs_recoil",      "Recoil Pt [GeV]", "EM1 Pt / MHT", "closure",bins_50_0_1500, n_50+1);
-  BookCorrHistogram("corr_Ptrecoil_Over_MHT_vs_recoil",   "Recoil Pt [GeV]", "Recoil Pt / MHT", "closure",bins_50_0_1500, n_50+1);
-  BookCorrHistogram("corr_PtEm1_Over_Ptrecoil_vs_em1pt", "EM1 Pt [GeV]", "EM1 Pt / Recoil Pt", "closure",bins_50_0_1000, n_50+1);
-  BookCorrHistogram("corr_PtEm1_Over_MHT_vs_em1pt",      "EM1 Pt [GeV]", "EM1 Pt / MHT", "closure",bins_50_0_1000, n_50+1);
-  BookCorrHistogram("corr_Ptrecoil_Over_MHT_vs_em1pt",   "EM1 Pt [GeV]", "Recoil Pt / MHT", "closure",bins_50_0_1000, n_50+1);
+  BookCorrHistogram("corr_PtEm1_Over_Ptrecoil_vs_MHT", "MHT [GeV]", "EM1 Pt / Recoil Pt", titel_,bins_50_0_1000, n_50+1);
+  BookCorrHistogram("corr_PtEm1_Over_MHT_vs_MHT",      "MHT [GeV]", "EM1 Pt / MHT", titel_,bins_50_0_1000, n_50+1);
+  BookCorrHistogram("corr_Ptrecoil_Over_MHT_vs_MHT",   "MHT [GeV]", "Recoil Pt / MHT", titel_,bins_50_0_1000, n_50+1);
+  BookCorrHistogram("corr_PtEm1_Over_Ptrecoil_vs_MET", "MET [GeV]", "EM1 Pt / Recoil Pt", titel_,bins_50_0_1000, n_50+1);
+  BookCorrHistogram("corr_PtEm1_Over_MHT_vs_MET",      "MET [GeV]", "EM1 Pt / MHT", titel_,bins_50_0_1000, n_50+1);
+  BookCorrHistogram("corr_Ptrecoil_Over_MHT_vs_MET",   "MET [GeV]", "Recoil Pt / MHT", titel_,bins_50_0_1000, n_50+1);
+  BookCorrHistogram("corr_PtEm1_Over_Ptrecoil_vs_recoil", "Recoil Pt [GeV]", "EM1 Pt / Recoil Pt", titel_,bins_50_0_1500, n_50+1);
+  BookCorrHistogram("corr_PtEm1_Over_MHT_vs_recoil",      "Recoil Pt [GeV]", "EM1 Pt / MHT", titel_,bins_50_0_1500, n_50+1);
+  BookCorrHistogram("corr_Ptrecoil_Over_MHT_vs_recoil",   "Recoil Pt [GeV]", "Recoil Pt / MHT", titel_,bins_50_0_1500, n_50+1);
+  BookCorrHistogram("corr_PtEm1_Over_Ptrecoil_vs_em1pt", "EM1 Pt [GeV]", "EM1 Pt / Recoil Pt", titel_,bins_50_0_1000, n_50+1);
+  BookCorrHistogram("corr_PtEm1_Over_MHT_vs_em1pt",      "EM1 Pt [GeV]", "EM1 Pt / MHT", titel_,bins_50_0_1000, n_50+1);
+  BookCorrHistogram("corr_Ptrecoil_Over_MHT_vs_em1pt",   "EM1 Pt [GeV]", "Recoil Pt / MHT", titel_,bins_50_0_1000, n_50+1);
 
 /*
-  BookCorrHistogram("corr_Ptrecoil_Over_PhiMhtEm1", "MHT [GeV]", "closure",bins_50_0_1000, n_50+1);
-  BookCorrHistogram("corr_Ptrecoil_Over_PhiEm1Recoil", "MHT [GeV]", "closure",bins_50_0_1000, n_50+1);
-  BookCorrHistogram("corr_Ptrecoil_Over_PhiMhtRecoil", "MHT [GeV]", "closure",bins_50_0_1000, n_50+1);
-  BookCorrHistogram("corr_PtEm1_Over_PhiMhtEm1", "MHT [GeV]", "closure",bins_50_0_1000, n_50+1);
-  BookCorrHistogram("corr_PtEm1_Over_PhiEm1Recoil", "MHT [GeV]", "closure",bins_50_0_1000, n_50+1);
-  BookCorrHistogram("corr_PtEm1_Over_PhiMhtRecoil", "MHT [GeV]", "closure",bins_50_0_1000, n_50+1);
-  BookCorrHistogram("corr_Mht_Over_PhiMhtEm1", "MHT [GeV]", "closure",bins_50_0_1000, n_50+1);
-  BookCorrHistogram("corr_Mht_Over_PhiEm1Recoil", "MHT [GeV]", "closure",bins_50_0_1000, n_50+1);
-  BookCorrHistogram("corr_Mht_Over_PhiMhtRecoil", "MHT [GeV]", "closure",bins_50_0_1000, n_50+1);
-  BookCorrHistogram("corr_PhiMhtEm1_Over_PhiMhtRecoil", "MHT [GeV]", "closure",bins_50_0_1000, n_50+1);
-  BookCorrHistogram("corr_PhiMhtEm1_Over_PhiEm1Recoil", "MHT [GeV]", "closure",bins_50_0_1000, n_50+1);
+  BookCorrHistogram("corr_Ptrecoil_Over_PhiMhtEm1", "MHT [GeV]", titel_,bins_50_0_1000, n_50+1);
+  BookCorrHistogram("corr_Ptrecoil_Over_PhiEm1Recoil", "MHT [GeV]", titel_,bins_50_0_1000, n_50+1);
+  BookCorrHistogram("corr_Ptrecoil_Over_PhiMhtRecoil", "MHT [GeV]", titel_,bins_50_0_1000, n_50+1);
+  BookCorrHistogram("corr_PtEm1_Over_PhiMhtEm1", "MHT [GeV]", titel_,bins_50_0_1000, n_50+1);
+  BookCorrHistogram("corr_PtEm1_Over_PhiEm1Recoil", "MHT [GeV]", titel_,bins_50_0_1000, n_50+1);
+  BookCorrHistogram("corr_PtEm1_Over_PhiMhtRecoil", "MHT [GeV]", titel_,bins_50_0_1000, n_50+1);
+  BookCorrHistogram("corr_Mht_Over_PhiMhtEm1", "MHT [GeV]", titel_,bins_50_0_1000, n_50+1);
+  BookCorrHistogram("corr_Mht_Over_PhiEm1Recoil", "MHT [GeV]", titel_,bins_50_0_1000, n_50+1);
+  BookCorrHistogram("corr_Mht_Over_PhiMhtRecoil", "MHT [GeV]", titel_,bins_50_0_1000, n_50+1);
+  BookCorrHistogram("corr_PhiMhtEm1_Over_PhiMhtRecoil", "MHT [GeV]", titel_,bins_50_0_1000, n_50+1);
+  BookCorrHistogram("corr_PhiMhtEm1_Over_PhiEm1Recoil", "MHT [GeV]", titel_,bins_50_0_1000, n_50+1);
 */ 
 
   ///To save time, pre-calculate the weights once:
   if (!denominator_ || !nominator_) return;
   for (int b=0; b<nominator_->GetNBins(); ++b) {
+    double d_int = denominator_->Integral( ); 
+    double n_int = nominator_->Integral( ); 
     double d = denominator_->Weighted( b ); //loose
     double de = denominator_->Error( b );   //loose stat. error
     double n = nominator_->Weighted( b );   //tight
     double ne = nominator_->Error( b );     //tight stat. error
-    weights_.push_back( (d==0?1.0:n / d) );
-    weighterrors_.push_back( (d==0?1.0: sqrt( ne*ne/(d*d) + de*de*n*n/(d*d*d*d) ) ) );
+    weights_.push_back( (d==0?n_int/d_int :n / d) );
+    weighterrors_.push_back( (d==0?0.0: sqrt( ne*ne/(d*d) + de*de*n*n/(d*d*d*d) ) ) );
     
-    if (d) std::cout << "QCD-rewighting bin "<<b
-              << ": weight = "<<n<<" +- "<<ne<< " / "<<d<<" +- "<<de<<" = "<<n/d<<" +- "<<sqrt( ne*ne/(d*d) + de*de*n*n/(d*d*d*d) )
-	      <<std::endl;
+    //if (d) std::cout << "QCD-rewighting bin "<<b
+    //          << ": weight = "<<n<<" +- "<<ne<< " / "<<d<<" +- "<<de<<" = "<<n/d<<" +- "<<sqrt( ne*ne/(d*d) + de*de*n*n/(d*d*d*d) )
+    //	      <<std::endl;
   }  
 }
 
@@ -574,7 +604,7 @@ template<typename T>
 bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
 {
 
-  double we = 0;
+  double we = weighterror_;
   int bin = 0;
   if (denominator_ && nominator_){
     bin = nominator_->GetBin(       
@@ -593,8 +623,8 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   //myYields_->Add("met", myYields_->GetBin("met",t->met), 1, Plotter<T>::weight_ * w  );
 
   double weight = weight_ * w ;
-  weight *= t->weight;
-  we *= (w * t->weight);
+  //weight *= t->weight;
+  we *= w;//(w * t->weight);
 
 //  std::cout << "Closure<T>::Process(T*t,Long64_t i="<<i<<",Long64_t n="<<n<<",double w="<<w<<")"
 //            << "  weight = "<<weight<<", we = "<<we
@@ -608,8 +638,10 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
 //std::cout<<"1"<<std::endl;
   
   Fill("met",       t->met, weight, we, bin);
-  Fill("ht",        t->ht,  weight, we, bin);
+  Fill("met_new",   t->met, weight, we, bin);
+  Fill("met_fibo",   t->met, weight, we, bin);
   Fill("met_const", t->met, weight, we, bin);
+  Fill("ht",        t->ht,  weight, we, bin);
   Fill("met_signif",t->metSig, weight, we, bin);
   Fill("em1_pt",    t->photons_pt[t->ThePhoton], weight, we, bin);
   Fill("em1_thePt", t->ThePhotonPt, weight, we, bin);
@@ -718,7 +750,8 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
 }
 
 
-void RatioPlot(TH1*a, TH1*b, TH1*c, const std::string& dir, const std::string& file, const std::string& t);
+void RatioPlot(TH1*a, TH1*b, TH1*c, std::vector<TH1*> *sig, std::vector<TH1*> *other, const std::string& dir, const std::string& file, const std::string& t);
+void Add2(TH1*h1, TH1*h2);
 
 template<typename T>
 void Closure<T>::Write()
@@ -726,12 +759,39 @@ void Closure<T>::Write()
   for (std::map<std::string,MyYields*>::iterator it=yields_.begin();it!=yields_.end();++it) {
     TH1 * pred = it->second->GetPlot(it->first);
     TH1 * we   = it->second->GetWeightErrorPlot(it->first);
-    pred->SetTitle("Prediction");
-    TH1 * sighist = 0;
-    if (sig_[it->first]) {
-      sighist = sig_[it->first]->GetPlot( it->first );  
-      sighist->SetTitle("Direct simulation");    
-      RatioPlot(sighist, pred, we, dir_, Closure<T>::name_+"_"+it->first, Processor<T>::name_);
+    //if (we) RatioPlot(0, we, 0, 0, 0, dir_, Closure<T>::name_+"_"+it->first+"_QCD_error", legtitel_);
+    pred->SetTitle( it->second->Name().c_str() );
+    TH1 * direct = 0;
+    std::vector<TH1*> signal, other;
+    if (direct_[it->first]) {
+      direct = direct_[it->first]->GetPlot( it->first );  
+      direct->SetTitle( direct_[it->first]->Name().c_str() );  
+      if (signal_[it->first].size()) {
+        for (std::vector<MyYields*>::iterator s=signal_[it->first].begin(); s!=signal_[it->first].end(); ++s){
+	  if (! *s) continue;
+	  TH1 * sig = (*s)->GetPlot( it->first );
+	  if (!sig) continue;
+	  sig->SetLineColor( (*s)->LineColor() );
+	  sig->SetLineWidth( 3 );
+          sig->SetTitle( (*s)->Name().c_str() ); 
+          signal.push_back( sig );  
+	}
+      }  
+      if (other_[it->first].size()) {
+        for (std::vector<MyYields*>::iterator s=other_[it->first].begin(); s!=other_[it->first].end(); ++s){
+	  TH1* oth = (*s)->GetPlot( it->first );
+	  if (!oth) continue;
+	  TH1 * oe = (*s)->GetWeightErrorPlot( it->first );
+          //RatioPlot(0, oe, 0, 0, 0, dir_, Closure<T>::name_+"_"+it->first+"_"+(*s)->Name().c_str()+"_error", legtitel_);
+	  Add2( we, oe );
+	  oth->SetLineColor( (*s)->FillColor()  );
+	  oth->SetFillColor( (*s)->FillColor()  );
+          oth->SetTitle( (*s)->Name().c_str() ); 
+	  other.push_back( oth);  
+	}   
+      }  
+      //if (we) RatioPlot(0, we, 0, 0, 0, dir_, Closure<T>::name_+"_"+it->first+"_Combined_error", legtitel_);
+      RatioPlot(direct, pred, we, &signal, &other, dir_, Closure<T>::name_+"_"+it->first, legtitel_);
     }  
   }
 
@@ -873,6 +933,34 @@ void Closure<T>::Write()
 
 
 
+
+
+
+
+///Class for the closure
+template<typename T>
+class EWK_prediction : public Closure<T> {
+  public:
+    EWK_prediction(std::string d,std::string n,std::string titel=""):Closure<T>(d,n,titel){    }
+    virtual bool Process(T*t,Long64_t i,Long64_t n,double w){
+      double weight = w * (1. - 0.993 * (1. - std::pow(t->photons_pt[0] / 2.9 + 1.,-2.4))* 
+                                        (1. - 0.23 * std::exp(-0.2777 * t->nTracksPV))* 
+					(1. - 5.66e-4 * t->nVertex) );
+      Closure<T>::weighterror_ = 0.11;				
+      return Closure<T>::Process(t,i,n,weight);
+    }
+};
+
+template<typename T>
+class ISR_prediction : public Closure<T> {
+  public:
+    ISR_prediction(std::string d,std::string n,std::string titel=""):Closure<T>(d,n,titel){    }
+    virtual bool Process(T*t,Long64_t i,Long64_t n,double w){
+      Closure<T>::weighterror_ = 0.5; //50% uncertainty on the x-section				
+      return Closure<T>::Process(t,i,n,w);
+    }
+};
+
 ////Cutter 
 template<typename T>
 class Cutter : public Processor<T> {
@@ -927,6 +1015,8 @@ class Cutter_looseID : public Cutter<T> {
       t->metPhi=0;
       t->metSig=0; 
 */
+      t->metPhi=0;
+      t->metSig=0; 
 
       double found_pt = 0;
       for (int i=0; i<t->photons_;++i) {
@@ -983,6 +1073,8 @@ class Cutter_tightID : public Cutter<T> {
       t->metPhi=0;
       t->metSig=0; 
 */
+      t->metPhi=0;
+      t->metSig=0; 
 
       double found_pt = 0;
       for (int i=0; i<t->photons_;++i) {
@@ -1013,6 +1105,37 @@ class Cutter_tightID : public Cutter<T> {
           !LeptonVeto(t->electrons_, t->electrons_pt, t->electrons_eta,t->muons_, t->muons_pt, t->muons_eta)
          ) 
 	 return false;
+
+      //Debugging for Knut:
+      //if (t->ThePhoton!=0)
+      //  std::cout << "evt nr:" << t->eventNumber << ", rn: " <<t->runNumber<<", lbnr: "<< t->luminosityBlockNumber <<std::endl;
+
+
+      ++Cutter<T>::i_pass;
+      Cutter<T>::d_pass += w;
+      return true;
+    }
+};
+
+
+
+////Cutter 
+template<typename T>
+class Cutter_electronID : public Cutter<T> {
+  public:
+    Cutter_electronID(std::string n):Cutter<T>(n){}
+    //virtual void Init(){};
+    virtual bool Process(T*t,Long64_t i,Long64_t n,double w) {
+      ++Cutter<T>::i_tot;
+      Cutter<T>::d_tot += w;
+
+      //Nothing to do here: Knut says first entry of photon array (of photonElectronTree) is a good electron with tight ID except picexl seed veto
+      if (t->photons_<=0) return false;
+
+      t->ThePhotonPt  = t->photons_pt[0];
+      t->ThePhotonPhi = t->photons_phi[0]; 
+      t->ThePhotonEta = t->photons_eta[0];
+      t->ThePhoton = 0;
 
       ++Cutter<T>::i_pass;
       Cutter<T>::d_pass += w;

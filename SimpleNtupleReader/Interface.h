@@ -16,6 +16,11 @@
 #include "QCD_Jet.h"
 #include "Data_Photon.h"
 #include "Data_Jet.h"
+#include "Signal_Photon.h"
+#include "Signal_Jet.h"
+#include "ISR_Photon.h"
+#include "ISR_Jet.h"
+#include "Data_Electron.h"
 
 
 const static Double_t kPI	 = TMath::Pi();
@@ -108,6 +113,7 @@ class Processor {
     return result;
   }
   virtual void Terminate(){}
+  std::string Name(){return name_;}
  
  protected:
   std::string name_; 

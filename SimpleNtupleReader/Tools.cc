@@ -3,11 +3,14 @@
 #include "TPad.h"
 #include "TLine.h"
 #include "TLegend.h"
+#include "THStack.h"
+#include "TStyle.h"
 
 
 
 void Histograms::Book()
 {
+  h_["idxphoton"]  = new TH1F(((std::string)"h_idxphoton"+label_).c_str(),";Index of first tight #gamma;events",11,-0.5,10.5);
   h_["met"]       = new TH1F(((std::string)"h_met"+label_).c_str(),";MET [GeV];events",n_metbins,metbins);
   h_["met_const"] = new TH1F(((std::string)"h_met_const"+label_).c_str(),";MET [GeV];events",20,0,500);
   h_["mht"]       = new TH1F(((std::string)"h_mht"+label_).c_str(),";MHT [GeV];events",20,0,1000);
@@ -125,7 +128,7 @@ TH1 * MyYields::GetPlot(const std::string& s)
 }
 
 
-TH1 * MyYields::GetWeightErrorPlot(const std::string& s)
+TH1 * MyYields::GetWeightErrorPlot(const std::string& s, TH1*h)
 {
   std::stringstream ss;
   ss  <<"we_"<< s << "_" << plotnr++;
@@ -136,7 +139,9 @@ TH1 * MyYields::GetWeightErrorPlot(const std::string& s)
   }
   TH1 * r = new TH1F(ss.str().c_str(),(";"+GetYieldsRef(s)->GetXaxisTitle()+";"+GetYieldsRef(s)->GetYaxisTitle()).c_str(),nbins-1,bins);
   for (int i=0; i<nbins; ++i) {
-      r->SetBinContent(i, WeightError(s,i) );
+      double sys = WeightError(s,i);
+      r->SetBinContent(i, sys );
+      if (h) h->SetBinError(i, sqrt(pow(h->GetBinError(i),2)+sys*sys ));
   }
   return r;
 }
@@ -153,7 +158,24 @@ void Print(TH1*h1, TH1*h2, TH1*we){
   }
 }
 
-void ratio(TH1*h1, TH1*h2, TH1*we,const std::string& dir, const std::string& file,const std::string& legtitle, bool log) {
+void ShowOverflow(TH1*h)
+{
+  int b =  h->GetXaxis()->GetNbins();
+  h->SetBinContent( b,  h->GetBinContent(b)+h->GetBinContent(b) );
+  h->SetBinError(   b,  sqrt( pow(h->GetBinError(b),2)+pow(h->GetBinError(b),2)) );
+}
+
+void Add2(TH1*h1, TH1*h2)
+{
+  assert(h1&&h1&&h1->GetXaxis()->GetNbins()==h2->GetXaxis()->GetNbins()&&"Assert in Tools.cc: void Add2(TH1*h1, TH1*h2) failed!");
+  for (int i=0; i<=h1->GetXaxis()->GetNbins(); ++i) {
+    h1->SetBinContent(i, sqrt(pow(h1->GetBinContent(i),2)+pow(h2->GetBinContent(i),2)));
+  }  
+}
+
+void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *other,const std::string& dir, const std::string& file,const std::string& legtitle, bool log) {
+   //std::cout<<"ratio plot for: "<< file<<std::endl; 
+
    std::stringstream ss;
    ss<<plotnr++;
    TCanvas *c1 = new TCanvas(((std::string)"c_"+ss.str()).c_str(),"example",600,600);
@@ -175,15 +197,34 @@ void ratio(TH1*h1, TH1*h2, TH1*we,const std::string& dir, const std::string& fil
    we->GetYaxis()->SetLabelSize(0.05);
    TH1F* hleg = (TH1F*)we->Clone();
    hleg->SetLineWidth(2);
-   TLegend * leg = new TLegend(0.5,0.7,0.89,0.89);
+   TLegend * leg = new TLegend(0.5,0.65-(0.02*(sig->size()+other->size())),0.89,0.89);
    leg->SetFillColor(0);
    leg->SetBorderSize(0);
    leg->AddEntry(h1,h1->GetTitle(),"pe");
    leg->AddEntry(hleg,h2->GetTitle(),"lef");
+   THStack hs("hs","CMS preliminary          #leq1#gamma, #leq2jets");
+   gStyle->SetTitleSize(0.2,"t");
+   ShowOverflow( h1 );
+   ShowOverflow( h2 );
+   ShowOverflow( we );
+   ShowOverflow( cover );
+   for (std::vector<TH1*>::iterator o=other->begin();o!=other->end();++o)
+     if (*o){
+       (*o)->Sumw2(); 
+       ShowOverflow( *o );
+       hs.Add(*o);
+       leg->AddEntry(*o,(*o)->GetTitle(),"f");
+     }
+   hs.Add( (TH1F*)h2->Clone());
+   for (std::vector<TH1*>::iterator s=sig->begin();s!=sig->end();++s)
+     if (*s) {
+       ShowOverflow( *s );
+       leg->AddEntry(*s,  (*s)->GetTitle(),  "l");
+     }  
    leg->SetHeader(legtitle.c_str());
    for (int i=1; i<=we->GetXaxis()->GetNbins();++i){
-     cover->SetBinContent(i, h2->GetBinContent(i)-we->GetBinContent(i));
-     we->SetBinContent(   i, h2->GetBinContent(i)+we->GetBinContent(i));
+     cover->SetBinContent(i, ((TH1F*)hs.GetStack()->Last())->GetBinContent(i) - we->GetBinContent(i));
+     we->SetBinContent(   i, ((TH1F*)hs.GetStack()->Last())->GetBinContent(i) + we->GetBinContent(i));
      we->SetBinError(i,0);
      cover->SetBinError(i,0);
    }
@@ -191,14 +232,17 @@ void ratio(TH1*h1, TH1*h2, TH1*we,const std::string& dir, const std::string& fil
    if (!log) we->SetMinimum(0);
    if (!log && h1->GetMaximum()>we->GetMaximum()) we->SetMaximum(h1->GetMaximum()+sqrt(h1->GetMaximum()));
    if (log  && h1->GetMaximum()>we->GetMaximum()) we->SetMaximum(5.*h1->GetMaximum());   
+   we->SetMinimum( 3*log );
    h1->SetStats(0);
    h2->SetStats(0);
    we->SetStats(0);
    cover->SetStats(0);
    we->DrawCopy("h");
    cover->DrawCopy("hf,same");
-   h2->DrawCopy("l,same");
+   hs.Draw("same hist fe");
    h1->DrawCopy("pe,same");
+   for (std::vector<TH1*>::iterator s=sig->begin();s!=sig->end();++s)
+     if (*s) (*s)->DrawCopy("h,same");
    leg->Draw("same");
    pad1->RedrawAxis();
    c1->cd();
@@ -211,6 +255,9 @@ void ratio(TH1*h1, TH1*h2, TH1*we,const std::string& dir, const std::string& fil
    pad2->Draw();
    pad2->cd();
    //we->Sumw2();
+   for (std::vector<TH1*>::iterator o=other->begin();o!=other->end();++o)
+     if (*o)   
+       h2->Add( *o );
    we->Divide(h2);
    cover->Divide(h2);
    h1->Sumw2();
@@ -252,7 +299,7 @@ void ratio(TH1*h1, TH1*h2, TH1*we,const std::string& dir, const std::string& fil
    delete we;
 }
 
-void RatioPlot(TH1*a, TH1*b,TH1*we, const std::string& dir,  const std::string& file, const std::string& t)
+void RatioPlot(TH1*a, TH1*b,TH1*we, std::vector<TH1*> *sig, std::vector<TH1*> *other,const std::string& dir,  const std::string& file, const std::string& t)
 {
   //a: signal (direct simulation), can be 0
   //b: prediction
@@ -272,12 +319,12 @@ void RatioPlot(TH1*a, TH1*b,TH1*we, const std::string& dir,  const std::string& 
     c1->SaveAs((dir+"/linear/"+file+".pdf").c_str());
     gPad->SetLogy(1);
     b->Draw("he");
-    c1->SaveAs((file+"/log/"+"_log.pdf").c_str());
+    c1->SaveAs((dir+"/log/"+file+"_log.pdf").c_str());
     return;
   }
   a->SetMarkerStyle(8);
-  ratio((TH1F*)a->Clone(),(TH1F*)b->Clone(),(TH1F*)we->Clone(),dir,file,t,true);
-  ratio((TH1F*)a->Clone(),(TH1F*)b->Clone(),(TH1F*)we->Clone(),dir,file,t,false);
+  ratio((TH1F*)a->Clone(),(TH1F*)b->Clone(),(TH1F*)we->Clone(),sig,other,dir,file,t,true);
+  ratio((TH1F*)a->Clone(),(TH1F*)b->Clone(),(TH1F*)we->Clone(),sig,other,dir,file,t,false);
 //  ratio((TH1F*)a->Clone(),(TH1F*)b->Clone(),0,dir,file,t,true);
 //  ratio((TH1F*)a->Clone(),(TH1F*)b->Clone(),0,dir,file,t,false);
 //  if (file=="Closure_Combined_met") Print(a,b,we);

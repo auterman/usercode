@@ -145,12 +145,12 @@ int Reader()
   Closure<GJets_Jet> closure_gj("plots/"+version,"Closure_GJets");
   closure_gj.SetNominator( weights_gj_g.GetYields());   //Zähler, tight isolated
   closure_gj.SetDenominator( weights_gj_j.GetYields()); //Nenner, loose isolated
-  closure_gj.AddSignalYields( direct_gj.GetYields());   //Signal
+  closure_gj.AddDirectYields( direct_gj.GetYields());   //Signal
   closure_gj.Book();
 
   closure_qcd.SetNominator( weights_qcd_g.GetYields() );   //Zähler, tight isolated
   closure_qcd.SetDenominator( weights_qcd_j.GetYields() ); //Nenner, loose isolated
-  closure_qcd.AddSignalYields( direct_qcd.GetYields() );   //Signal
+  closure_qcd.AddDirectYields( direct_qcd.GetYields() );   //Signal
   closure_qcd.Book();
 
   if (!ONLY_QCD){
@@ -194,8 +194,8 @@ int Reader()
   if (!ONLY_QCD) {
    closure.SetNominator(    &tight_g );   //Zähler, tight isolated
    closure.SetDenominator(  &loose_g );   //Nenner, loose isolated
-   closure.AddSignalYields( direct_qcd.GetYields() ); 
-   closure.AddSignalYields( direct_gj.GetYields() ); 
+   closure.AddDirectYields( direct_qcd.GetYields() ); 
+   closure.AddDirectYields( direct_gj.GetYields() ); 
    closure.Book();
    closure.AddRef(          closure_gj.GetYields());
    closure.AddRef(          closure_qcd.GetYields());
@@ -206,12 +206,54 @@ int Reader()
 }
 
 int do_data(){
+  std::cout << "\nISR Photon Tree\n======================" <<std::endl;
+  std::vector<Processor<ISR_Photon>*> v_ISR_g;
+  Status<ISR_Photon> status_isr_g("Status ISR_Photon");
+  Plotter<ISR_Photon> ISR_g("plots/"+version,"ISR_Photon");
+//  ISR_prediction<ISR_Photon> direct_isr("","Direct_ISR", "ISR tt#gamma, W#gamma, Z#gamma");
+    ISR_prediction<ISR_Photon> direct_isr("","Direct_ISR", "ISR");
+  Cutter<ISR_Photon> presel_isr_g("Presel_ISR_Photon");
+  DoubleCountFilter<ISR_Photon> double_isr_g("DoublicateFilter_ISR_Photon");
+  Cutter_tightID<ISR_Photon> tightID_isr_g("TightPhotonId_ISR_Photon");
+  direct_isr.Book();
+  ISR_g.Book();
+  v_ISR_g.push_back( &status_isr_g );
+  v_ISR_g.push_back( &tightID_isr_g );
+  v_ISR_g.push_back( &double_isr_g );
+  v_ISR_g.push_back( &presel_isr_g );
+  v_ISR_g.push_back( &ISR_g );
+  v_ISR_g.push_back( &direct_isr );
+  Process<ISR_Photon>("photonTree",v_ISR_g,"data/V03.06/TTGamma_V03.06_tree.root",2.166*19800/1719954);       //2.166*19800/1719954
+  Process<ISR_Photon>("photonTree",v_ISR_g,"data/V03.06/WGamma_50_130_V03.06_tree.root",1.17*19800/1135698); //1.17*19800/1135698
+  Process<ISR_Photon>("photonTree",v_ISR_g,"data/V03.06/WGamma_130_inf_V03.06_tree.root",0.2571*19800/471458);//0.2571*19800/471458
+  Process<ISR_Photon>("photonTree",v_ISR_g,"data/V03.06/ZGammaNuNu_V03.06_tree.root",0.074*19800/489474);    //0.074*19800/489474
+  ISR_g.Write();
+
+  std::cout << "\nSignal Photon Tree\n======================" <<std::endl;
+  std::vector<Processor<Signal_Photon>*> v_Signal_g;
+  Status<Signal_Photon> status_signal_g("Status Signal_Photon");
+  Plotter<Signal_Photon> Signal_g("plots/"+version,"Signal_Photon");
+  Closure<Signal_Photon> direct_signal("","Direct_Signal", "Signal: Bino 1700 1120");
+  Cutter<Signal_Photon> presel_signal_g("Presel_Signal_Photon");
+  DoubleCountFilter<Signal_Photon> double_signal_g("DoublicateFilter_Signal_Photon");
+  Cutter_tightID<Signal_Photon> tightID_signal_g("TightPhotonId_Signal_Photon");
+  direct_signal.Book();
+  Signal_g.Book();
+  v_Signal_g.push_back( &status_signal_g );
+  v_Signal_g.push_back( &tightID_signal_g );
+  v_Signal_g.push_back( &double_signal_g );
+  v_Signal_g.push_back( &presel_signal_g );
+  v_Signal_g.push_back( &Signal_g );
+  v_Signal_g.push_back( &direct_signal );
+  Process<Signal_Photon>("photonTree",v_Signal_g,"data/B_1700_1120_375_V03.06_tree.root",0.01920353672);
+  Signal_g.Write();
+
   std::cout << "\nData Photon Tree\n======================" <<std::endl;
   std::vector<Processor<Data_Photon>*> v_Data_g;
   Status<Data_Photon> status_data_g("Status Data_Photon");
   Plotter<Data_Photon> Data_g("plots/"+version,"Data_Photon");
   Weighter<Data_Photon> weights_data_g("Data_Photon");
-  Closure<Data_Photon> direct_data("","Direct_Data");
+  Closure<Data_Photon> direct_data("","Direct_Data","Data,  19.8 fb^{-1}, 8 TeV");
   Cutter<Data_Photon> presel_data_g("Presel_Data_Photon");
   DoubleCountFilter<Data_Photon> double_data_g("DoublicateFilter_Data_Photon");
   Cutter_tightID<Data_Photon> tightID_data_g("TightPhotonId_Data_Photon");
@@ -229,6 +271,31 @@ int do_data(){
   Process<Data_Photon>("photonTree",v_Data_g,"data/"+version+"/PhotonHadC_"+version+"_tree.root",1.0);
   Process<Data_Photon>("photonTree",v_Data_g,"data/"+version+"/PhotonHadD_"+version+"_tree.root",1.0);
   Data_g.Write();
+
+
+  std::cout << "\nData Electron Tree\n======================" <<std::endl;
+  std::vector<Processor<Data_Electron>*> v_EWK_g;
+  Status<Data_Electron> status_ewk_g("Status Data_Electron");
+  Plotter<Data_Electron> EWK_g("plots/"+version,"Data_Electron");
+//  EWK_prediction<Data_Electron> prediction_ewk("","Prediction_EWK","e#to#gamma fakes");
+    EWK_prediction<Data_Electron> prediction_ewk("","Prediction_EWK","EWK");
+  Cutter<Data_Electron> presel_ewk_g("Presel_Data_Electron");
+  DoubleCountFilter<Data_Electron> double_ewk_g("DoublicateFilter_Data_Electron");
+  Cutter_electronID<Data_Electron> eID_ewk_g("TightPhotonId_Data_Electron");
+  prediction_ewk.Book();
+  double_ewk_g.Set( double_data_g.Get() );
+  EWK_g.Book();
+  v_EWK_g.push_back( &status_ewk_g );
+  v_EWK_g.push_back( &eID_ewk_g );
+  v_EWK_g.push_back( &double_ewk_g );
+  v_EWK_g.push_back( &presel_ewk_g );
+  v_EWK_g.push_back( &EWK_g );
+  v_EWK_g.push_back( &prediction_ewk );
+  Process<Data_Electron>("photonElectronTree",v_EWK_g,"data/"+version+"/PhotonHadA_"+version+"_tree.root",1.0);
+  Process<Data_Electron>("photonElectronTree",v_EWK_g,"data/"+version+"/PhotonHadB_"+version+"_tree.root",1.0);
+  Process<Data_Electron>("photonElectronTree",v_EWK_g,"data/"+version+"/PhotonHadC_"+version+"_tree.root",1.0);
+  Process<Data_Electron>("photonElectronTree",v_EWK_g,"data/"+version+"/PhotonHadD_"+version+"_tree.root",1.0);
+  EWK_g.Write();
 
   std::cout << "\nData Jet Tree\n======================" <<std::endl;
   std::vector<Processor<Data_Jet>*> v_Data_j;
@@ -253,17 +320,23 @@ int do_data(){
   Data_j.Write();
 
 
-  std::cout << "\nPhoton-Jet Jet Tree (2nd pass for closure)\n===================================" <<std::endl;
-  Closure<Data_Jet> closure_data("plots/"+version,"Closure_Data");
+  std::cout << "\nData Jet Tree (2nd pass for closure)\n===================================" <<std::endl;
+  Closure<Data_Jet> closure_data("plots/"+version,"Closure_Data","Total Prediction");
   closure_data.SetNominator( weights_data_g.GetYields());   //Zähler, tight isolated
   closure_data.SetDenominator( weights_data_j.GetYields()); //Nenner, loose isolated
-  closure_data.AddSignalYields( direct_data.GetYields());   //Signal
+  closure_data.AddDirectYields( direct_data.GetYields());   //Direct sim
+  direct_signal.LineColor( 3 );
+  direct_isr.FillColor( 4 );
+  prediction_ewk.FillColor( 5 );
+  closure_data.AddSignalYields( direct_signal.GetYields());   //Signal
+  closure_data.AddOtherYields(  direct_isr.GetYields());   //ISR
+  closure_data.AddOtherYields(  prediction_ewk.GetYields());   //EWK
   closure_data.Book();
   std::vector<Processor<Data_Jet>*> vc_data_j;
-  Cutter               <Data_Jet>   cut_data(    "Cutter");
+  Cutter               <Data_Jet>   cut_data(    "Cutter");//Presel
   DoubleCountFilter    <Data_Jet>   double_data( "DoublicateFilter_Data");
   Cutter_looseID       <Data_Jet>   looseID_data("LoosePhotonId_Data");
-  //double_data.Set( double_data_g.Get() );
+  double_data.Set( double_data_g.Get() );
   vc_data_j.push_back( &status_data_j );
   vc_data_j.push_back( &looseID_data );
   vc_data_j.push_back( &double_data );
@@ -273,6 +346,7 @@ int do_data(){
   Process<Data_Jet>("photonJetTree",vc_data_j,"data/"+version+"/PhotonHadB_"+version+"_tree.root",1.);
   Process<Data_Jet>("photonJetTree",vc_data_j,"data/"+version+"/PhotonHadC_"+version+"_tree.root",1.);
   Process<Data_Jet>("photonJetTree",vc_data_j,"data/"+version+"/PhotonHadD_"+version+"_tree.root",1.);
+  closure_data.SetLegTitel("#bf{CMS preliminary}");
   closure_data.Write();
 
   return 0;

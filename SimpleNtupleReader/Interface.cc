@@ -52,9 +52,12 @@ bool loose_isolated(double pt, double ptstar, double phi, double eta, double HoE
           fabs(eta)<1.442 &&
           HoE <0.05 &&
 	  sigmaIetaOeta < 0.012 &&
-	  (chaIso < 5.2 || (neuIso < 3.5 + 0.04*pT && phoIso < 1.3 + 0.005*pT)) &&
-	  (neuIso < 7 + 0.06*pT || (chaIso < 2.6 && phoIso < 1.3 + 0.005*pT)) &&
-	  (phoIso < 2.6 + 0.0075*pT || (chaIso < 2.6 &&	neuIso < 3.5 + 0.04*pT))
+//	  (chaIso < 5.2 || (neuIso < 3.5 + 0.04*pT && phoIso < 1.3 + 0.005*pT)) &&
+//	  (neuIso < 7 + 0.06*pT || (chaIso < 2.6 && phoIso < 1.3 + 0.005*pT)) &&
+//	  (phoIso < 2.6 + 0.0075*pT || (chaIso < 2.6 &&	neuIso < 3.5 + 0.04*pT))
+	 (chaIso < 5.2  &&
+	  neuIso < 7 + 0.06*pT  &&
+	  phoIso < 2.6 + 0.0075*pT  )
 	 );
 }		    
 
