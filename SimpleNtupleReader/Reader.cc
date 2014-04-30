@@ -35,7 +35,7 @@ int Reader()
   Status<GJets_Photon> status_gjets_g("Status GJets_Photon");
   Plotter<GJets_Photon> gjets_g("plots/"+version,"GJets_Photon");
   Weighter<GJets_Photon> weights_gj_g("Weighter_GJets_Photon");
-  Closure<GJets_Photon> direct_gj("","Closure_Direct_GJets");
+  Closure<GJets_Photon> direct_gj("","Closure_Direct_GJets", "Direct Simulation");
   Cutter<GJets_Photon> presel_gj_g("Presel_GJets_Photon");
   DoubleCountFilter<GJets_Photon> double_gj_g("DoublicateFilter_GJets_Photon");
   Cutter_tightID<GJets_Photon> tightID_gj_g("TightPhotonId_GJets_Photon");
@@ -63,7 +63,7 @@ int Reader()
   Status<QCD_Photon> status_qcd_g("Status QCD_Photon");
   Plotter<QCD_Photon> qcd_g("plots/"+version,"Qcd_Photon");
   Weighter<QCD_Photon> weights_qcd_g("Qcd_Photon");
-  Closure<QCD_Photon> direct_qcd("","Direct_QCD");
+  Closure<QCD_Photon> direct_qcd("","Direct_QCD", "Direct Simulation");
   Cutter<QCD_Photon> presel_qcd_g("Presel_QCD_Photon");
   DoubleCountFilter<QCD_Photon> double_qcd_g("DoublicateFilter_QCD_Photon");
   Cutter_tightID<QCD_Photon> tightID_qcd_g("TightPhotonId_QCD_Photon");
@@ -140,9 +140,9 @@ int Reader()
   ///Closure 2nd pass ---------------------------------------------------------------------------------
     
 
-  Closure<QCD_Jet> closure("plots/"+version,"Closure_Combined");
-  Closure<QCD_Jet> closure_qcd("plots/"+version,"Closure_QCD");
-  Closure<GJets_Jet> closure_gj("plots/"+version,"Closure_GJets");
+  Closure<QCD_Jet> closure("plots/"+version,"Closure_Combined", "Prediction");
+  Closure<QCD_Jet> closure_qcd("plots/"+version,"Closure_QCD", "Prediction");
+  Closure<GJets_Jet> closure_gj("plots/"+version,"Closure_GJets", "Prediction");
   closure_gj.SetNominator( weights_gj_g.GetYields());   //Zähler, tight isolated
   closure_gj.SetDenominator( weights_gj_j.GetYields()); //Nenner, loose isolated
   closure_gj.AddDirectYields( direct_gj.GetYields());   //Signal
