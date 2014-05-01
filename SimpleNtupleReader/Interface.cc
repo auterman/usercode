@@ -32,6 +32,8 @@ double parallel_met(QCD_Jet*t){      return CalcParalMet(t->met,t->metPhi-kPI,t-
 bool tight_isolated(double pt, double ptstar, double phi, double eta, double HoE, 
                     double sigmaIetaOeta, double chaIso, double neuIso, double phoIso)
 {
+return true;
+
   double pT = (ptstar>0.?ptstar:pt);
   return (pT>110. &&
           fabs(eta)<1.442 &&
@@ -46,6 +48,8 @@ bool tight_isolated(double pt, double ptstar, double phi, double eta, double HoE
 bool loose_isolated(double pt, double ptstar, double phi, double eta, double HoE, 
                     double sigmaIetaOeta, double chaIso, double neuIso, double phoIso)
 {
+return true;
+
   double pT = (ptstar>0.?ptstar:pt);
   return (!(tight_isolated(pt,ptstar,phi,eta,HoE,sigmaIetaOeta,chaIso,neuIso,phoIso))&&
           pT>110. &&
