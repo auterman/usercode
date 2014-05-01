@@ -233,6 +233,7 @@ int do_data(){
   std::vector<Processor<Signal_Photon>*> v_Signal_g;
   Status<Signal_Photon> status_signal_g("Status Signal_Photon");
   Plotter<Signal_Photon> Signal_g("plots/"+version,"Signal_Photon");
+  Weighter<Signal_Photon> weights_signal_g("Signal_Photon");
   Closure<Signal_Photon> direct_signal("","Direct_Signal", "Signal: Bino 1700 1120");
   Cutter<Signal_Photon> presel_signal_g("Presel_Signal_Photon");
   DoubleCountFilter<Signal_Photon> double_signal_g("DoublicateFilter_Signal_Photon");
@@ -244,6 +245,7 @@ int do_data(){
   v_Signal_g.push_back( &double_signal_g );
   v_Signal_g.push_back( &presel_signal_g );
   v_Signal_g.push_back( &Signal_g );
+  v_Signal_g.push_back( &weights_signal_g );
   v_Signal_g.push_back( &direct_signal );
   Process<Signal_Photon>("photonTree",v_Signal_g,"data/B_1700_1120_375_V03.06_tree.root",0.01920353672);
   Signal_g.Write();
@@ -318,6 +320,25 @@ int do_data(){
   Process<Data_Jet>("photonJetTree",v_Data_j,"data/"+version+"/PhotonHadC_"+version+"_tree.root",1.0);
   Process<Data_Jet>("photonJetTree",v_Data_j,"data/"+version+"/PhotonHadD_"+version+"_tree.root",1.0);
   Data_j.Write();
+
+  std::cout << "\nSignal Jet Tree\n======================" <<std::endl;
+  std::vector<Processor<Signal_Jet>*> v_Signal_j;
+  Status<Signal_Jet> status_signal_j("Status Signal_Jet");
+  Plotter<Signal_Jet> Signal_j("plots/"+version,"Signal_Jet");
+  Weighter<Signal_Jet> weights_signal_j("Signal_Jet");
+  Cutter<Signal_Jet> presel_signal_j("Presel_Signal_Jet");
+  DoubleCountFilter<Signal_Jet> double_signal_j("DoublicateFilter_Signal_Jet");
+  Cutter_tightID<Signal_Jet> tightID_signal_j("TightPhotonId_Signal_Jet");
+  direct_signal.Book();
+  Signal_j.Book();
+  v_Signal_j.push_back( &status_signal_j );
+  v_Signal_j.push_back( &tightID_signal_j );
+  v_Signal_j.push_back( &double_signal_j );
+  v_Signal_j.push_back( &presel_signal_j );
+  v_Signal_j.push_back( &Signal_j );
+  v_Signal_j.push_back( &weights_signal_j );
+  Process<Signal_Jet>("photonJetTree",v_Signal_j,"data/B_1700_1120_375_V03.06_tree.root",0.01920353672);
+  Signal_j.Write();
 
 
   std::cout << "\nData Jet Tree (2nd pass for closure)\n===================================" <<std::endl;
