@@ -15,6 +15,8 @@ RLXX=$(LFLAGS) $(ROOTLIBS)
 #SRC=GJets_Photon.cc GJets_Jet.cc QCD_Photon.cc QCD_Jet.cc Interface.cc Tools.cc Reader.cc
 SRC=$(wildcard *.cc)
 
+m=m
+
 %.o: %.cc %.h
 		$(C) $(RCXX) -c $<
 		
