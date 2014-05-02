@@ -15,7 +15,7 @@ RLXX=$(LFLAGS) $(ROOTLIBS)
 #SRC=GJets_Photon.cc GJets_Jet.cc QCD_Photon.cc QCD_Jet.cc Interface.cc Tools.cc Reader.cc
 SRC=$(wildcard *.cc)
 
-m=m
+message=${m}
 
 %.o: %.cc %.h
 		$(C) $(RCXX) -c $<
@@ -38,7 +38,7 @@ cp:
 
 commit:
 		git add Makefile *.h *.cc
-		git commit -m "auto-commit by Makefile: ${m}"	
+		git commit -m "auto-commit by Makefile: ${message}"	
 		git push	
 
 sync:
