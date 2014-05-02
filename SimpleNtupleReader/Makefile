@@ -36,7 +36,7 @@ cp:
 
 commit:
 		git add Makefile *.h *.cc
-		git commit -m "auto-commit by Makefile"	
+		git commit -m "auto-commit by Makefile: ${m}"	
 		git push	
 
 sync:
