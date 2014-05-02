@@ -28,7 +28,7 @@ const static int n_metbins = 16;
 const static double newmetbins[] = {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 150, 200, 260, 340, 430, 550}; 
 const static int n_newmetbins = 17;
 
-const static double fibonacci[] = {0,5,10,15,25,40,65,105,170,285,455,740}; 
+const static double fibonacci[] = {0,5,10,15,25,40,65,100,170,285,455,740}; 
 const static int n_fibonacci = 11;
 
 const static double metphibins[] = {0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 3.0, 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9, 4.0, 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8, 4.9, 5.0, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.8, 5.9, 6.0, 6.1, 6.2, 6.3, 6.4}; 
@@ -752,6 +752,7 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
 
 void RatioPlot(TH1*a, TH1*b, TH1*c, std::vector<TH1*> *sig, std::vector<TH1*> *other, const std::string& dir, const std::string& file, const std::string& t);
 void Add2(TH1*h1, TH1*h2);
+void PrintResults(const std::string& dir, std::string file, std::string name, MyYields* direct, MyYields* yields, std::vector<MyYields*>* other );
 
 template<typename T>
 void Closure<T>::Write()
@@ -792,6 +793,7 @@ void Closure<T>::Write()
       }  
       //if (we) RatioPlot(0, we, 0, 0, 0, dir_, Closure<T>::name_+"_"+it->first+"_Combined_error", legtitel_);
       RatioPlot(direct, pred, we, &signal, &other, dir_, Closure<T>::name_+"_"+it->first, legtitel_);
+      PrintResults( dir_, Closure<T>::name_+"_"+it->first, it->first, direct_[it->first], yields_[it->first], &other_[it->first] );
     }  
   }
 
@@ -1064,7 +1066,8 @@ class Cutter_tightID : public Cutter<T> {
     virtual bool Process(T*t,Long64_t i,Long64_t n,double w) {
       ++Cutter<T>::i_tot;
       Cutter<T>::d_tot += w;
-/*      
+
+/*
       if (!t->photons_) return false;
       t->ThePhotonPt  = (t->photons__ptJet[0]>0?t->photons__ptJet[0]:t->photons_pt[0]);
       t->ThePhotonPhi = t->photons_phi[0]; 
@@ -1073,6 +1076,7 @@ class Cutter_tightID : public Cutter<T> {
       t->metPhi=0;
       t->metSig=0; 
 */
+
       t->metPhi=0;
       t->metSig=0; 
 
@@ -1109,7 +1113,6 @@ class Cutter_tightID : public Cutter<T> {
       //Debugging for Knut:
       //if (t->ThePhoton!=0)
       //  std::cout << "evt nr:" << t->eventNumber << ", rn: " <<t->runNumber<<", lbnr: "<< t->luminosityBlockNumber <<std::endl;
-
 
       ++Cutter<T>::i_pass;
       Cutter<T>::d_pass += w;
@@ -1170,8 +1173,11 @@ class DoubleCountFilter : public Processor<T> {
         d_pass += w;
         return true;
       }	
-      else
-        return false;	
+      else {
+        //Debugging for Knut:
+        //std::cout << "evt nr:" << t->eventNumber << ", rn: " <<t->runNumber<<", lbnr: "<< t->luminosityBlockNumber <<std::endl;
+        return false;
+      }		
     }
     virtual void Terminate(){
       std::cout << "  Doublicate Event Filter '"<<Processor<T>::name_<<"' Terminate: "<<d_pass<<" ("<<i_pass<<") / "

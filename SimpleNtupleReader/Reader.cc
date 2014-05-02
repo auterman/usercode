@@ -33,7 +33,7 @@ int Reader()
   std::cout << "\nPhoton-Jet Photon Tree\n======================" <<std::endl;
   std::vector<Processor<GJets_Photon>*> v_gjets_g;
   Status<GJets_Photon> status_gjets_g("Status GJets_Photon");
-  Plotter<GJets_Photon> gjets_g("plots/"+version,"GJets_Photon");
+  Plotter<GJets_Photon> gjets_g(version,"GJets_Photon");
   Weighter<GJets_Photon> weights_gj_g("Weighter_GJets_Photon");
   Closure<GJets_Photon> direct_gj("","Closure_Direct_GJets", "Direct Simulation");
   Cutter<GJets_Photon> presel_gj_g("Presel_GJets_Photon");
@@ -61,7 +61,7 @@ int Reader()
   std::cout << "\nQCD Photon Tree\n======================" <<std::endl;
   std::vector<Processor<QCD_Photon>*> v_qcd_g;
   Status<QCD_Photon> status_qcd_g("Status QCD_Photon");
-  Plotter<QCD_Photon> qcd_g("plots/"+version,"Qcd_Photon");
+  Plotter<QCD_Photon> qcd_g(version,"Qcd_Photon");
   Weighter<QCD_Photon> weights_qcd_g("Qcd_Photon");
   Closure<QCD_Photon> direct_qcd("","Direct_QCD", "Direct Simulation");
   Cutter<QCD_Photon> presel_qcd_g("Presel_QCD_Photon");
@@ -89,7 +89,7 @@ int Reader()
   std::cout << "\nPhoton-Jet Jet Tree\n======================" <<std::endl;
   std::vector<Processor<GJets_Jet>*> v_gjets_j;
   Status<GJets_Jet> status_gjets_j("Status GJets_Jet");
-  Plotter<GJets_Jet> gjets_j("plots/"+version,"GJets_Jet");
+  Plotter<GJets_Jet> gjets_j(version,"GJets_Jet");
   Weighter<GJets_Jet> weights_gj_j("GJets_Jet");
   Cutter<GJets_Jet> presel_gj_j("Presel_GJets_Jet");
   DoubleCountFilter<GJets_Jet> double_gj_j("DoublicateFilter_GJets_Jet");
@@ -114,7 +114,7 @@ int Reader()
   std::cout << "\nQCD Jet Tree\n======================" <<std::endl;
   std::vector<Processor<QCD_Jet>*> v_qcd_j;
   Status<QCD_Jet> status_qcd_j("Status QCD_Jet");
-  Plotter<QCD_Jet> qcd_j("plots/"+version,"Qcd_Jet");
+  Plotter<QCD_Jet> qcd_j(version,"Qcd_Jet");
   Weighter<QCD_Jet> weights_qcd_j("Qcd_Jet");
   Cutter<QCD_Jet> presel_qcd_j("Presel_QCD_Jet");
   DoubleCountFilter<QCD_Jet> double_qcd_j("DoublicateFilter_QCD_Jet");
@@ -140,9 +140,9 @@ int Reader()
   ///Closure 2nd pass ---------------------------------------------------------------------------------
     
 
-  Closure<QCD_Jet> closure("plots/"+version,"Closure_Combined", "Prediction");
-  Closure<QCD_Jet> closure_qcd("plots/"+version,"Closure_QCD", "Prediction");
-  Closure<GJets_Jet> closure_gj("plots/"+version,"Closure_GJets", "Prediction");
+  Closure<QCD_Jet> closure(version,"Closure_Combined", "Prediction");
+  Closure<QCD_Jet> closure_qcd(version,"Closure_QCD", "Prediction");
+  Closure<GJets_Jet> closure_gj(version,"Closure_GJets", "Prediction");
   closure_gj.SetNominator( weights_gj_g.GetYields());   //Zähler, tight isolated
   closure_gj.SetDenominator( weights_gj_j.GetYields()); //Nenner, loose isolated
   closure_gj.AddDirectYields( direct_gj.GetYields());   //Signal
@@ -209,7 +209,7 @@ int do_data(){
   std::cout << "\nISR Photon Tree\n======================" <<std::endl;
   std::vector<Processor<ISR_Photon>*> v_ISR_g;
   Status<ISR_Photon> status_isr_g("Status ISR_Photon");
-  Plotter<ISR_Photon> ISR_g("plots/"+version,"ISR_Photon");
+  Plotter<ISR_Photon> ISR_g(version,"ISR_Photon");
 //  ISR_prediction<ISR_Photon> direct_isr("","Direct_ISR", "ISR tt#gamma, W#gamma, Z#gamma");
     ISR_prediction<ISR_Photon> direct_isr("","Direct_ISR", "ISR");
   Cutter<ISR_Photon> presel_isr_g("Presel_ISR_Photon");
@@ -223,16 +223,16 @@ int do_data(){
   v_ISR_g.push_back( &presel_isr_g );
   v_ISR_g.push_back( &ISR_g );
   v_ISR_g.push_back( &direct_isr );
-  Process<ISR_Photon>("photonTree",v_ISR_g,"data/V03.06/TTGamma_V03.06_tree.root",2.166*19800/1719954);       //2.166*19800/1719954
-  Process<ISR_Photon>("photonTree",v_ISR_g,"data/V03.06/WGamma_50_130_V03.06_tree.root",1.17*19800/1135698); //1.17*19800/1135698
-  Process<ISR_Photon>("photonTree",v_ISR_g,"data/V03.06/WGamma_130_inf_V03.06_tree.root",0.2571*19800/471458);//0.2571*19800/471458
-  Process<ISR_Photon>("photonTree",v_ISR_g,"data/V03.06/ZGammaNuNu_V03.06_tree.root",0.074*19800/489474);    //0.074*19800/489474
+  Process<ISR_Photon>("photonTree",v_ISR_g,"data/V03.06/TTGamma_V03.06_tree.root",2.166*19789/1719954);       //2.166*19800/1719954
+  Process<ISR_Photon>("photonTree",v_ISR_g,"data/V03.06/WGamma_50_130_V03.06_tree.root",1.17*19789/1135698); //1.17*19800/1135698
+  Process<ISR_Photon>("photonTree",v_ISR_g,"data/V03.06/WGamma_130_inf_V03.06_tree.root",0.2571*19789/471458);//0.2571*19800/471458
+  Process<ISR_Photon>("photonTree",v_ISR_g,"data/V03.06/ZGammaNuNu_V03.06_tree.root",0.074*19789/489474);    //0.074*19800/489474
   ISR_g.Write();
 
   std::cout << "\nSignal Photon Tree\n======================" <<std::endl;
   std::vector<Processor<Signal_Photon>*> v_Signal_g;
   Status<Signal_Photon> status_signal_g("Status Signal_Photon");
-  Plotter<Signal_Photon> Signal_g("plots/"+version,"Signal_Photon");
+  Plotter<Signal_Photon> Signal_g(version,"Signal_Photon");
   Weighter<Signal_Photon> weights_signal_g("Signal_Photon");
   Closure<Signal_Photon> direct_signal("","Direct_Signal", "Signal: Bino 1700 1120");
   Cutter<Signal_Photon> presel_signal_g("Presel_Signal_Photon");
@@ -253,9 +253,9 @@ int do_data(){
   std::cout << "\nData Photon Tree\n======================" <<std::endl;
   std::vector<Processor<Data_Photon>*> v_Data_g;
   Status<Data_Photon> status_data_g("Status Data_Photon");
-  Plotter<Data_Photon> Data_g("plots/"+version,"Data_Photon");
+  Plotter<Data_Photon> Data_g(version,"Data_Photon");
   Weighter<Data_Photon> weights_data_g("Data_Photon");
-  Closure<Data_Photon> direct_data("","Direct_Data","Data,  19.8 fb^{-1}, 8 TeV");
+  Closure<Data_Photon> direct_data("","Direct_Data","Data,  20 fb^{-1}, 8 TeV");
   Cutter<Data_Photon> presel_data_g("Presel_Data_Photon");
   DoubleCountFilter<Data_Photon> double_data_g("DoublicateFilter_Data_Photon");
   Cutter_tightID<Data_Photon> tightID_data_g("TightPhotonId_Data_Photon");
@@ -278,7 +278,7 @@ int do_data(){
   std::cout << "\nData Electron Tree\n======================" <<std::endl;
   std::vector<Processor<Data_Electron>*> v_EWK_g;
   Status<Data_Electron> status_ewk_g("Status Data_Electron");
-  Plotter<Data_Electron> EWK_g("plots/"+version,"Data_Electron");
+  Plotter<Data_Electron> EWK_g(version,"Data_Electron");
 //  EWK_prediction<Data_Electron> prediction_ewk("","Prediction_EWK","e#to#gamma fakes");
     EWK_prediction<Data_Electron> prediction_ewk("","Prediction_EWK","EWK");
   Cutter<Data_Electron> presel_ewk_g("Presel_Data_Electron");
@@ -302,7 +302,7 @@ int do_data(){
   std::cout << "\nData Jet Tree\n======================" <<std::endl;
   std::vector<Processor<Data_Jet>*> v_Data_j;
   Status<Data_Jet> status_data_j("Status Data_Jet");
-  Plotter<Data_Jet> Data_j("plots/"+version,"Data_Jet");
+  Plotter<Data_Jet> Data_j(version,"Data_Jet");
   Weighter<Data_Jet> weights_data_j("Data_Jet");
   Cutter<Data_Jet> presel_data_j("Presel_Data_Jet");
   DoubleCountFilter<Data_Jet> double_data_j("DoublicateFilter_Data_Jet");
@@ -324,7 +324,7 @@ int do_data(){
   std::cout << "\nSignal Jet Tree\n======================" <<std::endl;
   std::vector<Processor<Signal_Jet>*> v_Signal_j;
   Status<Signal_Jet> status_signal_j("Status Signal_Jet");
-  Plotter<Signal_Jet> Signal_j("plots/"+version,"Signal_Jet");
+  Plotter<Signal_Jet> Signal_j(version,"Signal_Jet");
   Weighter<Signal_Jet> weights_signal_j("Signal_Jet");
   Cutter<Signal_Jet> presel_signal_j("Presel_Signal_Jet");
   DoubleCountFilter<Signal_Jet> double_signal_j("DoublicateFilter_Signal_Jet");
@@ -336,13 +336,13 @@ int do_data(){
   v_Signal_j.push_back( &double_signal_j );
   v_Signal_j.push_back( &presel_signal_j );
   v_Signal_j.push_back( &Signal_j );
-  v_Signal_j.push_back( &weights_signal_j );
+  v_Signal_j.push_back( &weights_signal_j );  
   Process<Signal_Jet>("photonJetTree",v_Signal_j,"data/B_1700_1120_375_V03.06_tree.root",0.01920353672);
   Signal_j.Write();
 
 
   std::cout << "\nData Jet Tree (2nd pass for closure)\n===================================" <<std::endl;
-  Closure<Data_Jet> closure_data("plots/"+version,"Closure_Data","Total Prediction");
+  Closure<Data_Jet> closure_data(version,"Closure_Data","Total Prediction");
   closure_data.SetNominator( weights_data_g.GetYields());   //Zähler, tight isolated
   closure_data.SetDenominator( weights_data_j.GetYields()); //Nenner, loose isolated
   closure_data.AddDirectYields( direct_data.GetYields());   //Direct sim
@@ -370,6 +370,34 @@ int do_data(){
   closure_data.SetLegTitel("#bf{CMS preliminary}");
   closure_data.Write();
 
+
+  std::cout << "\nSignal Jet Tree (2nd pass for contamination)\n===================================" <<std::endl;
+  Yields tight_g("tightly isolated photon");
+  Yields loose_g("loosely isolated photon");
+  tight_g.Add( weights_data_g.GetYields() );
+  tight_g.Add( weights_signal_g.GetYields() );
+  loose_g.Add( weights_data_j.GetYields() );
+  loose_g.Add( weights_signal_j.GetYields() );
+  Closure<Signal_Jet> contamination(version,"contamination","Total Contamination");
+  contamination.SetNominator(    &tight_g );   //Zähler, tight isolated
+  contamination.SetDenominator(  &loose_g ); //Nenner, loose isolated
+  contamination.AddDirectYields( direct_signal.GetYields());   //Direct sim
+  contamination.Book();
+  std::vector<Processor<Signal_Jet>*> vc_contamin_j;
+  Cutter               <Signal_Jet>   cut_contamin(    "Cutter");//Presel
+  DoubleCountFilter    <Signal_Jet>   double_contamin( "DoublicateFilter_contamin");
+  Cutter_looseID       <Signal_Jet>   looseID_contamin("LoosePhotonId_contamin");
+  double_contamin.Set( double_signal_g.Get() );
+  vc_contamin_j.push_back( &status_signal_j );
+  vc_contamin_j.push_back( &looseID_contamin );
+  vc_contamin_j.push_back( &double_contamin );
+  vc_contamin_j.push_back( &cut_contamin );
+  vc_contamin_j.push_back( &contamination );
+  Process<Signal_Jet>("photonJetTree",v_Signal_j,"data/B_1700_1120_375_V03.06_tree.root",0.01920353672);
+  contamination.SetLegTitel("#bf{CMS preliminary}");
+  contamination.Write();
+
+
   return 0;
 }
 
@@ -383,7 +411,7 @@ int main()
   
   
   
-  Reader();
+  //Reader();
   do_data();
   
   return 0;

@@ -6,7 +6,8 @@
 #include "THStack.h"
 #include "TStyle.h"
 
-
+#include <iostream>
+#include <fstream>
 
 void Histograms::Book()
 {
@@ -102,7 +103,7 @@ TH1 * MyYields::GetPlot(const std::string& s)
  
   //std::map<int,Yield> * mp = GetYieldsRef(s)->GetYields();
   bool corr = GetYieldsRef(s)->GetCorrelation();
-  for (int i=0; i<nbins; ++i) {
+  for (int i=0; i<=nbins; ++i) {
     if (!corr) {
       //std plot
       r->SetBinContent(i, Weighted(s,i) );
@@ -114,10 +115,6 @@ TH1 * MyYields::GetPlot(const std::string& s)
       float ne=Error(s,i);
       r->SetBinContent( i, (d==0?1.0:n / d) );
       r->SetBinError(   i, (d==0?1.0:sqrt( ne*ne/(d*d) + n*n/(d*d*d) ) ) );
-      
-      
-      
-      
     }  
     //std::cout << " my bin "<<i<<": > "<<bins[i]
     //          << " contents: "<< r->GetBinContent(i)<<" +- "<<r->GetBinError(i)
@@ -148,7 +145,7 @@ TH1 * MyYields::GetWeightErrorPlot(const std::string& s, TH1*h)
 
 void Print(TH1*h1, TH1*h2, TH1*we){
   if (!h1 || !h2 || !we) return;
-  for (int i=0; i<=h1->GetXaxis()->GetNbins(); ++i) {
+  for (int i=0; i<=h1->GetXaxis()->GetNbins()+1; ++i) {
   
     std::cout << "Bin "<<i<<"\n"
               << "Direct simulation: "<<h1->GetBinContent(i)<<" +- "<<h1->GetBinError(i)<<"\n"
@@ -161,8 +158,8 @@ void Print(TH1*h1, TH1*h2, TH1*we){
 void ShowOverflow(TH1*h)
 {
   int b =  h->GetXaxis()->GetNbins();
-  h->SetBinContent( b,  h->GetBinContent(b)+h->GetBinContent(b) );
-  h->SetBinError(   b,  sqrt( pow(h->GetBinError(b),2)+pow(h->GetBinError(b),2)) );
+  h->SetBinContent( b,  h->GetBinContent(b)+h->GetBinContent(b+1) );
+  h->SetBinError(   b,  sqrt( pow(h->GetBinError(b),2)+pow(h->GetBinError(b+1),2)) );
 }
 
 void Add2(TH1*h1, TH1*h2)
@@ -299,12 +296,13 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
    delete we;
 }
 
-void RatioPlot(TH1*a, TH1*b,TH1*we, std::vector<TH1*> *sig, std::vector<TH1*> *other,const std::string& dir,  const std::string& file, const std::string& t)
+void RatioPlot(TH1*a, TH1*b,TH1*we, std::vector<TH1*> *sig, std::vector<TH1*> *other,const std::string& dir_,  const std::string& file, const std::string& t)
 {
   //a: signal (direct simulation), can be 0
   //b: prediction
   b->SetLineColor(2);
   b->SetLineWidth(3);
+  std::string dir = "plots/"+dir_;
   struct stat st={0};
   if(stat(dir.c_str(),&st)==-1)
      mkdir(dir.c_str(), 0700);
@@ -329,6 +327,54 @@ void RatioPlot(TH1*a, TH1*b,TH1*we, std::vector<TH1*> *sig, std::vector<TH1*> *o
 //  ratio((TH1F*)a->Clone(),(TH1F*)b->Clone(),0,dir,file,t,false);
 //  if (file=="Closure_Combined_met") Print(a,b,we);
 //  if (file=="Closure_QCD_met") Print(a,b,we);
+  if (file=="Closure_Data_met_fibo") Print(a,b,we);
 
 }
 
+
+void PrintBinning(std::ostream& os, const std::string& s, MyYields*y)
+{
+  os << "# " << s <<"\n";
+  os << "nBins = "<<y->GetNBins(s)<<"\n";
+  if (y->GetNBins(s)>1)
+    for (int i=1; i<y->GetNBins(s); ++i) 
+      os << "bin "<<i-1<<" = "<<y->GetBinBorder(s,i-1)<<" to "<<y->GetBinBorder(s,i)<<"\n";
+  os << "bin "<<y->GetNBins(s)-1<<" = "<<y->GetBinBorder(s,y->GetNBins(s)-1)<<" to infinity \n";     
+}
+void PrintResult(std::ostream& os, const std::string& s, const std::string& n, MyYields*y)
+{
+  int nbins=y->GetNBins(s);
+  double bins[nbins];
+  for (int i=1; i<nbins; ++i) { 
+    bins[i]=y->GetBinBorder(s,i);
+  }
+  os << n << " = ";
+  for (int i=1; i<=nbins; ++i) {
+      os << y->Weighted(s,i) << "  ";
+  }
+  os << "\n" << n << " stat uncert = ";
+  for (int i=1; i<=nbins; ++i) {
+      os << y->Error(s,i) << "  ";
+  }
+  os << "\n" << n << " syst uncert = ";
+  for (int i=1; i<=nbins; ++i) {
+      os << y->WeightError(s,i) << "  ";
+  }
+  os << std::endl;
+}
+
+void PrintResults(const std::string& dir, std::string file, std::string name, MyYields* direct, MyYields* yields, std::vector<MyYields*>* other )
+{
+  std::string d = "Results/"+dir;
+  struct stat st={0};
+  if(stat(d.c_str(),&st)==-1)
+     mkdir(d.c_str(), 0700);
+  std::ofstream out;
+  out.open (d+"/"+file+".txt");   
+  PrintBinning( out, name, direct );
+  PrintResult( out, name, "data selected", direct);
+  PrintResult( out, name, "data QCD", yields);
+  for (std::vector<MyYields*>::iterator oth=other->begin(); oth!=other->end(); ++oth)
+    PrintResult( out, name, (*oth)->Name(), *oth);    
+  out.close();  
+}
