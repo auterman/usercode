@@ -17,6 +17,7 @@ SRC=$(wildcard *.cc)
 
 message=${m}
 
+
 %.o: %.cc %.h
 		$(C) $(RCXX) -c $<
 		
