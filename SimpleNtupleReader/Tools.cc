@@ -375,7 +375,7 @@ void PrintResults(const std::string& dir, std::string file, std::string name, My
   if(stat(d.c_str(),&st)==-1)
      mkdir(d.c_str(), 0700);
   std::ofstream out;
-  out.open (d+"/"+file+".txt");   
+  out.open ((std::string)(d+"/"+file+".txt").c_str());   
   PrintBinning( out, name, direct );
   PrintResult( out, name, "data selected", direct);
   PrintResult( out, name, "data QCD", yields);
