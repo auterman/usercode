@@ -327,7 +327,7 @@ void RatioPlot(TH1*a, TH1*b,TH1*we, std::vector<TH1*> *sig, std::vector<TH1*> *o
 //  ratio((TH1F*)a->Clone(),(TH1F*)b->Clone(),0,dir,file,t,false);
 //  if (file=="Closure_Combined_met") Print(a,b,we);
 //  if (file=="Closure_QCD_met") Print(a,b,we);
-  if (file=="Closure_Data_met_fibo") Print(a,b,we);
+//  if (file=="Closure_Data_met_fibo") Print(a,b,we);
 
 }
 
@@ -335,29 +335,34 @@ void RatioPlot(TH1*a, TH1*b,TH1*we, std::vector<TH1*> *sig, std::vector<TH1*> *o
 void PrintBinning(std::ostream& os, const std::string& s, MyYields*y)
 {
   os << "# " << s <<"\n";
-  os << "nBins = "<<y->GetNBins(s)<<"\n";
+  int min=1;
+  for (int i=1; i<y->GetNBins(s); ++i) { 
+    if (y->GetBinBorder(s,i) <= 100.) min =i+1;;
+  }
   if (y->GetNBins(s)>1)
-    for (int i=1; i<y->GetNBins(s); ++i) 
-      os << "bin "<<i-1<<" = "<<y->GetBinBorder(s,i-1)<<" to "<<y->GetBinBorder(s,i)<<"\n";
-  os << "bin "<<y->GetNBins(s)-1<<" = "<<y->GetBinBorder(s,y->GetNBins(s)-1)<<" to infinity \n";     
+    for (int i=min; i<y->GetNBins(s); ++i) 
+      os << "bin "<<i-min<<" = "<<y->GetBinBorder(s,i-1)<<" to "<<y->GetBinBorder(s,i)<<"\n";
+  os << "bin "<<y->GetNBins(s)-min<<" = "<<y->GetBinBorder(s,y->GetNBins(s)-1)<<" to infinity \n";     
+  os << "nMetBins = "<<y->GetNBins(s) - min+1<<"\n";
+  os << "variable = "<<s<<std::endl;
 }
 void PrintResult(std::ostream& os, const std::string& s, const std::string& n, MyYields*y)
 {
   int nbins=y->GetNBins(s);
-  double bins[nbins];
+  int min=1;
   for (int i=1; i<nbins; ++i) { 
-    bins[i]=y->GetBinBorder(s,i);
+    if (y->GetBinBorder(s,i) <= 100.) min =i+1;;
   }
   os << n << " = ";
-  for (int i=1; i<=nbins; ++i) {
+  for (int i=min; i<=nbins; ++i) {
       os << y->Weighted(s,i) << "  ";
   }
   os << "\n" << n << " stat uncert = ";
-  for (int i=1; i<=nbins; ++i) {
+  for (int i=min; i<=nbins; ++i) {
       os << y->Error(s,i) << "  ";
   }
   os << "\n" << n << " syst uncert = ";
-  for (int i=1; i<=nbins; ++i) {
+  for (int i=min; i<=nbins; ++i) {
       os << y->WeightError(s,i) << "  ";
   }
   os << std::endl;
@@ -375,6 +380,6 @@ void PrintResults(const std::string& dir, std::string file, std::string name, My
   PrintResult( out, name, "data selected", direct);
   PrintResult( out, name, "data QCD", yields);
   for (std::vector<MyYields*>::iterator oth=other->begin(); oth!=other->end(); ++oth)
-    PrintResult( out, name, (*oth)->Name(), *oth);    
+    PrintResult( out, name, (*oth)->ResultName(), *oth);    
   out.close();  
 }

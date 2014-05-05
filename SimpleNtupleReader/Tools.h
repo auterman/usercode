@@ -31,6 +31,9 @@ const static int n_newmetbins = 17;
 const static double fibonacci[] = {0,5,10,15,25,40,65,100,170,285,455,740}; 
 const static int n_fibonacci = 11;
 
+const static double met_optim[] = {0,5,10,15,25,40,65,100,270,350,500}; 
+const static int n_met_optim = 10;
+
 const static double metphibins[] = {0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 3.0, 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9, 4.0, 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8, 4.9, 5.0, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.8, 5.9, 6.0, 6.1, 6.2, 6.3, 6.4}; 
 const static int n_metphibins = 64;
 
@@ -413,15 +416,18 @@ class MyYields
     double Weighted(      const std::string& s, int b)   {return y_[s]->Weighted(b);}
     double WeightError(   const std::string& s, int b)   {return y_[s]->WeightError(b);}
     int    Unweighted(    const std::string& s, int b)   {return y_[s]->Unweighted(b);}
+    double Integral(      const std::string& s)          {return y_[s]->Integral();}
     double Error(         const std::string& s, int b)   {return y_[s]->Error(b);}
     void   SetCorrelation(const std::string& s, bool corr){y_[s]->SetCorrelation(corr);}
     bool   GetCorrelation(const std::string& s)          {return y_[s]->GetCorrelation();}
     std::string Name(){return label_;}
+    std::string ResultName(){return resultlabel_;}
+    void SetResultName(const std::string&s){resultlabel_=s;}
     int FillColor(int c=-1){ return fillcolor_=(c>=0?c:fillcolor_);}
     int LineColor(int c=-1){ return linecolor_=(c>=0?c:linecolor_);}
       
   protected:
-    std::string label_; 
+    std::string label_, resultlabel_; 
     std::map<std::string, YieldDataClass*> y_;
     int fillcolor_, linecolor_;
 };
@@ -435,6 +441,9 @@ class Closure : public Processor<T> {
     virtual bool Process(T*t,Long64_t i,Long64_t n,double);
     virtual void Write();
     virtual void Book();
+    virtual void Terminate(){
+      std::cout << "  Summary Closure '"<<Processor<T>::name_<<std::endl;
+    };
 
     void AddRef(std::map<std::string,MyYields*> *y){   
         for (std::map<std::string,MyYields*>::iterator it=y->begin();it!=y->end();++it)
@@ -449,8 +458,12 @@ class Closure : public Processor<T> {
           direct_[it->first]->AddRef( it->second->GetRef() );
     }
     void AddSignalYields(std::map<std::string,MyYields*> *y){   
-        for (std::map<std::string,MyYields*>::iterator it=y->begin();it!=y->end();++it)
+        for (std::map<std::string,MyYields*>::iterator it=y->begin();it!=y->end();++it){
           signal_[it->first].push_back( it->second );
+	  //for (std::map<std::string, YieldDataClass*>::iterator p= it->second->GetRef()->begin();
+	  //     p!=it->second->GetRef()->end ();++p)
+	  //    std::cout << it->first << "; "<<p->first << "; integral = " << p->second->Integral()<<std::endl;
+	}  
     }
     void AddOtherYields(std::map<std::string,MyYields*> *y){   
         for (std::map<std::string,MyYields*>::iterator it=y->begin();it!=y->end();++it)
@@ -459,6 +472,7 @@ class Closure : public Processor<T> {
     std::map<std::string,MyYields*> * GetYields(){  return &yields_;}
     void FillColor(int c){for(std::map<std::string,MyYields*>::iterator it=yields_.begin();it!=yields_.end();++it)it->second->FillColor(c);}
     void LineColor(int c){for(std::map<std::string,MyYields*>::iterator it=yields_.begin();it!=yields_.end();++it)it->second->LineColor(c);}
+    void ResultName(const std::string&c){for(std::map<std::string,MyYields*>::iterator it=yields_.begin();it!=yields_.end();++it)it->second->SetResultName(c);}
     void SetLegTitel(std::string titel){legtitel_=titel;};
   
   protected:
@@ -504,6 +518,7 @@ void Closure<T>::Book()
   BookHistogram("met", "MET [GeV]","events", titel_,metbins, n_metbins+1);
   BookHistogram("met_new", "MET [GeV]","events", titel_,newmetbins, n_newmetbins+1);
   BookHistogram("met_fibo", "MET [GeV]","events", titel_,fibonacci, n_fibonacci+1);
+  BookHistogram("met_optim", "MET [GeV]","events", titel_,met_optim, n_met_optim+1);
   BookHistogram("met_systerr", "syst. unc. vs MET [GeV]","events", titel_,metbins, n_metbins+1);
   BookHistogram("met_trans", "transversal MET [GeV]","events", titel_,metbins, n_metbins+1);
   BookHistogram("met_paral", "parallel MET [GeV]","events", titel_,metbins, n_metbins+1);
@@ -584,8 +599,9 @@ void Closure<T>::Book()
     double de = denominator_->Error( b );   //loose stat. error
     double n = nominator_->Weighted( b );   //tight
     double ne = nominator_->Error( b );     //tight stat. error
-    weights_.push_back( (d==0?n_int/d_int :n / d) );
-    weighterrors_.push_back( (d==0?0.0: sqrt( ne*ne/(d*d) + de*de*n*n/(d*d*d*d) ) ) );
+    weights_.push_back( (d*n ==0?n_int/d_int :n / d) );
+    weighterrors_.push_back( (d*n ==0?n_int/d_int: 
+    				   sqrt( ne*ne/(d*d) + de*de*n*n/(d*d*d*d) ) ) );
     
     //if (d) std::cout << "QCD-rewighting bin "<<b
     //          << ": weight = "<<n<<" +- "<<ne<< " / "<<d<<" +- "<<de<<" = "<<n/d<<" +- "<<sqrt( ne*ne/(d*d) + de*de*n*n/(d*d*d*d) )
@@ -636,10 +652,13 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   if (t->ThePhoton<0||t->ThePhoton>t->photons_) std::cerr<<"t->ThePhoton="<<t->ThePhoton<<" but t->photons_="<<t->photons_<<std::endl; 
 
 //std::cout<<"1"<<std::endl;
+
+  //std::cout<<"met="<<t->met<< ", w="<<weight<<", we="<< we<<", b="<<bin<<std::endl;
   
   Fill("met",       t->met, weight, we, bin);
   Fill("met_new",   t->met, weight, we, bin);
-  Fill("met_fibo",   t->met, weight, we, bin);
+  Fill("met_fibo",  t->met, weight, we, bin);
+  Fill("met_optim", t->met, weight, we, bin);
   Fill("met_const", t->met, weight, we, bin);
   Fill("ht",        t->ht,  weight, we, bin);
   Fill("met_signif",t->metSig, weight, we, bin);
@@ -776,6 +795,8 @@ void Closure<T>::Write()
 	  sig->SetLineWidth( 3 );
           sig->SetTitle( (*s)->Name().c_str() ); 
           signal.push_back( sig );  
+	  
+	  std::cout << "Add signal "<< (*s)->Name() << " "<< it->first<<", int = "<<sig->Integral()<<std::endl;
 	}
       }  
       if (other_[it->first].size()) {
@@ -882,7 +903,7 @@ void Closure<T>::Write()
       float ne=yn.error();
       float de=yd.error();      
       corr_x->SetBinContent( x, (d==0?1.0:n / d) );
-      corr_x->SetBinError(   x, (d==0?1.0: sqrt( ne*ne/(d*d) + de*de*n*n/(d*d*d*d) ) ) );
+      corr_x->SetBinError(   x, (d==0?1.0:sqrt( ne*ne/(d*d) + de*de*n*n/(d*d*d*d) ) ) );
     }  
     for (int y=0; y<(*binning)[axis[1]]->GetNBins(); ++y){
       Yield yn, yd;
@@ -1142,6 +1163,10 @@ class Cutter_electronID : public Cutter<T> {
 
       ++Cutter<T>::i_pass;
       Cutter<T>::d_pass += w;
+      
+      if (!LeptonVeto(t->electrons_, t->electrons_pt, t->electrons_eta,t->muons_, t->muons_pt, t->muons_eta)   ) 
+	 return false;
+
       return true;
     }
 };

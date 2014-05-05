@@ -8,13 +8,9 @@ ROOTLIBS=$(shell root-config --libs) -lMinuit
 CFLAGS = $(SPECIALFLAGS) -fPIC  -I. -I./include -I$(SRT_PUBLIC_CONTEXT)/include -I$(ROOTSYS)/include -Wno-deprecated
 LFLAGS = $(SPECIALFLAGS) -lz 
 
-
 RCXX=$(CFLAGS) -c -fPIC -Wno-deprecated  $(ROOTCFLAGS)
 RLXX=$(LFLAGS) $(ROOTLIBS)
-
-#SRC=GJets_Photon.cc GJets_Jet.cc QCD_Photon.cc QCD_Jet.cc Interface.cc Tools.cc Reader.cc
 SRC=$(wildcard *.cc)
-
 message=${m}
 
 
