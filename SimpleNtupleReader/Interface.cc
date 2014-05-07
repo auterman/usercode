@@ -97,8 +97,8 @@ int TightMult(int n_g,float *g_pt, float *g_ptJet, float *g_phi, float *g_eta,fl
 
 bool LeptonVeto(int n_e, float * e_pt, float * e_eta, int n_m, float *m_pt, float *m_eta)
 {
-  for (int i=0;i<n_e;++i) if (e_pt[i]>15.&&fabs(e_eta[i])<2.5) return false;
-  for (int i=0;i<n_m;++i) if (m_pt[i]>15.&&fabs(m_eta[i])<2.5) return false;
+  for (int i=0;i<n_e;++i) if (e_pt[i]>25.&&fabs(e_eta[i])<2.5) return false;
+  for (int i=0;i<n_m;++i) if (m_pt[i]>25.&&fabs(m_eta[i])<2.5) return false;
   return true;
 }
 
