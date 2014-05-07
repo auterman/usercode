@@ -170,7 +170,18 @@ void Add2(TH1*h1, TH1*h2)
   }  
 }
 
-void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *other,const std::string& dir, const std::string& file,const std::string& legtitle, bool log) {
+void DivByBinWidth(TH1*h)
+{
+  for (int i=0; i<=h->GetXaxis()->GetNbins(); ++i) {
+    if (!h->GetXaxis()->GetBinWidth(i)) continue; 
+//    std::cout << "old: "<< h->GetBinContent(i);
+    h->SetBinContent(i, h->GetBinContent(i) / h->GetXaxis()->GetBinWidth(i) );
+    h->SetBinError(i,   h->GetBinError(i) / h->GetXaxis()->GetBinWidth(i) );
+//    std::cout << ";  new: "<< h->GetBinContent(i)<<std::endl;
+  }  
+}
+
+void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *other,const std::string& dir, const std::string& file,const std::string& legtitle, const std::string& log) {
    //std::cout<<"ratio plot for: "<< file<<std::endl; 
 
    std::stringstream ss;
@@ -178,9 +189,27 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
    TCanvas *c1 = new TCanvas(((std::string)"c_"+ss.str()).c_str(),"example",600,600);
    TPad *pad1 = new TPad(((std::string)"pada_"+ss.str()).c_str(),"pada",0,0.3,1,1);
    pad1->SetBottomMargin(0);
-   pad1->SetLogy(log);
+   pad1->SetLogy(log=="log"||log=="log_div");
    pad1->Draw();
    pad1->cd();
+   //overflowbin
+   ShowOverflow( h1 );
+   ShowOverflow( h2 );
+   ShowOverflow( we );
+   for (std::vector<TH1*>::iterator o=other->begin();o!=other->end();++o)
+     if (*o){       (*o)->Sumw2();        ShowOverflow( *o );}
+   for (std::vector<TH1*>::iterator s=sig->begin();s!=sig->end();++s)
+     if (*s) ShowOverflow( *s );
+   //divide by bin width
+   if (log=="log_div") {
+     DivByBinWidth(h1);
+     DivByBinWidth(h2);
+     DivByBinWidth(we);
+     for (std::vector<TH1*>::iterator o=other->begin();o!=other->end();++o)
+       if (*o) DivByBinWidth( *o );
+     for (std::vector<TH1*>::iterator s=sig->begin();s!=sig->end();++s)
+       if (*s) DivByBinWidth( *s );  
+   }
    if (!we) we=h2;
    we->SetLineColor(2);
    we->SetFillColor(2);
@@ -201,23 +230,17 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
    leg->AddEntry(hleg,h2->GetTitle(),"lef");
    THStack hs("hs","CMS preliminary          #leq1#gamma, #leq2jets");
    gStyle->SetTitleSize(0.2,"t");
-   ShowOverflow( h1 );
-   ShowOverflow( h2 );
-   ShowOverflow( we );
-   ShowOverflow( cover );
    for (std::vector<TH1*>::iterator o=other->begin();o!=other->end();++o)
      if (*o){
-       (*o)->Sumw2(); 
-       ShowOverflow( *o );
        hs.Add(*o);
        leg->AddEntry(*o,(*o)->GetTitle(),"f");
      }
    hs.Add( (TH1F*)h2->Clone());
    for (std::vector<TH1*>::iterator s=sig->begin();s!=sig->end();++s)
      if (*s) {
-       ShowOverflow( *s );
        leg->AddEntry(*s,  (*s)->GetTitle(),  "l");
      }  
+     
    leg->SetHeader(legtitle.c_str());
    for (int i=1; i<=we->GetXaxis()->GetNbins();++i){
      cover->SetBinContent(i, ((TH1F*)hs.GetStack()->Last())->GetBinContent(i) - we->GetBinContent(i));
@@ -226,10 +249,14 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
      cover->SetBinError(i,0);
    }
    h1->GetYaxis()->SetTitleOffset(1.1);
-   if (!log) we->SetMinimum(0);
-   if (!log && h1->GetMaximum()>we->GetMaximum()) we->SetMaximum(h1->GetMaximum()+sqrt(h1->GetMaximum()));
-   if (log  && h1->GetMaximum()>we->GetMaximum()) we->SetMaximum(5.*h1->GetMaximum());   
-   we->SetMinimum( 3*log );
+   if (log=="linear") we->SetMinimum(0);
+   if (log=="linear" && h1->GetMaximum()>we->GetMaximum()) we->SetMaximum(h1->GetMaximum()+sqrt(h1->GetMaximum()));
+   if ((log=="log"||log=="log_div") && h1->GetMaximum()>we->GetMaximum()) we->SetMaximum(5.*h1->GetMaximum());   
+   if (log=="log") we->SetMinimum( 3 );
+   if (log=="log_div") {
+      we->SetMinimum( 0.05 );
+      we->GetYaxis()->SetTitle("events / GeV");
+   }   
    h1->SetStats(0);
    h2->SetStats(0);
    we->SetStats(0);
@@ -284,8 +311,7 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
    line->Draw("same");
    pad2->RedrawAxis();
    c1->cd();
-   if (log) c1->SaveAs((dir+"/log/"+file+"_log.pdf").c_str());
-   else     c1->SaveAs((dir+"/linear/"+file+".pdf").c_str());
+   c1->SaveAs((dir+"/"+log+"/"+file+"_log.pdf").c_str());
    delete pad2;
    delete pad1;
    delete c1;
@@ -310,6 +336,9 @@ void RatioPlot(TH1*a, TH1*b,TH1*we, std::vector<TH1*> *sig, std::vector<TH1*> *o
      mkdir(((std::string)dir+"/log/").c_str(), 0700);
   if(stat(((std::string)dir+"/linear/").c_str(),&st)==-1)
      mkdir(((std::string)dir+"/linear/").c_str(), 0700);
+  if(stat(((std::string)dir+"/log_div/").c_str(),&st)==-1)
+     mkdir(((std::string)dir+"/log_div/").c_str(), 0700);
+
   if (!a) {
     TCanvas * c1 = new TCanvas("","",600,600);  
     gPad->SetLogy(0);
@@ -321,8 +350,9 @@ void RatioPlot(TH1*a, TH1*b,TH1*we, std::vector<TH1*> *sig, std::vector<TH1*> *o
     return;
   }
   a->SetMarkerStyle(8);
-  ratio((TH1F*)a->Clone(),(TH1F*)b->Clone(),(TH1F*)we->Clone(),sig,other,dir,file,t,true);
-  ratio((TH1F*)a->Clone(),(TH1F*)b->Clone(),(TH1F*)we->Clone(),sig,other,dir,file,t,false);
+  ratio((TH1F*)a->Clone(),(TH1F*)b->Clone(),(TH1F*)we->Clone(),sig,other,dir,file,t,"log");
+  ratio((TH1F*)a->Clone(),(TH1F*)b->Clone(),(TH1F*)we->Clone(),sig,other,dir,file,t,"linear");
+  ratio((TH1F*)a->Clone(),(TH1F*)b->Clone(),(TH1F*)we->Clone(),sig,other,dir,file,t,"log_div");
 //  ratio((TH1F*)a->Clone(),(TH1F*)b->Clone(),0,dir,file,t,true);
 //  ratio((TH1F*)a->Clone(),(TH1F*)b->Clone(),0,dir,file,t,false);
 //  if (file=="Closure_Combined_met") Print(a,b,we);

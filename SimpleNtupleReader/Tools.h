@@ -259,7 +259,7 @@ class Yields{
        AddBinning("recoil_pt",    fak1p5_bins, n_fak1p5_bins+1, b_PtRecoil);
 //       AddBinning("phi_Rec_Em1",  bins_16_nPi_Pi, 16+1, b_PhiRecoilEm1);
 
-       //AddBinning("singleBin",    single_bin, 1, b_zero);
+//       AddBinning("singleBin",    single_bin, 1, b_zero);
        //AddBinning("photon_ptstar",bins_test_ptstar, n_test_ptstar+1, b_PtPhoton);
        //AddBinning("ht",           bins_test_ht, n_test_ht+1, b_HT);
 //       AddBinning("photon_ptstar",bins_50_0_1000, n_50+1, b_PtPhoton);
@@ -632,6 +632,8 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
     we = weighterrors_[bin];
   } else 
     weight_ = 1.0;
+
+    
   //int bin = yields_->GetBin( t->met,0,0 );
   //yields_->GetYield( bin )->Add( 1, Plotter<T>::weight_ * w );
   
@@ -639,8 +641,8 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   //myYields_->Add("met", myYields_->GetBin("met",t->met), 1, Plotter<T>::weight_ * w  );
 
   double weight = weight_ * w ;
-  //weight *= t->weight;
-  we *= w;//(w * t->weight);
+  weight *= t->weight;
+  we *= w * t->weight;
 
 //  std::cout << "Closure<T>::Process(T*t,Long64_t i="<<i<<",Long64_t n="<<n<<",double w="<<w<<")"
 //            << "  weight = "<<weight<<", we = "<<we
@@ -796,7 +798,7 @@ void Closure<T>::Write()
           sig->SetTitle( (*s)->Name().c_str() ); 
           signal.push_back( sig );  
 	  
-	  std::cout << "Add signal "<< (*s)->Name() << " "<< it->first<<", int = "<<sig->Integral()<<std::endl;
+	  //std::cout << "Add signal "<< (*s)->Name() << " "<< it->first<<", int = "<<sig->Integral()<<std::endl;
 	}
       }  
       if (other_[it->first].size()) {
@@ -1065,12 +1067,12 @@ class Cutter_looseID : public Cutter<T> {
 	   } 
 	}   	
       }	
+
       if (found_pt==0 
           || 
           !LeptonVeto(t->electrons_, t->electrons_pt, t->electrons_eta,t->muons_, t->muons_pt, t->muons_eta)
          ) 
 	 return false;
-
       ++Cutter<T>::i_pass;
       Cutter<T>::d_pass += w;
       return true;
@@ -1087,7 +1089,6 @@ class Cutter_tightID : public Cutter<T> {
     virtual bool Process(T*t,Long64_t i,Long64_t n,double w) {
       ++Cutter<T>::i_tot;
       Cutter<T>::d_tot += w;
-
 /*
       if (!t->photons_) return false;
       t->ThePhotonPt  = (t->photons__ptJet[0]>0?t->photons__ptJet[0]:t->photons_pt[0]);
@@ -1125,12 +1126,12 @@ class Cutter_tightID : public Cutter<T> {
 	   } 
 	}   	
       }	
+
       if (found_pt==0 
           || 
           !LeptonVeto(t->electrons_, t->electrons_pt, t->electrons_eta,t->muons_, t->muons_pt, t->muons_eta)
          ) 
 	 return false;
-
       //Debugging for Knut:
       //if (t->ThePhoton!=0)
       //  std::cout << "evt nr:" << t->eventNumber << ", rn: " <<t->runNumber<<", lbnr: "<< t->luminosityBlockNumber <<std::endl;
@@ -1156,7 +1157,7 @@ class Cutter_electronID : public Cutter<T> {
       //Nothing to do here: Knut says first entry of photon array (of photonElectronTree) is a good electron with tight ID except picexl seed veto
       if (t->photons_<=0) return false;
 
-      t->ThePhotonPt  = t->photons_pt[0];
+      t->ThePhotonPt  = (t->photons__ptJet[0]>0?t->photons__ptJet[0]:t->photons_pt[0]);;
       t->ThePhotonPhi = t->photons_phi[0]; 
       t->ThePhotonEta = t->photons_eta[0];
       t->ThePhoton = 0;

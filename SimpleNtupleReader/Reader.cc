@@ -224,14 +224,14 @@ int do_data(){
   v_ISR_g.push_back( &presel_isr_g );
   v_ISR_g.push_back( &ISR_g );
   v_ISR_g.push_back( &direct_isr );
-  Process<ISR_Photon>("photonTree",v_ISR_g,"data/V03.06/TTGamma_V03.06_tree.root",2.166*19789/1719954);       //2.166*19800/1719954
-  Process<ISR_Photon>("photonTree",v_ISR_g,"data/V03.06/WGamma_50_130_V03.06_tree.root",1.17*19789/1135698); //1.17*19800/1135698
-  Process<ISR_Photon>("photonTree",v_ISR_g,"data/V03.06/WGamma_130_inf_V03.06_tree.root",0.2571*19789/471458);//0.2571*19800/471458
-  Process<ISR_Photon>("photonTree",v_ISR_g,"data/V03.06/ZGammaNuNu_V03.06_tree.root",0.074*19789/489474);    //0.074*19800/489474
-//  Process<ISR_Photon>("photonTree",v_ISR_g,"data/V03.13/TTGamma_V03.13_tree.root",2.166*19789/1719954);       //2.166*19800/1719954
-//  Process<ISR_Photon>("photonTree",v_ISR_g,"data/V03.13/WGamma_50_130_V03.13_tree.root",1.17*19789/1135698); //1.17*19800/1135698
-//  Process<ISR_Photon>("photonTree",v_ISR_g,"data/V03.13/WGamma_130_inf_V03.13_tree.root",0.2571*19789/471458);//0.2571*19800/471458
-//  Process<ISR_Photon>("photonTree",v_ISR_g,"data/V03.13/ZGammaNuNu_V03.13_tree.root",0.074*19789/489474);    //0.074*19800/489474
+//  Process<ISR_Photon>("photonTree",v_ISR_g,"data/V03.06/TTGamma_V03.06_tree.root",2.166*19789/1719954);       //2.166*19800/1719954
+//  Process<ISR_Photon>("photonTree",v_ISR_g,"data/V03.06/WGamma_50_130_V03.06_tree.root",1.17*19789/1135698); //1.17*19800/1135698
+//  Process<ISR_Photon>("photonTree",v_ISR_g,"data/V03.06/WGamma_130_inf_V03.06_tree.root",0.2571*19789/471458);//0.2571*19800/471458
+//  Process<ISR_Photon>("photonTree",v_ISR_g,"data/V03.06/ZGammaNuNu_V03.06_tree.root",0.074*19789/489474);    //0.074*19800/489474
+  Process<ISR_Photon>("photonTree",v_ISR_g,"data/V03.13/TTGamma_V03.13_tree.root",2.166*19789/1719954);       //2.166*19800/1719954
+  Process<ISR_Photon>("photonTree",v_ISR_g,"data/V03.13/WGamma_50_130_V03.13_tree.root",1.17*19789/1135698); //1.17*19800/1135698
+  Process<ISR_Photon>("photonTree",v_ISR_g,"data/V03.13/WGamma_130_inf_V03.13_tree.root",0.2571*19789/471458);//0.2571*19800/471458
+  Process<ISR_Photon>("photonTree",v_ISR_g,"data/V03.13/ZGammaNuNu_V03.13_tree.root",0.074*19789/489474);    //0.074*19800/489474
   ISR_g.Write();
 
   std::cout << "\nSignal Photon Tree\n======================" <<std::endl;
