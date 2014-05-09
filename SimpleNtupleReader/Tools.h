@@ -6,6 +6,7 @@
 #include "TH2F.h"
 #include "TCanvas.h"
 #include "TPad.h"
+#include "TStyle.h"
 
 #include <map>
 #include <set>
@@ -22,8 +23,8 @@
 const static double fak1p5_bins[] = {0,1,1.5,2.25,3.375,5.0625,7.59375,11.3906,17.0859,25.6289,38.4434,57.665,86.4976,129.746,194.62,291.929,437.894,656.841,985.261,1477.89,2000};
 const static int n_fak1p5_bins = 20;
 
-const static double metbins[] = {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 160, 200, 270, 350, 500}; 
-const static int n_metbins = 16;
+const static double metbins[] = {0, 10, 20, 30, 40, 50, 60, 70, 80, 100, 120, 160, 200, 270, 350, 500}; 
+const static int n_metbins = 15;
 
 const static double newmetbins[] = {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 150, 200, 260, 340, 430, 550}; 
 const static int n_newmetbins = 17;
@@ -236,28 +237,16 @@ class Yields{
       /// QCD Reweighting binning definition
       ///
       /// ------------------------------------------------------------
-      //binning_["photon_ptstar"] = new Binnings(bins_50_0_1000, n_50+1);
-      //binning_["recoil_pt"] = new Binnings(bins_50_0_1500, n_50+1);
-      //binning_["phi_met_em1"] = new Binnings(bins_64_nPi_Pi, n_64+1);
-      //binning_["phi_mht_em1"] = new Binnings( bins_64_nPi_Pi, n_64+1);
-      //binning_["phi_mht_recoil"] = new Binnings( bins_64_nPi_Pi, n_64+1);
-      //binning_["phi_recoil_em1"] = new Binnings( bins_64_nPi_Pi, n_64+1);
-      //binning_["ht"] = new Binnings(bins_50_0_1500, n_50+1);
-      
-//      double single_bin[0] = {};
-//      binning_["singleBin"] = new Binnings( single_bin, 1);
 
-//       AddBinning("photon_ptstar",bins_50_0_1000, n_50+1, b_PtPhoton);
-//       AddBinning("recoil_pt",    bins_50_0_1500, n_50+1, b_PtRecoil);
-//       AddBinning("ht",    bins_50_0_1500, n_50+1, b_HT);
-//       AddBinning("PtEm1_Over_Ptrecoil",    bins_200_0_10, 200+1, b_Ptem1_Ptrecoil);
+       AddBinning("#gamma p_{T}* [GeV]",       fak1p5_bins, n_fak1p5_bins+1, b_PtPhoton);
+       AddBinning("Hadr. Recoil p_{T} [GeV]", fak1p5_bins, n_fak1p5_bins+1, b_PtRecoil);
+       
 
 
-
-       AddBinning("photon_ptstar",fak1p5_bins, n_fak1p5_bins+1, b_PtPhoton);
+       //AddBinning("photon_ptstar",fak1p5_bins, n_fak1p5_bins+1, b_PtPhoton);
        //AddBinning("ht",           fak1p5_bins, n_fak1p5_bins+1, b_HT);
-       AddBinning("recoil_pt",    fak1p5_bins, n_fak1p5_bins+1, b_PtRecoil);
-//       AddBinning("phi_Rec_Em1",  bins_16_nPi_Pi, 16+1, b_PhiRecoilEm1);
+       //AddBinning("recoil_pt",    fak1p5_bins, n_fak1p5_bins+1, b_PtRecoil);
+       //AddBinning("phi_Rec_Em1",  bins_16_nPi_Pi, 16+1, b_PhiRecoilEm1);
 
 //       AddBinning("singleBin",    single_bin, 1, b_zero);
        //AddBinning("photon_ptstar",bins_test_ptstar, n_test_ptstar+1, b_PtPhoton);
@@ -778,6 +767,7 @@ void PrintResults(const std::string& dir, std::string file, std::string name, My
 template<typename T>
 void Closure<T>::Write()
 {
+
   for (std::map<std::string,MyYields*>::iterator it=yields_.begin();it!=yields_.end();++it) {
     TH1 * pred = it->second->GetPlot(it->first);
     TH1 * we   = it->second->GetWeightErrorPlot(it->first);
@@ -875,7 +865,7 @@ void Closure<T>::Write()
     }
 
     TH2F * w = new TH2F( ss.str().c_str(),
-                    ((std::string)"QCD weighting;"+axis[0]+";"+axis[1]).c_str(),
+                    ((std::string)"QCD weighting;"+axis[0]+";"+axis[1]+";weight").c_str(),
                     n1-1,a1,n2-1,a2
 		  );
     TH1F * corr_x = new TH1F(((std::string)"h_corr_x_"+Processor<T>::name_).c_str(),
@@ -927,23 +917,44 @@ void Closure<T>::Write()
        mkdir(((std::string)dir_+"/log/").c_str(), 0700);
     TCanvas * c1 = new TCanvas("cw1","cw1",600,600);
     c1->cd();
-    gPad->SetLogy(0);
-    gPad->SetLogz(1);
+    TPad *pad = new TPad(((std::string)"padc_"+ss.str()).c_str(),"padc",0,0,1,1);
+    //pad->SetBottomMargin(0.1);
+    pad->SetLeftMargin(0.12);
+    pad->SetRightMargin(0.15);
+    pad->SetLogy(0);
+    pad->SetLogz(1);
+    pad->Draw();
+    pad->cd();
+    w->SetStats(0);
+    we->SetStats(0);
+    w->SetTitle("");
+    we->SetTitle("");
+    gStyle->SetPalette(53,0);
+    gStyle->SetNumberContours(512);
+    w->GetZaxis()->SetRangeUser(0.8,20);
+    we->GetZaxis()->SetRangeUser(0.05,5);
+    w->GetYaxis()->SetTitleOffset(1.7);
+    we->GetYaxis()->SetTitleOffset(1.7);
+    w->GetZaxis()->SetTitleOffset(1.3);
+    we->GetZaxis()->SetTitleOffset(1.3);
+    we->GetZaxis()->SetTitle("weight stat. uncertainty");
     w->Draw("Colz");
-    c1->SaveAs(((std::string)dir_+"/log/h2_weight_"+Processor<T>::name_+".pdf").c_str());
+    c1->SaveAs(((std::string)"plots/"+dir_+"/log/h2_weight_"+Processor<T>::name_+".pdf").c_str());
     we->Draw("Colz");
-    c1->SaveAs(((std::string)dir_+"/log/h2_weighterror_"+Processor<T>::name_+".pdf").c_str());
+    pad->RedrawAxis();
+    c1->SaveAs(((std::string)"plots/"+dir_+"/log/h2_weighterror_"+Processor<T>::name_+".pdf").c_str());
+/*
     nom->Draw("Colz");
-    c1->SaveAs(((std::string)dir_+"/log/h2_nominator_"+Processor<T>::name_+".pdf").c_str());
+    c1->SaveAs(((std::string)"plots/"+dir_+"/log/h2_nominator_"+Processor<T>::name_+".pdf").c_str());
     denom->Draw("Colz");
-    c1->SaveAs(((std::string)dir_+"/log/h2_denominator_"+Processor<T>::name_+".pdf").c_str());
-    gPad->SetLogz(0);
+    c1->SaveAs(((std::string)"plots/"+dir_+"/log/h2_denominator_"+Processor<T>::name_+".pdf").c_str());
     
     corr_x->Draw("pe");
-    c1->SaveAs(((std::string)dir_+"/log/h1_correlationX_"+Processor<T>::name_+".pdf").c_str());
+    c1->SaveAs(((std::string)"plots/"+dir_+"/log/h1_correlationX_"+Processor<T>::name_+".pdf").c_str());
     corr_y->Draw("pe");
-    c1->SaveAs(((std::string)dir_+"/log/h1_correlationY_"+Processor<T>::name_+".pdf").c_str());
-
+    c1->SaveAs(((std::string)"plots/"+dir_+"/log/h1_correlationY_"+Processor<T>::name_+".pdf").c_str());
+*/
+    delete pad;
     delete we;
     delete w;
     delete nom;
@@ -951,6 +962,7 @@ void Closure<T>::Write()
     delete corr_x;
     delete corr_y;
     delete c1; 
+    gStyle->SetPalette(1,0);
   }
 //std::cout <<"void Closure<T>::Write() dim="<< std::endl;
 
@@ -1000,8 +1012,7 @@ class Cutter : public Processor<T> {
          //||
 	// || t->photons__ptJet[t->ThePhoton]<=0
          // Recoil_pt(  &recoil )<150.
-      if ( t->ThePhotonPt<110.  
-         //  || t->photons__ptJet[t->ThePhoton]<=0
+      if ( t->ThePhotonPt<110. 
          ) {
 	return false;
       }	

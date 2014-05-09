@@ -55,9 +55,9 @@ bool loose_isolated(double pt, double ptstar, double phi, double eta, double HoE
 	  (chaIso < 5.2 || (neuIso < 3.5 + 0.04*pT && phoIso < 1.3 + 0.005*pT)) &&
 	  (neuIso < 7 + 0.06*pT || (chaIso < 2.6 && phoIso < 1.3 + 0.005*pT)) &&
 	  (phoIso < 2.6 + 0.0075*pT || (chaIso < 2.6 &&	neuIso < 3.5 + 0.04*pT))
-//	 (chaIso < 5.2  &&
-//	  neuIso < 7 + 0.06*pT  &&
-//	  phoIso < 2.6 + 0.0075*pT  )
+//	 ((chaIso < 5.2 && (neuIso < 3.5 + 0.04*pT && phoIso < 1.3 + 0.005*pT)) ||
+//	  (neuIso < 7 + 0.06*pT && (chaIso < 2.6 && phoIso < 1.3 + 0.005*pT)) ||
+//	  (phoIso < 2.6 + 0.0075*pT && (chaIso < 2.6 &&	neuIso < 3.5 + 0.04*pT)))
 	 );
 }		    
 
@@ -106,7 +106,8 @@ ROOT::Math::PtEtaPhiEVector Recoil(float g_pt, float g_eta, float g_phi, float *
 {
   ROOT::Math::PtEtaPhiEVector recoil;
   for (int i=0; i<njets; ++i){
-    if (jets_pt[i]<30. || fabs(jets_eta[i])>3.0 || deltaR(g_eta,g_phi,jets_eta[i],jets_phi[i])<0.5 ) continue;
+//    if (jets_pt[i]<30. || fabs(jets_eta[i])>3.0 || deltaR(g_eta,g_phi,jets_eta[i],jets_phi[i])<0.5 ) continue;
+      if (jets_pt[i]<10. || fabs(jets_eta[i])>6.0 || deltaR(g_eta,g_phi,jets_eta[i],jets_phi[i])<0.5 ) continue;
     double E=jets_pt[i] * cos( 2.*atan( exp(-jets_eta[i]) ));
     ROOT::Math::PtEtaPhiEVector jet(jets_pt[i],jets_eta[i],jets_phi[i],E);
     recoil += jet;
