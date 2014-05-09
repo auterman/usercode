@@ -5,6 +5,7 @@
 #include "TLegend.h"
 #include "THStack.h"
 #include "TStyle.h"
+#include "TArrow.h"
 
 #include <iostream>
 #include <fstream>
@@ -138,6 +139,7 @@ TH1 * MyYields::GetWeightErrorPlot(const std::string& s, TH1*h)
   for (int i=0; i<nbins; ++i) {
       double sys = WeightError(s,i);
       r->SetBinContent(i, sys );
+      r->SetBinError(i, 0 );
       if (h) h->SetBinError(i, sqrt(pow(h->GetBinError(i),2)+sys*sys ));
   }
   return r;
@@ -233,7 +235,8 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
    for (std::vector<TH1*>::iterator o=other->begin();o!=other->end();++o)
      if (*o){
        hs.Add(*o);
-       leg->AddEntry(*o,(*o)->GetTitle(),"f");
+       if (((std::string)(*o)->GetTitle())!="") 
+         leg->AddEntry(*o,(*o)->GetTitle(),"f");
      }
    hs.Add( (TH1F*)h2->Clone());
    for (std::vector<TH1*>::iterator s=sig->begin();s!=sig->end();++s)
@@ -266,7 +269,7 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
    hs.Draw("same hist fe");
    h1->DrawCopy("pe,same");
    for (std::vector<TH1*>::iterator s=sig->begin();s!=sig->end();++s)
-     if (*s) (*s)->DrawCopy("h,same");
+     if (*s) (*s)->DrawCopy("hist,h,same");
    leg->Draw("same");
    pad1->RedrawAxis();
    c1->cd();
@@ -301,8 +304,8 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
    h1->SetMarkerSize(1);
    h1->SetMarkerColor(1);
    h1->SetLineColor(1);
-   we->Draw("h X0");
-   cover->Draw("h,X0,same");
+   we->Draw("hist,h");
+   cover->Draw("hist,same");
    h2->Draw("E X0,same");
    h1->Draw("E X0,same");
    TLine *line = new TLine(h1->GetXaxis()->GetXmin(), 1, h1->GetXaxis()->GetXmax(), 1);
@@ -310,6 +313,16 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
    line->SetLineStyle(2);
    line->Draw("same");
    pad2->RedrawAxis();
+   if (file=="Closure_Data_met_arrow"){
+     TLine * l = new TLine(100,0,100,3);
+     l->SetLineWidth(4);
+     l->Draw();
+     pad1->cd();
+     l->DrawLine(100,0.01,100,20000);
+     TArrow * a = new TArrow(100,5000,150,5000);
+     a->SetLineWidth(4);
+     a->Draw();
+   }
    c1->cd();
    c1->SaveAs((dir+"/"+log+"/"+file+"_log.pdf").c_str());
    delete pad2;

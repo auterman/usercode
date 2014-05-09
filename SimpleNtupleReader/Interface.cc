@@ -97,8 +97,8 @@ int TightMult(int n_g,float *g_pt, float *g_ptJet, float *g_phi, float *g_eta,fl
 
 bool LeptonVeto(int n_e, float * e_pt, float * e_eta, int n_m, float *m_pt, float *m_eta)
 {
-  for (int i=0;i<n_e;++i) if (e_pt[i]>25.&&fabs(e_eta[i])<2.5) return false;
-  for (int i=0;i<n_m;++i) if (m_pt[i]>25.&&fabs(m_eta[i])<2.5) return false;
+  for (int i=0;i<n_e;++i) if (e_pt[i]>15.&&fabs(e_eta[i])<2.5) return false;
+  for (int i=0;i<n_m;++i) if (m_pt[i]>15.&&fabs(m_eta[i])<2.5) return false;
   return true;
 }
 
@@ -106,8 +106,8 @@ ROOT::Math::PtEtaPhiEVector Recoil(float g_pt, float g_eta, float g_phi, float *
 {
   ROOT::Math::PtEtaPhiEVector recoil;
   for (int i=0; i<njets; ++i){
-//    if (jets_pt[i]<30. || fabs(jets_eta[i])>3.0 || deltaR(g_eta,g_phi,jets_eta[i],jets_phi[i])<0.5 ) continue;
-      if (jets_pt[i]<10. || fabs(jets_eta[i])>6.0 || deltaR(g_eta,g_phi,jets_eta[i],jets_phi[i])<0.5 ) continue;
+    if (jets_pt[i]<30. || fabs(jets_eta[i])>3.0 || deltaR(g_eta,g_phi,jets_eta[i],jets_phi[i])<0.5 ) continue;
+//      if (jets_pt[i]<10. || fabs(jets_eta[i])>6.0 || deltaR(g_eta,g_phi,jets_eta[i],jets_phi[i])<0.5 ) continue;
     double E=jets_pt[i] * cos( 2.*atan( exp(-jets_eta[i]) ));
     ROOT::Math::PtEtaPhiEVector jet(jets_pt[i],jets_eta[i],jets_phi[i],E);
     recoil += jet;

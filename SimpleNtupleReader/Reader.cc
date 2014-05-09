@@ -237,6 +237,25 @@ int do_data(){
   //Process<ISR_Photon>("photonTree",v_ISR_g,"data/V03.13/ZGammaNuNu_V03.13_tree.root",1.5* 0.074*19789/489474);    //0.074*19800/489474
   ISR_g.Write();
 
+  std::cout << "\nisr2 Photon Tree\n======================" <<std::endl;
+  std::vector<Processor<ISR_Photon>*> v_isr2_g;
+  Status<ISR_Photon> status_isr2_g("Status ISR2_Photon");
+  Plotter<ISR_Photon> isr2_g(version,"ISR2_Photon");
+  ISR_prediction<ISR_Photon> direct_isr2("","Direct_isr2", "");
+  Cutter<ISR_Photon> presel_isr2_g("Presel_ISR2_Photon");
+  DoubleCountFilter<ISR_Photon> double_isr2_g("DoublicateFilter_ISR2_Photon");
+  Cutter_tightID_SansLeptonVeto<ISR_Photon> tightIDsansLveta_isr2_g("TightPhotonId_ISR2_Photon");
+  direct_isr2.Book();
+  isr2_g.Book();
+  v_isr2_g.push_back( &status_isr2_g );
+  v_isr2_g.push_back( &tightIDsansLveta_isr2_g );
+  v_isr2_g.push_back( &double_isr2_g );
+  v_isr2_g.push_back( &presel_isr2_g );
+  v_isr2_g.push_back( &isr2_g );
+  v_isr2_g.push_back( &direct_isr2 );
+  Process<ISR_Photon>("photonTree",v_isr2_g,"data/modifiedZGammaLL_V02.19b_tree.root",1.5*0.5* 132.6*19789/6588161);    //0.074*19800/489474
+  isr2_g.Write();
+
   std::cout << "\nSignal Photon Tree\n======================" <<std::endl;
   std::vector<Processor<Signal_Photon>*> v_Signal_g;
   Status<Signal_Photon> status_signal_g("Status Signal_Photon");
@@ -362,10 +381,12 @@ int do_data(){
   direct_signal.LineColor( 3 );
   direct_isr.ResultName( "ISR" );
   direct_isr.FillColor( 4 );
+  direct_isr2.FillColor( 4 );
   prediction_ewk.ResultName( "data EWK" );
   prediction_ewk.FillColor( 5 );
   closure_data.AddSignalYields( direct_signal.GetYields());   //Signal
   closure_data.AddOtherYields(  direct_isr.GetYields());      //ISR
+  closure_data.AddOtherYields(  direct_isr2.GetYields());      //ISR2
   closure_data.AddOtherYields(  prediction_ewk.GetYields());  //EWK
   closure_data.Book();
   std::vector<Processor<Data_Jet>*> vc_data_j;

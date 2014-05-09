@@ -238,7 +238,7 @@ class Yields{
       ///
       /// ------------------------------------------------------------
 
-       AddBinning("#gamma p_{T}* [GeV]",       fak1p5_bins, n_fak1p5_bins+1, b_PtPhoton);
+       AddBinning("#gamma p_{T}* [GeV]",      fak1p5_bins, n_fak1p5_bins+1, b_PtPhoton);
        AddBinning("Hadr. Recoil p_{T} [GeV]", fak1p5_bins, n_fak1p5_bins+1, b_PtRecoil);
        
 
@@ -505,14 +505,15 @@ void Closure<T>::Book()
   BookHistogram("n_loose",  "loose photon multiplicity","events", titel_,bins_11_0_10, 12);
   BookHistogram("n_tight",  "tight photon multiplicity","events", titel_,bins_11_0_10, 12);
   BookHistogram("met", "MET [GeV]","events", titel_,metbins, n_metbins+1);
+  BookHistogram("met_arrow", "MET [GeV]","events", titel_,metbins, n_metbins+1);
   BookHistogram("met_new", "MET [GeV]","events", titel_,newmetbins, n_newmetbins+1);
   BookHistogram("met_fibo", "MET [GeV]","events", titel_,fibonacci, n_fibonacci+1);
   BookHistogram("met_optim", "MET [GeV]","events", titel_,met_optim, n_met_optim+1);
   BookHistogram("met_systerr", "syst. unc. vs MET [GeV]","events", titel_,metbins, n_metbins+1);
   BookHistogram("met_trans", "transversal MET [GeV]","events", titel_,metbins, n_metbins+1);
   BookHistogram("met_paral", "parallel MET [GeV]","events", titel_,metbins, n_metbins+1);
-  BookHistogram("ht",  "Ht [GeV]","events", titel_,htbins,  n_htbins+1);
-  BookHistogram("met_const",  "MET [GeV]","events", titel_, bins_50_0_1000, n_50+1);
+  BookHistogram("ht",  "Ht [GeV]","events", titel_, htbins,  n_htbins+1);
+  BookHistogram("met_const",  "MET [GeV]","events", titel_, bins_50_0_500, n_50+1);
   BookHistogram("met_corr",  "corrected MET [GeV]","events", titel_, bins_50_0_1000, n_50+1);
   BookHistogram("met_phi",  "#phi_{MET}","events", titel_, metphibins, n_metphibins+1);
   BookHistogram("met_signif",  "MET Significance","events", titel_, bins_50_0_100, n_50+1);
@@ -647,6 +648,7 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   //std::cout<<"met="<<t->met<< ", w="<<weight<<", we="<< we<<", b="<<bin<<std::endl;
   
   Fill("met",       t->met, weight, we, bin);
+  Fill("met_arrow", t->met, weight, we, bin);
   Fill("met_new",   t->met, weight, we, bin);
   Fill("met_fibo",  t->met, weight, we, bin);
   Fill("met_optim", t->met, weight, we, bin);
@@ -1142,6 +1144,57 @@ class Cutter_tightID : public Cutter<T> {
           || 
           !LeptonVeto(t->electrons_, t->electrons_pt, t->electrons_eta,t->muons_, t->muons_pt, t->muons_eta)
          ) 
+	 return false;
+      //Debugging for Knut:
+      //if (t->ThePhoton!=0)
+      //  std::cout << "evt nr:" << t->eventNumber << ", rn: " <<t->runNumber<<", lbnr: "<< t->luminosityBlockNumber <<std::endl;
+
+      ++Cutter<T>::i_pass;
+      Cutter<T>::d_pass += w;
+      return true;
+    }
+};
+
+
+////Cutter 
+template<typename T>
+class Cutter_tightID_SansLeptonVeto : public Cutter<T> {
+  public:
+    Cutter_tightID_SansLeptonVeto(std::string n):Cutter<T>(n){}
+    //virtual void Init(){};
+    virtual bool Process(T*t,Long64_t i,Long64_t n,double w) {
+      ++Cutter<T>::i_tot;
+      Cutter<T>::d_tot += w;
+
+      t->metPhi=0;
+      t->metSig=0; 
+
+      double found_pt = 0;
+      for (int i=0; i<t->photons_;++i) {
+        if ( tight_isolated(t->photons_pt[i], t->photons__ptJet[i], t->photons_phi[i], t->photons_eta[i],
+                           t->photons_hadTowOverEm[i],t->photons_sigmaIetaIeta[i],
+			   t->photons_chargedIso[i],t->photons_neutralIso[i],t->photons_photonIso[i])
+             && t->photons_pixelseed[i]==0		
+	   ) 
+	{
+	   double pt = (t->photons__ptJet[i]>0?t->photons__ptJet[i]:t->photons_pt[i]);
+  	   if (pt>found_pt) {
+	     found_pt=pt; 
+	     t->ThePhoton = i; 
+	     t->ThePhotonPt = pt; 
+	     if (t->photons__ptJet[i]>0) {
+	       assert(t->photons_matchedJetIndex[i]>=0 && t->photons_matchedJetIndex[i]<t->jets_);
+	       t->ThePhotonPhi = t->jets_phi[t->photons_matchedJetIndex[i]]; 
+	       t->ThePhotonEta = t->jets_eta[t->photons_matchedJetIndex[i]];
+	     } else {
+	       t->ThePhotonPhi = t->photons_phi[i]; 
+	       t->ThePhotonEta = t->photons_eta[i];
+	     }
+	   } 
+	}   	
+      }	
+
+      if (found_pt==0) 
 	 return false;
       //Debugging for Knut:
       //if (t->ThePhoton!=0)
