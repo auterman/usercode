@@ -239,7 +239,8 @@ class Yields{
       /// ------------------------------------------------------------
 
        AddBinning("#gamma p_{T}* [GeV]",      fak1p5_bins, n_fak1p5_bins+1, b_PtPhoton);
-       AddBinning("Hadr. Recoil p_{T} [GeV]", fak1p5_bins, n_fak1p5_bins+1, b_PtRecoil);
+       //AddBinning("Hadr. Recoil p_{T} [GeV]", fak1p5_bins, n_fak1p5_bins+1, b_PtRecoil);
+       AddBinning("HT [GeV]",           fak1p5_bins, n_fak1p5_bins+1, b_HT);
        
 
 
@@ -789,8 +790,6 @@ void Closure<T>::Write()
 	  sig->SetLineWidth( 3 );
           sig->SetTitle( (*s)->Name().c_str() ); 
           signal.push_back( sig );  
-	  
-	  //std::cout << "Add signal "<< (*s)->Name() << " "<< it->first<<", int = "<<sig->Integral()<<std::endl;
 	}
       }  
       if (other_[it->first].size()) {

@@ -160,6 +160,7 @@ void Print(TH1*h1, TH1*h2, TH1*we){
 void ShowOverflow(TH1*h)
 {
   int b =  h->GetXaxis()->GetNbins();
+  h->Sumw2();
   h->SetBinContent( b,  h->GetBinContent(b)+h->GetBinContent(b+1) );
   h->SetBinError(   b,  sqrt( pow(h->GetBinError(b),2)+pow(h->GetBinError(b+1),2)) );
 }
@@ -183,8 +184,34 @@ void DivByBinWidth(TH1*h)
   }  
 }
 
+TH1* TotalErrorUp(THStack*hs, TH1*w)
+{
+  TH1* h=(TH1F*)hs->GetStack()->Last();
+  for (int i=0; i<=h->GetXaxis()->GetNbins(); ++i) {
+    h->SetBinContent(i,  h->GetBinContent(i) + sqrt( pow(h->GetBinError(i),2) + pow(w->GetBinContent(i),2) ) );
+    h->SetBinError(i, 0 );
+  }  
+  h->SetLineColor( 18);
+  h->SetFillColor( 18 );
+  h->SetFillStyle( 1001 );
+  return h;
+}
+TH1* TotalErrorDn(THStack*hs, TH1*w)
+{
+  TH1* h=(TH1F*)hs->GetStack()->Last();
+  for (int i=0; i<=h->GetXaxis()->GetNbins(); ++i) {
+    h->SetBinContent(i,  h->GetBinContent(i) - sqrt( pow(h->GetBinError(i),2) + pow(w->GetBinContent(i),2) ) );
+    h->SetBinError(i, 0 );
+  }  
+  h->SetLineColor( 18);
+  h->SetFillColor( 10 );
+  h->SetFillStyle( 1001 );
+  return h;
+}
+
 void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *other,const std::string& dir, const std::string& file,const std::string& legtitle, const std::string& log) {
    //std::cout<<"ratio plot for: "<< file<<std::endl; 
+   assert(h1->GetXaxis()->GetNbins() == h2->GetXaxis()->GetNbins());
 
    std::stringstream ss;
    ss<<plotnr++;
@@ -198,6 +225,7 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
    ShowOverflow( h1 );
    ShowOverflow( h2 );
    ShowOverflow( we );
+   TH1* h_axis = (TH1F*)h2->Clone();
    for (std::vector<TH1*>::iterator o=other->begin();o!=other->end();++o)
      if (*o){       (*o)->Sumw2();        ShowOverflow( *o );}
    for (std::vector<TH1*>::iterator s=sig->begin();s!=sig->end();++s)
@@ -218,11 +246,12 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
    we->SetFillStyle( 3354 );
    TH1F* cover = (TH1F*)we->Clone();
    cover->SetLineColor(2);
-   cover->SetFillColor( 10 );
+   cover->SetFillColor( 18 );
    cover->SetFillStyle( 1001 );
    we->SetTitle("");
-   we->GetYaxis()->SetTitleSize(0.05);
-   we->GetYaxis()->SetLabelSize(0.05);
+   h_axis->SetTitle("");
+   h_axis->GetYaxis()->SetTitleSize(0.05);
+   h_axis->GetYaxis()->SetLabelSize(0.05);
    TH1F* hleg = (TH1F*)we->Clone();
    hleg->SetLineWidth(2);
    TLegend * leg = new TLegend(0.5,0.65-(0.02*(sig->size()+other->size())),0.89,0.89);
@@ -243,7 +272,8 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
      if (*s) {
        leg->AddEntry(*s,  (*s)->GetTitle(),  "l");
      }  
-     
+   TH1* h_totalUp = TotalErrorUp((THStack*)hs.Clone(), (TH1F*)we->Clone());
+   TH1* h_totalDn = TotalErrorDn((THStack*)hs.Clone(), (TH1F*)we->Clone());
    leg->SetHeader(legtitle.c_str());
    for (int i=1; i<=we->GetXaxis()->GetNbins();++i){
      cover->SetBinContent(i, ((TH1F*)hs.GetStack()->Last())->GetBinContent(i) - we->GetBinContent(i));
@@ -252,24 +282,32 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
      cover->SetBinError(i,0);
    }
    h1->GetYaxis()->SetTitleOffset(1.1);
-   if (log=="linear") we->SetMinimum(0);
-   if (log=="linear" && h1->GetMaximum()>we->GetMaximum()) we->SetMaximum(h1->GetMaximum()+sqrt(h1->GetMaximum()));
-   if ((log=="log"||log=="log_div") && h1->GetMaximum()>we->GetMaximum()) we->SetMaximum(5.*h1->GetMaximum());   
-   if (log=="log") we->SetMinimum( 3 );
+   if (log=="linear") h_axis->SetMinimum(0);
+   if (log=="linear" && h1->GetMaximum()>h_axis->GetMaximum()) h_axis->SetMaximum(h1->GetMaximum()+sqrt(h1->GetMaximum()));
+   if ((log=="log"||log=="log_div") && h1->GetMaximum()>h_axis->GetMaximum()) h_axis->SetMaximum(5.*h1->GetMaximum());   
+   if (log=="log") h_axis->SetMinimum( 3 );
    if (log=="log_div") {
-      we->SetMinimum( 0.05 );
-      we->GetYaxis()->SetTitle("events / GeV");
+      h_axis->SetMinimum( 0.05 );
+      h_axis->GetYaxis()->SetTitle("events / GeV");
    }   
+   h_totalUp->SetStats(0);
+   h_totalUp->SetTitle("");
+   h_totalDn->SetStats(0);
+   h_totalDn->SetTitle("");
    h1->SetStats(0);
    h2->SetStats(0);
    we->SetStats(0);
    cover->SetStats(0);
-   we->DrawCopy("h");
+   h_axis->SetStats(0);
+   h_axis->DrawCopy("AXIS");
+   h_totalUp->DrawCopy("hist,h,same");
+   we->DrawCopy("h,same");
    cover->DrawCopy("hf,same");
+   h_totalDn->DrawCopy("hist,h,same"); 
    hs.Draw("same hist fe");
-   h1->DrawCopy("pe,same");
    for (std::vector<TH1*>::iterator s=sig->begin();s!=sig->end();++s)
      if (*s) (*s)->DrawCopy("hist,h,same");
+   h1->DrawCopy("pe,X0,same");
    leg->Draw("same");
    pad1->RedrawAxis();
    c1->cd();
@@ -285,28 +323,33 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
    for (std::vector<TH1*>::iterator o=other->begin();o!=other->end();++o)
      if (*o)   
        h2->Add( *o );
+   TH1F* StatUnc = (TH1F*)h2->Clone();
+   h_totalUp->Divide(h2);
+   h_totalDn->Divide(h2);
    we->Divide(h2);
    cover->Divide(h2);
-   h1->Sumw2();
    h1->Divide(h2);
-   h2->Sumw2();
-   h2->Divide(h2);
-   we->SetMinimum(0.);
-   we->SetMaximum(2.4);
-   we->GetXaxis()->SetNdivisions(505);
-   we->GetYaxis()->SetTitle("Direct/Pred.");
-   we->GetYaxis()->SetTitleSize(0.125);
-   we->GetYaxis()->SetLabelSize(0.125);
-   we->GetXaxis()->SetTitleSize(0.125);
-   we->GetXaxis()->SetLabelSize(0.125);
-   we->GetYaxis()->SetNdivisions(503);
+   StatUnc->Divide(h2);
+   //h2->Divide(h2);
+   h_axis->SetMinimum(0.);
+   h_axis->SetMaximum(2.4);
+   h_axis->GetXaxis()->SetNdivisions(505);
+   h_axis->GetYaxis()->SetTitle("Direct/Pred.");
+   h_axis->GetYaxis()->SetTitleSize(0.125);
+   h_axis->GetYaxis()->SetLabelSize(0.125);
+   h_axis->GetXaxis()->SetTitleSize(0.125);
+   h_axis->GetXaxis()->SetLabelSize(0.125);
+   h_axis->GetYaxis()->SetNdivisions(503);
    h1->SetMarkerStyle(20);
    h1->SetMarkerSize(1);
    h1->SetMarkerColor(1);
    h1->SetLineColor(1);
-   we->Draw("hist,h");
-   cover->Draw("hist,same");
-   h2->Draw("E X0,same");
+   h_axis->Draw("AXIS");
+   h_totalUp->Draw("hist,h,same");
+   we->Draw("hist,h,same");
+   cover->Draw("hist,h,same");
+   h_totalDn->Draw("hist,h,same");
+   StatUnc->Draw("E X0,same");
    h1->Draw("E X0,same");
    TLine *line = new TLine(h1->GetXaxis()->GetXmin(), 1, h1->GetXaxis()->GetXmax(), 1);
    line->SetLineColor(1);
