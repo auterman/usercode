@@ -239,8 +239,8 @@ class Yields{
       /// ------------------------------------------------------------
 
        AddBinning("#gamma p_{T}* [GeV]",      fak1p5_bins, n_fak1p5_bins+1, b_PtPhoton);
-       //AddBinning("Hadr. Recoil p_{T} [GeV]", fak1p5_bins, n_fak1p5_bins+1, b_PtRecoil);
-       AddBinning("HT [GeV]",           fak1p5_bins, n_fak1p5_bins+1, b_HT);
+       AddBinning("Hadr. Recoil p_{T} [GeV]", fak1p5_bins, n_fak1p5_bins+1, b_PtRecoil);
+       //AddBinning("HT [GeV]",           fak1p5_bins, n_fak1p5_bins+1, b_HT);
        
 
 
