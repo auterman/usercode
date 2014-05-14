@@ -108,7 +108,7 @@ ROOT::Math::PtEtaPhiEVector Recoil(float g_pt, float g_eta, float g_phi, float *
   for (int i=0; i<njets; ++i){
     if (jets_pt[i]<30. || fabs(jets_eta[i])>3.0 || deltaR(g_eta,g_phi,jets_eta[i],jets_phi[i])<0.5 ) continue;
 //      if (jets_pt[i]<10. || fabs(jets_eta[i])>6.0 || deltaR(g_eta,g_phi,jets_eta[i],jets_phi[i])<0.5 ) continue;
-    double E=jets_pt[i] * cos( 2.*atan( exp(-jets_eta[i]) ));
+    double E=jets_pt[i] / sin( 2.*atan( exp(-jets_eta[i]) ));
     ROOT::Math::PtEtaPhiEVector jet(jets_pt[i],jets_eta[i],jets_phi[i],E);
     recoil += jet;
   }
@@ -123,7 +123,7 @@ double Mht(float g_pt, float g_eta, float g_phi, float *jets_pt, float* jets_eta
 //std::cout << i<<" / "<<njets
 //          <<" jet pt="<<jets_pt[i]<<", eta="<<jets_eta[i]<<", phi="<<jets_phi[i]<<std::endl;
     if (jets_pt[i]<30. || fabs(jets_eta[i])>3.0 || deltaR(g_eta,g_phi,jets_eta[i],jets_phi[i])<0.5 ) continue;
-    double E=jets_pt[i] * cos( 2.*atan( exp(-jets_eta[i]) ));
+    double E=jets_pt[i] / sin( 2.*atan( exp(-jets_eta[i]) ));
     ROOT::Math::PtEtaPhiEVector jet(jets_pt[i],jets_eta[i],jets_phi[i],E);
     mht += jet;
   }
@@ -137,7 +137,7 @@ double MhtPhi(float g_pt, float g_eta, float g_phi, float *jets_pt, float* jets_
 //std::cout << i<<" / "<<njets
 //          <<" jet pt="<<jets_pt[i]<<", eta="<<jets_eta[i]<<", phi="<<jets_phi[i]<<std::endl;
     if (jets_pt[i]<30. || fabs(jets_eta[i])>3.0 || deltaR(g_eta,g_phi,jets_eta[i],jets_phi[i])<0.5 ) continue;
-    double E=jets_pt[i] * cos( 2.*atan( exp(-jets_eta[i]) ));
+    double E=jets_pt[i] / sin( 2.*atan( exp(-jets_eta[i]) ));
     ROOT::Math::PtEtaPhiEVector jet(jets_pt[i],jets_eta[i],jets_phi[i],E);
     mht += jet;
   }
@@ -149,7 +149,7 @@ double Recoil_ht(float g_pt, float g_eta, float g_phi, float *jets_pt, float* je
   double ht=0;
   for (int i=0; i<njets; ++i){
     if (jets_pt[i]<30. || fabs(jets_eta[i])>3.0 || deltaR(g_eta,g_phi,jets_eta[i],jets_phi[i])<0.5 ) continue;
-    double E=jets_pt[i] * cos( 2.*atan( exp(-jets_eta[i]) ));
+    double E=jets_pt[i] / sin( 2.*atan( exp(-jets_eta[i]) ));
     ht += jets_pt[i];
   }
   return ht;
