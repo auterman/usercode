@@ -39,6 +39,8 @@ inline double deltaR(double eta1, double phi1, double eta2, double phi2) {
 
 static int plotnr = 0;
 
+double KinematicClosure(double pt1, double phi1, double pt2, double phi2, double pt3, double phi3);
+double VecKinematicClosure(double pt1, double phi1, double pt2, double phi2, double pt3, double phi3);
 
 double CalcTransMet(double met, double phi_met, double phi_photon);
 double CalcParalMet(double met, double phi_met, double phi_photon);

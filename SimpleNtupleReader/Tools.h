@@ -54,6 +54,7 @@ const static double bins_8_nPi_Pi[] = {-3.2,-2.4,-1.6,-0.8,0,0.8,1.6,2.4,3.2};
 const static int n_8 = 8;
 
 const static double bins_50_0_100[]  = {0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62,64,66,68,70,72,74,76,78,80,82,84,86,88,90,92,94,96,98,100}; 
+const static double bins_50_0_200[]  = {0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300,310,320,330,340,350,360,370,380,390,400,410,420,430,440,450,460,470,480,490,500}; 
 const static double bins_50_0_500[]  = {0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300,310,320,330,340,350,360,370,380,390,400,410,420,430,440,450,460,470,480,490,500}; 
 const static double bins_50_0_1000[] = {0,20,40,60,80,100,120,140,160,180,200,220,240,260,280,300,320,340,360,380,400,420,440,460,480,500,520,540,560,580,600,620,640,660,680,700,720,740,760,780,800,820,840,860,880,900,920,940,960,980,1000}; 
 const static double bins_50_0_1500[] = {0,30,60,90,120,150,180,210,240,270,300,330,360,390,420,450,480,510,540,570,600,630,660,690,720,750,780,810,840,870,900,930,960,990,1020,1050,1080,1110,1140,1170,1200,1230,1260,1290,1320,1350,1380,1410,1440,1470,1500}; 
@@ -61,6 +62,8 @@ const static double bins_50_0_2p5[]  = {0,0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.
 const static double bins_50_0_5[]    = {0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2,2.1,2.2,2.3,2.4,2.5,2.6,2.7,2.8,2.9,3,3.1,3.2,3.3,3.4,3.5,3.6,3.7,3.8,3.9,4,4.1,4.2,4.3,4.4,4.5,4.6,4.7,4.8,4.9,5};
 const static double bins_200_0_10[]  = {0,0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.85,0.9,0.95,1,1.05,1.1,1.15,1.2,1.25,1.3,1.35,1.4,1.45,1.5,1.55,1.6,1.65,1.7,1.75,1.8,1.85,1.9,1.95,2,2.05,2.1,2.15,2.2,2.25,2.3,2.35,2.4,2.45,2.5,2.55,2.6,2.65,2.7,2.75,2.8,2.85,2.9,2.95,3,3.05,3.1,3.15,3.2,3.25,3.3,3.35,3.4,3.45,3.5,3.55,3.6,3.65,3.7,3.75,3.8,3.85,3.9,3.95,4,4.05,4.1,4.15,4.2,4.25,4.3,4.35,4.4,4.45,4.5,4.55,4.6,4.65,4.7,4.75,4.8,4.85,4.9,4.95,5,5.05,5.1,5.15,5.2,5.25,5.3,5.35,5.4,5.45,5.5,5.55,5.6,5.65,5.7,5.75,5.8,5.85,5.9,5.95,6,6.05,6.10001,6.15001,6.20001,6.25001,6.30001,6.35001,6.40001,6.45001,6.50001,6.55001,6.60001,6.65001,6.70001,6.75001,6.80001,6.85001,6.90001,6.95001,7.00001,7.05001,7.10001,7.15001,7.20001,7.25001,7.30001,7.35001,7.40001,7.45001,7.50001,7.55001,7.60001,7.65001,7.70001,7.75001,7.80001,7.85001,7.90001,7.95001,8.00001,8.05001,8.10001,8.15001,8.20001,8.25001,8.30001,8.35001,8.40001,8.45001,8.50001,8.55001,8.60001,8.65001,8.70002,8.75002,8.80002,8.85002,8.90002,8.95002,9.00002,9.05002,9.10002,9.15002,9.20002,9.25002,9.30002,9.35002,9.40002,9.45002,9.50002,9.55002,9.60002,9.65002,9.70002,9.75002,9.80002,9.85002,9.90002,9.95002};
 const static double bins_20_0_10[]   = {0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,5.5,6,6.5,7,7.5,8,8.5,9,9.5,10};
+const static double bins_50_n100_100[] = {-100, -96, -92, -88, -84, -80, -76, -72, -68, -64, -60, -56, -52, -48, -44, -40, -36, -32, -28, -24, -20, -16, -12, -8, -4, 0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64, 68, 72, 76, 80, 84, 88, 92, 96,100};
+const static double bins_50_n200_200[] = {-200, -192, -184, -176, -168, -160, -152, -144, -136, -128, -120, -112, -104, -96, -88, -80, -72, -64, -56, -48, -40, -32, -24, -16, -8, 0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160, 168, 176, 184, 192, 200};
 const static int n_50 = 50;
 
 const static double bins_11_0_10[] = {-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5,10.5}; 
@@ -516,12 +519,12 @@ void Closure<T>::Book()
   BookHistogram("ht",  "Ht [GeV]","events", titel_, htbins,  n_htbins+1);
   BookHistogram("met_const",  "MET [GeV]","events", titel_, bins_50_0_500, n_50+1);
   BookHistogram("met_corr",  "corrected MET [GeV]","events", titel_, bins_50_0_1000, n_50+1);
-  BookHistogram("met_phi",  "#phi_{MET}","events", titel_, metphibins, n_metphibins+1);
+  BookHistogram("met_phi",  "#phi_{MET}","events", titel_, bins_64_nPi_Pi, n_64+1);
   BookHistogram("met_signif",  "MET Significance","events", titel_, bins_50_0_100, n_50+1);
   BookHistogram("mht",  "MHT [GeV]","events", titel_, bins_50_0_1000, n_50+1);
   BookHistogram("mht_trans",  "Transverse MHT [GeV]","events", titel_, bins_50_0_1000, n_50+1);
   BookHistogram("mht_paral",  "Parallel MHT [GeV]","events", titel_, bins_50_0_1000, n_50+1);
-  BookHistogram("mht_phi",  "#phi_{MHT}","events", titel_, metphibins, n_metphibins+1);
+  BookHistogram("mht_phi",  "#phi_{MHT}","events", titel_, bins_64_nPi_Pi, n_64+1);
   BookHistogram("em1_pt",  "Photon p_{T} [GeV]","events", titel_, bins_50_0_1000, n_50+1);
   BookHistogram("em1_thePt",  "Photon p_{T}^{*} [GeV]","events", titel_, bins_50_0_1000, n_50+1);
   BookHistogram("em1_ptstar",  "Photon p_{T}^{*} [GeV]","events", titel_, bins_50_0_1000, n_50+1);
@@ -534,6 +537,14 @@ void Closure<T>::Book()
   BookHistogram("recoil_ht",  "Recoil HT [GeV]","events", titel_,bins_50_0_1500, n_50+1);
   BookHistogram("recoil_pt",  "Recoil p_{T} [GeV]","events", titel_,bins_50_0_1500, n_50+1);
   BookHistogram("recoil_phi",  "#phi Recoil","events", titel_,bins_64_nPi_Pi, n_64+1);
+  BookHistogram("kinematicClosureMet",  "#vec{p}_{T} recoil + #vec{p}_{T} #gamma + MET","events",     titel_, bins_50_0_500, n_50+1);
+  BookHistogram("kinematicClosureMht",  "#vec{p}_{T} recoil + #vec{p}_{T} #gamma + MHT","events",     titel_, bins_50_0_500, n_50+1);
+  BookHistogram("kinematicClosureMet_Met",  "#vec{p}_{T} recoil + #vec{p}_{T} #gamma + MET","events", titel_, bins_50_n200_200, n_50+1);
+  BookHistogram("kinematicClosureMet_G",  "#vec{p}_{T} recoil + #vec{p}_{T} #gamma + MET","events",   titel_, bins_50_n200_200, n_50+1);
+  BookHistogram("kinematicClosureMet_R",  "#vec{p}_{T} recoil + #vec{p}_{T} #gamma + MET","events",   titel_, bins_50_n200_200, n_50+1);
+  BookHistogram("kinematicClosureMht_Mht",  "#vec{p}_{T} recoil + #vec{p}_{T} #gamma + MHT","events", titel_, bins_50_n200_200, n_50+1);
+  BookHistogram("kinematicClosureMht_G",  "#vec{p}_{T} recoil + #vec{p}_{T} #gamma + MHT","events",   titel_, bins_50_n200_200, n_50+1);
+  BookHistogram("kinematicClosureMht_R",  "#vec{p}_{T} recoil + #vec{p}_{T} #gamma + MHT","events",   titel_, bins_50_n200_200, n_50+1);
 
   BookHistogram("PtEm1_Over_Ptrecoil",  "p_{T} Photon / p_{T} Recoil","events", titel_,bins_50_0_5, n_50+1);
   BookHistogram("PtEm1_Over_MHT",  "p_{T} Photon / MHT","events", titel_,bins_50_0_5, n_50+1);
@@ -662,6 +673,7 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   Fill("em1_phi",   t->ThePhotonPhi, weight, we, bin);
   Fill("weight",    weight, 1., we, bin );
   Fill("phi_met_em1", DeltaPhi(t->metPhi-kPI, t->ThePhotonPhi), weight, we, bin);
+  Fill("met_phi",   t->metPhi-kPI, weight, we, bin );
 
 //  Fill("met_trans", CalcTransMet(t->met,t->metPhi-kPI,t->ThePhotonPhi), weight, we, bin);
 //  Fill("met_paral", CalcParalMet(t->met,t->metPhi-kPI,t->ThePhotonPhi), weight, we, bin);
@@ -697,6 +709,18 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   Fill("mht_trans", CalcTransMet(mht,mht_phi,g_phi), weight, we, bin);
   Fill("mht_paral", CalcParalMet(mht,mht_phi,g_phi), weight, we, bin);
 
+  Fill("kinematicClosureMet", KinematicClosure(t->met,t->metPhi-kPI,g_pt, g_phi, recoil_pt, Recoil_phi( &recoil )), weight, we, bin);
+  Fill("kinematicClosureMht", KinematicClosure(mht,mht_phi,g_pt, g_phi, recoil_pt, Recoil_phi( &recoil )), weight, we, bin);
+
+  Fill("kinematicClosureMet_Met",VecKinematicClosure(t->met,t->metPhi-kPI,g_pt, g_phi, recoil_pt, Recoil_phi( &recoil )), weight, we, bin);
+  Fill("kinematicClosureMet_G",  VecKinematicClosure(g_pt, g_phi, t->met,t->metPhi-kPI,recoil_pt, Recoil_phi( &recoil )), weight, we, bin);
+  Fill("kinematicClosureMet_R", VecKinematicClosure(recoil_pt, Recoil_phi( &recoil ), t->met,t->metPhi-kPI,g_pt, g_phi), weight, we, bin);
+  Fill("kinematicClosureMht_Mht",VecKinematicClosure(mht   ,mht_phi,  g_pt, g_phi, recoil_pt, Recoil_phi( &recoil )), weight, we, bin);
+  Fill("kinematicClosureMht_G",  VecKinematicClosure(g_pt, g_phi, mht   ,mht_phi,  recoil_pt, Recoil_phi( &recoil )), weight, we, bin);
+  Fill("kinematicClosureMht_R",  VecKinematicClosure(recoil_pt, Recoil_phi( &recoil ), mht   ,mht_phi,  g_pt, g_phi ), weight, we, bin);
+
+  //std::cout << "evt nr:" << t->eventNumber << ", rn: " <<t->runNumber<<", lbnr: "<< t->luminosityBlockNumber 
+  //          << ", recoilPt: " << recoil_pt << ", gPt: "<<g_pt << ", weight: "<< weight << ", we: "<< we << std::endl;
 
 //std::cout<<"4"<<std::endl;
 
@@ -1052,8 +1076,8 @@ class Cutter_looseID : public Cutter<T> {
       t->metPhi=0;
       t->metSig=0; 
 */
-      t->metPhi=0;
-      t->metSig=0; 
+      if (fabs(t->metPhi)>2*kPI) t->metPhi=0;
+//      t->metSig=0; 
 
       double found_pt = 0;
       for (int i=0; i<t->photons_;++i) {
@@ -1110,9 +1134,8 @@ class Cutter_tightID : public Cutter<T> {
       t->metPhi=0;
       t->metSig=0; 
 */
-
-      t->metPhi=0;
-      t->metSig=0; 
+      if (fabs(t->metPhi)>2*kPI) t->metPhi=0;
+      //t->metSig=0; 
 
       double found_pt = 0;
       for (int i=0; i<t->photons_;++i) {
@@ -1165,8 +1188,8 @@ class Cutter_tightID_SansLeptonVeto : public Cutter<T> {
       ++Cutter<T>::i_tot;
       Cutter<T>::d_tot += w;
 
-      t->metPhi=0;
-      t->metSig=0; 
+      if (fabs(t->metPhi)>2*kPI) t->metPhi=0;
+      //t->metSig=0; 
 
       double found_pt = 0;
       for (int i=0; i<t->photons_;++i) {

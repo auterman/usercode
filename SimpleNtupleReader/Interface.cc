@@ -1,4 +1,5 @@
 #include "Interface.h"
+#include "TVector2.h"
 
 
 
@@ -28,6 +29,26 @@ double parallel_met(GJets_Jet*t){    return CalcParalMet(t->met,t->metPhi-kPI,t-
 double parallel_met(QCD_Photon*t){   return CalcParalMet(t->met,t->metPhi-kPI,t->photons_phi[0]);}
 double parallel_met(QCD_Jet*t){      return CalcParalMet(t->met,t->metPhi-kPI,t->photons_phi[0]);}
 
+
+double KinematicClosure(double pt1, double phi1, double pt2, double phi2, double pt3, double phi3)
+{
+  TVector2 r1; r1.SetMagPhi(pt1, phi1);
+  TVector2 r2; r2.SetMagPhi(pt2, phi2);
+  TVector2 r3; r3.SetMagPhi(pt3, phi3);
+  r1 += r2;
+  r1 += r3;
+  return r1.Mod(); 
+}
+
+double VecKinematicClosure(double pt1, double phi1, double pt2, double phi2, double pt3, double phi3)
+{
+  TVector2 r1; r1.SetMagPhi(pt1, phi1);
+  TVector2 r2; r2.SetMagPhi(pt2, phi2);
+  TVector2 r3; r3.SetMagPhi(pt3, phi3);
+  r1 += r2;
+  r1 += r3;
+  return r1.Mod() * cos(DeltaPhi(phi1, r1.Phi() )); 
+}
 
 bool tight_isolated(double pt, double ptstar, double phi, double eta, double HoE, 
                     double sigmaIetaOeta, double chaIso, double neuIso, double phoIso)

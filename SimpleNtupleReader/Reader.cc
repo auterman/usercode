@@ -253,7 +253,7 @@ int do_data(){
   v_isr2_g.push_back( &presel_isr2_g );
   v_isr2_g.push_back( &isr2_g );
   v_isr2_g.push_back( &direct_isr2 );
-  Process<ISR_Photon>("photonTree",v_isr2_g,"data/modifiedZGammaLL_V02.19b_tree.root",1.5*0.5* 132.6*19789/6588161);    //0.074*19800/489474
+  Process<ISR_Photon>("photonTree",v_isr2_g,"data/modifiedZGammaLL_V02.20b_tree.root",1.5*2.979 * 132.6*19789/6588161);    //0.074*19800/489474
   isr2_g.Write();
   direct_isr.AddRef( direct_isr2.GetYields() );
 
@@ -280,7 +280,6 @@ int do_data(){
   //direct_signal.AddSignalYields( direct_signal.GetYields());   //Signal
 
   Signal_g.Write();
-
   std::cout << "\nData Photon Tree\n======================" <<std::endl;
   std::vector<Processor<Data_Photon>*> v_Data_g;
   Status<Data_Photon> status_data_g("Status Data_Photon");
@@ -443,7 +442,7 @@ int main()
   gErrorIgnoreLevel = 5000;
  
   //int n=0;
-  //for (float i=1; i<2000; i*=1.5) {std::cout<<i<<","; ++n;}
+  //for (float i=0; i<50; ++i) {std::cout<<-200+8*i<<", "; }
   //std::cout <<"\n n="<<n<<std::endl;
   
   
