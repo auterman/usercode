@@ -978,7 +978,7 @@ void Closure<T>::Write()
     we->GetYaxis()->SetTitleOffset(1.7);
     w->GetZaxis()->SetTitleOffset(1.3);
     we->GetZaxis()->SetTitleOffset(1.3);
-    we->GetZaxis()->SetTitle("weight rel. stat. uncertainty [ % ]");
+    we->GetZaxis()->SetTitle("weight rel. stat. uncertainty");
     nom->GetZaxis()->SetTitle("events");
     denom->GetZaxis()->SetTitle("events");
     w->Draw("Colz");

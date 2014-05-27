@@ -290,7 +290,7 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
       h_axis->SetMinimum( 0.05 );
       h_axis->GetYaxis()->SetTitle("events / GeV");
    }   
-   if ((log=="log"||log=="log_div") && file.find( "#phi")!=std::string::npos) 
+   if ((log=="log"||log=="log_div") && (file.find( "phi")!=std::string::npos || file.find( "Phi")!=std::string::npos)) 
       h_axis->SetMaximum(100.*h_axis->GetMaximum());
    h_totalUp->SetStats(0);
    h_totalUp->SetTitle("");
@@ -333,8 +333,8 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
    h1->Divide(h2);
    StatUnc->Divide(h2);
    //h2->Divide(h2);
-   h_axis->SetMinimum(0.3);
-   h_axis->SetMaximum(1.7);
+   h_axis->SetMinimum(0.);
+   h_axis->SetMaximum(2.4);
    h_axis->GetXaxis()->SetNdivisions(505);
    h_axis->GetYaxis()->SetTitle("Direct/Pred.");
    h_axis->GetYaxis()->SetTitleOffset(0.4);
@@ -466,8 +466,8 @@ void PrintResults(const std::string& dir, std::string file, std::string name, My
   std::ofstream out;
   out.open ( (d+"/"+file+".txt").c_str() );   
   PrintBinning( out, name, direct );
-  PrintResult( out, name, "data selected", direct);
-  PrintResult( out, name, "data QCD", yields);
+  PrintResult(  out, name, "data selected", direct);
+  PrintResult(  out, name, "data QCD", yields);
   for (std::vector<MyYields*>::iterator oth=other->begin(); oth!=other->end(); ++oth)
     PrintResult( out, name, (*oth)->ResultName(), *oth);    
   out.close();  
