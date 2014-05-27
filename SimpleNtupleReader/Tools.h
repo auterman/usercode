@@ -247,6 +247,8 @@ class Yields{
        //AddBinning("HT [GeV]",           fak1p5_bins, n_fak1p5_bins+1, b_HT);
        
 
+       AddBinning("#gamma p_{T}* [GeV]",      bins_50_0_1500, n_50+1, b_PtPhoton);
+       AddBinning("Hadr. Recoil p_{T} [GeV]", bins_50_0_1500, n_50+1, b_PtRecoil);
 
 
       /// ------------------------------------------------------------
@@ -272,8 +274,8 @@ class Yields{
                                             njets,jets_pt,jets_eta,jets_phi );
 	factor *= it->second->GetNBins();				    
       }      		       
-//      return bin;
-      return 0;
+      return bin;
+      //return 0;
     }
     virtual int GetNBins(){
       int n=1;
