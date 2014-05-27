@@ -913,9 +913,11 @@ void Closure<T>::Write()
 			     n2-1,a2);		  
     TH2F * we = (TH2F*)w->Clone();		  
     TH2F * nom = (TH2F*)w->Clone();
-    nom->SetTitle( nominator_->GetLabel().c_str() );		  
+    //nom->SetTitle( nominator_->GetLabel().c_str() );		  
     TH2F * denom = (TH2F*)w->Clone();		  
-    denom->SetTitle( denominator_->GetLabel().c_str() );		  
+    //denom->SetTitle( denominator_->GetLabel().c_str() );
+    nom->SetStats(0);		  
+    denom->SetStats(0);		  
     for (int x=0; x<(*binning)[axis[0]]->GetNBins(); ++x){
       Yield yn, yd;
       for (int y=0; y<(*binning)[axis[1]]->GetNBins(); ++y){
@@ -980,7 +982,7 @@ void Closure<T>::Write()
     we->Draw("Colz");
     pad->RedrawAxis();
     c1->SaveAs(((std::string)"plots/"+dir_+"/log/h2_weighterror_"+Processor<T>::name_+".pdf").c_str());
-/*
+
     nom->Draw("Colz");
     c1->SaveAs(((std::string)"plots/"+dir_+"/log/h2_nominator_"+Processor<T>::name_+".pdf").c_str());
     denom->Draw("Colz");
@@ -990,7 +992,7 @@ void Closure<T>::Write()
     c1->SaveAs(((std::string)"plots/"+dir_+"/log/h1_correlationX_"+Processor<T>::name_+".pdf").c_str());
     corr_y->Draw("pe");
     c1->SaveAs(((std::string)"plots/"+dir_+"/log/h1_correlationY_"+Processor<T>::name_+".pdf").c_str());
-*/
+
     delete pad;
     delete we;
     delete w;
