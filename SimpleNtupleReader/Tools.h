@@ -983,6 +983,9 @@ void Closure<T>::Write()
     pad->RedrawAxis();
     c1->SaveAs(((std::string)"plots/"+dir_+"/log/h2_weighterror_"+Processor<T>::name_+".pdf").c_str());
 
+    gStyle->SetPalette(55,0);
+    gStyle->SetNumberContours(512);
+
     nom->Draw("Colz");
     c1->SaveAs(((std::string)"plots/"+dir_+"/log/h2_nominator_"+Processor<T>::name_+".pdf").c_str());
     denom->Draw("Colz");
