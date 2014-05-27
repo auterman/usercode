@@ -673,8 +673,6 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   Fill("met_const", t->met, weight, we, bin);
   Fill("ht",        t->ht,  weight, we, bin);
   Fill("met_signif",t->metSig, weight, we, bin);
-  Fill("jet1_pt",   FirstJet(g_pt,g_eta,g_phi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ ), weight, we, bin);
-  Fill("jet2_pt",   SecondJet(g_pt,g_eta,g_phi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ ), weight, we, bin);
   Fill("em1_pt",    t->photons_pt[t->ThePhoton], weight, we, bin);
   Fill("em1_thePt", t->ThePhotonPt, weight, we, bin);
   Fill("em1_ptstar",t->photons__ptJet[t->ThePhoton], weight, we, bin);
@@ -704,6 +702,8 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   float phi_mht_recoil = DeltaPhi(mht_phi, Recoil_phi( &recoil ));
 //std::cout<<"4"<<std::endl;
 
+  Fill("jet1_pt",   FirstJet(g_pt,g_eta,g_phi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ ), weight, we, bin);
+  Fill("jet2_pt",   SecondJet(g_pt,g_eta,g_phi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ ), weight, we, bin);
   Fill("recoil_ht",   Recoil_ht(g_pt, g_eta, g_phi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ ), weight, we, bin );
   Fill("recoil_pt",   recoil_pt, weight, we, bin );
   Fill("recoil_phi",  Recoil_phi( &recoil ), weight, we, bin );
@@ -922,7 +922,7 @@ void Closure<T>::Write()
       Yield yn, yd;
       for (int y=0; y<(*binning)[axis[1]]->GetNBins(); ++y){
         w->SetBinContent(x,y,weights_[x+y*(*binning)[axis[0]]->GetNBins() ]);
-        we->SetBinContent(x,y,weighterrors_[x+y*(*binning)[axis[0]]->GetNBins() / weights_[x+y*(*binning)[axis[0]]->GetNBins() ]);
+        we->SetBinContent(x,y,weighterrors_[x+y*(*binning)[axis[0]]->GetNBins()] / weights_[x+y*(*binning)[axis[0]]->GetNBins() ]);
         nom->SetBinContent(x,y,nominator_->Weighted(x+y*(*binning)[axis[0]]->GetNBins() ));
         denom->SetBinContent(x,y,denominator_->Weighted(x+y*(*binning)[axis[0]]->GetNBins() ));
 	
