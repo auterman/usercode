@@ -253,8 +253,8 @@ class Yields{
        //AddBinning("#gamma p_{T}* [GeV]",      bins_50_0_1500, n_50+1, b_PtPhoton);
        //AddBinning("Hadr. Recoil p_{T} [GeV]", bins_50_0_1500, n_50+1, b_PtRecoil);
 
-       AddBinning("#gamma p_{T}* [GeV]",      nu_bins, n_nu_bins+1, b_PtPhoton);
-       AddBinning("Hadr. Recoil p_{T} [GeV]", nu_bins, n_nu_bins+1, b_PtRecoil);
+       //AddBinning("#gamma p_{T}* [GeV]",      nu_bins, n_nu_bins+1, b_PtPhoton);
+       //AddBinning("Hadr. Recoil p_{T} [GeV]", nu_bins, n_nu_bins+1, b_PtRecoil);
 
 
       /// ------------------------------------------------------------
@@ -280,8 +280,8 @@ class Yields{
                                             njets,jets_pt,jets_eta,jets_phi );
 	factor *= it->second->GetNBins();				    
       }      		       
-      return bin;
-      //return 0;
+      //return bin;
+      return 0;
     }
     virtual int GetNBins(){
       int n=1;
@@ -1060,7 +1060,7 @@ class Cutter : public Processor<T> {
          //||
 	// || t->photons__ptJet[t->ThePhoton]<=0
          // Recoil_pt(  &recoil )<150.
-      if ( t->ThePhotonPt<110. 
+      if ( t->ThePhotonPt<150. 
          ) {
 	return false;
       }	
