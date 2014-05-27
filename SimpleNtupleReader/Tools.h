@@ -973,12 +973,14 @@ void Closure<T>::Write()
     gStyle->SetPalette(53,0);
     gStyle->SetNumberContours(512);
     w->GetZaxis()->SetRangeUser(0.8,20);
-    we->GetZaxis()->SetRangeUser(0.05,5);
+    we->GetZaxis()->SetRangeUser(0.005,1);
     w->GetYaxis()->SetTitleOffset(1.7);
     we->GetYaxis()->SetTitleOffset(1.7);
     w->GetZaxis()->SetTitleOffset(1.3);
     we->GetZaxis()->SetTitleOffset(1.3);
     we->GetZaxis()->SetTitle("weight rel. stat. uncertainty [ % ]");
+    nom->GetZaxis()->SetTitle("events");
+    denom->GetZaxis()->SetTitle("events");
     w->Draw("Colz");
     c1->SaveAs(((std::string)"plots/"+dir_+"/log/h2_weight_"+Processor<T>::name_+".pdf").c_str());
     we->Draw("Colz");
