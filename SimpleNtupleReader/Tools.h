@@ -242,23 +242,12 @@ class Yields{
       ///
       /// ------------------------------------------------------------
 
-       AddBinning("#gamma p_{T}* [GeV]",      fak1p5_bins, n_fak1p5_bins+1, b_PtPhoton);
-       AddBinning("Hadr. Recoil p_{T} [GeV]", fak1p5_bins, n_fak1p5_bins+1, b_PtRecoil);
+       //AddBinning("#gamma p_{T}* [GeV]",      fak1p5_bins, n_fak1p5_bins+1, b_PtPhoton);
+       //AddBinning("Hadr. Recoil p_{T} [GeV]", fak1p5_bins, n_fak1p5_bins+1, b_PtRecoil);
        //AddBinning("HT [GeV]",           fak1p5_bins, n_fak1p5_bins+1, b_HT);
        
 
 
-       //AddBinning("photon_ptstar",fak1p5_bins, n_fak1p5_bins+1, b_PtPhoton);
-       //AddBinning("ht",           fak1p5_bins, n_fak1p5_bins+1, b_HT);
-       //AddBinning("recoil_pt",    fak1p5_bins, n_fak1p5_bins+1, b_PtRecoil);
-       //AddBinning("phi_Rec_Em1",  bins_16_nPi_Pi, 16+1, b_PhiRecoilEm1);
-
-//       AddBinning("singleBin",    single_bin, 1, b_zero);
-       //AddBinning("photon_ptstar",bins_test_ptstar, n_test_ptstar+1, b_PtPhoton);
-       //AddBinning("ht",           bins_test_ht, n_test_ht+1, b_HT);
-//       AddBinning("photon_ptstar",bins_50_0_1000, n_50+1, b_PtPhoton);
-//       AddBinning("ht",           bins_50_0_1500, n_50+1, b_HT);
-//       AddBinning("phi_Rec_Em1",           bins_8_nPi_Pi, n_8+1, b_PhiRecoilEm1);
 
       /// ------------------------------------------------------------
       /// ------------------------------------------------------------
@@ -283,8 +272,8 @@ class Yields{
                                             njets,jets_pt,jets_eta,jets_phi );
 	factor *= it->second->GetNBins();				    
       }      		       
-      return bin;
-      //return 0;
+//      return bin;
+      return 0;
     }
     virtual int GetNBins(){
       int n=1;
