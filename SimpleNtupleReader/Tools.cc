@@ -285,7 +285,7 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
    if (log=="linear") h_axis->SetMinimum(0);
    if (log=="linear" && h1->GetMaximum()>h_axis->GetMaximum()) h_axis->SetMaximum(h1->GetMaximum()+sqrt(h1->GetMaximum()));
    if ((log=="log"||log=="log_div") && h1->GetMaximum()>h_axis->GetMaximum()) h_axis->SetMaximum(5.*h1->GetMaximum());   
-   if (log=="log") h_axis->SetMinimum( 3 );
+   if (log=="log") h_axis->SetMinimum( 1 );
    if (log=="log_div") {
       h_axis->SetMinimum( 0.05 );
       h_axis->GetYaxis()->SetTitle("events / GeV");
