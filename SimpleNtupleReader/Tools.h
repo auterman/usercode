@@ -20,6 +20,9 @@
 #include <sstream>
 #include <cassert>
 
+const static double nu_bins[] = {0,1,1.5,2.25,3.375,5.0625,7.59375,11.3906,17.0859,25.6289,38.4434,57.665,86.4976, 120,150,180,210,240,270,300,330,360,390,420,450,480,510,540,570,600,630,660,690,720,750,780,810,840,870,900,930,960,990,1020,1050,1080,1110,1140,1170,1200,1230,1260,1290,1320,1350,1380,1410,1440,1470,1500}; 
+const static int n_nu_bins = 59;
+
 const static double fak1p5_bins[] = {0,1,1.5,2.25,3.375,5.0625,7.59375,11.3906,17.0859,25.6289,38.4434,57.665,86.4976,129.746,194.62,291.929,437.894,656.841,985.261,1477.89,2000};
 const static int n_fak1p5_bins = 20;
 
@@ -247,8 +250,11 @@ class Yields{
        //AddBinning("HT [GeV]",           fak1p5_bins, n_fak1p5_bins+1, b_HT);
        
 
-       AddBinning("#gamma p_{T}* [GeV]",      bins_50_0_1500, n_50+1, b_PtPhoton);
-       AddBinning("Hadr. Recoil p_{T} [GeV]", bins_50_0_1500, n_50+1, b_PtRecoil);
+       //AddBinning("#gamma p_{T}* [GeV]",      bins_50_0_1500, n_50+1, b_PtPhoton);
+       //AddBinning("Hadr. Recoil p_{T} [GeV]", bins_50_0_1500, n_50+1, b_PtRecoil);
+
+       AddBinning("#gamma p_{T}* [GeV]",      nu_bins, n_nu_bins+1, b_PtPhoton);
+       AddBinning("Hadr. Recoil p_{T} [GeV]", nu_bins, n_nu_bins+1, b_PtRecoil);
 
 
       /// ------------------------------------------------------------
