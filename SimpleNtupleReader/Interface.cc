@@ -136,6 +136,25 @@ ROOT::Math::PtEtaPhiEVector Recoil(float g_pt, float g_eta, float g_phi, float *
   return recoil;
 }
 
+double FirstJet(float g_pt, float g_eta, float g_phi, float *jets_pt, float* jets_eta, float *jets_phi, int njets )
+{
+  for (int i=0; i<njets; ++i){
+    if (jets_pt[i]<30. || fabs(jets_eta[i])>3.0 || deltaR(g_eta,g_phi,jets_eta[i],jets_phi[i])<0.5 ) continue;
+    return jets_pt[i];
+  }
+  return -1;
+}
+
+double SecondJet(float g_pt, float g_eta, float g_phi, float *jets_pt, float* jets_eta, float *jets_phi, int njets )
+{
+  int f=0;
+  for (int i=0; i<njets; ++i){
+    if (jets_pt[i]<30. || fabs(jets_eta[i])>3.0 || deltaR(g_eta,g_phi,jets_eta[i],jets_phi[i])<0.5 ) continue;
+    ++f;
+    if (f==2) return jets_pt[i];
+  }
+  return -1;
+}
 
 double Mht(float g_pt, float g_eta, float g_phi, float *jets_pt, float* jets_eta, float *jets_phi, int njets )
 {

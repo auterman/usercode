@@ -53,6 +53,8 @@ bool LeptonVeto(int n_e, float * e_pt, float * e_eta, int n_m, float *m_pt, floa
 
 ROOT::Math::PtEtaPhiEVector Recoil(float g_pt, float g_eta, float g_phi, float *jets_pt, float* jets_eta, float *jets_phi, int njets );
 
+double FirstJet(float g_pt, float g_eta, float g_phi, float *jets_pt, float* jets_eta, float *jets_phi, int njets );
+double SecondJet(float g_pt, float g_eta, float g_phi, float *jets_pt, float* jets_eta, float *jets_phi, int njets );
 double Mht(float g_pt, float g_eta, float g_phi, float *jets_pt, float* jets_eta, float *jets_phi, int njets );
 double MhtPhi(float g_pt, float g_eta, float g_phi, float *jets_pt, float* jets_eta, float *jets_phi, int njets );
 double Recoil_ht(float g_pt, float g_eta, float g_phi, float *jets_pt, float* jets_eta, float *jets_phi, int njets );

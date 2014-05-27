@@ -673,8 +673,8 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   Fill("met_const", t->met, weight, we, bin);
   Fill("ht",        t->ht,  weight, we, bin);
   Fill("met_signif",t->metSig, weight, we, bin);
-  Fill("jet1_pt",   t->jets_pt[0], weight, we, bin);
-  Fill("jet2_pt",   t->jets_pt[1], weight, we, bin);
+  Fill("jet1_pt",   FirstJet(g_pt,g_eta,g_phi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ ), weight, we, bin);
+  Fill("jet2_pt",   SecondJet(g_pt,g_eta,g_phi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_ ), weight, we, bin);
   Fill("em1_pt",    t->photons_pt[t->ThePhoton], weight, we, bin);
   Fill("em1_thePt", t->ThePhotonPt, weight, we, bin);
   Fill("em1_ptstar",t->photons__ptJet[t->ThePhoton], weight, we, bin);
@@ -988,6 +988,8 @@ void Closure<T>::Write()
     gStyle->SetPalette(55,0);
     gStyle->SetNumberContours(512);
 
+    nom->GetYaxis()->SetTitleOffset(1.4);
+    denom->GetYaxis()->SetTitleOffset(1.4);
     nom->Draw("Colz");
     c1->SaveAs(((std::string)"plots/"+dir_+"/log/h2_nominator_"+Processor<T>::name_+".pdf").c_str());
     denom->Draw("Colz");
