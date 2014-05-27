@@ -333,8 +333,8 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
    h1->Divide(h2);
    StatUnc->Divide(h2);
    //h2->Divide(h2);
-   h_axis->SetMinimum(0.);
-   h_axis->SetMaximum(2.4);
+   h_axis->SetMinimum(0.3);
+   h_axis->SetMaximum(1.7);
    h_axis->GetXaxis()->SetNdivisions(505);
    h_axis->GetYaxis()->SetTitle("Direct/Pred.");
    h_axis->GetYaxis()->SetTitleOffset(0.4);
