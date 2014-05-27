@@ -922,7 +922,7 @@ void Closure<T>::Write()
       Yield yn, yd;
       for (int y=0; y<(*binning)[axis[1]]->GetNBins(); ++y){
         w->SetBinContent(x,y,weights_[x+y*(*binning)[axis[0]]->GetNBins() ]);
-        we->SetBinContent(x,y,weighterrors_[x+y*(*binning)[axis[0]]->GetNBins() ]);
+        we->SetBinContent(x,y,weighterrors_[x+y*(*binning)[axis[0]]->GetNBins() / weights_[x+y*(*binning)[axis[0]]->GetNBins() ]);
         nom->SetBinContent(x,y,nominator_->Weighted(x+y*(*binning)[axis[0]]->GetNBins() ));
         denom->SetBinContent(x,y,denominator_->Weighted(x+y*(*binning)[axis[0]]->GetNBins() ));
 	
@@ -978,7 +978,7 @@ void Closure<T>::Write()
     we->GetYaxis()->SetTitleOffset(1.7);
     w->GetZaxis()->SetTitleOffset(1.3);
     we->GetZaxis()->SetTitleOffset(1.3);
-    we->GetZaxis()->SetTitle("weight stat. uncertainty");
+    we->GetZaxis()->SetTitle("weight rel. stat. uncertainty [ % ]");
     w->Draw("Colz");
     c1->SaveAs(((std::string)"plots/"+dir_+"/log/h2_weight_"+Processor<T>::name_+".pdf").c_str());
     we->Draw("Colz");
