@@ -968,6 +968,8 @@ void Closure<T>::Write()
     we->SetStats(0);
     w->SetTitle("");
     we->SetTitle("");
+    nom->SetTitle("");
+    denom->SetTitle("");
     gStyle->SetPalette(53,0);
     gStyle->SetNumberContours(512);
     w->GetZaxis()->SetRangeUser(0.8,20);
