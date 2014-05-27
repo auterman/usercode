@@ -98,7 +98,7 @@ int LooseMult(int n_g,float *g_pt, float *g_ptJet, float *g_phi, float *g_eta,fl
   for (int i=0; i<n_g; ++i) {
     if (loose_isolated(g_pt[i],g_ptJet[i],g_phi[i],g_eta[i],g_hadTowOverEm[i],g_sigmaIetaIeta[i],
                        g_chargedIso[i],g_neutralIso[i],g_photonIso[i]) &&
-       g_pixelseed==0)
+        g_pixelseed[i]==0)
      ++n;  
   }
   return n;
@@ -110,7 +110,7 @@ int TightMult(int n_g,float *g_pt, float *g_ptJet, float *g_phi, float *g_eta,fl
   for (int i=0; i<n_g; ++i) {
     if (tight_isolated(g_pt[i],g_ptJet[i],g_phi[i],g_eta[i],g_hadTowOverEm[i],g_sigmaIetaIeta[i],
                        g_chargedIso[i],g_neutralIso[i],g_photonIso[i]) &&
-       g_pixelseed==0)
+       g_pixelseed[i]==0)
      ++n;  
   }
   return n;

@@ -67,6 +67,7 @@ const static double bins_50_n200_200[] = {-200, -192, -184, -176, -168, -160, -1
 const static int n_50 = 50;
 
 const static double bins_11_0_10[] = {-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5,10.5}; 
+const static double bins_9_2_10[] = {1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5,10.5}; 
 const static double single_bin[] = {0}; 
 
 const static double bins_test_ht[] = { 500, 515, 537, 571, 621, 697, 2000};
@@ -505,9 +506,12 @@ void Closure<T>::Book()
 
 //std::cout << "void Closure<T>::Book()" << std::endl;
 
-  BookHistogram("n_jet", "jet multiplicity","events", titel_,bins_11_0_10, 12);
+  BookHistogram("n_jet", "jet multiplicity","events", titel_,bins_9_2_10, 10);
   BookHistogram("n_loose",  "loose photon multiplicity","events", titel_,bins_11_0_10, 12);
   BookHistogram("n_tight",  "tight photon multiplicity","events", titel_,bins_11_0_10, 12);
+  BookHistogram("n_mu",  "muon multiplicity","events", titel_,bins_11_0_10, 12);
+  BookHistogram("n_e",  "electron multiplicity","events", titel_,bins_11_0_10, 12);
+  BookHistogram("n_l",  "lepton multiplicity","events", titel_,bins_11_0_10, 12);
   BookHistogram("met", "MET [GeV]","events", titel_,metbins, n_metbins+1);
   BookHistogram("met_arrow", "MET [GeV]","events", titel_,metbins, n_metbins+1);
   BookHistogram("met_new", "MET [GeV]","events", titel_,newmetbins, n_newmetbins+1);
@@ -525,6 +529,8 @@ void Closure<T>::Book()
   BookHistogram("mht_trans",  "Transverse MHT [GeV]","events", titel_, bins_50_0_1000, n_50+1);
   BookHistogram("mht_paral",  "Parallel MHT [GeV]","events", titel_, bins_50_0_1000, n_50+1);
   BookHistogram("mht_phi",  "#phi_{MHT}","events", titel_, bins_64_nPi_Pi, n_64+1);
+  BookHistogram("jet1_pt",  "Leading Jet p_{T} [GeV]","events", titel_, bins_50_0_1000, n_50+1);
+  BookHistogram("jet2_pt",  "Next-to-leading Jet p_{T} [GeV]","events", titel_, bins_50_0_1000, n_50+1);
   BookHistogram("em1_pt",  "Photon p_{T} [GeV]","events", titel_, bins_50_0_1000, n_50+1);
   BookHistogram("em1_thePt",  "Photon p_{T}^{*} [GeV]","events", titel_, bins_50_0_1000, n_50+1);
   BookHistogram("em1_ptstar",  "Photon p_{T}^{*} [GeV]","events", titel_, bins_50_0_1000, n_50+1);
@@ -667,6 +673,8 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   Fill("met_const", t->met, weight, we, bin);
   Fill("ht",        t->ht,  weight, we, bin);
   Fill("met_signif",t->metSig, weight, we, bin);
+  Fill("jet1_pt",   t->jets_pt[0], weight, we, bin);
+  Fill("jet2_pt",   t->jets_pt[1], weight, we, bin);
   Fill("em1_pt",    t->photons_pt[t->ThePhoton], weight, we, bin);
   Fill("em1_thePt", t->ThePhotonPt, weight, we, bin);
   Fill("em1_ptstar",t->photons__ptJet[t->ThePhoton], weight, we, bin);
@@ -774,11 +782,15 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   Fill("corr_PhiMhtEm1_Over_PhiMhtRecoil",	mht, (phi_mht_recoil==0?1.: phi_mht_em1/phi_mht_recoil));
   Fill("corr_PhiMhtEm1_Over_PhiEm1Recoil",	mht, (phi_recoil_em1==0?1.: phi_mht_em1/phi_recoil_em1));
 */
-/*
+
   Fill("n_jet",       JetMult(  g_pt, g_eta, g_phi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_), weight, we, bin);
   Fill("n_loose",     LooseMult(t->photons_,t->photons_pt, t->photons__ptJet, t->photons_phi, t->photons_eta,t->photons_hadTowOverEm,t->photons_sigmaIetaIeta,t->photons_chargedIso,t->photons_neutralIso,t->photons_photonIso,t->photons_pixelseed), weight, we, bin);
   Fill("n_tight",     TightMult(t->photons_,t->photons_pt, t->photons__ptJet, t->photons_phi, t->photons_eta,t->photons_hadTowOverEm,t->photons_sigmaIetaIeta,t->photons_chargedIso,t->photons_neutralIso,t->photons_photonIso,t->photons_pixelseed), weight, we, bin);
-*/
+
+  Fill("n_mu",       t->muons_, weight, we, bin);
+  Fill("n_e",        t->electrons_, weight, we, bin);
+  Fill("n_l",        t->muons_+t->electrons_, weight, we, bin);
+
 //  if (we * w * t->weight) Fill("met_systerr", t->met,  we * w * t->weight, 0, 0);
 
 //  std::cout << "Closure<T>::Process(T*t,Long64_t i="<<i<<",Long64_t n="<<n<<",double w="<<w<<") Done!"<<std::endl;

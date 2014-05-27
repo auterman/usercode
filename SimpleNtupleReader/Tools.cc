@@ -335,6 +335,7 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
    h_axis->SetMaximum(2.4);
    h_axis->GetXaxis()->SetNdivisions(505);
    h_axis->GetYaxis()->SetTitle("Direct/Pred.");
+   h_axis->GetYaxis()->SetTitleOffset(0.4);
    h_axis->GetYaxis()->SetTitleSize(0.125);
    h_axis->GetYaxis()->SetLabelSize(0.125);
    h_axis->GetXaxis()->SetTitleSize(0.125);
