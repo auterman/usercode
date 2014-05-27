@@ -290,6 +290,8 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
       h_axis->SetMinimum( 0.05 );
       h_axis->GetYaxis()->SetTitle("events / GeV");
    }   
+   if ((log=="log"||log=="log_div") && file.find( "#phi")!=std::string::npos) 
+      h_axis->SetMaximum(100.*h_axis->GetMaximum());
    h_totalUp->SetStats(0);
    h_totalUp->SetTitle("");
    h_totalDn->SetStats(0);
