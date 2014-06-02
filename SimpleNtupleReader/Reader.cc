@@ -160,11 +160,13 @@ int Reader()
   closure_gj.SetDenominator( weights_gj_j.GetYields()); //Nenner, loose isolated
   closure_gj.AddDirectYields( direct_gj.GetYields());   //Signal
   closure_gj.Book();
+  final_gj.Book();
 
   closure_qcd.SetNominator( weights_qcd_g.GetYields() );   //Zähler, tight isolated
   closure_qcd.SetDenominator( weights_qcd_j.GetYields() ); //Nenner, loose isolated
   closure_qcd.AddDirectYields( direct_qcd.GetYields() );   //Signal
   closure_qcd.Book();
+  final_qcd.Book();
 
   if (!ONLY_QCD){
   std::cout << "\nPhoton-Jet Jet Tree (2nd pass for closure)\n===================================" <<std::endl;
