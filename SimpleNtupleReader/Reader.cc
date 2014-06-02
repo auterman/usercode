@@ -160,12 +160,18 @@ int Reader()
   closure_gj.SetDenominator( weights_gj_j.GetYields()); //Nenner, loose isolated
   closure_gj.AddDirectYields( direct_gj.GetYields());   //Signal
   closure_gj.Book();
+  final_gj.SetNominator(    weights_gj_g.GetYields());   //Zähler, tight isolated
+  final_gj.SetDenominator(  weights_gj_j.GetYields()); //Nenner, loose isolated
+  final_gj.AddDirectYields( finaldirect_gj.GetYields());   //Signal
   final_gj.Book();
 
   closure_qcd.SetNominator( weights_qcd_g.GetYields() );   //Zähler, tight isolated
   closure_qcd.SetDenominator( weights_qcd_j.GetYields() ); //Nenner, loose isolated
   closure_qcd.AddDirectYields( direct_qcd.GetYields() );   //Signal
   closure_qcd.Book();
+  final_qcd.SetNominator(    weights_qcd_g.GetYields() );   //Zähler, tight isolated
+  final_qcd.SetDenominator(  weights_qcd_j.GetYields() ); //Nenner, loose isolated
+  final_qcd.AddDirectYields( finaldirect_qcd.GetYields() );   //Signal
   final_qcd.Book();
 
   if (!ONLY_QCD){
@@ -193,7 +199,7 @@ int Reader()
   std::cout << "\nQCD Jet Tree (2nd pass for closure)\n===================================" <<std::endl;
   std::vector<Processor<QCD_Jet>*> vc_qcd_j;
   Cutter               <QCD_Jet>   cut_qcd(    "Cutter");
-  FinalCuts            <QCD_Jet> finalcut_qcd("FinalCuts");
+  FinalCuts            <QCD_Jet>   finalcut_qcd("FinalCuts");
   DoubleCountFilter    <QCD_Jet>   double_qcd( "DoublicateFilter_QCD");
   Cutter_looseID       <QCD_Jet>   looseID_qcd("LoosePhotonId_QCD");
   //double_qcd.Set( double_qcd_g.Get() );
