@@ -1,0 +1,15 @@
+#!/bin/bash
+#
+# ./generate <SelectorName> <TreeName> <rootfile>
+#
+path=`dirname $0`
+TMPFILE1=`mktemp tmp.1.XXXXXXXXXX` || exit 1
+TMPFILE2=`mktemp tmp.2.XXXXXXXXXX` || exit 1
+TMPFILE3=`mktemp tmp.2.XXXXXXXXXX` || exit 1
+sed "s|@INPUTROOTFILE|${3}|" $path/generateSelectors.C > $TMPFILE1
+sed "s|@SELECTORNAME|${1}|" $TMPFILE1 > $TMPFILE2
+sed "s|@TREENAME|${2}|" $TMPFILE2 > $TMPFILE3
+mv $TMPFILE3 $TMPFILE3.C
+root -l -b -q $TMPFILE3.C
+mv $1.C $1.cc
+rm $TMPFILE1 $TMPFILE2 $TMPFILE3.C 
