@@ -37,6 +37,8 @@ int Reader()
   Weighter<GJets_Photon> weights_gj_g("Weighter_GJets_Photon");
   Closure<GJets_Photon> direct_gj("","Closure_Direct_GJets", "Direct Simulation");
   Cutter<GJets_Photon> presel_gj_g("Presel_GJets_Photon");
+  Closure<GJets_Photon> finaldirect_gj("","Final_Direct_GJets", "Direct Simulation");
+  Cutter<GJets_Photon> final_gj_g("Final_GJets_Photon");
   DoubleCountFilter<GJets_Photon> double_gj_g("DoublicateFilter_GJets_Photon");
   Cutter_tightID<GJets_Photon> tightID_gj_g("TightPhotonId_GJets_Photon");
   direct_gj.Book();
@@ -48,6 +50,8 @@ int Reader()
   v_gjets_g.push_back( &gjets_g );
   v_gjets_g.push_back( &weights_gj_g );
   v_gjets_g.push_back( &direct_gj );
+  v_gjets_g.push_back( &final_gj_g );
+  v_gjets_g.push_back( &finaldirect_gj );
   if (!ONLY_QCD){
   Process<GJets_Photon>("photonTree",v_gjets_g,"data/"+version+"/GJets_200_400_"+version+"_tree.root",0.32466417277);
   Process<GJets_Photon>("photonTree",v_gjets_g,"data/"+version+"/GJets_400_inf_"+version+"_tree.root",0.0502103290278 );
@@ -67,6 +71,8 @@ int Reader()
   Cutter<QCD_Photon> presel_qcd_g("Presel_QCD_Photon");
   DoubleCountFilter<QCD_Photon> double_qcd_g("DoublicateFilter_QCD_Photon");
   Cutter_tightID<QCD_Photon> tightID_qcd_g("TightPhotonId_QCD_Photon");
+  Closure<GJets_Photon> finaldirect_qcd("","Final_Direct_QCD", "Direct Simulation");
+  Cutter<GJets_Photon> final_qcd_g("Final_QCD_Photon");
   direct_qcd.Book();
   qcd_g.Book();
   v_qcd_g.push_back( &status_qcd_g );
@@ -76,6 +82,8 @@ int Reader()
   v_qcd_g.push_back( &qcd_g );
   v_qcd_g.push_back( &weights_qcd_g );
   v_qcd_g.push_back( &direct_qcd );
+  v_gjets_g.push_back( &final_qcd_g );
+  v_gjets_g.push_back( &finaldirect_qcd );
   Process<QCD_Photon>("photonTree",v_qcd_g,"data/"+version+"/QCD_250_500_"+version+"_tree.root",201.935697478);
   Process<QCD_Photon>("photonTree",v_qcd_g,"data/"+version+"/QCD_500_1000_"+version+"_tree.root",5.45224379701 );
   Process<QCD_Photon>("photonTree",v_qcd_g,"data/"+version+"/QCD_1000_inf_"+version+"_tree.root",0.291768273061);
@@ -143,6 +151,9 @@ int Reader()
   Closure<QCD_Jet> closure(version,"Closure_Combined", "Prediction");
   Closure<QCD_Jet> closure_qcd(version,"Closure_QCD", "Prediction");
   Closure<GJets_Jet> closure_gj(version,"Closure_GJets", "Prediction");
+  Closure<QCD_Jet> final(version,"Final_Combined", "Prediction");
+  Closure<QCD_Jet> final_qcd(version,"Final_QCD", "Prediction");
+  Closure<GJets_Jet> final_gj(version,"Final_GJets", "Prediction");
   closure_gj.SetNominator( weights_gj_g.GetYields());   //Zähler, tight isolated
   closure_gj.SetDenominator( weights_gj_j.GetYields()); //Nenner, loose isolated
   closure_gj.AddDirectYields( direct_gj.GetYields());   //Signal
@@ -157,6 +168,7 @@ int Reader()
   std::cout << "\nPhoton-Jet Jet Tree (2nd pass for closure)\n===================================" <<std::endl;
   std::vector<Processor<GJets_Jet>*> vc_gjets_j;
   Cutter               <GJets_Jet>   cut_gj(    "Cutter");
+  FinalCuts            <GJets_Jet>   finalcut_gj("FinalCuts");
   DoubleCountFilter    <GJets_Jet>   double_gj( "DoublicateFilter_GJets");
   Cutter_looseID       <GJets_Jet>   looseID_gj("LoosePhotonId_GJets");
   double_gj.Set( double_gj_g.Get() );
@@ -165,6 +177,8 @@ int Reader()
   vc_gjets_j.push_back( &double_gj );
   vc_gjets_j.push_back( &cut_gj );
   vc_gjets_j.push_back( &closure_gj );
+  vc_gjets_j.push_back( &finalcut_gj );
+  vc_gjets_j.push_back( &final_gj );
   Process<GJets_Jet>("photonJetTree",vc_gjets_j,"data/"+version+"/GJets_200_400_"+version+"_tree.root",0.32466417277);
   Process<GJets_Jet>("photonJetTree",vc_gjets_j,"data/"+version+"/GJets_400_inf_"+version+"_tree.root",0.0502103290278 );
   //Process<GJets_Jet>("photonJetTree",vc_gjets_j,"data/"+version+"/GJets_200_400_"+version+"_tree.root",1);
@@ -175,6 +189,7 @@ int Reader()
   std::cout << "\nQCD Jet Tree (2nd pass for closure)\n===================================" <<std::endl;
   std::vector<Processor<QCD_Jet>*> vc_qcd_j;
   Cutter               <QCD_Jet>   cut_qcd(    "Cutter");
+  FinalCuts            <QCD_Jet> finalcut_qcd("FinalCuts");
   DoubleCountFilter    <QCD_Jet>   double_qcd( "DoublicateFilter_QCD");
   Cutter_looseID       <QCD_Jet>   looseID_qcd("LoosePhotonId_QCD");
   //double_qcd.Set( double_qcd_g.Get() );
@@ -183,6 +198,8 @@ int Reader()
 //  vc_qcd_j.push_back( &double_qcd );
   vc_qcd_j.push_back( &cut_qcd );
   vc_qcd_j.push_back( &closure_qcd );
+  vc_qcd_j.push_back( &finalcut_qcd );
+  vc_qcd_j.push_back( &final_qcd );
   Process<QCD_Jet>("photonJetTree",vc_qcd_j,"data/"+version+"/QCD_250_500_"+version+"_tree.root",201.935697478);
   Process<QCD_Jet>("photonJetTree",vc_qcd_j,"data/"+version+"/QCD_500_1000_"+version+"_tree.root",5.45224379701 );
   Process<QCD_Jet>("photonJetTree",vc_qcd_j,"data/"+version+"/QCD_1000_inf_"+version+"_tree.root",0.291768273061);
@@ -200,6 +217,15 @@ int Reader()
    closure.AddRef(          closure_gj.GetYields());
    closure.AddRef(          closure_qcd.GetYields());
    closure.Write();
+
+   final.SetNominator(    &tight_g );   //Zähler, tight isolated
+   final.SetDenominator(  &loose_g );   //Nenner, loose isolated
+   final.AddDirectYields( finaldirect_qcd.GetYields() ); 
+   final.AddDirectYields( finaldirect_gj.GetYields() ); 
+   final.Book();
+   final.AddRef(          final_gj.GetYields());
+   final.AddRef(          final_qcd.GetYields());
+   final.Write();
   }
   
   return 0;

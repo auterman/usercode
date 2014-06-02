@@ -245,8 +245,8 @@ class Yields{
       ///
       /// ------------------------------------------------------------
 
-       //AddBinning("#gamma p_{T}* [GeV]",      fak1p5_bins, n_fak1p5_bins+1, b_PtPhoton);
-       //AddBinning("Hadr. Recoil p_{T} [GeV]", fak1p5_bins, n_fak1p5_bins+1, b_PtRecoil);
+       AddBinning("#gamma p_{T}* [GeV]",      fak1p5_bins, n_fak1p5_bins+1, b_PtPhoton);
+       AddBinning("Hadr. Recoil p_{T} [GeV]", fak1p5_bins, n_fak1p5_bins+1, b_PtRecoil);
        //AddBinning("HT [GeV]",           fak1p5_bins, n_fak1p5_bins+1, b_HT);
        
 
@@ -280,8 +280,8 @@ class Yields{
                                             njets,jets_pt,jets_eta,jets_phi );
 	factor *= it->second->GetNBins();				    
       }      		       
-      //return bin;
-      return 0;
+      return bin;
+      //return 0;
     }
     virtual int GetNBins(){
       int n=1;
@@ -1060,7 +1060,7 @@ class Cutter : public Processor<T> {
          //||
 	// || t->photons__ptJet[t->ThePhoton]<=0
          // Recoil_pt(  &recoil )<150.
-      if ( t->ThePhotonPt<150. 
+      if ( t->ThePhotonPt<110. 
          ) {
 	return false;
       }	
@@ -1070,6 +1070,34 @@ class Cutter : public Processor<T> {
     }
     virtual void Terminate(){
       std::cout << "  Summary Cutter '"<<Processor<T>::name_<<"' Terminate: "<<d_pass<<" ("<<i_pass<<") / "
+                << d_tot << " ("<<i_tot<<") passed all cuts";
+      if (d_tot&&i_tot) std::cout << ", i.e. "<< d_pass/d_tot*100.<<"% ("<<100.*i_pass/i_tot<<"%)."<<std::endl;
+    }
+  protected:
+   double d_tot, d_pass;
+   int    i_tot, i_pass;  
+};
+
+////Cutter 
+template<typename T>
+class FinalCuts : public Processor<T> {
+  public:
+    FinalCuts(std::string n):Processor<T>(n),d_tot(0),d_pass(0),i_tot(0), i_pass(0){}
+    //virtual void Init(){};
+    virtual bool Process(T*t,Long64_t i,Long64_t n,double w) {
+      ++i_tot;
+      d_tot += w;
+
+      if ( t->met<100. 
+         ) {
+	return false;
+      }	
+      ++i_pass;
+      d_pass += w;
+      return true;
+    }
+    virtual void Terminate(){
+      std::cout << "  Summary Final Cuts '"<<Processor<T>::name_<<"' Terminate: "<<d_pass<<" ("<<i_pass<<") / "
                 << d_tot << " ("<<i_tot<<") passed all cuts";
       if (d_tot&&i_tot) std::cout << ", i.e. "<< d_pass/d_tot*100.<<"% ("<<100.*i_pass/i_tot<<"%)."<<std::endl;
     }

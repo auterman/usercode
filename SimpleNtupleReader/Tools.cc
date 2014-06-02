@@ -426,7 +426,7 @@ void PrintBinning(std::ostream& os, const std::string& s, MyYields*y)
   os << "# " << s <<"\n";
   int min=1;
   for (int i=1; i<y->GetNBins(s); ++i) { 
-    if (y->GetBinBorder(s,i) <= 100.) min =i+1;;
+    if (s=="met"&&y->GetBinBorder(s,i) <= 100.) min =i+1;;
   }
   if (y->GetNBins(s)>1)
     for (int i=min; i<y->GetNBins(s); ++i) 
@@ -440,7 +440,7 @@ void PrintResult(std::ostream& os, const std::string& s, const std::string& n, M
   int nbins=y->GetNBins(s);
   int min=1;
   for (int i=1; i<nbins; ++i) { 
-    if (y->GetBinBorder(s,i) <= 100.) min =i+1;;
+    if (s=="met"&&y->GetBinBorder(s,i) <= 100.) min =i+1;;
   }
   os << n << " = ";
   for (int i=min; i<=nbins; ++i) {
