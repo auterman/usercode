@@ -38,7 +38,7 @@ int Reader()
   Closure<GJets_Photon> direct_gj("","Closure_Direct_GJets", "Direct Simulation");
   Cutter<GJets_Photon> presel_gj_g("Presel_GJets_Photon");
   Closure<GJets_Photon> finaldirect_gj("","Final_Direct_GJets", "Direct Simulation");
-  Cutter<GJets_Photon> final_gj_g("Final_GJets_Photon");
+  FinalCuts<GJets_Photon> final_gj_g("Final_GJets_Photon");
   DoubleCountFilter<GJets_Photon> double_gj_g("DoublicateFilter_GJets_Photon");
   Cutter_tightID<GJets_Photon> tightID_gj_g("TightPhotonId_GJets_Photon");
   finaldirect_gj.Book();
@@ -73,7 +73,7 @@ int Reader()
   DoubleCountFilter<QCD_Photon> double_qcd_g("DoublicateFilter_QCD_Photon");
   Cutter_tightID<QCD_Photon> tightID_qcd_g("TightPhotonId_QCD_Photon");
   Closure<GJets_Photon> finaldirect_qcd("","Final_Direct_QCD", "Direct Simulation");
-  Cutter<GJets_Photon> final_qcd_g("Final_QCD_Photon");
+  FinalCuts<GJets_Photon> final_qcd_g("Final_QCD_Photon");
   finaldirect_qcd.Book();
   direct_qcd.Book();
   qcd_g.Book();
