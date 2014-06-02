@@ -80,6 +80,7 @@ class PlotTools {
 
   ///Fills empty points of the scan by linear interpolation (currently only in 'x'). No extrapolation is done.
   void FillEmptyPointsByInterpolation(const std::string& x, const std::string& y);
+  void FillEmptyPointsByInterpolationOld(const std::string& x, const std::string& y);
   void FillEmptyPointsByInterpolation1D(const std::string& x, const std::string& y);
   
   ///Increases the bin granularity in 'x' and 'y' by a factor of two, increasing the number of points by a factor of four.

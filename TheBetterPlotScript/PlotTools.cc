@@ -206,8 +206,89 @@ TH2 * PlotTools::GetHist(const std::string& x, const std::string& y)
   return h;
 }
 
+Events::const_iterator FindPoint(const std::string& x,double ix, const std::string& y,double iy,double prec,Events *scan) 
+{
+  Fill X(x);
+  Fill Y(y);
+  for (Events::const_iterator it=scan->begin(); it!=scan->end(); ++it)
+    if (fabs(X(*it)-ix)<prec && fabs(Y(*it)-iy)<prec) return it;
+  return scan->end();
+}
 
 void PlotTools::FillEmptyPointsByInterpolation(const std::string& x, const std::string& y)
+{
+  std::cout << "...Fill Empty Points By 2D linear Interpolation in x = '" <<x<<"' and y = '"<<y<<"'"<<std::endl;
+  Fill X(x);
+  Fill Y(y);
+  
+  Events newpoints;
+  //first find out where to expect points
+  //std::cout<< "start: TheLimits::FillEmptyPointsByInterpolation()" <<std::endl;
+
+  double gridy=9999, miny=9999, maxy=0, gridx=9999, minx=9999, maxx=0;
+  for (Events::const_iterator it=scan_->begin(); it!=scan_->end(); ++it){
+    if (X(*it)<minx) minx=X(*it);
+    if (X(*it)>maxx) maxx=X(*it);
+    if (Y(*it)<miny) miny=Y(*it);
+    if (Y(*it)>maxy) maxy=Y(*it);
+    for (Events::const_iterator zt=it; zt!=scan_->end(); ++zt){
+      if ( fabs(X(*it) - X(*zt)) < gridx && fabs(Y(*it)-Y(*zt))<0.9 && fabs(X(*it)-X(*zt))>0.9 ) 
+        gridx = fabs(X(*it) - X(*zt));
+      if ( fabs(Y(*it) - Y(*zt)) < gridy && fabs(X(*it)-X(*zt))<0.9 && fabs(Y(*it)-Y(*zt))>0.9 ) 
+        gridy = fabs(Y(*it) - Y(*zt));
+    }
+  } 
+  //Now, interpolate
+  std::cout<<"   --X-binning:: "<<minx<<" to "<<maxx<<", in "<<gridx
+           << "; --Y-binning:: "<<miny<<" to "<<maxy<<", in "<<gridy<<"  "<<std::endl;
+  
+  for (double ix=minx; ix<=maxx; ix+=gridx)
+  for (double iy=miny; iy<=maxy; iy+=gridy) {
+    if (FindPoint(x,ix,y,iy,0.9,scan_)!=scan_->end()) continue;
+    //std::cout << "x(" <<x<<")="<<ix << ", y("<<y<<") = "<< iy << std::endl;
+    
+    Events::const_iterator left, right, upper, down;
+    left = right = upper = down = scan_->end();
+    double le=ix-gridx, ri=ix+gridx, dn=iy-gridy, up=iy+gridy;
+    for (; le>=minx && (left =FindPoint(x,le,y,iy,0.9,scan_))==scan_->end(); le-=gridx);
+    for (; ri<=maxx && (right=FindPoint(x,ri,y,iy,0.9,scan_))==scan_->end(); ri+=gridx);
+    for (; dn>=miny && (down =FindPoint(x,ix,y,dn,0.9,scan_))==scan_->end(); dn-=gridy);
+    for (; up<=maxy && (upper=FindPoint(x,ix,y,up,0.9,scan_))==scan_->end(); up+=gridy);
+    double distx=ri-le, disty=up-dn, dist=ri-le+up-dn;
+
+    if (left!=scan_->end() && right!=scan_->end() && down!=scan_->end() && upper!=scan_->end()){
+      //std::cout <<"found 4 neigbors"<<std::endl;
+      newpoints.push_back( Event( (
+       		     (*left    * ((ri-ix)/distx * distx/dist)) +
+		     (*right   * ((ix-le)/distx * distx/dist)) +
+		     (*down    * ((up-iy)/disty * disty/dist)) +
+		     (*upper   * ((iy-dn)/disty * disty/dist))
+       		 )) );
+    }  
+    else if (left!=scan_->end() && right!=scan_->end()){
+      //std::cout << "found left x ="<<X(*left)<<", y ="<<Y(*left)<<"; right x="<<X(*right)<<", y ="<<Y(*right)<< std::endl; 
+      newpoints.push_back( Event( ( 
+       		     (*left    * ((ri-ix)/distx) ) +
+		     (*right   * ((ix-le)/distx) ) 
+       		 )) );
+      //std::cout <<"xy added point >> x = "<<X(newpoints.back())<<" / y = "<<Y(newpoints.back())<<"\n"<<std::endl;
+    }
+    else if (down!=scan_->end() && upper!=scan_->end()){
+      //std::cout << "found up y="<<Y(*upper)<<"; down y "<<Y(*down)<< std::endl; 
+      newpoints.push_back( Event(( 
+		     (*down    * ((up-iy)/disty)) +
+		     (*upper   * ((iy-dn)/disty))
+       		 )) );
+      //std::cout <<"xy added point >> "<<X(newpoints.back())<<"/"<<Y(newpoints.back())<<std::endl;
+    }  
+  }
+  
+  scan_->insert(scan_->end(), newpoints.begin(), newpoints.end());
+  std::cout<< ": added " <<newpoints.size() <<" new points."<<std::endl;
+}
+
+
+void PlotTools::FillEmptyPointsByInterpolationOld(const std::string& x, const std::string& y)
 {
   std::cout << "...Fill Empty Points By 2D linear Interpolation in x = '" <<x<<"' and y = '"<<y<<"'"<<std::endl;
   Fill X(x);
@@ -240,64 +321,45 @@ void PlotTools::FillEmptyPointsByInterpolation(const std::string& x, const std::
     Events::const_iterator nextx=scan_->end();
     double dx=9999; 
     for (Events::const_iterator zt=scan_->begin(); zt!=scan_->end(); ++zt){
-      if (fabs(X(*it)-X(*zt))<0.9 || fabs(Y(*it)-Y(*zt))>0.9 ) continue;
+      if (fabs(X(*it)-X(*zt))<0.9 || fabs(Y(*it)-Y(*zt))>0.9 ) continue; //not same line or same column
       if ( fabs(X(*it) - X(*zt)) < dx && X(*it) < X(*zt)) {
         dx = fabs(X(*it) - X(*zt));
 	nextx = zt;
       }	
       if (dx==gridx) break;	
     }
-    //interpolate in x:
-    if (dx!=gridx && nextx!=scan_->end()){
-        //std::cout << "m0 = " <<X(*it)  << ", m12="<< Y(*it) << std::endl;
+    //interpolate in x & y:
+    if (dx!=gridx ){
+       // std::cout << "x = " <<X(*it)  << ", y = "<< Y(*it) << std::endl;
        double distx = X(*nextx) - X(*it);
        for (double r=gridx; r<distx; r+=gridx ){
          Events::const_iterator miny=scan_->end(), maxy=scan_->end();
          //find upper and lower neighbors in 'y' for nextx
-	 double current_x=X(*it)+r, dmin=9999, dmax=9999;
+	 double current_x=X(*it)+r, dminy=9999, dmaxy=9999;
 	 for (Events::const_iterator zt=scan_->begin(); zt!=scan_->end(); ++zt){
 	   if (fabs(current_x-X(*zt))>0.9) continue;
-	   if ( fabs(Y(*it) - Y(*zt)) < dmin && Y(*it) > Y(*zt)) {
-	     dmin = fabs(Y(*it) - Y(*zt));
-	     miny = zt;
+	   if ( fabs(Y(*it) - Y(*zt)) < dminy && Y(*it) > Y(*zt)) {
+	     dminy = fabs(Y(*it) - Y(*zt)); //Abstand zum nächsten unteren Nachbarn in y
+	     miny = zt;                     //Der nächste untere Nachbar in y
 	   }	
-	   if ( fabs(Y(*it) - Y(*zt)) < dmax && Y(*it) < Y(*zt)) {
-	     dmax = fabs(Y(*it) - Y(*zt));
-	     maxy = zt;
+	   if ( fabs(Y(*it) - Y(*zt)) < dmaxy && Y(*it) < Y(*zt)) {
+	     dmaxy = fabs(Y(*it) - Y(*zt)); //Abstand zum nächsten oberen Nachbarn in y
+	     maxy = zt;                     //Der nächste obere Nachbar in y
 	   }	
-	   if (dmin==gridy && dmax==gridy) break;	
+	   if (dminy==gridy && dmaxy==gridy) break;	
 	 }
-	 double disty=dmin+dmax;
+	 double disty=dminy+dmaxy;
 	 double bias_xy=1;
 	 double totdist = distx+disty*bias_xy;
-	 
-	 //if (maxy!=scan_->end()) std::cout << "             MaxY:"<<X(*maxy)<<"/"<<Y(*maxy)<<" ("<<(dmin/disty) * distx/totdist <<")"<<std::endl;
-         //std::cout <<X(*it)<<"/"<<Y(*it) <<" ("<< ((1.-r   /distx) * disty/totdist)<<")"<<"       -> "<<current_x<<" <  NextX:"
-	 //          <<  X(*nextx)<<"/"<<Y(*nextx)<<" ("<< ((r/distx) * disty/totdist)<<")"<<std::endl; 
-	 //if (miny!=scan_->end()) std::cout << "             MinY:"<<X(*miny)<<"/"<<Y(*miny)<<" ("<< (dmax/disty * distx/totdist)<<")"<<std::endl;
-	 	 
-         //std::cout <<X(*it)<<"/"<<Y(*it) <<"->"
-	 //          <<  X(*it)*r/dist + (x(*nextx) * (1.-r/dist)) << "<- "<<x(*nextx) 
-	 //          <<"/"<< y(*nextx)<<std::endl;
 	 if (miny!=scan_->end() && maxy!=scan_->end() && nextx!=scan_->end()) {
 	         newpoints.push_back( Event( ( 
 		                       (*it   * ((1.-r   /distx) * disty*bias_xy/totdist)) + (*nextx * ((r/distx) * disty*bias_xy/totdist)) +
-	                               (*miny * (dmax/disty * distx/totdist)) + (*maxy  * ((dmin/disty) * distx/totdist))
+	                               (*miny * (dmaxy/disty * distx/totdist)) + (*maxy  * ((dminy/disty) * distx/totdist))
 	                           ) ) );
-	   //std::cout <<"added point >> "<<X(newpoints.back())<<"/"<<Y(newpoints.back())<<std::endl;
-	 	 
-	   
+	 //std::cout <<"xy added point >> "<<X(newpoints.back())<<"/"<<Y(newpoints.back())<<std::endl;
 	 }			   
-         else if (nextx!=scan_->end())			 
-	         newpoints.push_back( Event( ( (*it * (1.-r/distx)) + (*nextx * (r/distx)) )));
-
-         else if (miny!=scan_->end() && maxy!=scan_->end())			 
-	         newpoints.push_back( Event( ( (*miny * (dmax/disty)) + (*maxy  * ((dmin/disty))) )));
-//	 std::cout<<std::endl;
-//	 std::cout<<std::endl;
        }	 
     }	
-
   }
   scan_->insert(scan_->end(), newpoints.begin(), newpoints.end());
   std::cout<< ": added " <<newpoints.size() <<" new points."<<std::endl;
@@ -349,51 +411,7 @@ void PlotTools::ExpandGrid(const std::string& x, const std::string& y )
   scan_->insert(scan_->end(), new_grid.begin(), new_grid.end());
 }
 
-/*
 
-void PlotTools::Graph(TGraph*g, double(*x)(const T*), double(*y)(const T*), double ymin) {
-	unsigned i = g->GetN();
-	std::sort(scan_->begin(), scan_->end(), sort_by(x));
-	for (typename std::vector<T*>::const_iterator it = scan_->begin(); it != scan_->end(); ++it) {
-		if (y(*it) >= ymin)
-			g->SetPoint(i++, x(*it), y(*it));
-		//std::cout << i << ": x=" << x(*it) << ", y=" << y(*it) << std::endl;
-	}
-}
-
-void PlotTools::Keep(double(*x)(const T*), double val, double err)
-{
-std::cout << scan_->size()<<std::endl;
-   for (typename std::vector<T*>::iterator it = scan_->begin(); it != scan_->end(); ) {
-   	   if (fabs(x(*it)-val) > err) {
-	      delete *it;
-	      it = scan_->erase( it );
-	   }   
-	   else {
-	      ++it;
-	   }      
-   }
-std::cout << scan_->size()<<std::endl;
-}
-
-TGraph * PlotTools::Line(double(*x)(const T*), double(*y)(const T*), double(*func)(const T*),
-	const double mass, const double diff) {
-	TGraph * result = new TGraph(1);
-	std::sort(scan_->begin(), scan_->end(), sort_by(x));
-	int i = 0;
-	for (typename std::vector<T*>::const_iterator it = scan_->begin(); it != scan_->end(); ++it) {
-		if (fabs(func(*it) - mass) < diff){
-			result->SetPoint(i++, x(*it), y(*it));
-                        //std::cout << x(*it)<< ", "<< y(*it)<<": "<< func(*it)<<std::endl;
-		}	
-	}
-	result->SetLineWidth(1);
-	result->SetLineColor(kGray);
-	return result;
-}
-
-
-*/
 std::vector<TGraph*> GetContours(TH2*h, int ncont) {
 	if (!h)
 		return std::vector<TGraph*>();
@@ -447,34 +465,6 @@ TGraph * PlotTools::GetContour(TH2*h, const std::string& x, const std::string& y
 	return graph;
 }
 
-/*
-void PlotTools::Print(double(*f)(const T*), double(*x)(const T*), double(*y)(const T*),
-	TGraph*g, double p) {
-	for (typename std::vector<T*>::const_iterator it = scan_->begin(); it != scan_->end(); ++it) {
-		for (int j = 0; j < g->GetN(); ++j) {
-			double gx, gy;
-			g->GetPoint(j, gx, gy);
-			if ((x(*it) - gx) * (x(*it) - gx) + (y(*it) - gy) * (y(*it) - gy) < p * p)
-				std::cout << x(*it) << ", " << y(*it) << " :: " << f(*it) << std::endl;
-		}
-	}
-
-}
-
-void PlotTools::Print(double(*f)(const T*), double(*x1)(const T*), double(*x2)(const T*),
-	double(*x3)(const T*), double(*x4)(const T*), TGraph*g, double p) {
-	for (typename std::vector<T*>::const_iterator it = scan_->begin(); it != scan_->end(); ++it) {
-		for (int j = 0; j < g->GetN(); ++j) {
-			double gx, gy;
-			g->GetPoint(j, gx, gy);
-			if ((x1(*it) - gx) * (x1(*it) - gx) + (x2(*it) - gy) * (x2(*it) - gy) < p * p)
-				std::cout << x1(*it) << ", " << x2(*it) << ", " << x3(*it) << ", " << x4(*it)
-					<< " :: " << f(*it) << std::endl;
-		}
-	}
-
-}
-*/
 
 TH2 * BinWiseOr(TH2*h1, TH2*h2) {
 	TH2 * res = (TH2*) h1->Clone();
@@ -621,74 +611,6 @@ void Smooth(TGraph * g, int N, int flag) {
 	delete old;
 }
 
-/*
-void Smooth2D(TGraph * g, int N) {
-	TGraph * old = Close2D(g);
-	if (N > 2 * g->GetN())
-		N = 2 * g->GetN() - 1;
-
-	double gauss[N];
-	double sigma = (double) N / 4.;
-	double sum = 0;
-	double lim = (double) N / 2.;
-	TF1 *fb = new TF1("fb", "gaus(0)", -lim, lim);
-	fb->SetParameter(0, 1. / (sqrt(2 * 3.1415) * sigma));
-	fb->SetParameter(1, 0);
-	fb->SetParameter(2, sigma);
-	for (int i = 0; i < N; ++i) {
-		gauss[i] = fb->Integral(-lim + i, -lim + i + 1);
-		sum += gauss[i];
-	}
-	for (int i = 0; i < N; ++i)
-		gauss[i] /= sum;
-
-	for (int i = 0; i < g->GetN(); ++i) {
-		double avy = 0., avx = 0, x, x0, y;
-		int points = 0;
-		for (int j = i - N / 2; j <= i + N / 2; ++j) {
-			//if      (j<0)          old->GetPoint(old->GetN()+j, x, y);
-			//else if (j>=g->GetN()) old->GetPoint(j-old->GetN(), x, y);
-			if (j < 0)
-				old->GetPoint(0, x, y);
-			else if (j >= g->GetN())
-				old->GetPoint(old->GetN() - 1, x, y);
-			else
-				old->GetPoint(j, x, y);
-			if (i == j)
-				x0 = x;
-			avy += y * gauss[points];
-			avx += x * gauss[points];
-			++points;
-		}
-		g->SetPoint(i, avx, avy);
-	}
-	delete old;
-}
-
-TGraph * Close2D(TGraph * g) {
-	TGraph * f = new TGraph(0);
-	if (g->GetN() == 0)
-		return f;
-	double x, y;
-	g->GetPoint(0, x, y);
-	g->SetPoint(g->GetN(), x, y);
-
-	int i = 0;
-	for (; i < g->GetN(); ++i) {
-		g->GetPoint(i, x, y);
-		//if (x<450&&y<450) break;
-	}
-	int p = 0;
-	for (int j = i + 1; j != i; ++j) {
-		if (j >= g->GetN())
-			j = 0;
-		g->GetPoint(j, x, y);
-		//if (y<110+(x-120)*390/442||(x<330&&y<1000)||(x<500&&y<600)) continue;
-		f->SetPoint(p++, x, y);
-	}
-	return f;
-}
-*/
 
 void Cut(TGraph * &g, const char f, const char c, double cut)
 {

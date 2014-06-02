@@ -30,6 +30,8 @@ void DrawPlot2D(PlotTools *PlotTool, TCanvas*canvas, TH2* h, const std::string& 
      c1->SetRightMargin(0.22);  
      c1->SetLeftMargin(0.15);  
    }  
+
+   plot2D->GetXaxis()->SetNdivisions(505);
    plot2D->Draw("colz"); 
    double tx=400;
    double ty=1.045*(plot2D->GetYaxis()->GetXmax()-plot2D->GetYaxis()->GetXmin())+plot2D->GetYaxis()->GetXmin();  
@@ -118,7 +120,7 @@ void DrawStandardPlots(PlotTools *pt, const std::string& flag, const std::string
    //pt->Remove("Acceptance", Compare::less,    s->MinAccZ);
    //pt->Remove("Acceptance", Compare::greater, s->MaxAccZ);
    //Fill the holes by 2D interpolation in gl-sq
-   pt->FillEmptyPointsByInterpolation(x, y);
+   //pt->FillEmptyPointsByInterpolation(x, y);
    
    //Log z-scale
    c1->SetLogz(1);
@@ -146,19 +148,12 @@ void DrawStandardPlots(PlotTools *pt, const std::string& flag, const std::string
 
 void DrawStandardLimitPlots(PlotTools *pt, const std::string& flag, const std::string& x, const std::string& y, style*s, TH2*h)
 {
-   //gStyle->SetPadRightMargin(0.2);
-   //gStyle->SetPadLeftMargin(0.2);
-   //gStyle->SetTitleOffset(1.3, "xyz");
-   //gStyle->SetTitleOffset(1.9, "y");
-   //gStyle->SetNdivisions(505);
-   //gStyle->SetTitleFont(43, "xyz");
-   //gStyle->SetTitleSize(32, "xyz");
    c1->UseCurrentStyle();
 
    //Require an observed CLs limit:
-   pt->Remove("ObsXsecLimit", Compare::less, s->MinXsecZ);
-   //Fill the holes by 2D interpolation in gl-sq
-   pt->FillEmptyPointsByInterpolation(x, y);
+//   pt->Remove("ObsXsecLimit", Compare::less, s->MinXsecZ);
+   //Fill possible holes by 2D interpolation in gl-sq
+//   pt->FillEmptyPointsByInterpolation(x, y);
    
    
    //Log z-scale

@@ -105,6 +105,14 @@ plotDiPhoton: $(SRC:.cc=.o) EventDiPhoton.o StyleSettings_DiPhoton.o Plotting.o 
 		$(LD) $(SRC:.cc=.o) StyleSettings_DiPhoton.o EventDiPhoton.o plotDiPhoton.o Plotting.o $(RLXX) $(JCORR) -o plotDiPhoton
 		@echo '-> plotDiPhoton executable created.'
 
+nedit:
+		nedit Makefile StyleSettings_SinglePhoton_8TeV20fb.cc plotSinglePhoton8TeV20fb.cc Plotting.h Plotting.cc PlotTools.h PlotTools.cc &
+
+
+fetch:
+		scp nafhh-cms01.desy.de:Releases/CMSSW_6_1_1/src/Jobs/2014*ino.tar.gz .; ls 2014*ino.tar.gz
+		
+
 clean:
 		@rm -f *.o 
 		@rm -f plotSinglePhoton7TeV plotSinglePhoton8TeV

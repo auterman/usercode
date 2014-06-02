@@ -25,6 +25,7 @@
 #include "TMarker.h"
 #include "TPaveText.h"
 #include "TGraph.h"
+#include "TError.h"
 
 #include <iostream>
 #include <sstream>
@@ -189,23 +190,41 @@ int plot(int argc, char** argv) {
 
   Overview = new OverviewTable();
 
-  ///Single Photon 8 TeV 20fb-1 Spring 2014 PAS
-  if (0){ // 4.04 fb-1
-  DoPlotsFor("squark","gluino","GMSB_8TeV_Bino","2014-02-05-15-35-GMSB_SqGl-Bino/filelist.txt",SqGlBino_Style(),4);
-  DoPlotsFor("squark","gluino","GMSB_8TeV_Wino","2014-02-05-15-35-GMSB_SqGl-Wino/filelist.txt",SqGlWino_Style(),4);
 
-  DoPlotsFor("squark","gluino","GMSB_8TeV_Bino_21met","2014-01-31-11-22-GMSB_SqGl-Bino-21metBins/filelist.txt",SqGlBino_Style(),4);
-  DoPlotsFor("squark","gluino","GMSB_8TeV_Wino_21met","2014-01-31-11-22-GMSB_SqGl-Wino-21metBins/filelist.txt",SqGlWino_Style(),4);
-
-  DoPlotsFor("squark","gluino","GMSB_8TeV_Bino_4fb","2014-01-31-10-55-GMSB_SqGl-Bino-4fb/filelist.txt",SqGlBino_Style(),4);
-  DoPlotsFor("squark","gluino","GMSB_8TeV_Wino_4fb","2014-01-31-10-55-GMSB_SqGl-Wino-4fb/filelist.txt",SqGlWino_Style(),4);
-  }
-  //20.3.2014
+  //post preapproval
   if (1){
-  DoPlotsFor("squark","gluino","GMSB_8TeV_Bino","2014-03-19-17-41-GMSB_SqGl-Bino/filelist.txt",SqGlBino_Style(),4);
-  DoPlotsFor("squark","gluino","GMSB_8TeV_Wino","2014-03-19-17-41-GMSB_SqGl-Wino/filelist.txt",SqGlWino_Style(),4);
+//  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Bino","2014-05-16-15-38-GMSB_SqGl_met-Bino/filelist.txt",SqGlBino_Style(),4);
+//  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Wino","2014-05-16-15-38-GMSB_SqGl_met-Wino/filelist.txt",SqGlWino_Style(),4);
+  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Bino","2014-05-27-18-34-GMSB_SqGl_met-Bino/filelist.txt",SqGlBino_Style(),4);
+  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Wino","2014-05-27-18-33-GMSB_SqGl_met-Wino/filelist.txt",SqGlWino_Style(),4);
+  }
+
+
+  //Preapproval
+  if (0){
+  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Bino","2014-05-10-16-46-GMSB_SqGl_met-Bino/filelist.txt",SqGlBino_Style(),4);
+  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Wino","2014-05-10-16-46-GMSB_SqGl_met-Wino/filelist.txt",SqGlWino_Style(),4);
+  }
+  if (0){
+  DoPlotsFor("squark","gluino","GMSB_8TeV_metLO_Bino","2014-05-10-16-46-GMSB_SqGl_met-Bino/filelist.txt",SqGlBino_Style(),4);
+  DoPlotsFor("squark","gluino","GMSB_8TeV_metLO_Wino","2014-05-10-16-46-GMSB_SqGl_met-Wino/filelist.txt",SqGlWino_Style(),4);
   }
   
+  //2.5.2014
+  if (0){
+  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Bino","2014-05-10-16-47-GMSB_SqGl_metLO-Bino/filelist.txt",SqGlBino_Style(),4);
+  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Wino","2014-05-10-16-47-GMSB_SqGl_metLO-Wino/filelist.txt",SqGlWino_Style(),4);
+  }
+  
+  if (0){
+  DoPlotsFor("squark","gluino","GMSB_8TeV_metnew_Bino","2014-05-04-13-29-GMSB_SqGl_metnew-Bino/filelist.txt",SqGlBino_Style(),4);
+  DoPlotsFor("squark","gluino","GMSB_8TeV_metnew_Wino","2014-05-04-13-29-GMSB_SqGl_metnew-Wino/filelist.txt",SqGlWino_Style(),4);
+  DoPlotsFor("squark","gluino","GMSB_8TeV_metfibo_Bino","2014-05-04-13-30-GMSB_SqGl_metfibo-Bino/filelist.txt",SqGlBino_Style(),4);
+  DoPlotsFor("squark","gluino","GMSB_8TeV_metfibo_Wino","2014-05-04-13-30-GMSB_SqGl_metfibo-Wino/filelist.txt",SqGlWino_Style(),4);
+  DoPlotsFor("squark","gluino","GMSB_8TeV_metoptim_Bino","2014-05-04-13-20-GMSB_SqGl_metoptim-Bino/filelist.txt",SqGlBino_Style(),4);
+  DoPlotsFor("squark","gluino","GMSB_8TeV_metoptim_Wino","2014-05-04-13-28-GMSB_SqGl_metoptim-Wino/filelist.txt",SqGlWino_Style(),4);
+  }
+    
   std::ofstream ofile;
   ofile.open("results/OverviewTable.txt");
   ofile << *Overview->Get() << std::endl;
@@ -215,5 +234,6 @@ int plot(int argc, char** argv) {
 }
 
 int main(int argc, char** argv) {
+  gErrorIgnoreLevel = 5000;
   return plot(argc, argv);
 }
