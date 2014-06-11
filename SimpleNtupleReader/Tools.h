@@ -504,6 +504,9 @@ void Closure<T>::Book()
 //std::cout << "void Closure<T>::Book()" << std::endl;
 
   BookHistogram("n_jet", "jet multiplicity","events", titel_,bins_9_2_10, 10);
+  BookHistogram("njet_met0_30", "jet multiplicity","events", titel_,bins_9_2_10, 10);
+  BookHistogram("njet_met30_60", "jet multiplicity","events", titel_,bins_9_2_10, 10);
+  BookHistogram("njet_met60_100", "jet multiplicity","events", titel_,bins_9_2_10, 10);
   BookHistogram("n_loose",  "loose photon multiplicity","events", titel_,bins_11_0_10, 12);
   BookHistogram("n_tight",  "tight photon multiplicity","events", titel_,bins_11_0_10, 12);
   BookHistogram("n_mu",  "muon multiplicity","events", titel_,bins_11_0_10, 12);
@@ -783,13 +786,18 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
   Fill("corr_PhiMhtEm1_Over_PhiEm1Recoil",	mht, (phi_recoil_em1==0?1.: phi_mht_em1/phi_recoil_em1));
 */
 
-  Fill("n_jet",       JetMult(  g_pt, g_eta, g_phi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_), weight, we, bin);
+  int njet = JetMult(  g_pt, g_eta, g_phi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_);
+  Fill("n_jet",       njet, weight, we, bin);
   Fill("n_loose",     LooseMult(t->photons_,t->photons_pt, t->photons__ptJet, t->photons_phi, t->photons_eta,t->photons_hadTowOverEm,t->photons_sigmaIetaIeta,t->photons_chargedIso,t->photons_neutralIso,t->photons_photonIso,t->photons_pixelseed), weight, we, bin);
   Fill("n_tight",     TightMult(t->photons_,t->photons_pt, t->photons__ptJet, t->photons_phi, t->photons_eta,t->photons_hadTowOverEm,t->photons_sigmaIetaIeta,t->photons_chargedIso,t->photons_neutralIso,t->photons_photonIso,t->photons_pixelseed), weight, we, bin);
 
   Fill("n_mu",       t->muons_, weight, we, bin);
   Fill("n_e",        t->electrons_, weight, we, bin);
   Fill("n_l",        t->muons_+t->electrons_, weight, we, bin);
+
+  if (t->met<30)       Fill("njet_met0_30",       njet, weight, we, bin);
+  else if (t->met<60)  Fill("njet_met30_60",      njet, weight, we, bin);
+  else if (t->met<100) Fill("njet_met60_100",     njet, weight, we, bin);
 
 //  if (we * w * t->weight) Fill("met_systerr", t->met,  we * w * t->weight, 0, 0);
 
