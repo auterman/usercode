@@ -52,7 +52,7 @@ class Status : public Processor<T> {
   public:
     Status(std::string name):Processor<T>(name){}
     virtual bool Process(T*t,Long64_t i,Long64_t n,double w){
-      if (i==0)             std::cout <<"   > "<< n << " events: \n" << std::flush;
+      if (i==0)             std::cout <<"   > "<< n << " Events: \n" << std::flush;
       if (n&&(n/times)&&(i%(n/times))==0) std::cout << "   "<<barspin[(i/(n/times))%4]<<" "<<i/(n/times) << "% \r"<< std::flush;
       return true;
     }
@@ -138,7 +138,7 @@ template<typename T> struct square
     }
 };
 
-///Yield class can calculate statistical uncertaities for a set of weighted events
+///Yield class can calculate statistical uncertaities for a set of weighted Events
 class Yield{ 
  public:
   Yield(){}

@@ -12,29 +12,29 @@
 
 void Histograms::Book()
 {
-  h_["idxphoton"]  = new TH1F(((std::string)"h_idxphoton"+label_).c_str(),";Index of first tight #gamma;events",11,-0.5,10.5);
-  h_["met"]       = new TH1F(((std::string)"h_met"+label_).c_str(),";MET [GeV];events",n_metbins,metbins);
-  h_["met_const"] = new TH1F(((std::string)"h_met_const"+label_).c_str(),";MET [GeV];events",20,0,500);
-  h_["mht"]       = new TH1F(((std::string)"h_mht"+label_).c_str(),";MHT [GeV];events",20,0,1000);
-  h_["ht" ]       = new TH1F(((std::string)"h_ht"+label_).c_str(),";HT [GeV];events",20,400,1500);
-  h_["em1_pt" ]   = new TH1F(((std::string)"h_em1_pt"+label_).c_str(),";p_{T}^{em}_1 [GeV];events",20,0,500);
-  h_["em1_thePt" ]   = new TH1F(((std::string)"h_em1_thePt"+label_).c_str(),";the p_{T}^{em,*}_1 [GeV];events",20,0,500);
-  h_["weight" ]   = new TH1F(((std::string)"weight"+label_).c_str(),";weight;events",20,0,4);
+  h_["idxphoton"]  = new TH1F(((std::string)"h_idxphoton"+label_).c_str(),";Index of first tight #gamma;Events",11,-0.5,10.5);
+  h_["met"]       = new TH1F(((std::string)"h_met"+label_).c_str(),";MET [GeV];Events",n_metbins,metbins);
+  h_["met_const"] = new TH1F(((std::string)"h_met_const"+label_).c_str(),";MET [GeV];Events",20,0,500);
+  h_["mht"]       = new TH1F(((std::string)"h_mht"+label_).c_str(),";MHT [GeV];Events",20,0,1000);
+  h_["ht" ]       = new TH1F(((std::string)"h_ht"+label_).c_str(),";HT [GeV];Events",20,400,1500);
+  h_["em1_pt" ]   = new TH1F(((std::string)"h_em1_pt"+label_).c_str(),";p_{T}^{em}_1 [GeV];Events",20,0,500);
+  h_["em1_thePt" ]   = new TH1F(((std::string)"h_em1_thePt"+label_).c_str(),";the p_{T}^{em,*}_1 [GeV];Events",20,0,500);
+  h_["weight" ]   = new TH1F(((std::string)"weight"+label_).c_str(),";weight;Events",20,0,4);
 
-  h_["em1_phi" ]   = new TH1F(((std::string)"h_em1_phi"+label_).c_str(),";#phi^{em}_1;events",20,-3.2,3.2);
-  h_["em1_eta" ]   = new TH1F(((std::string)"h_em1_eta"+label_).c_str(),";#eta^{em}_1;events",20,-2.5,2.5);
-  h_["em1_ptstar" ]= new TH1F(((std::string)"h_em1_ptstar"+label_).c_str(),";p_{T}^{*,em}_1 [GeV];events",20,0,500);
-  h_["em1_sigmaIphiIphi" ]= new TH1F(((std::string)"h_em1_sigmaIphiIphi"+label_).c_str(),";#sigma_{i#phi#i#phi}^{em}_1 [GeV];events",50,0.005,0.03);
-  h_["em1_sigmaIetaIeta" ]= new TH1F(((std::string)"h_em1_sigmaIetaIeta"+label_).c_str(),";#sigma_{i#eta#i#eta}^{em}_1 [GeV];events",50,0.005,0.03);
-  h_["em1_r9" ]= new TH1F(((std::string)"h_em1_r9"+label_).c_str(),";R9^{em}_1 [GeV];events",50,0.0,1.0);
-  h_["em1_hadTowOverEm" ]= new TH1F(((std::string)"h_em1_hadTowOverEm"+label_).c_str(),";hadTowOverEm^{em}_1 [GeV];events",50,0.,1.6);
-  h_["em1_chargedIso" ]= new TH1F(((std::string)"h_em1_chargedIso"+label_).c_str(),";chargedIso^{em}_1 [GeV];events",50,0.,150);
-  h_["em1_neutralIso" ]= new TH1F(((std::string)"h_em1_neutralIso"+label_).c_str(),";neutralIso^{em}_1 [GeV];events",50,0.,40);
-  h_["em1_photonIso" ]= new TH1F(((std::string)"h_em1_photonIso"+label_).c_str(),";photonIso^{em}_1 [GeV];events",50,0.,100);
-  h_["em1_conversionSafeVeto" ]= new TH1F(((std::string)"h_em1_conversionSafeVeto"+label_).c_str(),";conversionSafeVeto^{em}_1 [GeV];events",2,-0.5,1.5);
-  h_["em1_pixelseed" ]= new TH1F(((std::string)"h_em1_pixelseed"+label_).c_str(),";pixelseed^{em}_1 [GeV];events",50,0.005,0.03);
-  h_["em1_genInformation" ]= new TH1F(((std::string)"h_em1_genInformation"+label_).c_str(),";genInformation^{em}_1 [GeV];events",2,-0.5,1.5);
-  h_["em1_matchedJetIndex" ]= new TH1F(((std::string)"h_em1_matchedJetIndex"+label_).c_str(),";matchedJetIndex^{em}_1 [GeV];events",7,-1.5,5.5);
+  h_["em1_phi" ]   = new TH1F(((std::string)"h_em1_phi"+label_).c_str(),";#phi^{em}_1;Events",20,-3.2,3.2);
+  h_["em1_eta" ]   = new TH1F(((std::string)"h_em1_eta"+label_).c_str(),";#eta^{em}_1;Events",20,-2.5,2.5);
+  h_["em1_ptstar" ]= new TH1F(((std::string)"h_em1_ptstar"+label_).c_str(),";p_{T}^{*,em}_1 [GeV];Events",20,0,500);
+  h_["em1_sigmaIphiIphi" ]= new TH1F(((std::string)"h_em1_sigmaIphiIphi"+label_).c_str(),";#sigma_{i#phi#i#phi}^{em}_1 [GeV];Events",50,0.005,0.03);
+  h_["em1_sigmaIetaIeta" ]= new TH1F(((std::string)"h_em1_sigmaIetaIeta"+label_).c_str(),";#sigma_{i#eta#i#eta}^{em}_1 [GeV];Events",50,0.005,0.03);
+  h_["em1_r9" ]= new TH1F(((std::string)"h_em1_r9"+label_).c_str(),";R9^{em}_1 [GeV];Events",50,0.0,1.0);
+  h_["em1_hadTowOverEm" ]= new TH1F(((std::string)"h_em1_hadTowOverEm"+label_).c_str(),";hadTowOverEm^{em}_1 [GeV];Events",50,0.,1.6);
+  h_["em1_chargedIso" ]= new TH1F(((std::string)"h_em1_chargedIso"+label_).c_str(),";chargedIso^{em}_1 [GeV];Events",50,0.,150);
+  h_["em1_neutralIso" ]= new TH1F(((std::string)"h_em1_neutralIso"+label_).c_str(),";neutralIso^{em}_1 [GeV];Events",50,0.,40);
+  h_["em1_photonIso" ]= new TH1F(((std::string)"h_em1_photonIso"+label_).c_str(),";photonIso^{em}_1 [GeV];Events",50,0.,100);
+  h_["em1_conversionSafeVeto" ]= new TH1F(((std::string)"h_em1_conversionSafeVeto"+label_).c_str(),";conversionSafeVeto^{em}_1 [GeV];Events",2,-0.5,1.5);
+  h_["em1_pixelseed" ]= new TH1F(((std::string)"h_em1_pixelseed"+label_).c_str(),";pixelseed^{em}_1 [GeV];Events",50,0.005,0.03);
+  h_["em1_genInformation" ]= new TH1F(((std::string)"h_em1_genInformation"+label_).c_str(),";genInformation^{em}_1 [GeV];Events",2,-0.5,1.5);
+  h_["em1_matchedJetIndex" ]= new TH1F(((std::string)"h_em1_matchedJetIndex"+label_).c_str(),";matchedJetIndex^{em}_1 [GeV];Events",7,-1.5,5.5);
 }
 
 void Histograms::Add(Histograms* r)
@@ -288,7 +288,7 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
    if (log=="log") h_axis->SetMinimum( 0.5 );
    if (log=="log_div") {
       h_axis->SetMinimum( 0.05 );
-      h_axis->GetYaxis()->SetTitle("events / GeV");
+      h_axis->GetYaxis()->SetTitle("Events / GeV");
    }   
    if ((log=="log"||log=="log_div") && (file.find( "phi")!=std::string::npos || file.find( "Phi")!=std::string::npos)) 
       h_axis->SetMaximum(100.*h_axis->GetMaximum());
