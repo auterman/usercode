@@ -522,7 +522,7 @@ int main()
   //std::cout <<"\n n="<<n<<std::endl;
   
   
-  
+  setStyle();
   Reader(); //MC closure
   do_data();  //data results
   
