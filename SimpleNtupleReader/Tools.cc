@@ -6,6 +6,7 @@
 #include "THStack.h"
 #include "TStyle.h"
 #include "TArrow.h"
+#include "TLatex.h"
 
 #include <iostream>
 #include <fstream>
@@ -210,6 +211,17 @@ TH1* TotalErrorDn(THStack*hs, TH1*w)
 }
 
 void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *other,const std::string& dir, const std::string& file,const std::string& legtitle, const std::string& log) {
+
+   h1->SetLineColor(1);
+
+   // Plot caption
+   TLatex* plotCaption = new TLatex();
+   plotCaption->SetNDC();
+   plotCaption->SetTextFont( h1->GetLabelFont() );
+   plotCaption->SetTextSizePixels( h1->GetLabelSize() );
+   // whitespaces optimized for this pad size
+   plotCaption->SetText( .02, .94, "CMS Private Work                  #sqrt{s}=8TeV, #intLdt=19.7fb^{-1}, #geq1#gamma,#geq2jets" );
+
    //std::cout<<"ratio plot for: "<< file<<std::endl; 
    assert(h1->GetXaxis()->GetNbins() == h2->GetXaxis()->GetNbins());
 
@@ -312,6 +324,7 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
    h1->DrawCopy("pe,X0,same");
    leg->Draw("same");
    pad1->RedrawAxis();
+   plotCaption->Draw();
    c1->cd();
    TPad *pad2 = new TPad(((std::string)"padb_"+ss.str()).c_str(),"padb",0,0,1,0.3);
    pad2->SetTopMargin(0);
@@ -379,6 +392,7 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
    delete hleg;
    delete cover;
    delete we;
+   delete plotCaption;
 }
 
 void RatioPlot(TH1*a, TH1*b,TH1*we, std::vector<TH1*> *sig, std::vector<TH1*> *other,const std::string& dir_,  const std::string& file, const std::string& t)
@@ -471,4 +485,11 @@ void PrintResults(const std::string& dir, std::string file, std::string name, My
   for (std::vector<MyYields*>::iterator oth=other->begin(); oth!=other->end(); ++oth)
     PrintResult( out, name, (*oth)->ResultName(), *oth);    
   out.close();  
+}
+
+void setStyle() {
+	gStyle->SetPadTickX(1);
+	gStyle->SetPadTickY(1);
+	gStyle->SetPalette(56);
+	gStyle->SetNumberContours(999);
 }
