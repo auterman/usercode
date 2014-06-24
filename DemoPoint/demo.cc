@@ -96,7 +96,7 @@ void WriteTable(std::ostream& os, const Table::TableStyle style, const std::stri
   for (int i=0; i<=max-min; ++i)  table << data[i];
   table << "Signal";
   for (int i=0; i<=max-min; ++i)  table << signal[i];
-  table << "Signal cont.";
+  table << "Bkg. from Signal";
   for (int i=0; i<=max-min; ++i)  table << (!config[i]?"-":ToStringYield(config[i]->read<double>("signal.contamination", -1)));
   table << "Acceptance [\\%]";
   for (int i=0; i<=max-min; ++i)  table << acceptance[i];
