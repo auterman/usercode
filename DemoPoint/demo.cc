@@ -36,7 +36,7 @@ void WriteTable(std::ostream& os, const Table::TableStyle style, const std::stri
   for (int ch=min; ch<=max; ++ch) {
     int i = ch - min;
     stringstream head;
-    head << "Bin "<<ch;
+    head << "Bin "<<ch+1;
     table.AddColumn<string>(head.str());
     
     try{
