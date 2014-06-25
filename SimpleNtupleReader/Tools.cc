@@ -212,6 +212,14 @@ TH1* TotalErrorDn(THStack*hs, TH1*w)
 
 void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *other,const std::string& dir, const std::string& file,const std::string& legtitle, const std::string& log) {
 
+
+	std::string mylegtitle = "";
+	if ( file.find( "Combined" ) != std::string::npos )
+		mylegtitle = "Multijet, #gamma+jet";
+	if ( file.find( "QCD" ) != std::string::npos )
+		mylegtitle = "Multijet";
+
+
    h1->SetLineColor(1);
 
    // Plot caption
@@ -220,7 +228,12 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
    plotCaption->SetTextFont( h1->GetLabelFont() );
    plotCaption->SetTextSizePixels( h1->GetLabelSize() );
    // whitespaces optimized for this pad size
-   plotCaption->SetText( .02, .94, "CMS Private Work                  #sqrt{s}=8TeV, #intLdt=19.7fb^{-1}, #geq1#gamma,#geq2jets" );
+   if ( file.find("Final") == 0 )
+      plotCaption->SetText( .01, .94, "CMS Simulation    #sqrt{s}=8TeV, #intLdt=19.7fb^{-1}, #geq1#gamma,#geq2jets,#slash{E}_{T}#geq100GeV" );
+   else
+      plotCaption->SetText( .01, .94, "CMS Simulation                    #sqrt{s}=8TeV, #intLdt=19.7fb^{-1}, #geq1#gamma,#geq2jets" );
+   if ( file.find("Data") != std::string::npos )
+      plotCaption->SetText( .01, .94, "CMS Preliminary                   #sqrt{s}=8TeV, #intLdt=19.7fb^{-1}, #geq1#gamma,#geq2jets" );
 
    //std::cout<<"ratio plot for: "<< file<<std::endl; 
    assert(h1->GetXaxis()->GetNbins() == h2->GetXaxis()->GetNbins());
@@ -286,7 +299,7 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
      }  
    TH1* h_totalUp = TotalErrorUp((THStack*)hs.Clone(), (TH1F*)we->Clone());
    TH1* h_totalDn = TotalErrorDn((THStack*)hs.Clone(), (TH1F*)we->Clone());
-   leg->SetHeader(legtitle.c_str());
+   leg->SetHeader(mylegtitle.c_str());
    for (int i=1; i<=we->GetXaxis()->GetNbins();++i){
      cover->SetBinContent(i, ((TH1F*)hs.GetStack()->Last())->GetBinContent(i) - we->GetBinContent(i));
      we->SetBinContent(   i, ((TH1F*)hs.GetStack()->Last())->GetBinContent(i) + we->GetBinContent(i));
@@ -299,11 +312,12 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
    if ((log=="log"||log=="log_div") && h1->GetMaximum()>h_axis->GetMaximum()) h_axis->SetMaximum(5.*h1->GetMaximum());   
    if (log=="log") h_axis->SetMinimum( 0.5 );
    if (log=="log_div") {
-      h_axis->SetMinimum( 0.05 );
+      //h_axis->SetMinimum( 0.05 );
+      h_axis->SetMinimum( std::min(h1->GetMinimum(0),h2->GetMinimum(0))/3 );
       h_axis->GetYaxis()->SetTitle("Events / GeV");
    }   
    if ((log=="log"||log=="log_div") && (file.find( "phi")!=std::string::npos || file.find( "Phi")!=std::string::npos)) 
-      h_axis->SetMaximum(100.*h_axis->GetMaximum());
+      h_axis->SetMaximum(10.*h_axis->GetMaximum());
    h_totalUp->SetStats(0);
    h_totalUp->SetTitle("");
    h_totalDn->SetStats(0);
