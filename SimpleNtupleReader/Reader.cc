@@ -330,8 +330,8 @@ int do_data(){
   Status<Data_Photon> status_data_g("Status Data_Photon");
   Plotter<Data_Photon> Data_g(version,"Data_Photon");
   Weighter<Data_Photon> weights_data_g("Data_Photon");
-  Closure<Data_Photon> direct_data("","Direct_Data","Data,  19.7 fb^{-1}, 8 TeV");
-  Closure<Data_Photon> finaldirect_data("","Final_Direct_Data","Data,  19.7 fb^{-1}, 8 TeV");
+  Closure<Data_Photon> direct_data("","Direct_Data","Data");
+  Closure<Data_Photon> finaldirect_data("","Final_Direct_Data","Data");
   Cutter<Data_Photon> presel_data_g("Presel_Data_Photon");
   FinalCuts<Data_Photon> final_data_g("Presel_Data_Photon");
   DoubleCountFilter<Data_Photon> double_data_g("DoublicateFilter_Data_Photon");
