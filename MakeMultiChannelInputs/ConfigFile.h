@@ -70,6 +70,7 @@ template<class datatype> bag_of<datatype>::bag_of(std::string s)
       this->push_back(buffer);
      //do not read more numbers than characters in strint
      //this can happen with bag_of<double> and string "0.0."
+      if ( this->size()>s.length() )std::cerr<<"s: "<<s<<std::endl;
       assert(this->size() <= s.length());
     }
   }

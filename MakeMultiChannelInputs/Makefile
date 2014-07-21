@@ -13,6 +13,7 @@ RCXX=$(SPECIALFLAGS) -Wno-deprecated -Wall $(ROOTCFLAGS)
 RLXX=$(LFLAGS) $(ROOTLIBS) 
 
 SRC=ConfigFile.cc table.cc mkInputs.cc
+SCAN=${scan}
 
 %.o: %.cc
 		$(C) $(RCXX) -c $<
@@ -23,19 +24,17 @@ clean:
 	@rm -f *.o 
 	@rm -f mkInputs 
 
-demo:
-	cp DataCards/GMSB_SqGl-Bino/GMSB_700_820_375_5000.txt        			DataCards/SqGl-Bino-Demo/.
-	cp DataCards/GMSB_SqGl-Bino_SingleChannels/GMSB_700_820_375_5000_bin*.txt   	DataCards/SqGl-Bino-Demo/.
-	cp DataCards/GMSB_SqGl-Bino/GMSB_1700_1120_375_5000.txt      			DataCards/SqGl-Bino-Demo/.
-	cp DataCards/GMSB_SqGl-Bino_SingleChannels/GMSB_1700_1120_375_5000_bin*.txt 	DataCards/SqGl-Bino-Demo/.
-	cp DataCards/GMSB_SqGl-Bino/GMSB_800_1620_375_5000.txt       			DataCards/SqGl-Bino-Demo/.
-	cp DataCards/GMSB_SqGl-Bino_SingleChannels/GMSB_800_1620_375_5000_bin*.txt  	DataCards/SqGl-Bino-Demo/.
-	cp DataCards/GMSB_SqGl-Wino/GMSB_700_820_5000_375.txt        			DataCards/SqGl-Wino-Demo/.
-	cp DataCards/GMSB_SqGl-Wino_SingleChannels/GMSB_700_820_5000_375_bin*.txt   	DataCards/SqGl-Wino-Demo/.
-	cp DataCards/GMSB_SqGl-Wino/GMSB_1500_820_5000_375.txt       			DataCards/SqGl-Wino-Demo/.
-	cp DataCards/GMSB_SqGl-Wino_SingleChannels/GMSB_1500_820_5000_375_bin*.txt  	DataCards/SqGl-Wino-Demo/.
-	cp DataCards/GMSB_SqGl-Wino/GMSB_900_1320_5000_375.txt       			DataCards/SqGl-Wino-Demo/.
-	cp DataCards/GMSB_SqGl-Wino_SingleChannels/GMSB_900_1320_5000_375_bin*.txt  	DataCards/SqGl-Wino-Demo/.
+demo:   ## use as: make demo scan=<directory>
+	rm -rf DataCards/${SCAN}-Demo
+	mkdir DataCards/${SCAN}-Demo
+	cp DataCards/${SCAN}/GMSB_700_820_*.txt        			DataCards/${SCAN}-Demo/.
+	cp DataCards/${SCAN}_SingleChannels/GMSB_700_820_*_bin*.txt   	DataCards/${SCAN}-Demo/.
+	cp DataCards/${SCAN}/GMSB_1700_1120_*.txt      			DataCards/${SCAN}-Demo/.
+	cp DataCards/${SCAN}_SingleChannels/GMSB_1700_1120_*_bin*.txt 	DataCards/${SCAN}-Demo/.
+	cp DataCards/${SCAN}/GMSB_800_1620_*.txt       			DataCards/${SCAN}-Demo/.
+	cp DataCards/${SCAN}_SingleChannels/GMSB_800_1620_*_bin*.txt  	DataCards/${SCAN}-Demo/.
+	cp DataCards/${SCAN}/GMSB_1700_720_*.txt      			DataCards/${SCAN}-Demo/.
+	cp DataCards/${SCAN}_SingleChannels/GMSB_1700_720_*_bin*.txt 	DataCards/${SCAN}-Demo/.
 
 mkInputs: $(SRC:.cc=.o) 
 	$(LD) $(SRC:.cc=.o) $(RLXX) -lMathMore  -o $@

@@ -73,7 +73,7 @@ struct point {
 	double u_pdfxsec;  //signal PDF xsec
 	double u_pdfacc;   //signal PDF acceptance
 	double u_sig_stat; //signal stat
-	double u_jes;      //signal jec
+	double u_sig;      //signal jec
 	double u_scaleDataMC; //signal photon data MC scale
 	double u_lumi;
 	double u_qcd;
@@ -87,6 +87,7 @@ struct point {
 	std::string bin_up;
 	};
 	std::vector<bin> bins;
+	std::string variable;
 
 
         //this contains the *total* yields integrated over all channels,
@@ -105,7 +106,7 @@ struct point {
 	double u_pdfacc;   //signal PDF acceptance
 	double u_sig_stat; //signal stat
 	double u_scaleDataMC;
-	double u_jes;
+	double u_sig;
 	double u_lumi;
 	double u_qcd;
 	double u_qcd_stat;
@@ -120,8 +121,12 @@ public:
 	void Do(const std::string& name, const std::string&dat, 
 	        const std::string&sig, const std::string&xsec, 
 		const std::string&pdf);
+	void DoSMS(const std::string& name, const std::string&dat, 
+	        const std::string&sig, const std::string&xsec, 
+		const std::string&pdf);
 
 	point* Get(double gl, double sq, double chi, double cha=0);
+	std::vector<point*> GetGl(double gl);
 	std::vector<point*> GetPointsWithSameMass(double gl, double sq);
 	
 	void Add(point p) { p_.push_back(p); }
