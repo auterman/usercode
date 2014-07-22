@@ -1,0 +1,75 @@
+# Point = 9
+# Point 9 bino mass = 580
+# Point 9 gluino mass = -1
+# Point 9 squark mass = -1
+# Point 9 wino mass = 590
+# Point 9 xsec = 0
+# lumi = 7000
+# nBins = 4
+# nGen = 10000
+# bgd  = 95.8751
+# bgd bgd_syst_abs (squared) = 165.373
+# bgd bgd stat_abs (squared) = 3.23611
+# data  = 94
+# signal  = 16.4642
+# signal lumi_unc abs (squared) = 0.176263
+# signal signal stat_abs (squared) = 0.0800213
+# bin0_bgd  = 6.48103
+# bin0_bgd bgd_syst_abs = 1.35131
+# bin0_bgd bgd_stat_abs = 0.193439
+# bin0_data  = 7
+# bin0_signal  = 10.4354
+# bin0_signal lumi_unc_abs = 0.266103
+# bin0_signal signal_stat_abs = 0.226674
+# bin1_bgd  = 32.4539
+# bin1_bgd bgd_syst_abs = 6.82577
+# bin1_bgd bgd_stat_abs = 0.769412
+# bin1_data  = 26
+# bin1_signal  = 4.49288
+# bin1_signal lumi_unc_abs = 0.114568
+# bin1_signal signal_stat_abs = 0.145271
+# bin2_bgd  = 51.4833
+# bin2_bgd bgd_syst_abs = 10.7528
+# bin2_bgd bgd_stat_abs = 1.55664
+# bin2_data  = 54
+# bin2_signal  = 0.776385
+# bin2_signal lumi_unc_abs = 0.0197978
+# bin2_signal signal_stat_abs = 0.0598492
+# bin3_bgd  = 5.45684
+# bin3_bgd bgd_syst_abs = 1.15459
+# bin3_bgd bgd_stat_abs = 0.42845
+# bin3_data  = 7
+# bin3_signal  = 0.759534
+# bin3_signal lumi_unc_abs = 0.0193681
+# bin3_signal signal_stat_abs = 0.0628859
+# bin0 R_firstguess = 0.0669949
+# bin1 R_firstguess = 0.082358
+# bin2 R_firstguess = 0.16239
+# bin3 R_firstguess = 0.173267
+# R_firstguess = 0.0669949
+imax  4  number of channels
+jmax  1  number of backgrounds
+kmax 10  number of nuisance parameters (sources of systematic uncertainties)
+------------
+## observed events
+bin          bin_1  bin_2  bin_3  bin_4
+observation  7      26     54     7    
+------------
+
+## expected events
+bin                   bin_1    bin_1    bin_2    bin_2    bin_3     bin_3    bin_4     bin_4  
+process               signal   bgd      signal   bgd      signal    bgd      signal    bgd    
+process               -1       0        -1       0        -1        0        -1        0      
+rate                  10.4354  6.48103  4.49288  32.4539  0.776385  51.4833  0.759534  5.45684
+------------
+bgd_syst_abs          -        1.2085   -        1.21032  -        1.20886  -       1.21159
+lumi_unc_abs          1.0255   -        1.0255   -        1.0255   -        1.0255  -      
+bgd_stat_abs_bin1     -        1.02985  -        -        -        -        -       -      
+bgd_stat_abs_bin2     -        -        -        1.02371  -        -        -       -      
+bgd_stat_abs_bin3     -        -        -        -        -        1.03024  -       -      
+bgd_stat_abs_bin4     -        -        -        -        -        -        -       1.07852
+signal_stat_abs_bin1  1.02172  -        -        -        -        -        -       -      
+signal_stat_abs_bin2  -        -        1.03233  -        -        -        -       -      
+signal_stat_abs_bin3  -        -        -        -        1.07709  -        -       -      
+signal_stat_abs_bin4  -        -        -        -        -        -        1.0828  -      
+------------
