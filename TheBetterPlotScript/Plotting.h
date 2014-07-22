@@ -42,10 +42,10 @@ static bool plotC      = true;
 static bool plotROOT   = false;
 static TCanvas * c1 = 0;
 
-void DrawPlot2D(PlotTools *PlotTool, TCanvas*canvas, TH2* h, const std::string& flag, const string& x, const std::string& y, const std::string& var, 
+void DrawPlot2D(PlotTools *PlotTool, TCanvas*canvas, TH2* h, const std::string& flag, const string& x, const std::string& y, const std::string& var,
                 const std::string& ztitel, double zmin=-999, double zmax=-999, style*s=0 );
 
-void DrawHist1D(PlotTools *PlotTool, TCanvas*canvas, const std::string& flag, const string& x, const std::string& y, const std::string& var, 
+void DrawHist1D(PlotTools *PlotTool, TCanvas*canvas, const std::string& flag, const string& x, const std::string& y, const std::string& var,
                 const std::string& titel, int n);
 
 void DrawStandardUncertaintyPlots(PlotTools *pt, const std::string& flag, const std::string& x, const std::string& y, style*s, TH2*h);
@@ -58,7 +58,11 @@ void DrawStandardPlotsPerBin(PlotTools *pt, const std::string& flag, const std::
 
 TGraph * InOutPlot(PlotTools *PlotTool, TCanvas*, std::string flag, const std::string& x, const std::string& y, const std::string& R, TH2*h, unsigned idx=0, int color=0, int style=0);
 
+<<<<<<< HEAD
 void DrawExclusion(PlotTools *PlotTool, std::string flag, const std::string& x, const std::string& y, 
+=======
+void DrawExclusion(PlotTools *PlotTool, std::string flag, const std::string& x, const std::string& y,
+>>>>>>> 9cc8e16ab27ec073b872df274f4bff738029c5b1
                    TH1*hp, TH1*h, style*s, std::string lflavor="");
 
 void GetPlotTools(PlotTools*& plotTools, std::string filename, const std::string& x, const std::string& y, std::string GeneratorFile, unsigned factor);

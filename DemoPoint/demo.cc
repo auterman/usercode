@@ -9,6 +9,16 @@
 #include <algorithm>
 #include <functional>
 
+
+double GetR(ConfigFile* conf, const std::string& l)
+{
+  if (conf->read<double>("CLs "+l, 9999) >= 20.)
+    return conf->read<double>("CLs "+l+" asymptotic", -1);
+  else
+    return conf->read<double>("CLs "+l, -1);
+}
+
+
 void WriteTable(std::ostream& os, const Table::TableStyle style, const std::string& dir, 
                 const int sq, const int gl, const int chi, const int cha, const int min, const int max, bool caption)
 {
@@ -36,7 +46,7 @@ void WriteTable(std::ostream& os, const Table::TableStyle style, const std::stri
   for (int ch=min; ch<=max; ++ch) {
     int i = ch - min;
     stringstream head;
-    head << "Bin "<<ch+1;
+    head << "Bin "<<ch;
     table.AddColumn<string>(head.str());
     
     try{
@@ -96,19 +106,21 @@ void WriteTable(std::ostream& os, const Table::TableStyle style, const std::stri
   for (int i=0; i<=max-min; ++i)  table << data[i];
   table << "Signal";
   for (int i=0; i<=max-min; ++i)  table << signal[i];
-  table << "Bkg. from Signal";
+  table << "Signal cont.";
   for (int i=0; i<=max-min; ++i)  table << (!config[i]?"-":ToStringYield(config[i]->read<double>("signal.contamination", -1)));
   table << "Acceptance [\\%]";
   for (int i=0; i<=max-min; ++i)  table << acceptance[i];
   //--------------------------------------------------------------------------------------------------------------
   table << "Exp. limit [pb]";
-  for (int i=0; i<=max-min; ++i)  table << (!config[i]?"-":ToString(xsec[i]*config[i]->read<double>("CLs expected", -1),3));
+  for (int i=0; i<=max-min; ++i)  
+    table << (!config[i]?"-":ToString(xsec[i]*GetR(config[i],"expected"),3));
   table << "Obs. limit [pb]";
-  for (int i=0; i<=max-min; ++i)  table << (!config[i]?"-":ToString(xsec[i]*config[i]->read<double>("CLs observed", -1),3));
-  table << "Exp. limit [events]";
-  for (int i=0; i<=max-min; ++i)  table << (!config[i]?"-":ToString(sig[i]*config[i]->read<double>("CLs expected", -1)));
-  table << "Obs. limit [events]";
-  for (int i=0; i<=max-min; ++i)  table << (!config[i]?"-":ToString(sig[i]*config[i]->read<double>("CLs observed", -1)));
+  for (int i=0; i<=max-min; ++i)  
+    table << (!config[i]?"-":ToString(xsec[i]*GetR(config[i],"observed"),3));
+  //table << "Exp. limit [events]";
+  //for (int i=0; i<=max-min; ++i)  table << (!config[i]?"-":ToString(sig[i]*config[i]->read<double>("CLs expected", -1)));
+  //table << "Obs. limit [events]";
+  //for (int i=0; i<=max-min; ++i)  table << (!config[i]?"-":ToString(sig[i]*config[i]->read<double>("CLs observed", -1)));
   
   {
     ConfigFile * config;

@@ -14,6 +14,7 @@ RCXX=$(CFLAGS) $(ROOTCFLAGS)
 RLXX=$(LFLAGS) $(ROOTLIBS)
 
 SRC=ConfigFile.cc table.cc anyoption.cc MyConfig.cc demo.cc 
+POINT=${point}
 
 %.o: %.cc
 		$(C) $(RCXX) -c $<
@@ -24,6 +25,14 @@ all: demo
 demo: $(SRC:.cc=.o) 
 		$(LD) $(SRC:.cc=.o) $(RLXX) $(JCORR) -o $@
 		@echo '-> $@ executable created.'
+
+nedit:
+		nedit Makefile demo.cc&
+		
+table:  ## use as: make table point=<directory>
+		./demo --dir ${POINT} --mchi1 5000 --mcha1 375 --msquark 1700 --mgluino  720	     > ResultTable_${POINT}_Sq1700_Gl720.txt
+		./demo --dir ${POINT} --mchi1 5000 --mcha1 375 --msquark 1700 --mgluino  720 --style tex --caption > ResultTable_${POINT}_Sq1700_Gl720.tex
+				
 
 tables:
 		#old used for 8 TeV, 4fb-1
@@ -40,6 +49,8 @@ tables:
 		./demo --dir Wino --mchi1 5000 --mcha1 375 --msquark 1500 --mgluino  820 --style tex --caption > ResultTable_Wino_Sq1500_Gl820.tex
 		./demo --dir Wino --mchi1 5000 --mcha1 375 --msquark  900 --mgluino 1320	     > ResultTable_Wino_Sq900_Gl1320.txt
 		./demo --dir Wino --mchi1 5000 --mcha1 375 --msquark  900 --mgluino 1320 --style tex --caption > ResultTable_Wino_Sq900_Gl1320.tex
+		./demo --dir Wino --mchi1 5000 --mcha1 375 --msquark 1700 --mgluino  720	     > ResultTable_Wino_Sq1700_Gl720.txt
+		./demo --dir Wino --mchi1 5000 --mcha1 375 --msquark 1700 --mgluino  720 --style tex --caption > ResultTable_Wino_Sq1700_Gl720.tex
 
 cp:		
 		cp *.tex SUS-14-004/.
@@ -48,3 +59,9 @@ cp:
 clean:
 		@rm -f *.o 
 		@rm -f demo
+
+nedit:
+		nedit Makefile demo.h demo.cc&
+		
+fetch:
+		scp nafhh-cms01.desy.de:Releases/CMSSW_6_1_1/src/Jobs/2014*ino-Demo.tar.gz .; ls 2014*ino-Demo.tar.gz
