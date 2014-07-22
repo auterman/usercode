@@ -229,11 +229,11 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
     plotCaption->SetTextSizePixels( h1->GetLabelSize() );
     // whitespaces optimized for this pad size
     if ( file.find("Final") == 0 )
-        plotCaption->SetText( .01, .94, "CMS Simulation    #sqrt{s}=8TeV, #intLdt=19.7fb^{-1}, #geq1#gamma,#geq2jets,#slash{E}_{T}#geq100GeV" );
+        plotCaption->SetText( .01, .94, "CMS Simulation        19.7fb^{-1} (8 TeV), #geq1#gamma,#geq2jets,#slash{E}_{T}#geq100GeV" );
     else
-        plotCaption->SetText( .01, .94, "CMS Simulation                    #sqrt{s}=8TeV, #intLdt=19.7fb^{-1}, #geq1#gamma,#geq2jets" );
+        plotCaption->SetText( .01, .94, "CMS Simulation                            19.7fb^{-1} (8 TeV), #geq1#gamma,#geq2jets" );
     if ( file.find("Data") != std::string::npos )
-        plotCaption->SetText( .01, .94, "CMS Preliminary                   #sqrt{s}=8TeV, #intLdt=19.7fb^{-1}, #geq1#gamma,#geq2jets" );
+        plotCaption->SetText( .01, .94, "CMS Preliminary                           19.7fb^{-1} (8 TeV) #geq1#gamma,#geq2jets" );
 
     //std::cout<<"ratio plot for: "<< file<<std::endl;
     assert(h1->GetXaxis()->GetNbins() == h2->GetXaxis()->GetNbins());
