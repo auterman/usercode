@@ -24,6 +24,16 @@ point* points::Get(double gl, double sq, double chi, double cha) {
     return 0;
 }
 
+std::vector<point*> points::GetGl(double gl) {
+   std::vector<point*> res;
+   for (std::vector<point>::iterator it = p_.begin(); it != p_.end(); ++it){
+
+    	    if (it->gluino == gl) 
+    		    res.push_back(&(*it));
+    }
+    return res;
+}
+
 std::vector<point*> points::GetPointsWithSameMass(double gl, double sq) {
    std::vector<point*> selectedPoints;
    for (std::vector<point>::iterator it = p_.begin(); it != p_.end(); ++it){
@@ -65,7 +75,7 @@ void points::PrintGlobalSums(std::ofstream& os, point&p)
  	   		 pow(p.u_sig_stat ,2) +
  	   		 pow(luminosityUncertainty-1,2) + //lumi-err not included since correlated with backgd
  	   		 pow(p.u_scaleDataMC-1 ,2) + //factorial
- 	   		 pow(p.u_jes-1 ,2); //factorial
+ 	   		 pow(p.u_sig-1 ,2); //factorial
 
     double u_signal_theo2 =   pow(p.u_NLO,2) +
  	   		 pow(p.u_pdfxsec ,2);
@@ -99,6 +109,9 @@ void points::PrintGlobalSums(std::ofstream& os, point&p)
     os << "# signal.qcd.contamination = " << p.qcd_contamination << "\n";
     os << "# signal.ewk.contamination = " << p.ewk_contamination << "\n";
     os << "# signal.contamination = " << p.qcd_contamination + p.ewk_contamination << "\n";
+    
+    os << "# variable = " << p.variable << "\n";
+    os << "# nbins = " << p.bins.size()<<"\n";
 }
 
 void points::PrintBin(std::ofstream& os, point&p, unsigned bin, const std::string& str)
@@ -115,7 +128,7 @@ void points::PrintBin(std::ofstream& os, point&p, unsigned bin, const std::strin
   				       pow(p.bins[bin].u_sig_stat-1,2) +
   				       //pow(p.bins[bin].u_pdfxsec-1.,2) +
   				       pow(p.bins[bin].u_scaleDataMC-1.,2) +
-  				       pow(p.bins[bin].u_jes-1.,2) +
+  				       pow(p.bins[bin].u_sig-1.,2) +
   				       pow(p.bins[bin].u_pdfacc-1.,2) );
   	  os << "# data = " << d << "\n";
   	  os << "# qcd = " << p.bins[bin].bgd_qcd << "\n";
@@ -153,8 +166,11 @@ void points::Write(const std::string dir) {
 
     ofstream ofile;
     stringstream ss;
-    ss << dir << "_" << it->squark << "_" << it->gluino << "_"
- 	   	    << it->chi << "_"<<it->cha<<".txt";
+    if (dir.find("GMSB")!=std::string::npos)
+      ss << dir << "_" << it->squark << "_" << it->gluino << "_" << it->chi << "_"<<it->cha<<".txt";
+    else
+      ss << dir << "_" << it->gluino << "_" << it->chi << ".txt";
+        
     ofile.open(ss.str().c_str());
     
     PrintGlobal( ofile, *it );
@@ -173,7 +189,7 @@ void points::Write(const std::string dir) {
       cont+=it->bins[bin-1].qcd_contamination + it->bins[bin-1].ewk_contamination;
       double unc2= it->bins[bin-1].data;
       if (it->bins[bin-1].u_scaleDataMC) unc2 += pow(it->bins[bin-1].u_scaleDataMC-1.,2);
-      if (it->bins[bin-1].u_jes)      unc2 += pow(it->bins[bin-1].u_jes-1.,2);
+      if (it->bins[bin-1].u_sig)      unc2 += pow(it->bins[bin-1].u_sig-1.,2);
       if (it->bins[bin-1].u_pdfacc)   unc2 += pow(it->bins[bin-1].u_pdfacc-1.,2);
       if (it->bins[bin-1].u_lumi)     unc2 += pow(it->bins[bin-1].u_lumi-1,2);
       if (it->bins[bin-1].u_qcd)      unc2 += pow(it->bins[bin-1].u_qcd-1,2);
@@ -197,13 +213,13 @@ void points::Write(const std::string dir) {
     TTable observed("## observed events");\
     observed.SetStyle(Empty);
     observed.SetDelimiter("  ");
-    observed.AddColumn<string>(""); for (int bin=1; bin<=n_channels; ++bin) observed.AddColumn<int>("");
-    observed << "bin";         for (int bin=1; bin<=n_channels; ++bin) observed << bin;
+    observed.AddColumn<string>(""); for (int bin=1; bin<=n_channels; ++bin) observed.AddColumn<std::string>("");
+    observed << "bin";         for (int bin=1; bin<=n_channels; ++bin) observed << "bin_"+ToString(bin);
     observed << "observation"; 
     for (int bin=1; bin<=n_channels; ++bin) {
-      stringstream ss;
-      ss << "n" << bin;
-      observed << (int)it->bins[bin-1].data;
+      //stringstream ss;
+      //ss << "n" << bin;
+      observed << ToString((int)it->bins[bin-1].data);
     }  
     ofile << observed << "------------\n" << endl;  
 
@@ -220,7 +236,7 @@ void points::Write(const std::string dir) {
       for (int bin=1; bin<=n_channels; ++bin)
     	for (int sample=1; sample<=n_backgrounds+1; ++sample) {
  	   stringstream ss;
- 	   ss << bin;
+ 	   ss << "bin_"<<bin;
  	   exp << ss.str();
     	}
     exp << "process";
@@ -260,7 +276,7 @@ void points::Write(const std::string dir) {
       double u_sig = 1.0 + sqrt( //pow(it->bins[b].u_NLO-1.,2) +
  	   			 //pow(it->bins[b].u_pdfxsec-1.,2) +
  	   			 pow(it->bins[b].u_scaleDataMC-1.,2) +
- 	   			 pow(it->bins[b].u_jes-1.,2) +
+ 	   			 pow(it->bins[b].u_sig-1.,2) +
  	   			 pow(it->bins[b].u_pdfacc-1.,2) );
       sys << ToString(u_sig,"-") // signal
     	  << "-" << "-" << "-"; //qcd, ewk, fsr
@@ -363,9 +379,31 @@ void points::WriteSingleBin(const std::string dir) {
   				       pow(it->bins[bin].u_sig_stat-1,2) +
   				       //pow(it->bins[bin].u_pdfxsec-1.,2) +
   				       pow(it->bins[bin].u_scaleDataMC-1.,2) +
-  				       pow(it->bins[bin].u_jes-1.,2) +
+  				       pow(it->bins[bin].u_sig-1.,2) +
   				       pow(it->bins[bin].u_pdfacc-1.,2) );
 
+
+      ///some rough by-hand calculation of 'R' to pre-define (and check) the search range:
+      ///---
+      double d=0,b=0,s=0,cont=0,R;
+      d+=it->bins[bin].data;
+      b+=it->bins[bin].bgd_qcd + it->bins[bin].bgd_ewk + it->bins[bin].bgd_fsr;
+      s+=it->bins[bin].signal;
+      cont+=it->bins[bin].qcd_contamination + it->bins[bin].ewk_contamination;
+      double unc2= it->bins[bin].data;
+      if (it->bins[bin].u_scaleDataMC) unc2 += pow(it->bins[bin].u_scaleDataMC-1.,2);
+      if (it->bins[bin].u_sig)      unc2 += pow(it->bins[bin].u_sig-1.,2);
+      if (it->bins[bin].u_pdfacc)   unc2 += pow(it->bins[bin].u_pdfacc-1.,2);
+      if (it->bins[bin].u_lumi)     unc2 += pow(it->bins[bin].u_lumi-1,2);
+      if (it->bins[bin].u_qcd)      unc2 += pow(it->bins[bin].u_qcd-1,2);
+      if (it->bins[bin].u_ewk)      unc2 += pow(it->bins[bin].u_ewk-1,2);
+      if (it->bins[bin].u_fsr)      unc2 += pow(it->bins[bin].u_fsr-1,2);
+      if (it->bins[bin].u_sig_stat) unc2 += pow(it->bins[bin].u_sig_stat-1,2);
+      if (it->bins[bin].u_qcd_stat) unc2 += pow(it->bins[bin].u_qcd_stat-1,2);
+      if (it->bins[bin].u_ewk_stat) unc2 += pow(it->bins[bin].u_ewk_stat-1,2);
+      if (it->bins[bin].u_fsr_stat) unc2 += pow(it->bins[bin].u_fsr_stat-1,2);
+      R=2.*sqrt(unc2)/it->bins[bin].signal;
+      ofile << "# R_firstguess = " << R << "\n";
 
   	  ofile << "imax  1  number of channels" << endl;
   	  ofile << "jmax " << setw(2) << n_backgrounds << "  number of backgrounds" << endl;
@@ -467,7 +505,7 @@ void ReadSignal(std::string sig_file, std::string dat_file="", std::string fsr_f
   double default_chi    = cfg->read<double>("NLSP mass",-1.);	 
          default_chi    = cfg->read<double>("bino mass",default_chi); 
   double default_cha    = cfg->read<double>("wino mass",-1);   
-  int    ngen           = cfg->read<int>("nGen");   
+  int    ngen           = cfg->read<int>("nGen",-1);   
   
   std::vector<std::pair<std::string,std::string> > bin_limits;
   int n_channels = dat_cfg->read<int>("nMetBins");
@@ -488,29 +526,33 @@ void ReadSignal(std::string sig_file, std::string dat_file="", std::string fsr_f
     p.gluino = cfg->read<double>(ss.str()+" gluino mass",default_gluino);
     p.squark = cfg->read<double>(ss.str()+" squark mass",default_squark);
     p.chi    = cfg->read<double>(ss.str()+" NLSP mass",default_chi);    
+    p.chi    = cfg->read<double>(ss.str()+" nlsp mass",default_chi);    
     p.chi    = cfg->read<double>(ss.str()+" bino mass",p.chi); 
     p.cha    = cfg->read<double>(ss.str()+" wino mass",default_cha);   
+    ngen     = cfg->read<double>(ss.str()+" generated events",ngen);   
     
     if (p.gluino==default_gluino && p.squark==default_squark && p.chi==default_chi && p.cha==default_cha) break;  
 
     p.lumi = dat_cfg->read<double>("lumi", luminosity);
     p.signal = p.bgd_qcd = p.bgd_ewk= p.bgd_fsr = p.qcd_contamination = p.ewk_contamination = p.data = p.u_NLO = 0;
     p.u_pdfxsec = p.u_pdfacc = p.u_sig_stat = p.u_lumi = p.u_qcd = p.u_qcd_stat= p.u_ewk= p.u_ewk_stat= p.u_fsr= p.u_fsr_stat=0;
+    p.variable = dat_cfg->read<std::string>("variable", "met");
     //read data and data-driven backgrounds
-    std::vector<double> data       = bag_of<double>(dat_cfg->read<std::string>("selected"));
-    std::vector<double> qcd        = bag_of<double>(dat_cfg->read<std::string>("QCD background"));
-    std::vector<double> u_qcd      = bag_of<double>(dat_cfg->read<std::string>("QCD syst uncert"));
-    std::vector<double> u_qcd_stat = bag_of<double>(dat_cfg->read<std::string>("QCD stat uncert"));
-    std::vector<double> ewk        = bag_of<double>(dat_cfg->read<std::string>("EWK background"));
-    std::vector<double> u_ewk      = bag_of<double>(dat_cfg->read<std::string>("EWK syst uncert"));
-    std::vector<double> u_ewk_stat = bag_of<double>(dat_cfg->read<std::string>("EWK stat uncert"));
+    std::vector<double> data       = bag_of<double>(dat_cfg->read<std::string>("data selected"));
+    std::vector<double> qcd        = bag_of<double>(dat_cfg->read<std::string>("data QCD"));
+    std::vector<double> u_qcd      = bag_of<double>(dat_cfg->read<std::string>("data QCD syst uncert"));
+    std::vector<double> u_qcd_stat = bag_of<double>(dat_cfg->read<std::string>("data QCD stat uncert"));
+    std::vector<double> ewk        = bag_of<double>(dat_cfg->read<std::string>("data EWK"));
+    std::vector<double> u_ewk      = bag_of<double>(dat_cfg->read<std::string>("data EWK syst uncert"));
+    std::vector<double> u_ewk_stat = bag_of<double>(dat_cfg->read<std::string>("data EWK stat uncert"));
     //MC backgrounds
-    std::vector<double> fsr        = bag_of<double>(fsr_cfg->read<std::string>("ISR background"));
+    std::vector<double> fsr        = bag_of<double>(fsr_cfg->read<std::string>("ISR"));
     std::vector<double> u_fsr      = bag_of<double>(fsr_cfg->read<std::string>("ISR syst uncert"));
     std::vector<double> u_fsr_stat = bag_of<double>(fsr_cfg->read<std::string>("ISR stat uncert"));
     //Signal
     std::vector<double> sig        = bag_of<double>(cfg->read<std::string>(ss.str()+" number of signal events in bins"));
-    std::vector<double> u_sig      = bag_of<double>(cfg->read<std::string>(ss.str()+" statistical error of signal events in bins"));
+    std::vector<double> u_sig_stat = bag_of<double>(cfg->read<std::string>(ss.str()+" statistical error of signal events in bins"));
+    std::vector<double> u_sig      = bag_of<double>(cfg->read<std::string>(ss.str()+" systematical error of signal events in bins",""));
     std::vector<double> sig_qcd    = bag_of<double>(cfg->read<std::string>(ss.str()+" QCD prediction"));
     std::vector<double> sig_ewk    = bag_of<double>(cfg->read<std::string>(ss.str()+" EWK prediction"));
     //Consistency check: Same number of channels in all samples?
@@ -529,7 +571,7 @@ void ReadSignal(std::string sig_file, std::string dat_file="", std::string fsr_f
     }
 
     double scaleDataMC = 1.0;   //scale
-    p.u_jes = 1.02;             //factorial uncertainty
+    p.u_sig = 1.02;             //factorial uncertainty
     p.u_scaleDataMC = 1.04;     //factorial uncertainty
     
     //fill all channels/bins
@@ -551,7 +593,8 @@ void ReadSignal(std::string sig_file, std::string dat_file="", std::string fsr_f
       channel.data               = data[c];
 
       //store uncertainties factorial, i.e. 1 for no unc, 1.1 for 10% unc, 2.0 for 100% etc:
-      channel.u_sig_stat         = (sig[c] ?           1.+ u_sig[c]/sig[c]:0);
+      channel.u_sig_stat         = (sig[c] ?           1.+ u_sig_stat[c]/sig[c]:0);
+      channel.u_sig              = ((int)u_sig.size()>c && sig[c] ? 1.+ u_sig[c]/sig[c] : p.u_sig);
       channel.u_lumi             = luminosityUncertainty;
 
       channel.u_qcd              = (channel.bgd_qcd?   1.+ u_qcd[c]/channel.bgd_qcd	  :0);
@@ -561,10 +604,10 @@ void ReadSignal(std::string sig_file, std::string dat_file="", std::string fsr_f
       channel.u_fsr              = (channel.bgd_fsr?   1.+ u_fsr[c]/channel.bgd_fsr       :0);
       channel.u_fsr_stat         = (channel.bgd_fsr?   1.+ u_fsr_stat[c]/channel.bgd_fsr  :0);
 
-      channel.u_jes = p.u_jes;
       channel.u_scaleDataMC = p.u_scaleDataMC;
       
-      //std::cout<<c<<": s="<<channel.signal<< ", s (w/o cont)="<<channel.signal-channel.qcd_contamination-channel.ewk_contamination<<std::endl;
+      //std::cout<<c<<": s="<<channel.signal<< ", s (w/o cont)="<<channel.signal-channel.qcd_contamination-channel.ewk_contamination
+//	       <<std::endl;
 
       if (channel.signal-channel.qcd_contamination-channel.ewk_contamination>0. ) {
         p.bins.push_back( channel );
@@ -595,6 +638,7 @@ void ReadSignal(std::string sig_file, std::string dat_file="", std::string fsr_f
   p.u_ewk_stat  = sqrt(p.u_ewk_stat) / p.bgd_ewk;
   p.u_fsr       = p.u_fsr / p.bgd_fsr;
   p.u_fsr_stat  = sqrt(p.u_fsr_stat) / p.bgd_fsr;
+  //std::cout<<"lumi="<<p.lumi<<",xsec="<<p.xsecNLO<<",ngen="<<p.totalGenerated<<std::endl;
   //std::cout << "acc "<<n-1<<"  gluino = "<<p.gluino<<"  squark = "<<p.squark<<"  chi = "<<p.chi <<std::endl;
     
     Points.Add(p);
@@ -787,6 +831,46 @@ void AddPDFs(const std::string filelist) {
 	masses_file.close();
 }
 
+void AddSmsXsec(const std::string filelist) {
+	std::ifstream masses_file;
+	masses_file.open(filelist.c_str());
+	std::string file;
+	point p;
+	double xsec, u_xsec;
+	while (1) {
+	        //nevents,mgluino,msquark,mbino,mwino,xsecpdferrs,acceppdferrs
+                masses_file >>  p.gluino >> xsec >> u_xsec;
+		if (!masses_file.good())	break;
+		std::vector<point *> a = Points.GetGl(p.gluino);
+                //std::cout<<"PDFxsec gl="<<p.gluino<<", sq="<<p.squark<<", chi="<<p.chi<<", cha="<<p.cha<<"; point = "<<a
+                //         <<", pdf_xs="<<u_pdfxsec<<std::endl;
+		for (std::vector<point*>::iterator it=a.begin();it!=a.end();++it){
+		  (*it)->u_pdfxsec = 0.01 * u_xsec; //relative per point(!) 
+		  (*it)->xsecNLO = xsec;
+	  	  (*it)->signal	*= (*it)->lumi*xsec/(*it)->totalGenerated;
+	  	  (*it)->qcd_contamination  *= (*it)->lumi*xsec/(*it)->totalGenerated;
+	  	  (*it)->ewk_contamination  *= (*it)->lumi*xsec/(*it)->totalGenerated;
+	  	  //(*it)->u_NLO	 = p.u_NLO;
+	  	  //(*it)->u_NLO_Up	 = p.u_NLO_Up;
+	  	  //(*it)->u_NLO_Dn	 = p.u_NLO_Dn;
+	  	  //(*it)->u_pdfxsec       = p.u_pdfxsec;
+		  //(*it)->u_pdfacc	 = p.u_pdfacc;
+		  //std::cout << "lumi="<<p.lumi<<";xsec="<<p.xsecNLO<<",gen="<<(*it)->totalGenerated<<std::endl;
+	          for (std::vector<point::bin>::iterator bin=(*it)->bins.begin(); bin!=(*it)->bins.end(); ++bin) {
+		    bin->u_pdfxsec = 1.0 + 0.01 * u_xsec; //factorial per bin(!)		    
+	  	    bin->signal            *= (*it)->lumi*xsec/(*it)->totalGenerated;
+	  	    bin->qcd_contamination *= (*it)->lumi*xsec/(*it)->totalGenerated;
+	  	    bin->ewk_contamination *= (*it)->lumi*xsec/(*it)->totalGenerated;
+	  	    bin->u_NLO = 1.0; //not considered for limit calculation
+		    bin->u_pdfacc  = 1.0;
+		    
+		    //std::cout<<bin-(*it)->bins.begin()<<": s="<<bin->signal<<""<<std::endl;
+		  }  
+                }
+	}
+	masses_file.close();
+}
+
 void AddPDFxsec(const std::string filelist, double neutralinomass=0) {
 	std::ifstream masses_file;
 	masses_file.open(filelist.c_str());
@@ -812,6 +896,8 @@ void AddPDFxsec(const std::string filelist, double neutralinomass=0) {
 	}
 	masses_file.close();
 }
+
+
 void AddPDFAcceptance(const std::string filelist, double neutralinomass=0) {
 	std::ifstream masses_file;
 	masses_file.open(filelist.c_str());
@@ -904,7 +990,7 @@ void points::Do(const std::string& name, const std::string&dat, const std::strin
    Points.Reset();
    ReadSignal(sig, dat);
    AddXsec(xsec);
-   AddPDFs(pdf);
+   if (pdf!="") AddPDFs(pdf);
    {points MergedPoints;
    for (std::vector<point>::iterator it=Points.Get()->begin(); it!=Points.Get()->end(); ++it)
       MergedPoints.Add( *MergeBins(*it, 6));
@@ -916,14 +1002,46 @@ void points::Do(const std::string& name, const std::string&dat, const std::strin
 
 }
 
+
+void points::DoSMS(const std::string& name, const std::string&dat, const std::string&sig, const std::string&xsec, const std::string&pdf)
+{
+   Points.Reset();
+   ReadSignal(sig, dat);
+   AddSmsXsec(xsec);
+   if (pdf!="") AddPDFs(pdf);
+   {points MergedPoints;
+   for (std::vector<point>::iterator it=Points.Get()->begin(); it!=Points.Get()->end(); ++it)
+      MergedPoints.Add( *MergeBins(*it, 6));
+   std::system( ((std::string)"mkdir DataCards/"+name).c_str());
+   std::system( ((std::string)"mkdir DataCards/"+name+"_SingleChannels").c_str());
+   MergedPoints.Write(((std::string)"DataCards/"+name+"/SMS").c_str());
+   MergedPoints.WriteSingleBin(((std::string)"DataCards/"+name+"_SingleChannels/GMSB").c_str());
+   }
+
+}
+
 int main(int argc, char* argv[]) {
 
    std::string gsq_w_xsec="Xsecs/Spectra_gsq_W_8TeV.xsec";//"Xsecs/NLOProspinoXsecs_Wino_Neutr375.txt";
    std::string gsq_b_xsec="Xsecs/Spectra_gsq_B_8TeV.xsec";//"Xsecs/NLOProspinoXsecs_Bino_Neutr375.txt";
    std::string gsq_w_pdf="PDF/Spectra_gsq_W_phad_pdfuncert.dat";
    std::string gsq_b_pdf="PDF/Spectra_gsq_B_phad_envpdfuncert.dat";
-   std::string YieldsData = "inputWinter13/eventYieldData-2014-03-19.txt";
+   //std::string YieldsData = "inputWinter13/eventYieldData-2014-03-19.txt";
+   std::string YieldsData = "inputWinter13/eventYieldData-classic-2014-05-02.txt";
    
+
+   Points.DoSMS("SMS_T5gg", "inputWinter13/Closure_Data_met.txt",
+             "inputWinter13/eventYieldT5gg-2014-07-15.txt","inputWinter13/simplifiedModelT5.xsec","");   
+
+   Points.DoSMS("SMS_T5wg", "inputWinter13/Closure_Data_met.txt",
+             "inputWinter13/eventYieldT5wg-2014-07-15.txt","inputWinter13/simplifiedModelT5.xsec","");   
+
+//   Points.Do("GMSB_SqGl_met-Wino", "inputWinter13/Closure_Data_met.txt",
+//             "inputWinter13/eventYieldSpectra_gsq_W-2014-07-13.txt",gsq_w_xsec,gsq_w_pdf);   
+//
+//   Points.Do("GMSB_SqGl_met-Bino", "inputWinter13/Closure_Data_met.txt",
+//             "inputWinter13/eventYieldSpectra_gsq_B-2014-07-13.txt",gsq_b_xsec,gsq_b_pdf); 
+
    /*
    //21 MET bins	       
    Points.Do("GMSB_SqGl-Wino-21metBins", "inputWinter13/eventYieldData_21metBins-2014-01-30.txt",
@@ -940,11 +1058,74 @@ int main(int argc, char* argv[]) {
    Points.Do("GMSB_SqGl-Bino-4fb", "inputWinter13/eventYieldData4fb-2014-01-30.txt",
              "inputWinter13/eventYieldSpectra_gsq_B-2014-01-29.txt",gsq_b_xsec,gsq_b_pdf); 
    */
-   //normal
-   Points.Do("GMSB_SqGl-Wino", YieldsData,
-             "inputWinter13/eventYieldSpectra_gsq_W-2014-01-29.txt",gsq_w_xsec,gsq_w_pdf);   
 
-   Points.Do("GMSB_SqGl-Bino", YieldsData,
-             "inputWinter13/eventYieldSpectra_gsq_B-2014-01-29.txt",gsq_b_xsec,gsq_b_pdf); 
 
+/*   //new-met
+   Points.Do("GMSB_SqGl_metnew-Wino", "inputWinter13/Closure_Data_met_new.txt",
+             "inputWinter13/eventYieldSpectra_gsq_Wnew-2014-05-02.txt",gsq_w_xsec,gsq_w_pdf);   
+
+   Points.Do("GMSB_SqGl_metnew-Bino", "inputWinter13/Closure_Data_met_new.txt",
+             "inputWinter13/eventYieldSpectra_gsq_Bnew-2014-05-02.txt",gsq_b_xsec,gsq_b_pdf); 
+
+   //new-fibonacci
+   Points.Do("GMSB_SqGl_metfibo-Wino", "inputWinter13/Closure_Data_met_fibo.txt",
+             "inputWinter13/eventYieldSpectra_gsq_Wfibo-2014-05-02.txt",gsq_w_xsec,gsq_w_pdf);   
+
+   Points.Do("GMSB_SqGl_metfibo-Bino", "inputWinter13/Closure_Data_met_fibo.txt",
+             "inputWinter13/eventYieldSpectra_gsq_Bfibo-2014-05-02.txt",gsq_b_xsec,gsq_b_pdf); 
+
+   //new-optimized
+   Points.Do("GMSB_SqGl_metoptim-Wino", "inputWinter13/Closure_Data_met_optim.txt",
+             "inputWinter13/eventYieldSpectra_gsq_Woptimized-2014-05-02.txt",gsq_w_xsec,gsq_w_pdf);   
+
+   Points.Do("GMSB_SqGl_metoptim-Bino", "inputWinter13/Closure_Data_met_optim.txt",
+             "inputWinter13/eventYieldSpectra_gsq_Boptimized-2014-05-02.txt",gsq_b_xsec,gsq_b_pdf); 
+
+*/
+/*
+   //old-met
+   Points.Do("GMSB_SqGl_met-Wino", "inputWinter13/Closure_Data_met.txt",
+             "inputWinter13/eventYieldSpectra_gsq_Wold-2014-05-02.txt",gsq_w_xsec,gsq_w_pdf);   
+
+   Points.Do("GMSB_SqGl_met-Bino", "inputWinter13/Closure_Data_met.txt",
+             "inputWinter13/eventYieldSpectra_gsq_Bold-2014-05-02.txt",gsq_b_xsec,gsq_b_pdf); 
+
+   //old-met
+   Points.Do("GMSB_SqGl_met-Wino_sc1.5_u100", "inputWinter13/Closure_Data_met_sc1.5_u100.txt",
+             "inputWinter13/eventYieldSpectra_gsq_Wold-2014-05-02.txt",gsq_w_xsec,gsq_w_pdf);   
+
+   Points.Do("GMSB_SqGl_met-Bino_sc1.5_u100", "inputWinter13/Closure_Data_met_sc1.5_u100.txt",
+             "inputWinter13/eventYieldSpectra_gsq_Bold-2014-05-02.txt",gsq_b_xsec,gsq_b_pdf); 
+
+
+   //old-met
+   Points.Do("GMSB_SqGl_met-Wino_sc2_u100", "inputWinter13/Closure_Data_met_sc2_u100.txt",
+             "inputWinter13/eventYieldSpectra_gsq_Wold-2014-05-02.txt",gsq_w_xsec,gsq_w_pdf);   
+
+   Points.Do("GMSB_SqGl_met-Bino_sc2_u100", "inputWinter13/Closure_Data_met_sc2_u100.txt",
+             "inputWinter13/eventYieldSpectra_gsq_Bold-2014-05-02.txt",gsq_b_xsec,gsq_b_pdf); 
+
+
+   //old-met
+   Points.Do("GMSB_SqGl_met-Wino_sc2_u50", "inputWinter13/Closure_Data_met_sc2_u50.txt",
+             "inputWinter13/eventYieldSpectra_gsq_Wold-2014-05-02.txt",gsq_w_xsec,gsq_w_pdf);   
+
+   Points.Do("GMSB_SqGl_met-Bino_sc2_u50", "inputWinter13/Closure_Data_met_sc2_u50.txt",
+             "inputWinter13/eventYieldSpectra_gsq_Bold-2014-05-02.txt",gsq_b_xsec,gsq_b_pdf); 
+
+   //old-met
+   Points.Do("GMSB_SqGl_met-Wino_sc3_u50", "inputWinter13/Closure_Data_met_sc3_u50.txt",
+             "inputWinter13/eventYieldSpectra_gsq_Wold-2014-05-02.txt",gsq_w_xsec,gsq_w_pdf);   
+
+   Points.Do("GMSB_SqGl_met-Bino_sc3_u50", "inputWinter13/Closure_Data_met_sc3_u50.txt",
+             "inputWinter13/eventYieldSpectra_gsq_Bold-2014-05-02.txt",gsq_b_xsec,gsq_b_pdf); 
+
+   //old-met
+   Points.Do("GMSB_SqGl_met-Wino_sc3_u100", "inputWinter13/Closure_Data_met_sc3_u100.txt",
+             "inputWinter13/eventYieldSpectra_gsq_Wold-2014-05-02.txt",gsq_w_xsec,gsq_w_pdf);   
+
+   Points.Do("GMSB_SqGl_met-Bino_sc3_u100", "inputWinter13/Closure_Data_met_sc3_u100.txt",
+             "inputWinter13/eventYieldSpectra_gsq_Bold-2014-05-02.txt",gsq_b_xsec,gsq_b_pdf); 
+
+*/
 }
