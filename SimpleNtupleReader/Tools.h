@@ -1,13 +1,11 @@
 #ifndef TOOLS_H
 #define TOOLS_H
-
 #include "Interface.h"
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TCanvas.h"
 #include "TPad.h"
 #include "TStyle.h"
-
 #include <map>
 #include <set>
 #include <string>
@@ -19,6 +17,9 @@
 #include <unistd.h>
 #include <sstream>
 #include <cassert>
+
+
+
 
 const static double nu_bins[] = {0,1,1.5,2.25,3.375,5.0625,7.59375,11.3906,17.0859,25.6289,38.4434,57.665,86.4976, 120,150,180,210,240,270,300,330,360,390,420,450,480,510,540,570,600,630,660,690,720,750,780,810,840,870,900,930,960,990,1020,1050,1080,1110,1140,1170,1200,1230,1260,1290,1320,1350,1380,1410,1440,1470,1500};
 const static int n_nu_bins = 59;
@@ -35,14 +36,16 @@ const static int n_newmetbins = 17;
 const static double fibonacci[] = {0,5,10,15,25,40,65,100,170,285,455,740};
 const static int n_fibonacci = 11;
 
-const static double met_optim[] = {0,5,10,15,25,40,65,100,270,350,500};
-const static int n_met_optim = 10;
+const static double met_optim[] = {0, 10, 20, 30, 40, 50, 60, 70, 75, 80, 85, 90, 95, 100, 105, 120, 160, 200, 270, 350, 500};
+const static int n_met_optim = 20;
 
 const static double metphibins[] = {0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 3.0, 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9, 4.0, 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8, 4.9, 5.0, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.8, 5.9, 6.0, 6.1, 6.2, 6.3, 6.4};
 const static int n_metphibins = 64;
 
 const static double htbins[] = {500,600,700,800,900,1000,1100,1200,1300,1400,1500,1700,2000};
+const static double htbins2[] = {500 , 520 , 540 , 560 , 580 , 600 , 620 , 640 , 660 , 680 , 700 , 720 , 740 , 760 , 780 , 800 , 820 , 840 , 860 , 880 , 900 , 920 , 940 , 960 , 980 , 1000 , 1020 , 1040 , 1060 , 1080 , 1100 , 1120 , 1140 , 1160 , 1180 , 1200 , 1220 , 1240 , 1260 , 1280 , 1300 , 1320 , 1340 , 1360 , 1380 , 1400 , 1420 , 1440 , 1460 , 1480 , 1500 , 1520 , 1540 , 1560 , 1580 , 1600 , 1620 , 1640 , 1660 , 1680 , 1700 , 1720 , 1740 , 1760 , 1780 , 1800 , 1820 , 1840 , 1860 , 1880 , 1900 , 1920 , 1940 , 1960 , 1980 , 2000 , 2020 , 2040 , 2060 , 2080 , 2100 , 2120 , 2140 , 2160 , 2180 , 2200 , 2220 , 2240 , 2260 , 2280 , 2300 , 2320 , 2340 , 2360 , 2380 , 2400 , 2420 , 2440 , 2460 , 2480, 2500};
 const static int n_htbins = 12;
+const static int n_htbins2 = 100;
 
 const static double weightbins[] = {0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.5, 2.0, 3, 5, 10, 20};
 const static int n_weightbins = 16;
@@ -161,6 +164,7 @@ bool Plotter<T>::Process(T*t,Long64_t i,Long64_t n,double w)
         h_->Fill( "met_const", t->met, w );
         //h_->Fill( "mht", t->mht, w );
         h_->Fill( "ht", t->ht, w );
+        h_->Fill( "ht_const", t->ht, w );
         h_->Fill( "em1_pt", t->photons_pt[t->ThePhoton], w );
         h_->Fill( "weight", w );
 
@@ -293,16 +297,16 @@ public:
         ///
         /// ------------------------------------------------------------
 
-        AddBinning("#gamma p_{T}* [GeV]",      fak1p5_bins, n_fak1p5_bins+1, b_PtPhoton);
-        AddBinning("Hadr. Recoil p_{T} [GeV]", fak1p5_bins, n_fak1p5_bins+1, b_PtRecoil);
-        //AddBinning("HT [GeV]",           fak1p5_bins, n_fak1p5_bins+1, b_HT);
+        AddBinning("#gamma p_{T}* (GeV)",      fak1p5_bins, n_fak1p5_bins+1, b_PtPhoton);
+        AddBinning("Hadr. Recoil p_{T} (GeV)", fak1p5_bins, n_fak1p5_bins+1, b_PtRecoil);
+        //AddBinning("HT (GeV)",           fak1p5_bins, n_fak1p5_bins+1, b_HT);
 
 
-        //AddBinning("#gamma p_{T}* [GeV]",      bins_50_0_1500, n_50+1, b_PtPhoton);
-        //AddBinning("Hadr. Recoil p_{T} [GeV]", bins_50_0_1500, n_50+1, b_PtRecoil);
+        //AddBinning("#gamma p_{T}* (GeV)",      bins_50_0_1500, n_50+1, b_PtPhoton);
+        //AddBinning("Hadr. Recoil p_{T} (GeV)", bins_50_0_1500, n_50+1, b_PtRecoil);
 
-        //AddBinning("#gamma p_{T}* [GeV]",      nu_bins, n_nu_bins+1, b_PtPhoton);
-        //AddBinning("Hadr. Recoil p_{T} [GeV]", nu_bins, n_nu_bins+1, b_PtRecoil);
+        //AddBinning("#gamma p_{T}* (GeV)",      nu_bins, n_nu_bins+1, b_PtPhoton);
+        //AddBinning("Hadr. Recoil p_{T} (GeV)", nu_bins, n_nu_bins+1, b_PtRecoil);
 
 
         /// ------------------------------------------------------------
@@ -641,28 +645,29 @@ void Closure<T>::Book()
     BookHistogram("n_mu",  "muon multiplicity","Events", titel_,bins_11_0_10, 12);
     BookHistogram("n_e",  "electron multiplicity","Events", titel_,bins_11_0_10, 12);
     BookHistogram("n_l",  "lepton multiplicity","Events", titel_,bins_11_0_10, 12);
-    BookHistogram("met", "#slash{E}_{T} [GeV]","Events", titel_,metbins, n_metbins+1);
-    BookHistogram("met_arrow", "#slash{E}_{T} [GeV]","Events", titel_,metbins, n_metbins+1);
-    BookHistogram("met_new", "#slash{E}_{T} [GeV]","Events", titel_,newmetbins, n_newmetbins+1);
-    BookHistogram("met_fibo", "#slash{E}_{T} [GeV]","Events", titel_,fibonacci, n_fibonacci+1);
-    BookHistogram("met_optim", "#slash{E}_{T} [GeV]","Events", titel_,met_optim, n_met_optim+1);
-    BookHistogram("met_systerr", "syst. unc. vs #slash{E}_{T} [GeV]","Events", titel_,metbins, n_metbins+1);
-    BookHistogram("met_trans", "transversal #slash{E}_{T} [GeV]","Events", titel_,metbins, n_metbins+1);
-    BookHistogram("met_paral", "parallel #slash{E}_{T} [GeV]","Events", titel_,metbins, n_metbins+1);
-    BookHistogram("ht",  "H_{T} [GeV]","Events", titel_, htbins,  n_htbins+1);
-    BookHistogram("met_const",  "#slash{E}_{T} [GeV]","Events", titel_, bins_50_0_500, n_50+1);
-    BookHistogram("met_corr",  "corrected #slash{E}_{T} [GeV]","Events", titel_, bins_50_0_1000, n_50+1);
+    BookHistogram("met", "#slash{E}_{T} (GeV)","Events", titel_,metbins, n_metbins+1);
+    BookHistogram("met_arrow", "#slash{E}_{T} (GeV)","Events", titel_,metbins, n_metbins+1);
+    BookHistogram("met_new", "#slash{E}_{T} (GeV)","Events", titel_,newmetbins, n_newmetbins+1);
+    BookHistogram("met_fibo", "#slash{E}_{T} (GeV)","Events", titel_,fibonacci, n_fibonacci+1);
+    BookHistogram("met_optim", "#slash{E}_{T} (GeV)","Events", titel_,met_optim, n_met_optim+1);
+    BookHistogram("met_systerr", "syst. unc. vs #slash{E}_{T} (GeV)","Events", titel_,metbins, n_metbins+1);
+    BookHistogram("met_trans", "transversal #slash{E}_{T} (GeV)","Events", titel_,metbins, n_metbins+1);
+    BookHistogram("met_paral", "parallel #slash{E}_{T} (GeV)","Events", titel_,metbins, n_metbins+1);
+    BookHistogram("ht",  "H_{T} (GeV)","Events", titel_, htbins,  n_htbins+1);
+    BookHistogram("ht_const",  "H_{T} (GeV)","Events", titel_, htbins2,  n_htbins2+1);
+    BookHistogram("met_const",  "#slash{E}_{T} (GeV)","Events", titel_, bins_50_0_500, n_50+1);
+    BookHistogram("met_corr",  "corrected #slash{E}_{T} (GeV)","Events", titel_, bins_50_0_1000, n_50+1);
     BookHistogram("met_phi",  "#phi_{#slash{E}_{T}}","Events", titel_, bins_64_nPi_Pi, n_64+1);
     BookHistogram("met_signif",  "#slash{E}_{T} Significance","Events", titel_, bins_50_0_100, n_50+1);
-    BookHistogram("mht",  "#slash{H}_{T} [GeV]","Events", titel_, bins_50_0_1000, n_50+1);
-    BookHistogram("mht_trans",  "Transverse #slash{H}_{T} [GeV]","Events", titel_, bins_50_0_1000, n_50+1);
-    BookHistogram("mht_paral",  "Parallel #slash{H}_{T} [GeV]","Events", titel_, bins_50_0_1000, n_50+1);
+    BookHistogram("mht",  "#slash{H}_{T} (GeV)","Events", titel_, bins_50_0_1000, n_50+1);
+    BookHistogram("mht_trans",  "Transverse #slash{H}_{T} (GeV)","Events", titel_, bins_50_0_1000, n_50+1);
+    BookHistogram("mht_paral",  "Parallel #slash{H}_{T} (GeV)","Events", titel_, bins_50_0_1000, n_50+1);
     BookHistogram("mht_phi",  "#phi_{#slash{H}_{T}}","Events", titel_, bins_64_nPi_Pi, n_64+1);
-    BookHistogram("jet1_pt",  "Leading Jet p_{T} [GeV]","Events", titel_, bins_50_0_1000, n_50+1);
-    BookHistogram("jet2_pt",  "Next-to-leading Jet p_{T} [GeV]","Events", titel_, bins_50_0_1000, n_50+1);
-    BookHistogram("em1_pt",  "Photon p_{T} [GeV]","Events", titel_, bins_50_0_1000, n_50+1);
-    BookHistogram("em1_thePt",  "Photon p_{T}^{*} [GeV]","Events", titel_, bins_20_110_1160, 21);
-    BookHistogram("em1_ptstar",  "Photon p_{T}^{*} [GeV]","Events", titel_, bins_50_0_1000, n_50+1);
+    BookHistogram("jet1_pt",  "Leading Jet p_{T} (GeV)","Events", titel_, bins_50_0_1000, n_50+1);
+    BookHistogram("jet2_pt",  "Next-to-leading Jet p_{T} (GeV)","Events", titel_, bins_50_0_1000, n_50+1);
+    BookHistogram("em1_pt",  "p_{T} (GeV)","Events", titel_, bins_50_0_1000, n_50+1);
+    BookHistogram("em1_thePt",  "p_{T^{*}} (GeV)","Events", titel_, bins_20_110_1160, 21);
+    BookHistogram("em1_ptstar",  "p_{T,jet matched to #gamma} (GeV)","Events", titel_, bins_50_0_1000, n_50+1);
     BookHistogram("em1_phi",  "#Phi Photon","Events", titel_, bins_64_nPi_Pi, n_64+1);
     BookHistogram("weight",  "weight","Events", titel_, weightbins, n_weightbins+1 );
     BookHistogram("phi_met_em1",  "#phi(#slash{E}_{T}, #gamma)","Events", titel_, bins_64_nPi_Pi, n_64+1);
@@ -670,8 +675,8 @@ void Closure<T>::Book()
     BookHistogram("phi_mht_recoil",  "#phi(#slash{H}_{T}, Recoil)","Events", titel_, bins_64_nPi_Pi, n_64+1);
     BookHistogram("phi_met_recoil",  "#phi(#slash{E}_{T}, Recoil)","Events", titel_, bins_64_nPi_Pi, n_64+1);
     BookHistogram("phi_recoil_em1",  "#phi(Recoil, Photon)","Events", titel_, bins_64_nPi_Pi, n_64+1);
-    BookHistogram("recoil_ht",  "Recoil H_{T} [GeV]","Events", titel_,bins_50_0_1500, n_50+1);
-    BookHistogram("recoil_pt",  "Recoil p_{T} [GeV]","Events", titel_,bins_50_0_1500, n_50+1);
+    BookHistogram("recoil_ht",  "Recoil H_{T} (GeV)","Events", titel_,bins_50_0_1500, n_50+1);
+    BookHistogram("recoil_pt",  "Recoil p_{T} (GeV)","Events", titel_,bins_50_0_1500, n_50+1);
     BookHistogram("recoil_phi",  "#phi Recoil","Events", titel_,bins_64_nPi_Pi, n_64+1);
     BookHistogram("kinematicClosureMet",  "#vec{p}_{T} recoil + #vec{p}_{T} #gamma + #slash{E}_{T}","Events",     titel_, bins_50_0_500, n_50+1);
     BookHistogram("kinematicClosureMht",  "#vec{p}_{T} recoil + #vec{p}_{T} #gamma + #slash{H}_{T}","Events",     titel_, bins_50_0_500, n_50+1);
@@ -701,31 +706,31 @@ void Closure<T>::Book()
     BookHistogram("PtEm1_Over_PtEm1Gen", "p_{T} Photon / p_{T} Generator-Photon","Events", titel_,bins_50_0_5, n_50+1);
     BookHistogram("DR_PtEm1_PtEm1Gen",   "#Delta R(#gamma, #gamma_{GEN})","Events", titel_,bins_50_0_5, n_50+1);
 
-    BookCorrHistogram("corr_PtEm1_Over_Ptrecoil_vs_MHT", "#slash{H}_{T} [GeV]", "EM1 Pt / Recoil Pt", titel_,bins_50_0_1000, n_50+1);
-    BookCorrHistogram("corr_PtEm1_Over_MHT_vs_MHT",      "#slash{H}_{T} [GeV]", "EM1 Pt / #slash{H}_{T}", titel_,bins_50_0_1000, n_50+1);
-    BookCorrHistogram("corr_Ptrecoil_Over_MHT_vs_MHT",   "#slash{H}_{T} [GeV]", "Recoil Pt / #slash{H}_{T}", titel_,bins_50_0_1000, n_50+1);
-    BookCorrHistogram("corr_PtEm1_Over_Ptrecoil_vs_MET", "#slash{E}_{T} [GeV]", "EM1 Pt / Recoil Pt", titel_,bins_50_0_1000, n_50+1);
-    BookCorrHistogram("corr_PtEm1_Over_MHT_vs_MET",      "#slash{E}_{T} [GeV]", "EM1 Pt / #slash{H}_{T}", titel_,bins_50_0_1000, n_50+1);
-    BookCorrHistogram("corr_Ptrecoil_Over_MHT_vs_MET",   "#slash{E}_{T} [GeV]", "Recoil Pt / #slash{H}_{T}", titel_,bins_50_0_1000, n_50+1);
-    BookCorrHistogram("corr_PtEm1_Over_Ptrecoil_vs_recoil", "Recoil Pt [GeV]", "EM1 Pt / Recoil Pt", titel_,bins_50_0_1500, n_50+1);
-    BookCorrHistogram("corr_PtEm1_Over_MHT_vs_recoil",      "Recoil Pt [GeV]", "EM1 Pt / #slash{H}_{T}", titel_,bins_50_0_1500, n_50+1);
-    BookCorrHistogram("corr_Ptrecoil_Over_MHT_vs_recoil",   "Recoil Pt [GeV]", "Recoil Pt / #slash{H}_{T}", titel_,bins_50_0_1500, n_50+1);
-    BookCorrHistogram("corr_PtEm1_Over_Ptrecoil_vs_em1pt", "EM1 Pt [GeV]", "EM1 Pt / Recoil Pt", titel_,bins_50_0_1000, n_50+1);
-    BookCorrHistogram("corr_PtEm1_Over_MHT_vs_em1pt",      "EM1 Pt [GeV]", "EM1 Pt / #slash{H}_{T}", titel_,bins_50_0_1000, n_50+1);
-    BookCorrHistogram("corr_Ptrecoil_Over_MHT_vs_em1pt",   "EM1 Pt [GeV]", "Recoil Pt / #slash{H}_{T}", titel_,bins_50_0_1000, n_50+1);
+    BookCorrHistogram("corr_PtEm1_Over_Ptrecoil_vs_MHT", "#slash{H}_{T} (GeV)", "EM1 Pt / Recoil Pt", titel_,bins_50_0_1000, n_50+1);
+    BookCorrHistogram("corr_PtEm1_Over_MHT_vs_MHT",      "#slash{H}_{T} (GeV)", "EM1 Pt / #slash{H}_{T}", titel_,bins_50_0_1000, n_50+1);
+    BookCorrHistogram("corr_Ptrecoil_Over_MHT_vs_MHT",   "#slash{H}_{T} (GeV)", "Recoil Pt / #slash{H}_{T}", titel_,bins_50_0_1000, n_50+1);
+    BookCorrHistogram("corr_PtEm1_Over_Ptrecoil_vs_MET", "#slash{E}_{T} (GeV)", "EM1 Pt / Recoil Pt", titel_,bins_50_0_1000, n_50+1);
+    BookCorrHistogram("corr_PtEm1_Over_MHT_vs_MET",      "#slash{E}_{T} (GeV)", "EM1 Pt / #slash{H}_{T}", titel_,bins_50_0_1000, n_50+1);
+    BookCorrHistogram("corr_Ptrecoil_Over_MHT_vs_MET",   "#slash{E}_{T} (GeV)", "Recoil Pt / #slash{H}_{T}", titel_,bins_50_0_1000, n_50+1);
+    BookCorrHistogram("corr_PtEm1_Over_Ptrecoil_vs_recoil", "Recoil Pt (GeV)", "EM1 Pt / Recoil Pt", titel_,bins_50_0_1500, n_50+1);
+    BookCorrHistogram("corr_PtEm1_Over_MHT_vs_recoil",      "Recoil Pt (GeV)", "EM1 Pt / #slash{H}_{T}", titel_,bins_50_0_1500, n_50+1);
+    BookCorrHistogram("corr_Ptrecoil_Over_MHT_vs_recoil",   "Recoil Pt (GeV)", "Recoil Pt / #slash{H}_{T}", titel_,bins_50_0_1500, n_50+1);
+    BookCorrHistogram("corr_PtEm1_Over_Ptrecoil_vs_em1pt", "EM1 Pt (GeV)", "EM1 Pt / Recoil Pt", titel_,bins_50_0_1000, n_50+1);
+    BookCorrHistogram("corr_PtEm1_Over_MHT_vs_em1pt",      "EM1 Pt (GeV)", "EM1 Pt / #slash{H}_{T}", titel_,bins_50_0_1000, n_50+1);
+    BookCorrHistogram("corr_Ptrecoil_Over_MHT_vs_em1pt",   "EM1 Pt (GeV)", "Recoil Pt / #slash{H}_{T}", titel_,bins_50_0_1000, n_50+1);
 
     /*
-      BookCorrHistogram("corr_Ptrecoil_Over_PhiMhtEm1", "#slash{H}_{T} [GeV]", titel_,bins_50_0_1000, n_50+1);
-      BookCorrHistogram("corr_Ptrecoil_Over_PhiEm1Recoil", "#slash{H}_{T} [GeV]", titel_,bins_50_0_1000, n_50+1);
-      BookCorrHistogram("corr_Ptrecoil_Over_PhiMhtRecoil", "#slash{H}_{T} [GeV]", titel_,bins_50_0_1000, n_50+1);
-      BookCorrHistogram("corr_PtEm1_Over_PhiMhtEm1", "#slash{H}_{T} [GeV]", titel_,bins_50_0_1000, n_50+1);
-      BookCorrHistogram("corr_PtEm1_Over_PhiEm1Recoil", "#slash{H}_{T} [GeV]", titel_,bins_50_0_1000, n_50+1);
-      BookCorrHistogram("corr_PtEm1_Over_PhiMhtRecoil", "#slash{H}_{T} [GeV]", titel_,bins_50_0_1000, n_50+1);
-      BookCorrHistogram("corr_Mht_Over_PhiMhtEm1", "#slash{H}_{T} [GeV]", titel_,bins_50_0_1000, n_50+1);
-      BookCorrHistogram("corr_Mht_Over_PhiEm1Recoil", "#slash{H}_{T} [GeV]", titel_,bins_50_0_1000, n_50+1);
-      BookCorrHistogram("corr_Mht_Over_PhiMhtRecoil", "#slash{H}_{T} [GeV]", titel_,bins_50_0_1000, n_50+1);
-      BookCorrHistogram("corr_PhiMhtEm1_Over_PhiMhtRecoil", "#slash{H}_{T} [GeV]", titel_,bins_50_0_1000, n_50+1);
-      BookCorrHistogram("corr_PhiMhtEm1_Over_PhiEm1Recoil", "#slash{H}_{T} [GeV]", titel_,bins_50_0_1000, n_50+1);
+      BookCorrHistogram("corr_Ptrecoil_Over_PhiMhtEm1", "#slash{H}_{T} (GeV)", titel_,bins_50_0_1000, n_50+1);
+      BookCorrHistogram("corr_Ptrecoil_Over_PhiEm1Recoil", "#slash{H}_{T} (GeV)", titel_,bins_50_0_1000, n_50+1);
+      BookCorrHistogram("corr_Ptrecoil_Over_PhiMhtRecoil", "#slash{H}_{T} (GeV)", titel_,bins_50_0_1000, n_50+1);
+      BookCorrHistogram("corr_PtEm1_Over_PhiMhtEm1", "#slash{H}_{T} (GeV)", titel_,bins_50_0_1000, n_50+1);
+      BookCorrHistogram("corr_PtEm1_Over_PhiEm1Recoil", "#slash{H}_{T} (GeV)", titel_,bins_50_0_1000, n_50+1);
+      BookCorrHistogram("corr_PtEm1_Over_PhiMhtRecoil", "#slash{H}_{T} (GeV)", titel_,bins_50_0_1000, n_50+1);
+      BookCorrHistogram("corr_Mht_Over_PhiMhtEm1", "#slash{H}_{T} (GeV)", titel_,bins_50_0_1000, n_50+1);
+      BookCorrHistogram("corr_Mht_Over_PhiEm1Recoil", "#slash{H}_{T} (GeV)", titel_,bins_50_0_1000, n_50+1);
+      BookCorrHistogram("corr_Mht_Over_PhiMhtRecoil", "#slash{H}_{T} (GeV)", titel_,bins_50_0_1000, n_50+1);
+      BookCorrHistogram("corr_PhiMhtEm1_Over_PhiMhtRecoil", "#slash{H}_{T} (GeV)", titel_,bins_50_0_1000, n_50+1);
+      BookCorrHistogram("corr_PhiMhtEm1_Over_PhiEm1Recoil", "#slash{H}_{T} (GeV)", titel_,bins_50_0_1000, n_50+1);
     */
 
     ///To save time, pre-calculate the weights once:
@@ -798,6 +803,7 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
     Fill("met_optim", t->met, weight, we, bin);
     Fill("met_const", t->met, weight, we, bin);
     Fill("ht",        t->ht,  weight, we, bin);
+    Fill("ht_const",  t->ht,  weight, we, bin);
     Fill("met_signif",t->metSig, weight, we, bin);
     Fill("em1_pt",    t->photons_pt[t->ThePhoton], weight, we, bin);
     Fill("em1_thePt", t->ThePhotonPt, weight, we, bin);
