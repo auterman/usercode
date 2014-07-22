@@ -27,6 +27,8 @@ style* GlWino_Style();
 style* GlBino_Style();
 style* SMST1gg_Style();
 style* SMST1lg_Style();
+style* SMST5gg_Style();
+style* SMST5wg_Style();
 
 style* SqGlWino_Style_SD7();
 style* SqGlBino_Style_SD7();
@@ -56,10 +58,8 @@ struct style{
     PostExclusionPlotting=0;
     leg=0;
     cms=0;
-    cmsprelim=0;
     lumi=0;
     cmsTemperaturePlot=0;
-    cmsprelimTemperaturePlot=0;
     lumiTemperaturePlot=0;
     excluded=0;
     smooth_flag=0;
@@ -87,11 +87,6 @@ struct style{
     cms->SetTextColor(12);
     cms->SetTextFont(43);
     cms->SetTextSize(20);
-    cmsprelim = new TLatex(0.21, 0.901, "#bf{CMS preliminary}");
-    cmsprelim->SetNDC(true);
-    cmsprelim->SetTextColor(12);
-    cmsprelim->SetTextFont(43);
-    cmsprelim->SetTextSize(20);
 
     lumiTemperaturePlot = new TLatex(0.48, 0.906, "4.62 fb^{  -1}  #sqrt{s} = 7 TeV   #geq1 #gamma, #geq2 jets");
     lumiTemperaturePlot->SetNDC(true);
@@ -103,11 +98,6 @@ struct style{
     cmsTemperaturePlot->SetTextColor(12);
     cmsTemperaturePlot->SetTextFont(43);
     cmsTemperaturePlot->SetTextSize(20);
-    cmsprelimTemperaturePlot = new TLatex(0.21, 0.906, "#bf{CMS preliminary}");
-    cmsprelimTemperaturePlot->SetNDC(true);
-    cmsprelimTemperaturePlot->SetTextColor(12);
-    cmsprelimTemperaturePlot->SetTextFont(43);
-    cmsprelimTemperaturePlot->SetTextSize(20);
     Set505=false;
     SetMoreLogLabels=false;
     show7TeVExp=false;
@@ -123,7 +113,7 @@ struct style{
   void (*PostExclusionPlotting)(style*, TLegend*);
    
   TLegend * leg;
-  TLatex * cms, *cmsprelim, *lumi, *excluded, * cmsTemperaturePlot, *cmsprelimTemperaturePlot, *lumiTemperaturePlot ;
+  TLatex * cms, *lumi, *excluded, * cmsTemperaturePlot, *lumiTemperaturePlot ;
   int smooth_flag;
   int smooth_points, second_smooth;
   int iCLsObsExcl;  

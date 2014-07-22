@@ -34,12 +34,6 @@ void SetDefault(style * s=0)
     s->excluded->SetTextFont(43);
     s->excluded->SetTextSize(25);
   }
-  if (s->cmsprelim) {
-    s->cmsprelim->SetNDC(true);
-    s->cmsprelim->SetTextColor(1);
-    s->cmsprelim->SetTextFont(43);
-    s->cmsprelim->SetTextSize(20);
-  }
   if (s->lumi) {
     s->lumi->SetNDC(true);
     s->lumi->SetTextColor(1);
@@ -52,7 +46,7 @@ void SetDefault(style * s=0)
     s->cms->SetTextFont(43);
     s->cms->SetTextSize(25);
   }
-  s->lumiTemperaturePlot = new TLatex(0.52, 0.912, "L_{int} = 19.8 fb^{  -1}  #geq1 #gamma, #geq2 jets");
+  s->lumiTemperaturePlot = new TLatex(0.52, 0.912, "L_{int} = 19.7 fb^{  -1}  #geq1 #gamma, #geq2 jets");
   s->lumiTemperaturePlot->SetNDC(true);
   s->lumiTemperaturePlot->SetTextColor(1);
   s->lumiTemperaturePlot->SetTextFont(43);
@@ -62,11 +56,6 @@ void SetDefault(style * s=0)
   s->cmsTemperaturePlot->SetTextColor(1);
   s->cmsTemperaturePlot->SetTextFont(43);
   s->cmsTemperaturePlot->SetTextSize(25);
-  s->cmsprelimTemperaturePlot = new TLatex(0.18, 0.912, "#bf{CMS} #sqrt{s} = 8 TeV");
-  s->cmsprelimTemperaturePlot->SetNDC(true);
-  s->cmsprelimTemperaturePlot->SetTextColor(1);
-  s->cmsprelimTemperaturePlot->SetTextFont(43);
-  s->cmsprelimTemperaturePlot->SetTextSize(25);
 
 }
 
@@ -86,13 +75,14 @@ style* SqGlBino_Style(){ /// Sq-Gl Bino /// ------------------------------------
   style * s = new style();
   s->leg=new TLegend(0.26,0.16,0.61,0.45,"#splitline{Bino-like #tilde{#chi}^{0} NLSP}{m_{#tilde{#chi}^{0}} = 375 GeV}");
 
-  s->lumi      = new TLatex(0.58, 0.902, "L_{int} = 19.8 fb^{  -1} #geq1#gamma, #geq2 jets");
+  s->lumi      = new TLatex(0.58, 0.902, "L_{int} = 19.7 fb^{  -1} #geq1#gamma, #geq2 jets");
   s->cms       = new TLatex(0.21, 0.902, "#bf{CMS preliminary} #sqrt{s} = 8 TeV");
-  s->cmsprelim = new TLatex(0.21, 0.902, "#bf{CMS}    #sqrt{s} = 8 TeV");
   s->excluded  = new TLatex(0.3,  0.7,   "Excluded");
   s->smooth_points=25;
   s->MinXsecZ=0.001;
   s->MaxXsecZ=0.03;
+  s->MinAccZ=0;
+  s->MaxAccZ=1;
   s->PostExclusionPlotting=Draw_OldBinoLimits;
   
   SetDefault(s);
@@ -114,9 +104,8 @@ void Draw_OldWinoLimits(style * s=0, TLegend*l=0) {
 style* SqGlWino_Style(){ /// Sq-Gl Wino /// ---------------------------------------------------------------------
   style * s = new style();
   s->leg       = new TLegend(0.50,0.55,0.83,0.85,"#splitline{Wino-like #tilde{#chi}^{0} NLSP}{m_{#tilde{#chi}^{0}} = 375 GeV}");
-  s->lumi      = new TLatex(0.58, 0.902, "L_{int} = 19.8 fb^{  -1} #geq1#gamma, #geq2 jets");
+  s->lumi      = new TLatex(0.58, 0.902, "L_{int} = 19.7 fb^{  -1} #geq1#gamma, #geq2 jets");
   s->cms       = new TLatex(0.21, 0.902, "#bf{CMS preliminary} #sqrt{s} = 8 TeV");
-  s->cmsprelim = new TLatex(0.2,  0.902, "#bf{CMS}    #sqrt{s} = 8 TeV");
   s->excluded  = new TLatex(0.3,  0.3,   "Excluded");
   s->smooth_points=25;
   s->MinXsecZ=0.01;
@@ -124,6 +113,60 @@ style* SqGlWino_Style(){ /// Sq-Gl Wino /// ------------------------------------
   s->MinAccZ=0;
   s->MaxAccZ=0.1;
   s->PostExclusionPlotting=Draw_OldWinoLimits;
+  
+  SetDefault(s);
+  return s;
+}
+
+void DrawGlChiDiagonalCut(style * s=0, TLegend*l=0) {
+	TGraph*cover = new TGraph(0);
+	cover->SetPoint(0,  350,  350);
+	cover->SetPoint(1, 1600, 1600);
+	cover->SetPoint(2,  350, 1600);
+	cover->SetPoint(3,  350,  350);
+	cover->SetFillColor(kGray);
+	cover->Draw("f");
+
+	TLatex tex;
+	tex.SetTextSize(0.025);
+	tex.SetTextFont(62);
+	tex.SetNDC(true);
+	tex.DrawLatex(0.6, 0.8, "m_{#tilde{#chi}^{0}} > m_{#tilde{g}}");
+	gPad->RedrawAxis();
+}
+
+
+style* SMST5gg_Style(){ /// Sq-Chi1  /// ---------------------------------------------------------------------
+  style * s = new style();
+  s->leg       = new TLegend(0.2,0.72,0.51,0.88,"pp#rightarrow#tilde{g}#tilde{g}, #tilde{g}#rightarrow qq#tilde{G}#gamma");
+  s->lumi      = new TLatex(0.58, 0.902, "L_{int} = 19.7 fb^{  -1} #geq1#gamma, #geq2 jets");
+  s->cms       = new TLatex(0.21, 0.902, "#bf{CMS preliminary} #sqrt{s} = 8 TeV");
+  s->excluded  = new TLatex(0.3,  0.3,   "Excluded");
+  s->smooth_points=25;
+  s->MinXsecZ=0.001;
+  s->MaxXsecZ=0.1;
+  s->MinAccZ=0;
+  s->MaxAccZ=1;
+  s->PostExclusionPlotting=DrawGlChiDiagonalCut;
+  
+  SetDefault(s);
+  return s;
+}
+
+style* SMST5wg_Style(){ /// Sq-Chi1  /// ---------------------------------------------------------------------
+  style * s = new style();
+  s->leg       = new TLegend(0.2,0.72,0.51,0.88,"pp#rightarrow#tilde{g}#tilde{g}, #tilde{g}#rightarrow qq#tilde{G}#gamma and #tilde{g}#rightarrow qq#tilde{G}W");
+  s->lumi      = new TLatex(0.58, 0.902, "L_{int} = 19.7 fb^{  -1} #geq1#gamma, #geq2 jets");
+  s->cms       = new TLatex(0.21, 0.902, "#bf{CMS preliminary} #sqrt{s} = 8 TeV");
+  s->excluded  = new TLatex(0.3,  0.3,   "Excluded");
+  s->smooth_points=25;
+  s->MinXsecZ=0.001;
+  s->MaxXsecZ=0.1;
+  s->MinAccZ=0;
+  s->MaxAccZ=1;
+  s->iCLsObsTheop1=3;
+  s->iCLsExpExclm1=3;
+  s->PostExclusionPlotting=DrawGlChiDiagonalCut;
   
   SetDefault(s);
   return s;
@@ -162,9 +205,8 @@ void Draw_GlBino_CoverUp(style * s=0, TLegend*l=0) {
 style* GlBino_Style(){ 
   style * s = new style();
   s->leg       = new TLegend(0.26,0.71,0.69,0.85,"Bino-like #tilde{#chi}^{0} NLSP");
-  s->lumi      = new TLatex(0.58, 0.902, "L_{int} = 19.8 fb^{  -1}   #geq1#gamma, #geq2 jets");
+  s->lumi      = new TLatex(0.58, 0.902, "L_{int} = 19.7 fb^{  -1}   #geq1#gamma, #geq2 jets");
   s->cms       = new TLatex(0.21, 0.902, "#bf{CMS preliminary}    #sqrt{s} = 8 TeV");
-  s->cmsprelim = new TLatex(0.21, 0.902, "#bf{CMS}    #sqrt{s} = 8 TeV");
   s->excluded  = new TLatex(0.3, 0.4, "Excluded");
   s->smooth_flag=2;
   s->smooth_points=25;
@@ -214,9 +256,8 @@ void Draw_GlWino_CoverUp(style * s=0, TLegend*l=0) {
 style* GlWino_Style(){ 
   style * s = new style();
   s->leg       = new TLegend(0.25,0.65,0.68,0.85,"Wino-like #tilde{#chi}^{0} NLSP");
-  s->lumi      = new TLatex(0.58, 0.902, "L_{int} = 19.8 fb^{  -1}   #geq1#gamma, #geq2 jets");
+  s->lumi      = new TLatex(0.58, 0.902, "L_{int} = 19.7 fb^{  -1}   #geq1#gamma, #geq2 jets");
   s->cms       = new TLatex(0.21, 0.902, "#bf{CMS preliminary}    #sqrt{s} = 8 TeV");
-  s->cmsprelim = new TLatex(0.21, 0.902, "#bf{CMS}    #sqrt{s} = 8 TeV");
   s->excluded  = new TLatex(0.29, 0.3, "Excluded");
   s->smooth_flag=2;
   s->smooth_points=15;
@@ -231,6 +272,8 @@ style* GlWino_Style(){
 
   s->MinXsecZ=0.01;
   s->MaxXsecZ=20;
+  s->MinAccZ=0;
+  s->MaxAccZ=0.1;
 
   SetDefault(s);
 
@@ -276,11 +319,6 @@ style* WinoBino_Style(){
   s->cms->SetTextColor(12);
   s->cms->SetTextFont(43);
   s->cms->SetTextSize(20);
-  s->cmsprelim = new TLatex(0.21, 0.901, "#bf{CMS}");
-  s->cmsprelim->SetNDC(true);
-  s->cmsprelim->SetTextColor(12);
-  s->cmsprelim->SetTextFont(43);
-  s->cmsprelim->SetTextSize(20);
   s->excluded = new TLatex(0.6, 0.4, "Excluded");
   s->excluded->SetNDC(true);
   s->excluded->SetTextColor(12);
@@ -343,9 +381,8 @@ void Draw_T1gg_CoverUp(style * s=0, TLegend*l=0) {
 style* SMST1gg_Style(){ 
   style * s = new style();
   s->leg       = new TLegend(0.22,0.68,0.59,0.88,"SMS #gamma#gamma");
-  s->lumi      = new TLatex(0.57, 0.902, "L_{int} = 19.8 fb^{  -1} #geq1#gamma, #geq2 jets");
+  s->lumi      = new TLatex(0.57, 0.902, "L_{int} = 19.7 fb^{  -1} #geq1#gamma, #geq2 jets");
   s->cms       = new TLatex(0.21, 0.902, "#bf{CMS preliminary} #sqrt{s} = 8 TeV");
-  s->cmsprelim = new TLatex(0.21, 0.902, "#bf{CMS}    #sqrt{s} = 8 TeV");
   s->excluded=0;
   s->smooth_flag=2;
   s->smooth_points=10;
@@ -390,9 +427,8 @@ void DrawNeutrNNLSP(style * s=0, TLegend*l=0) {
 style* SMST1lg_Style(){ 
   style * s = new style();
   s->leg       = new TLegend(0.22,0.68,0.59,0.88,"SMS #gamma + X");
-  s->lumi      = new TLatex(0.57, 0.902, "L_{int} = 19.8 fb^{  -1} #geq1#gamma, #geq2 jets");
+  s->lumi      = new TLatex(0.57, 0.902, "L_{int} = 19.7 fb^{  -1} #geq1#gamma, #geq2 jets");
   s->cms       = new TLatex(0.21, 0.902, "#bf{CMS preliminary} #sqrt{s} = 8 TeV");
-  s->cmsprelim = new TLatex(0.21, 0.902, "#bf{CMS}    #sqrt{s} = 8 TeV");
   s->excluded=0;
   s->smooth_flag=2;
   s->smooth_points=10;

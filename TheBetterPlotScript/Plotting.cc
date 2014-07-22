@@ -12,6 +12,9 @@
 #include "StyleSettings.h"
 #include "OldExclusionContours.h"
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 void DrawPlot2D(PlotTools *PlotTool, TCanvas*canvas, TH2* h, const std::string& flag, const string& x, const std::string& y, const std::string& var, 
                 const std::string& ztitel, double zmin, double zmax, style*s)
@@ -36,21 +39,26 @@ void DrawPlot2D(PlotTools *PlotTool, TCanvas*canvas, TH2* h, const std::string& 
    double tx=400;
    double ty=1.045*(plot2D->GetYaxis()->GetXmax()-plot2D->GetYaxis()->GetXmin())+plot2D->GetYaxis()->GetXmin();  
 
-   if (s&&s->cmsprelimTemperaturePlot) s->cmsprelimTemperaturePlot->Draw();
+   //check & make dir
+   struct stat st={0};
+   if(stat("results",&st)==-1)     mkdir("results", 0700);
+   if(stat(("results/"+flag).c_str(),&st)==-1)     mkdir(("results/"+flag).c_str(), 0700);
+   if(stat(("results/"+flag+"/log").c_str(),&st)==-1) mkdir(("results/"+flag+"/log").c_str(), 0700);
+   if(plotC&&stat(("results/"+flag+"/C").c_str(),&st)==-1) mkdir(("results/"+flag+"/C").c_str(), 0700);
+   if(plotPNG&&stat(("results/"+flag+"/PNG").c_str(),&st)==-1) mkdir(("results/"+flag+"/PNG").c_str(), 0700);
+
+   //write plots
    if (s&&s->lumiTemperaturePlot) s->lumiTemperaturePlot->Draw();
    gPad->RedrawAxis();
-   string namePlot = "results/" + flag + "_"+x+"_"+y+"_"+var;
-   if (plotPrelim) canvas->SaveAs((namePlot + "_prelim.pdf").c_str());
-   if (plotPNG && plotPrelim) canvas->SaveAs((namePlot + "_prelim.png").c_str());
-   if (plotC   && plotPrelim) canvas->SaveAs((namePlot + "_prelim.C").c_str());
+   string namePlot =  flag + "_"+x+"_"+y+"_"+var;
    //
    plot2D->Draw("colz"); 
    if (s&&s->cmsTemperaturePlot)  s->cmsTemperaturePlot->Draw();
    if (s&&s->lumiTemperaturePlot) s->lumiTemperaturePlot->Draw();
    gPad->RedrawAxis();
-   canvas->SaveAs((namePlot + ".pdf").c_str());
-   if (plotPNG) canvas->SaveAs((namePlot + ".png").c_str());
-   if (plotC)   canvas->SaveAs((namePlot + ".C").c_str());
+   canvas->SaveAs(("results/"+flag+"/log/"+namePlot + ".pdf").c_str());
+   if (plotPNG) canvas->SaveAs(("results/"+flag+"/PNG/"+namePlot + ".png").c_str());
+   if (plotC)   canvas->SaveAs(("results/"+flag+"/C/"+namePlot + ".C").c_str());
 }
  
 void DrawHist1D(PlotTools *PlotTool, TCanvas*canvas, const std::string& flag, const string& x, const std::string& y, const std::string& var, 
@@ -81,9 +89,19 @@ void DrawHist1D(PlotTools *PlotTool, TCanvas*canvas, const std::string& flag, co
    leg->AddEntry((TObject*)0,ss.str().c_str(),""); }
    h1D->Draw("h");
    leg->Draw("same");
-   std::string namePlot = "results/" + flag +"_"+x+"_"+y+"_"+var+"_1D";
-   c1->SaveAs((namePlot + ".pdf").c_str());
-   if (plotPNG) c1->SaveAs((namePlot + ".png").c_str());
+   
+   //check & make dir
+   struct stat st={0};
+   if(stat("results",&st)==-1)     mkdir("results", 0700);
+   if(stat(("results/"+flag).c_str(),&st)==-1)     mkdir(("results/"+flag).c_str(), 0700);
+   if(stat(("results/"+flag+"/log").c_str(),&st)==-1) mkdir(("results/"+flag+"/log").c_str(), 0700);
+   if(plotC&&stat(("results/"+flag+"/C").c_str(),&st)==-1) mkdir(("results/"+flag+"/C").c_str(), 0700);
+   if(plotPNG&&stat(("results/"+flag+"/PNG").c_str(),&st)==-1) mkdir(("results/"+flag+"/PNG").c_str(), 0700);
+
+   std::string namePlot = flag +"_"+x+"_"+y+"_"+var+"_1D";
+   c1->SaveAs(("results/"+flag+"/log/"+namePlot + ".pdf").c_str());
+   if (plotPNG) c1->SaveAs(("results/"+flag+"/PNG/"+namePlot + ".png").c_str());
+   if (plotC) c1->SaveAs(("results/"+flag+"/C/"+namePlot + ".C").c_str());
 }
 
 
@@ -128,17 +146,20 @@ void DrawStandardPlots(PlotTools *pt, const std::string& flag, const std::string
 
    //Linear z-scale
    c1->SetLogz(0);
+   DrawPlot2D(pt,c1,h,flag,x,y,"signal",        "Signal Event Yield", -999, -999, s );
    DrawPlot2D(pt,c1,h,flag,x,y,"Acceptance",        "Acceptance", s->MinAccZ, s->MaxAccZ, s );
-   DrawPlot2D(pt,c1,h,flag,x,y,"AcceptancePercent", "Acceptance [%]", s->MinAccZ*100., s->MaxAccZ*100., s );
-   DrawPlot2D(pt,c1,h,flag,x,y,"AcceptanceCorrected",    "Acceptance corr. f. sig. cont. [%]", s->MinAccZ*100., s->MaxAccZ*100., s );
+   DrawPlot2D(pt,c1,h,flag,x,y,"AcceptancePercent", "Acceptance [%]", s->MinAccZ*100, s->MaxAccZ*100, s );
+   DrawPlot2D(pt,c1,h,flag,x,y,"AcceptanceCorrected",    "Acceptance corr. f. sig. cont. [%]", s->MinAccZ*100, s->MaxAccZ*100, s );
    DrawPlot2D(pt,c1,h,flag,x,y,"ContaminationRelToSignal", "Signal contamination / Signal yield [%]" );
 
    //1D Histograms
-   DrawHist1D(pt,c1,flag,x,y,"SignalStatUnc",	  "Rel. Signal Statistical uncertainty", 20);
-   DrawHist1D(pt,c1,flag,x,y,"SignalSysUnc",	  "Rel. Signal Systematic uncertainty", 20);
-   DrawHist1D(pt,c1,flag,x,y,"SignalPDFAccUnc",   "Rel. Signal PDF Accept. uncertainty", 20);
-   DrawHist1D(pt,c1,flag,x,y,"SignalPDFXsecUnc",  "Rel. Signal PDF cross-section uncertainty", 20);
-   DrawHist1D(pt,c1,flag,x,y,"SignalScaleUnc",    "Rel. Signal Scale uncertainty", 20);
+   //DrawHist1D(pt,c1,flag,x,y,"SignalStatUnc",	  "Rel. Signal Statistical uncertainty", 20);
+   //DrawHist1D(pt,c1,flag,x,y,"SignalSysUnc",	  "Rel. Signal Systematic uncertainty", 20);
+   //DrawHist1D(pt,c1,flag,x,y,"SignalPDFAccUnc",   "Rel. Signal PDF Accept. uncertainty", 20);
+   //DrawHist1D(pt,c1,flag,x,y,"SignalPDFXsecUnc",  "Rel. Signal PDF cross-section uncertainty", 20);
+   //DrawHist1D(pt,c1,flag,x,y,"SignalScaleUnc",    "Rel. Signal Scale uncertainty", 20);
+   DrawHist1D(pt,c1,flag,x,y,"u_rel_signal_exp",    "Rel. Signal exp. uncertainty", 20);
+   DrawHist1D(pt,c1,flag,x,y,"u_rel_signal_theo",   "Rel. Signal theo. uncertainty", 20);
 
    //DrawHist1D(pt,c1,flag,x,y,"ObsRmM2", "ObsR - ExpR-2sigma", 20);
    //DrawHist1D(pt,c1,flag,x,y,"ObsRmP2", "ObsR - ExpR+2sigma", 20);
@@ -239,10 +260,20 @@ TGraph * InOutPlot(PlotTools *PlotTool, TCanvas*canvas, std::string flag, const 
    	   l.DrawLatex(x, y, val);
    	   if (cont-contours.begin()>13) break;
    }
+
+   //check & make dir
+   struct stat st={0};
+   if(stat("results",&st)==-1)     mkdir("results", 0700);
+   if(stat(("results/"+flag).c_str(),&st)==-1)     mkdir(("results/"+flag).c_str(), 0700);
+   if(stat(("results/"+flag+"/log").c_str(),&st)==-1) mkdir(("results/"+flag+"/log").c_str(), 0700);
+   if(plotC&&stat(("results/"+flag+"/C").c_str(),&st)==-1) mkdir(("results/"+flag+"/C").c_str(), 0700);
+   if(plotPNG&&stat(("results/"+flag+"/PNG").c_str(),&st)==-1) mkdir(("results/"+flag+"/PNG").c_str(), 0700);
+
    //drawCmsPrel(PlotTool->SingleValue(Luminosity), METCut);
-   string nameXsPlot = "results/" + flag + "_"+x+"_"+y+"_"+"InOut"+R;
-   canvas->SaveAs((nameXsPlot + ".pdf").c_str());
-   if (plotPNG) canvas->SaveAs((nameXsPlot + ".png").c_str());
+   string nameXsPlot = flag + "_"+x+"_"+y+"_"+"InOut"+R;
+   canvas->SaveAs(("results/"+flag+"/log/"+nameXsPlot + ".pdf").c_str());
+   if (plotPNG) canvas->SaveAs(("results/"+flag+"/PNG/"+nameXsPlot + ".png").c_str());
+   if (plotC)   canvas->SaveAs(("results/"+flag+"/C/"+nameXsPlot + ".C").c_str());
    delete h;
    TGraph * res = (contours.size()>idx?(TGraph*)contours[idx]->Clone():0);
    if (res) {res->SetLineColor(color);
@@ -251,7 +282,7 @@ TGraph * InOutPlot(PlotTools *PlotTool, TCanvas*canvas, std::string flag, const 
 }
 
 void DrawExclusion(PlotTools *PlotTool, std::string flag, const std::string& x, const std::string& y, 
-                   TH1*hp, TH1*h, style*s)
+                   TH1*hp, TH1*h, style*s, std::string lflavor)
 {
    //Require an observed CLs limit:
    //PlotTool->Remove("ObsR", Compare::less, 0.0);
@@ -265,22 +296,22 @@ void DrawExclusion(PlotTools *PlotTool, std::string flag, const std::string& x, 
 
    //In/Out Plot
    hplot->GetZaxis()->SetTitle("Observed in/out");
-   TGraph * gCLsObsExcl	  = InOutPlot(PlotTool,c1,flag,x,y,"ObsR",(TH2F*)h->Clone(), s->iCLsObsExcl, kBlue, 1);
+   TGraph * gCLsObsExcl	  = InOutPlot(PlotTool,c1,flag,x,y,"ObsR"+lflavor,(TH2F*)h->Clone(), s->iCLsObsExcl, kBlue, 1);
 
    hplot->GetZaxis()->SetTitle("Expected in/out");
-   TGraph * gCLsExpExcl   = InOutPlot(PlotTool,c1,flag,x,y,"ExpR",(TH2F*)h->Clone(), s->iCLsExpExcl, kOrange + 9, 9);
+   TGraph * gCLsExpExcl   = InOutPlot(PlotTool,c1,flag,x,y,"ExpR"+lflavor,(TH2F*)h->Clone(), s->iCLsExpExcl, kOrange + 9, 9);
 
    hplot->GetZaxis()->SetTitle("Expected -1 #sigma_{experimental} in/out");
-   TGraph * gCLsExpExclm1 = InOutPlot(PlotTool,c1,flag,x,y,"ExpRM1",(TH2F*)h->Clone(), s->iCLsExpExclm1, kOrange - 3, 3);
+   TGraph * gCLsExpExclm1 = InOutPlot(PlotTool,c1,flag,x,y,"ExpR"+lflavor+"M1",(TH2F*)h->Clone(), s->iCLsExpExclm1, kOrange - 3, 3);
 
    hplot->GetZaxis()->SetTitle("Expected +1 #sigma_{experimental} in/out");
-   TGraph * gCLsExpExclp1 = InOutPlot(PlotTool,c1,flag,x,y,"ExpRP1",(TH2F*)h->Clone(), s->iCLsExpExclp1, kOrange - 3, 3);
+   TGraph * gCLsExpExclp1 = InOutPlot(PlotTool,c1,flag,x,y,"ExpR"+lflavor+"P1",(TH2F*)h->Clone(), s->iCLsExpExclp1, kOrange - 3, 3);
 
    hplot->GetZaxis()->SetTitle("Observed -1 #sigma_{theory} in/out");
-   TGraph * gCLsObsTheom1 = InOutPlot(PlotTool,c1,flag,x,y,"ObsRTheoM1",(TH2F*)h->Clone(), s->iCLsObsTheom1, kBlue, 3);
+   TGraph * gCLsObsTheom1 = InOutPlot(PlotTool,c1,flag,x,y,"ObsR"+lflavor+"TheoM1",(TH2F*)h->Clone(), s->iCLsObsTheom1, kBlue, 3);
 
    hplot->GetZaxis()->SetTitle("Observed +1 #sigma_{theory} in/out");
-   TGraph * gCLsObsTheop1 = InOutPlot(PlotTool,c1,flag,x,y,"ObsRTheoP1",(TH2F*)h->Clone(), s->iCLsObsTheop1, kBlue, 3);
+   TGraph * gCLsObsTheop1 = InOutPlot(PlotTool,c1,flag,x,y,"ObsR"+lflavor+"TheoP1",(TH2F*)h->Clone(), s->iCLsObsTheop1, kBlue, 3);
 
 
    {
@@ -366,11 +397,20 @@ void DrawExclusion(PlotTools *PlotTool, std::string flag, const std::string& x, 
    s->lumi->Draw();
    s->cms->Draw();
 
+   //check & make dir
+   struct stat st={0};
+    if(stat("results",&st)==-1)     mkdir("results", 0700);
+   if(stat(("results/"+flag).c_str(),&st)==-1)     mkdir(("results/"+flag).c_str(), 0700);
+   if(stat(("results/"+flag+"/log").c_str(),&st)==-1) mkdir(("results/"+flag+"/log").c_str(), 0700);
+   if(plotC&&stat(("results/"+flag+"/C").c_str(),&st)==-1) mkdir(("results/"+flag+"/C").c_str(), 0700);
+   if(plotPNG&&stat(("results/"+flag+"/PNG").c_str(),&st)==-1) mkdir(("results/"+flag+"/PNG").c_str(), 0700);
+
+
    gPad->RedrawAxis();
-   string nameExcl = "results/"+ flag + "_"+x+"_"+y+"_Exclusion_";
-   c1->SaveAs((nameExcl + ".pdf").c_str());
-   if (plotPNG) c1->SaveAs((nameExcl + ".png").c_str());
-   if (plotROOT) c1->SaveAs((nameExcl + "canvas.C").c_str());
+   string nameExcl = flag + "_"+x+"_"+y+"_Exclusion_"+lflavor;
+   c1->SaveAs(("results/"+flag+"/log/"+nameExcl + ".pdf").c_str());
+   if (plotPNG) c1->SaveAs(("results/"+flag+"/PNG/"+nameExcl + ".png").c_str());
+   if (plotROOT) c1->SaveAs(("results/"+flag+"/C/"+nameExcl + "canvas.C").c_str());
    if (plotC  ) {
      h->GetZaxis()->SetTitle("");
      h->Draw("h");
@@ -380,24 +420,8 @@ void DrawExclusion(PlotTools *PlotTool, std::string flag, const std::string& x, 
      gCLsExpExcl->SetName("Expected limit");
      gCLsExpExcl->SetTitle("Expected limit");
      gCLsExpExcl->Draw("l");
-     c1->SaveAs((nameExcl + ".C").c_str());
+     c1->SaveAs(("results/"+flag+"/C/"+nameExcl + ".C").c_str());
    }
-
-   ///------------------------------------------------------------------------------------
-   /// same, but preliminary:
-   gCLs1Sigma->Draw("f");
-   gCLsObsExcl->Draw("l");
-   gCLsExpExcl->Draw("l");
-   gCLsObsTheom1->Draw("l");
-   gCLsObsTheop1->Draw("l");
-   if (s->excluded) s->excluded->Draw();
-   if (s->PostExclusionPlotting) s->PostExclusionPlotting(s,0);   
-   leg->Draw();
-   s->lumi->Draw();
-   s->cmsprelim->Draw();
-   gPad->RedrawAxis();
-   nameExcl = "results/"+ flag + "_"+x+"_"+y+"_Exclusion_prelim";
-   if (plotPrelim) c1->SaveAs((nameExcl + ".pdf").c_str());
 
 
    ///------------------------------------------------------------------------------------
@@ -468,8 +492,10 @@ void DrawExclusion(PlotTools *PlotTool, std::string flag, const std::string& x, 
    s->lumiTemperaturePlot->Draw();
    s->cmsTemperaturePlot->Draw();
    gPad->RedrawAxis();
-   nameExcl = "results/"+ flag + "_"+x+"_"+y+"_Exclusion_witXsecLimit";
-   c1->SaveAs((nameExcl + ".pdf").c_str());
+   nameExcl = flag + "_"+x+"_"+y+"_Exclusion_witXsecLimit";
+   c1->SaveAs(("results/"+flag+"/log/"+nameExcl + ".pdf").c_str());
+   if (plotPNG) c1->SaveAs(("results/"+flag+"/PNG/"+nameExcl + ".PNG").c_str());
+   //if (plotC) c1->SaveAs(("results/"+flag+"/C/"+nameExcl + ".C").c_str());
    }
    
 }

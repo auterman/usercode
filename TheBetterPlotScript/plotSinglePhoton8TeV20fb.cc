@@ -97,6 +97,7 @@ void DoPlotsFor(const std::string& x, const std::string& y, const std::string& f
     }  
 */    
     DrawExclusion(PlotTool,flag,x,y,new_plot_range,new_plot_excl,s); //removes points, which have no limits and fills the gaps by interpolation
+    //DrawExclusion(PlotTool,flag,x,y,new_plot_range,new_plot_excl,s,"asym"); //removes points, which have no limits and fills the gaps by interpolation
 }
 
 void PlotAll(std::vector<LimitGraphs*>& lg, const std::string& flag, const std::string& limit, TH2*h=0)
@@ -182,7 +183,6 @@ int plot(int argc, char** argv) {
   plotPNG    = false;
   plotC	     = false;
   plotROOT   = false;
-  plotPrelim = false;
   
   TCanvas* c_square    = new TCanvas("c_squ2", "c_squ2", 900, 800);
   c1 = c_square;
@@ -190,13 +190,46 @@ int plot(int argc, char** argv) {
 
   Overview = new OverviewTable();
 
+  //post July bug-fixes
+  if (1){
+  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Bino","2014-07-22-14-53-GMSB_SqGl_met-Bino/filelist.txt",SqGlBino_Style(),4);
+  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Wino","2014-07-22-14-53-GMSB_SqGl_met-Wino/filelist.txt",SqGlWino_Style(),4);
+  DoPlotsFor("gluino","chi1","SMS_T5wg","2014-07-22-14-55-SMS_T5wg/filelist.txt",SMST5wg_Style(),4);
+  DoPlotsFor("gluino","chi1","SMS_T5gg","2014-07-22-14-55-SMS_T5gg/filelist.txt",SMST5gg_Style(),4);
+  }
+
+  //post ARC green light
+  if (0){
+  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Bino","2014-07-16-17-02-GMSB_SqGl_met-Bino/filelist.txt",SqGlBino_Style(),4);
+  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Wino","2014-07-16-17-02-GMSB_SqGl_met-Wino/filelist.txt",SqGlWino_Style(),4);
+  }
+
+  //SMS T5 scans
+  if (0){
+  DoPlotsFor("gluino","chi1","SMS_T5wg","2014-07-15-18-45-SMS_T5wg/filelist.txt",SMST5wg_Style(),4);
+  DoPlotsFor("gluino","chi1","SMS_T5gg","2014-07-15-18-45-SMS_T5gg/filelist.txt",SMST5gg_Style(),4);
+  }
 
   //post preapproval
-  if (1){
-//  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Bino","2014-05-16-15-38-GMSB_SqGl_met-Bino/filelist.txt",SqGlBino_Style(),4);
-//  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Wino","2014-05-16-15-38-GMSB_SqGl_met-Wino/filelist.txt",SqGlWino_Style(),4);
+  if (0){
   DoPlotsFor("squark","gluino","GMSB_8TeV_met_Bino","2014-05-27-18-34-GMSB_SqGl_met-Bino/filelist.txt",SqGlBino_Style(),4);
   DoPlotsFor("squark","gluino","GMSB_8TeV_met_Wino","2014-05-27-18-33-GMSB_SqGl_met-Wino/filelist.txt",SqGlWino_Style(),4);
+  }
+
+  //post preapproval Single-Channels
+  if (0){
+  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Bino_bin5","2014-06-04-10-21-GMSB_SqGl_met-Bino_SingleChannels/filelist_bin5.txt",SqGlBino_Style(),4);
+  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Bino_bin4","2014-06-04-10-21-GMSB_SqGl_met-Bino_SingleChannels/filelist_bin4.txt",SqGlBino_Style(),4);
+  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Bino_bin3","2014-06-04-10-21-GMSB_SqGl_met-Bino_SingleChannels/filelist_bin3.txt",SqGlBino_Style(),4);
+  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Bino_bin2","2014-06-04-10-21-GMSB_SqGl_met-Bino_SingleChannels/filelist_bin2.txt",SqGlBino_Style(),4);
+  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Bino_bin1","2014-06-04-10-21-GMSB_SqGl_met-Bino_SingleChannels/filelist_bin1.txt",SqGlBino_Style(),4);
+  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Bino_bin0","2014-06-04-10-21-GMSB_SqGl_met-Bino_SingleChannels/filelist_bin0.txt",SqGlBino_Style(),4);
+  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Wino_bin5","2014-06-04-10-29-GMSB_SqGl_met-Wino_SingleChannels/filelist_bin5.txt",SqGlWino_Style(),4);
+  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Wino_bin4","2014-06-04-10-29-GMSB_SqGl_met-Wino_SingleChannels/filelist_bin4.txt",SqGlWino_Style(),4);
+  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Wino_bin3","2014-06-04-10-29-GMSB_SqGl_met-Wino_SingleChannels/filelist_bin3.txt",SqGlWino_Style(),4);
+  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Wino_bin2","2014-06-04-10-29-GMSB_SqGl_met-Wino_SingleChannels/filelist_bin2.txt",SqGlWino_Style(),4);
+  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Wino_bin1","2014-06-04-10-29-GMSB_SqGl_met-Wino_SingleChannels/filelist_bin1.txt",SqGlWino_Style(),4);
+  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Wino_bin0","2014-06-04-10-29-GMSB_SqGl_met-Wino_SingleChannels/filelist_bin0.txt",SqGlWino_Style(),4);
   }
 
 
