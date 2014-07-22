@@ -5,7 +5,7 @@
 #include "TChain.h"
 #include "TError.h"
 
-const static bool ONLY_QCD = false;
+const static bool ONLY_QCD = true;
 const static std::string version = "V03.13";
 
 template <typename T>
@@ -264,10 +264,10 @@ int do_data() {
     v_ISR_g.push_back( &direct_isr );
     v_ISR_g.push_back( &finalcuts_isr_g ); //MET>100GeV
     v_ISR_g.push_back( &finaldirect_isr );
-    Process<ISR_Photon>("photonTree",v_ISR_g,"data/V03.13/TTGamma_V03.13_tree.root",1.5*  2.166*19789/1719954);       //2.166*19800/1719954
-    Process<ISR_Photon>("photonTree",v_ISR_g,"data/V03.13/WGamma_50_130_V03.13_tree.root",1.5* 1.17*19789/1135698); //1.17*19800/1135698
-    Process<ISR_Photon>("photonTree",v_ISR_g,"data/V03.13/WGamma_130_inf_V03.13_tree.root",1.5* 0.2571*19789/471458);//0.2571*19800/471458
-    Process<ISR_Photon>("photonTree",v_ISR_g,"data/modifiedZGammaNuNu_V03.13_tree.root",1.5* 0.074*19789/489474);    //0.074*19800/489474
+    Process<ISR_Photon>("photonTree",v_ISR_g,"data/"+version+"/TTGamma_"+version+"_tree.root",1.5*  2.166*19789/1719954);       //2.166*19800/1719954
+    Process<ISR_Photon>("photonTree",v_ISR_g,"data/"+version+"/WGamma_50_130_"+version+"_tree.root",1.5* 1.17*19789/1135698); //1.17*19800/1135698
+    Process<ISR_Photon>("photonTree",v_ISR_g,"data/"+version+"/WGamma_130_inf_"+version+"_tree.root",1.5* 0.2571*19789/471458);//0.2571*19800/471458
+    Process<ISR_Photon>("photonTree",v_ISR_g,"data/modifiedZGammaNuNu_"+version+"_tree.root",1.5* 0.074*19789/489474);    //0.074*19800/489474
     Process<ISR_Photon>("photonTree",v_ISR_g,"data/ZGammaLL_V02.19b_tree.root",1.5* 132.6*19789/6588161);    //0.074*19800/489474
     ISR_g.Write();
 
