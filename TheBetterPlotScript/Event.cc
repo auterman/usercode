@@ -19,6 +19,88 @@
 
 void ReadEvent(Event& evt, ConfigFile& config)
 {
+<<<<<<< HEAD
+  //If no default value is specified here, and a data-card does not contain the requested variable, 
+  //the event is skipped, after an error message [void ReadEvents(Events& evts, const std::string& filelist)].
+  //                           <Variable Name>, <Name in Cfg File>
+  evt.Add( ReadVariable(config, "number",      "point", -1 ) );
+  evt.Add( ReadVariable(config, "gluino",      "gluino" ) );
+  evt.Add( ReadVariable(config, "squark",      "squark" ) );
+  evt.Add( ReadVariable(config, "chi1",        "chi1" ) );
+  evt.Add( ReadVariable(config, "neutralino",  "chi1", evt.Get("chi1") ) );
+  evt.Add( ReadVariable(config, "cha1",        "cha1", evt.Get("chi1") ) );
+  evt.Add( ReadVariable(config, "Xsection",    "Xsection.NLO" ) );
+  evt.Add( ReadVariable(config, "Luminosity",  "Luminosity" ) );
+  evt.Add( ReadVariable(config, "Acceptance",  "signal.acceptance", 0 ) );
+  evt.Add( ReadVariable(config, "signal",      "signal", 0 ) );
+  evt.Add( ReadVariable(config, "contamination","signal.contamination", 0 ) );
+
+  evt.Add( ReadVariable(config, "R_firstguess","R_firstguess" ) );
+  
+  evt.Add( ReadVariable(config, "ObsRasym",    "CLs observed asymptotic", -9999999 ) );
+  evt.Add( ReadVariable(config, "ExpRasym",    "CLs expected asymptotic", -9999999 ) );
+  evt.Add( ReadVariable(config, "ExpRasymM1",  "CLs expected m1sigma asymptotic", -9999999 ) );
+  evt.Add( ReadVariable(config, "ExpRasymP1",  "CLs expected p1sigma asymptotic", -9999999 ) );
+  evt.Add( ReadVariable(config, "ExpRasymM2",  "CLs expected m2sigma asymptotic", -9999999 ) );
+  evt.Add( ReadVariable(config, "ExpRasymP2",  "CLs expected p2sigma asymptotic", -9999999 ) );
+
+  //"Optional" variables with default values:
+  evt.Add( ReadVariable(config, "ObsR",        "CLs observed",         -9999999 ) );
+  evt.Add( ReadVariable(config, "ExpR",        "CLs expected",         -9999999 ) );
+  evt.Add( ReadVariable(config, "ExpRM1",      "CLs expected m1sigma", -9999999 ) );
+  evt.Add( ReadVariable(config, "ExpRP1",      "CLs expected p1sigma", -9999999 ) );
+  evt.Add( ReadVariable(config, "ExpRM2",      "CLs expected m2sigma", -9999999 ) );
+  evt.Add( ReadVariable(config, "ExpRP2",      "CLs expected p2sigma", -9999999 ) );
+
+  //If the signal strength R>=20 the full CLs limits are cut off - use asymptotic in this case
+  if ( fabs(evt.Get("ObsR"))<0.000001 || fabs(evt.Get("ExpR"))<0.000001 ||
+       fabs(evt.Get("ObsR")-20)<0.1   || fabs(evt.Get("ExpR")-20)<0.1)
+   {
+      evt.Set("ObsR",   evt.Get("ObsRasym"));
+      evt.Set("ExpR",   evt.Get("ExpRasym"));
+      evt.Set("ExpRM1", evt.Get("ExpRasymM1"));
+      evt.Set("ExpRM2", evt.Get("ExpRasymM2"));
+      evt.Set("ExpRP1", evt.Get("ExpRasymP1"));
+      evt.Set("ExpRP2", evt.Get("ExpRasymP2"));
+   }
+/*
+  evt.Add( ReadVariable(config, "ObsR",    "CLs observed asymptotic", -9999999 ) );
+  evt.Add( ReadVariable(config, "ExpR",    "CLs expected asymptotic", -9999999 ) );
+  evt.Add( ReadVariable(config, "ExpRM1",  "CLs expected m1sigma asymptotic", -9999999 ) );
+  evt.Add( ReadVariable(config, "ExpRP1",  "CLs expected p1sigma asymptotic", -9999999 ) );
+  evt.Add( ReadVariable(config, "ExpRM2",  "CLs expected m2sigma asymptotic", -9999999 ) );
+  evt.Add( ReadVariable(config, "ExpRP2",  "CLs expected p2sigma asymptotic", -9999999 ) );
+*/
+
+  evt.Add( ReadVariable(config, "u_signal_scale", "signal.scale.uncertainty", 0 ) );
+  evt.Add( ReadVariable(config, "u_signal_pdf",   "signal.PDF.uncertainty",   0 ) );
+  evt.Add( ReadVariable(config, "u_rel_signal_exp",   "u_rel_signal_exp",   0 ) );
+  evt.Add( ReadVariable(config, "u_rel_signal_theo",  "u_rel_signal_theo",  0 ) );
+  evt.Add( ReadVariable(config, "bin",  "bin",  -1 ) );
+
+/*
+  double signal=0;
+  double contamination=0;
+  if (1)
+  for (int ch=0; ch<nchannels; ++ch) {
+    std::stringstream ss;
+    ss<<ch;
+    std::string flag = ss.str(); 
+    evt.Add( ReadVariable(config, "signal_"+flag,                  "signal_"+flag, 0 ) );
+
+    evt.Add( ReadVariable(config, "signal_"+flag+"_contamination", "signal_contamination_"+flag, -1) ); 	       
+    
+    //normalize with signal:
+    //double signal = evt.Get("signal_"+flag);
+    //evt.Set( "signal_"+flag+"_contamination", 100.*evt.Get("signal_"+flag+"_contamination")/signal );
+    
+    signal += evt.Get("signal_"+flag);
+    contamination += evt.Get("signal_"+flag+"_contamination");
+  }
+  evt.Add( Variable(signal, new Info("signal", "") ) );
+  evt.Add( Variable(contamination, new Info("contamination", "") ) );
+*/  
+=======
     //If no default value is specified here, and a data-card does not contain the requested variable,
     //the event is skipped, after an error message [void ReadEvents(Events& evts, const std::string& filelist)].
     //                           <Variable Name>, <Name in Cfg File>
@@ -99,10 +181,44 @@ void ReadEvent(Event& evt, ConfigFile& config)
       evt.Add( Variable(signal, new Info("signal", "") ) );
       evt.Add( Variable(contamination, new Info("contamination", "") ) );
     */
+>>>>>>> 9cc8e16ab27ec073b872df274f4bff738029c5b1
 }
 
 void CalculateVariablesOnTheFly(Event& evt)
 {
+<<<<<<< HEAD
+  evt.Add( Variable(0, new Info("ObsRtheoryM1","") ) );
+  evt.Add( Variable(evt.Get("ObsR")*evt.Get("Xsection"), new Info("ObsXsecLimit","") ) );
+  evt.Add( Variable(evt.Get("ExpR")*evt.Get("Xsection"), new Info("ExpXsecLimit","") ) );
+  evt.Add( Variable(evt.Get("ObsRasym")*evt.Get("Xsection"), new Info("ObsXsecLimitasym","") ) );
+  evt.Add( Variable(evt.Get("ExpRasym")*evt.Get("Xsection"), new Info("ExpXsecLimitasym","") ) );
+  evt.Add( Variable(100.*(evt.Get("signal")-evt.Get("contamination"))/(evt.Get("Xsection")*evt.Get("Luminosity")), new Info("AcceptanceCorrected","") ) );
+  evt.Add( Variable(evt.Get("signal")/(evt.Get("Xsection")*evt.Get("Luminosity")), new Info("AcceptanceCalc","") ) );
+  evt.Add( Variable(100*evt.Get("Acceptance"), new Info("AcceptancePercent","") ) );
+  evt.Add( Variable(100.*evt.Get("contamination")/evt.Get("signal"), new Info("ContaminationRelToSignal","") ) );
+
+  double NLO = evt.Get("u_signal_scale");
+  double PDF = evt.Get("u_signal_pdf");
+  if (NLO>1) NLO-=1.0;
+  if (PDF>1) PDF-=1.0;
+  double scl = sqrt(pow(NLO,2)+pow(PDF,2));
+  //std::cout <<"sq: "<<evt.Get("squark") <<", gl: "<<evt.Get("gluino") <<", chi1: "<<evt.Get("chi1") <<", cha1: "<<evt.Get("cha1")
+  //          <<", signal="<<evt.Get("signal")
+  //          <<", cont="<<evt.Get("contamination")
+  //          <<", Xsec="<<evt.Get("Xsection")
+  //	    <<", lumi="<<evt.Get("Luminosity")
+  //	    <<", Acc="<<evt.Get("AcceptanceCorrected")<<std::endl;
+  //          <<"; NLO="<<NLO<<", PDF="<<PDF<<std::endl;
+  evt.Add( Variable( evt.Get("ObsR")*(1.+scl), new Info("ObsRTheoM1","") ) );
+  evt.Add( Variable( evt.Get("ObsR")*(1.-scl), new Info("ObsRTheoP1","") ) );
+  evt.Add( Variable( evt.Get("ExpR")*(1.+scl), new Info("ExpRTheoM1","") ) );
+  evt.Add( Variable( evt.Get("ExpR")*(1.-scl), new Info("ExpRTheoP1","") ) );
+
+  evt.Add( Variable( evt.Get("ObsR")-evt.Get("ExpRM2"), new Info("ObsRmM2","") ) );
+  evt.Add( Variable( evt.Get("ObsR")-evt.Get("ExpRP2"), new Info("ObsRmP2","") ) );
+  evt.Add( Variable( (evt.Get("ExpRM2")!=0?evt.Get("ObsR")/evt.Get("ExpRM2"):0), new Info("ObsRdM2","") ) );
+  evt.Add( Variable( (evt.Get("ExpRP2")!=0?evt.Get("ObsR")/evt.Get("ExpRP2"):0), new Info("ObsRdP2","") ) );
+=======
     evt.Add( Variable(0, new Info("ObsRtheoryM1","") ) );
     evt.Add( Variable(evt.Get("ObsR")*evt.Get("Xsection"), new Info("ObsXsecLimit","") ) );
     evt.Add( Variable(evt.Get("ExpR")*evt.Get("Xsection"), new Info("ExpXsecLimit","") ) );
@@ -134,6 +250,7 @@ void CalculateVariablesOnTheFly(Event& evt)
     evt.Add( Variable( evt.Get("ObsR")-evt.Get("ExpRP2"), new Info("ObsRmP2","") ) );
     evt.Add( Variable( (evt.Get("ExpRM2")!=0?evt.Get("ObsR")/evt.Get("ExpRM2"):0), new Info("ObsRdM2","") ) );
     evt.Add( Variable( (evt.Get("ExpRP2")!=0?evt.Get("ObsR")/evt.Get("ExpRP2"):0), new Info("ObsRdP2","") ) );
+>>>>>>> 9cc8e16ab27ec073b872df274f4bff738029c5b1
 
 }
 

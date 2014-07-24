@@ -27,6 +27,8 @@ style* GlWino_Style();
 style* GlBino_Style();
 style* SMST1gg_Style();
 style* SMST1lg_Style();
+style* SMST5gg_Style();
+style* SMST5wg_Style();
 
 style* SqGlWino_Style_SD7();
 style* SqGlBino_Style_SD7();
@@ -50,6 +52,90 @@ left: CMS, sqrt(s)=7TeV
 right: L_int = 4.62 fb-1 , selection
 
 */
+<<<<<<< HEAD
+struct style{
+  style(){ //Set Defaults
+    PreExclusionPlotting=0;
+    PostExclusionPlotting=0;
+    leg=0;
+    cms=0;
+    lumi=0;
+    cmsTemperaturePlot=0;
+    lumiTemperaturePlot=0;
+    excluded=0;
+    smooth_flag=0;
+    smooth_points=25;
+    second_smooth=0;
+    iCLsObsExcl=0;  
+    iCLsExpExcl=0;  
+    iCLsExpExclm1=0;
+    iCLsExpExclp1=0;
+    iCLsObsTheom1=0;
+    iCLsObsTheop1=0;
+    iCLsExpTheom1=0;
+    iCLsExpTheop1=0;
+    MinXsecZ=-999.;//let the plot find the min/max
+    MaxXsecZ=-999.;  
+    MinAccZ=-999.;//let the plot find the min/max
+    MaxAccZ=-999.;  
+    lumi = new TLatex(0.50, 0.901, "4.62 fb^{  -1}  #sqrt{s} = 7 TeV   #geq1 #gamma, #geq2 jets");
+    lumi->SetNDC(true);
+    lumi->SetTextColor(12);
+    lumi->SetTextFont(43);
+    lumi->SetTextSize(20);
+    cms = new TLatex(0.21, 0.901, "#bf{CMS}");
+    cms->SetNDC(true);
+    cms->SetTextColor(12);
+    cms->SetTextFont(43);
+    cms->SetTextSize(20);
+
+    lumiTemperaturePlot = new TLatex(0.48, 0.906, "4.62 fb^{  -1}  #sqrt{s} = 7 TeV   #geq1 #gamma, #geq2 jets");
+    lumiTemperaturePlot->SetNDC(true);
+    lumiTemperaturePlot->SetTextColor(12);
+    lumiTemperaturePlot->SetTextFont(43);
+    lumiTemperaturePlot->SetTextSize(20);
+    cmsTemperaturePlot = new TLatex(0.21, 0.906, "#bf{CMS}");
+    cmsTemperaturePlot->SetNDC(true);
+    cmsTemperaturePlot->SetTextColor(12);
+    cmsTemperaturePlot->SetTextFont(43);
+    cmsTemperaturePlot->SetTextSize(20);
+    Set505=false;
+    SetMoreLogLabels=false;
+    show7TeVExp=false;
+    show7TeVObs=false;
+    show8TeVExp=false;
+    show8TeVObs=false;
+  } 
+  ///
+  /// Please make sure, that all new variables in this class are set to proper default values in the contructor above!
+  /// I.e. the default value should leave the old style unchanged.
+  ///
+  void (*PreExclusionPlotting)(style*, PlotTools*);
+  void (*PostExclusionPlotting)(style*, TLegend*);
+   
+  TLegend * leg;
+  TLatex * cms, *lumi, *excluded, * cmsTemperaturePlot, *lumiTemperaturePlot ;
+  int smooth_flag;
+  int smooth_points, second_smooth;
+  int iCLsObsExcl;  
+  int iCLsExpExcl;  
+  int iCLsExpExclm1;
+  int iCLsExpExclp1;
+  int iCLsObsTheom1;
+  int iCLsObsTheop1;
+  int iCLsExpTheom1;
+  int iCLsExpTheop1;
+  double MinXsecZ;
+  double MaxXsecZ;
+  double MinAccZ;
+  double MaxAccZ;
+  bool Set505;
+  bool SetMoreLogLabels;
+  bool show7TeVExp;
+  bool show7TeVObs;
+  bool show8TeVExp;
+  bool show8TeVObs;
+=======
 struct style {
     style() { //Set Defaults
         PreExclusionPlotting=0;
@@ -132,6 +218,7 @@ struct style {
     bool show7TeVObs;
     bool show8TeVExp;
     bool show8TeVObs;
+>>>>>>> 9cc8e16ab27ec073b872df274f4bff738029c5b1
 
 };
 
