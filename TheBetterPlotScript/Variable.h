@@ -38,7 +38,7 @@ private:
     Info * info_;
 };
 
-///helper class containing general infromation like the name of the variables. This is supposed to be static.
+///helper class containing general information like the name of the variables. This is supposed to be static.
 class Info {
 public:
     Info(const std::string& name, const std::string& name_in_datacard):
