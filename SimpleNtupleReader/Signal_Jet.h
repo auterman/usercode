@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////
 // This class has been automatically generated on
-// Tue Apr 29 17:50:59 2014 by ROOT version 5.34/18
+// Tue Jul 22 11:25:37 2014 by ROOT version 5.34/18
 // from TChain photonJetTree/
 //////////////////////////////////////////////////////////
 
@@ -14,29 +14,30 @@
 
 // Header file for the classes stored in the TTree if any.
 
-
+// Fixed size dimensions of array or collections stored in the TTree if any.
 class Signal_Jet : public TSelector {
 public :
-// Fixed size dimensions of array or collections stored in the TTree if any.
+   TTree          *fChain;   //!pointer to the analyzed TTree or TChain
+const static Int_t kMaxphotons = 10;
+const static Int_t kMaxjets = 700;
+const static Int_t kMaxelectrons = 10;
+const static Int_t kMaxmuons = 10;
+const static Int_t kMaxgenPhotons = 50;
+const static Int_t kMaxgenElectrons = 20;
 int ThePhoton;
 float ThePhotonPt;
 float ThePhotonPhi;
 float ThePhotonEta;
-
-const static Int_t kMaxphotons = 10;
-const static Int_t kMaxjets = 30;
-const static Int_t kMaxelectrons = 25;
-const static Int_t kMaxmuons = 25;
-const static Int_t kMaxgenPhotons = 25;
-const static Int_t kMaxgenElectrons = 25;
-   TTree          *fChain;   //!pointer to the analyzed TTree or TChain
 
    // Declaration of leaf types
    Int_t           photons_;
    Float_t         photons_pt[kMaxphotons];   //[photons_]
    Float_t         photons_eta[kMaxphotons];   //[photons_]
    Float_t         photons_phi[kMaxphotons];   //[photons_]
+   Short_t         photons_bitFlag[kMaxphotons];   //[photons_]
    Float_t         photons__ptJet[kMaxphotons];   //[photons_]
+   Float_t         photons__etaJet[kMaxphotons];   //[photons_]
+   Float_t         photons__phiJet[kMaxphotons];   //[photons_]
    Float_t         photons_sigmaIphiIphi[kMaxphotons];   //[photons_]
    Float_t         photons_r9[kMaxphotons];   //[photons_]
    Float_t         photons_sigmaIetaIeta[kMaxphotons];   //[photons_]
@@ -46,13 +47,12 @@ const static Int_t kMaxgenElectrons = 25;
    Float_t         photons_photonIso[kMaxphotons];   //[photons_]
    Bool_t          photons_conversionSafeVeto[kMaxphotons];   //[photons_]
    Int_t           photons_pixelseed[kMaxphotons];   //[photons_]
-   Short_t         photons_genInformation[kMaxphotons];   //[photons_]
    Short_t         photons_matchedJetIndex[kMaxphotons];   //[photons_]
    Int_t           jets_;
    Float_t         jets_pt[kMaxjets];   //[jets_]
    Float_t         jets_eta[kMaxjets];   //[jets_]
    Float_t         jets_phi[kMaxjets];   //[jets_]
-   Short_t         jets_matchInformation[kMaxjets];   //[jets_]
+   Short_t         jets_bitFlag[kMaxjets];   //[jets_]
    Float_t         jets_bCSV[kMaxjets];   //[jets_]
    Float_t         jets_chargedHadronEnergy[kMaxjets];   //[jets_]
    Float_t         jets_neutralHadronEnergy[kMaxjets];   //[jets_]
@@ -68,21 +68,33 @@ const static Int_t kMaxgenElectrons = 25;
    Float_t         electrons_pt[kMaxelectrons];   //[electrons_]
    Float_t         electrons_eta[kMaxelectrons];   //[electrons_]
    Float_t         electrons_phi[kMaxelectrons];   //[electrons_]
+   Short_t         electrons_bitFlag[kMaxelectrons];   //[electrons_]
    Int_t           muons_;
    Float_t         muons_pt[kMaxmuons];   //[muons_]
    Float_t         muons_eta[kMaxmuons];   //[muons_]
    Float_t         muons_phi[kMaxmuons];   //[muons_]
+   Short_t         muons_bitFlag[kMaxmuons];   //[muons_]
    Int_t           genPhotons_;
    Float_t         genPhotons_pt[kMaxgenPhotons];   //[genPhotons_]
    Float_t         genPhotons_eta[kMaxgenPhotons];   //[genPhotons_]
    Float_t         genPhotons_phi[kMaxgenPhotons];   //[genPhotons_]
+   Short_t         genPhotons_bitFlag[kMaxgenPhotons];   //[genPhotons_]
    Int_t           genElectrons_;
    Float_t         genElectrons_pt[kMaxgenElectrons];   //[genElectrons_]
    Float_t         genElectrons_eta[kMaxgenElectrons];   //[genElectrons_]
    Float_t         genElectrons_phi[kMaxgenElectrons];   //[genElectrons_]
-   Float_t         met;
+   Short_t         genElectrons_bitFlag[kMaxgenElectrons];   //[genElectrons_]
    Float_t         metSig;
+   Float_t         met;
    Float_t         metPhi;
+   Float_t         metShiftxy;
+   Float_t         metShiftxyPhi;
+   Float_t         met01corr;
+   Float_t         met01corrPhi;
+   Float_t         recoil;
+   Float_t         recoilPhi;
+   Float_t         mht;
+   Float_t         mhtPhi;
    Float_t         ht;
    Float_t         weight;
    Int_t           nVertex;
@@ -97,7 +109,10 @@ const static Int_t kMaxgenElectrons = 25;
    TBranch        *b_photons_pt;   //!
    TBranch        *b_photons_eta;   //!
    TBranch        *b_photons_phi;   //!
+   TBranch        *b_photons_bitFlag;   //!
    TBranch        *b_photons__ptJet;   //!
+   TBranch        *b_photons__etaJet;   //!
+   TBranch        *b_photons__phiJet;   //!
    TBranch        *b_photons_sigmaIphiIphi;   //!
    TBranch        *b_photons_r9;   //!
    TBranch        *b_photons_sigmaIetaIeta;   //!
@@ -107,13 +122,12 @@ const static Int_t kMaxgenElectrons = 25;
    TBranch        *b_photons_photonIso;   //!
    TBranch        *b_photons_conversionSafeVeto;   //!
    TBranch        *b_photons_pixelseed;   //!
-   TBranch        *b_photons_genInformation;   //!
    TBranch        *b_photons_matchedJetIndex;   //!
    TBranch        *b_jets_;   //!
    TBranch        *b_jets_pt;   //!
    TBranch        *b_jets_eta;   //!
    TBranch        *b_jets_phi;   //!
-   TBranch        *b_jets_matchInformation;   //!
+   TBranch        *b_jets_bitFlag;   //!
    TBranch        *b_jets_bCSV;   //!
    TBranch        *b_jets_chargedHadronEnergy;   //!
    TBranch        *b_jets_neutralHadronEnergy;   //!
@@ -129,21 +143,33 @@ const static Int_t kMaxgenElectrons = 25;
    TBranch        *b_electrons_pt;   //!
    TBranch        *b_electrons_eta;   //!
    TBranch        *b_electrons_phi;   //!
+   TBranch        *b_electrons_bitFlag;   //!
    TBranch        *b_muons_;   //!
    TBranch        *b_muons_pt;   //!
    TBranch        *b_muons_eta;   //!
    TBranch        *b_muons_phi;   //!
+   TBranch        *b_muons_bitFlag;   //!
    TBranch        *b_genPhotons_;   //!
    TBranch        *b_genPhotons_pt;   //!
    TBranch        *b_genPhotons_eta;   //!
    TBranch        *b_genPhotons_phi;   //!
+   TBranch        *b_genPhotons_bitFlag;   //!
    TBranch        *b_genElectrons_;   //!
    TBranch        *b_genElectrons_pt;   //!
    TBranch        *b_genElectrons_eta;   //!
    TBranch        *b_genElectrons_phi;   //!
-   TBranch        *b_met;   //!
+   TBranch        *b_genElectrons_bitFlag;   //!
    TBranch        *b_metSig;   //!
+   TBranch        *b_met;   //!
    TBranch        *b_metPhi;   //!
+   TBranch        *b_metShiftxy;   //!
+   TBranch        *b_metShiftxyPhi;   //!
+   TBranch        *b_met01corr;   //!
+   TBranch        *b_met01corrPhi;   //!
+   TBranch        *b_recoil;   //!
+   TBranch        *b_recoilPhi;   //!
+   TBranch        *b_mht;   //!
+   TBranch        *b_mhtPhi;   //!
    TBranch        *b_ht;   //!
    TBranch        *b_weight;   //!
    TBranch        *b_nVertex;   //!
@@ -194,7 +220,10 @@ void Signal_Jet::Init(TTree *tree)
    fChain->SetBranchAddress("photons.pt", photons_pt, &b_photons_pt);
    fChain->SetBranchAddress("photons.eta", photons_eta, &b_photons_eta);
    fChain->SetBranchAddress("photons.phi", photons_phi, &b_photons_phi);
+   fChain->SetBranchAddress("photons.bitFlag", photons_bitFlag, &b_photons_bitFlag);
    fChain->SetBranchAddress("photons._ptJet", photons__ptJet, &b_photons__ptJet);
+   fChain->SetBranchAddress("photons._etaJet", photons__etaJet, &b_photons__etaJet);
+   fChain->SetBranchAddress("photons._phiJet", photons__phiJet, &b_photons__phiJet);
    fChain->SetBranchAddress("photons.sigmaIphiIphi", photons_sigmaIphiIphi, &b_photons_sigmaIphiIphi);
    fChain->SetBranchAddress("photons.r9", photons_r9, &b_photons_r9);
    fChain->SetBranchAddress("photons.sigmaIetaIeta", photons_sigmaIetaIeta, &b_photons_sigmaIetaIeta);
@@ -204,13 +233,12 @@ void Signal_Jet::Init(TTree *tree)
    fChain->SetBranchAddress("photons.photonIso", photons_photonIso, &b_photons_photonIso);
    fChain->SetBranchAddress("photons.conversionSafeVeto", photons_conversionSafeVeto, &b_photons_conversionSafeVeto);
    fChain->SetBranchAddress("photons.pixelseed", photons_pixelseed, &b_photons_pixelseed);
-   fChain->SetBranchAddress("photons.genInformation", photons_genInformation, &b_photons_genInformation);
    fChain->SetBranchAddress("photons.matchedJetIndex", photons_matchedJetIndex, &b_photons_matchedJetIndex);
    fChain->SetBranchAddress("jets", &jets_, &b_jets_);
    fChain->SetBranchAddress("jets.pt", jets_pt, &b_jets_pt);
    fChain->SetBranchAddress("jets.eta", jets_eta, &b_jets_eta);
    fChain->SetBranchAddress("jets.phi", jets_phi, &b_jets_phi);
-   fChain->SetBranchAddress("jets.matchInformation", jets_matchInformation, &b_jets_matchInformation);
+   fChain->SetBranchAddress("jets.bitFlag", jets_bitFlag, &b_jets_bitFlag);
    fChain->SetBranchAddress("jets.bCSV", jets_bCSV, &b_jets_bCSV);
    fChain->SetBranchAddress("jets.chargedHadronEnergy", jets_chargedHadronEnergy, &b_jets_chargedHadronEnergy);
    fChain->SetBranchAddress("jets.neutralHadronEnergy", jets_neutralHadronEnergy, &b_jets_neutralHadronEnergy);
@@ -226,21 +254,33 @@ void Signal_Jet::Init(TTree *tree)
    fChain->SetBranchAddress("electrons.pt", electrons_pt, &b_electrons_pt);
    fChain->SetBranchAddress("electrons.eta", electrons_eta, &b_electrons_eta);
    fChain->SetBranchAddress("electrons.phi", electrons_phi, &b_electrons_phi);
+   fChain->SetBranchAddress("electrons.bitFlag", electrons_bitFlag, &b_electrons_bitFlag);
    fChain->SetBranchAddress("muons", &muons_, &b_muons_);
    fChain->SetBranchAddress("muons.pt", muons_pt, &b_muons_pt);
    fChain->SetBranchAddress("muons.eta", muons_eta, &b_muons_eta);
    fChain->SetBranchAddress("muons.phi", muons_phi, &b_muons_phi);
+   fChain->SetBranchAddress("muons.bitFlag", muons_bitFlag, &b_muons_bitFlag);
    fChain->SetBranchAddress("genPhotons", &genPhotons_, &b_genPhotons_);
-   fChain->SetBranchAddress("genPhotons.pt", genPhotons_pt, &b_genPhotons_pt);
-   fChain->SetBranchAddress("genPhotons.eta", genPhotons_eta, &b_genPhotons_eta);
-   fChain->SetBranchAddress("genPhotons.phi", genPhotons_phi, &b_genPhotons_phi);
+   fChain->SetBranchAddress("genPhotons.pt", &genPhotons_pt, &b_genPhotons_pt);
+   fChain->SetBranchAddress("genPhotons.eta", &genPhotons_eta, &b_genPhotons_eta);
+   fChain->SetBranchAddress("genPhotons.phi", &genPhotons_phi, &b_genPhotons_phi);
+   fChain->SetBranchAddress("genPhotons.bitFlag", &genPhotons_bitFlag, &b_genPhotons_bitFlag);
    fChain->SetBranchAddress("genElectrons", &genElectrons_, &b_genElectrons_);
-   fChain->SetBranchAddress("genElectrons.pt", genElectrons_pt, &b_genElectrons_pt);
-   fChain->SetBranchAddress("genElectrons.eta", genElectrons_eta, &b_genElectrons_eta);
-   fChain->SetBranchAddress("genElectrons.phi", genElectrons_phi, &b_genElectrons_phi);
-   fChain->SetBranchAddress("met", &met, &b_met);
+   fChain->SetBranchAddress("genElectrons.pt", &genElectrons_pt, &b_genElectrons_pt);
+   fChain->SetBranchAddress("genElectrons.eta", &genElectrons_eta, &b_genElectrons_eta);
+   fChain->SetBranchAddress("genElectrons.phi", &genElectrons_phi, &b_genElectrons_phi);
+   fChain->SetBranchAddress("genElectrons.bitFlag", &genElectrons_bitFlag, &b_genElectrons_bitFlag);
    fChain->SetBranchAddress("metSig", &metSig, &b_metSig);
+   fChain->SetBranchAddress("met", &met, &b_met);
    fChain->SetBranchAddress("metPhi", &metPhi, &b_metPhi);
+   fChain->SetBranchAddress("metShiftxy", &metShiftxy, &b_metShiftxy);
+   fChain->SetBranchAddress("metShiftxyPhi", &metShiftxyPhi, &b_metShiftxyPhi);
+   fChain->SetBranchAddress("met01corr", &met01corr, &b_met01corr);
+   fChain->SetBranchAddress("met01corrPhi", &met01corrPhi, &b_met01corrPhi);
+   fChain->SetBranchAddress("recoil", &recoil, &b_recoil);
+   fChain->SetBranchAddress("recoilPhi", &recoilPhi, &b_recoilPhi);
+   fChain->SetBranchAddress("mht", &mht, &b_mht);
+   fChain->SetBranchAddress("mhtPhi", &mhtPhi, &b_mhtPhi);
    fChain->SetBranchAddress("ht", &ht, &b_ht);
    fChain->SetBranchAddress("weight", &weight, &b_weight);
    fChain->SetBranchAddress("nVertex", &nVertex, &b_nVertex);

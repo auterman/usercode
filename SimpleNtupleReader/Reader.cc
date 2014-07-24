@@ -5,8 +5,9 @@
 #include "TChain.h"
 #include "TError.h"
 
-const static bool ONLY_QCD = true;
-const static std::string version = "V03.13";
+const static bool SIGNAL_INJECTION = true;
+const static bool ONLY_QCD = false;
+const static std::string version = "V03.30";
 
 template <typename T>
 void Process(const std::string& str_chain, std::vector<Processor<T>*>& proc, const std::string& file, double w)
@@ -54,6 +55,7 @@ int Reader()
     v_gjets_g.push_back( &final_gj_g );
     v_gjets_g.push_back( &finaldirect_gj );
     if (!ONLY_QCD) {
+        if (SIGNAL_INJECTION) Process<GJets_Photon>("photonTree",v_gjets_g,"data/W_1700_720_375_V03.30_tree.root", 0.3164*19712/60000 ); //0.3164*19712/60000
         Process<GJets_Photon>("photonTree",v_gjets_g,"data/"+version+"/GJets_200_400_"+version+"_tree.root",0.32466417277);
         Process<GJets_Photon>("photonTree",v_gjets_g,"data/"+version+"/GJets_400_inf_"+version+"_tree.root",0.0502103290278 );
         //Process<GJets_Photon>("photonTree",v_gjets_g,"data/"+version+"/GJets_200_400_"+version+"_tree.root",1);
@@ -113,6 +115,7 @@ int Reader()
     v_gjets_j.push_back( &gjets_j );
     v_gjets_j.push_back( &weights_gj_j );
     if (!ONLY_QCD) {
+        if (SIGNAL_INJECTION) Process<GJets_Jet>("photonTree",v_gjets_j,"data/W_1700_720_375_V03.30_tree.root", 0.3164*19712/60000 ); //0.3164*19712/60000
         Process<GJets_Jet>("photonJetTree",v_gjets_j,"data/"+version+"/GJets_200_400_"+version+"_tree.root",0.32466417277);
         Process<GJets_Jet>("photonJetTree",v_gjets_j,"data/"+version+"/GJets_400_inf_"+version+"_tree.root",0.0502103290278 );
         //Process<GJets_Jet>("photonJetTree",v_gjets_j,"data/"+version+"/GJets_200_400_"+version+"_tree.root",1);
@@ -189,6 +192,7 @@ int Reader()
         vc_gjets_j.push_back( &closure_gj );
         vc_gjets_j.push_back( &finalcut_gj );
         vc_gjets_j.push_back( &final_gj );
+        if (SIGNAL_INJECTION) Process<GJets_Jet>("photonTree",vc_gjets_j,"data/W_1700_720_375_V03.30_tree.root", 0.3164*19712/60000 ); //0.3164*19712/60000
         Process<GJets_Jet>("photonJetTree",vc_gjets_j,"data/"+version+"/GJets_200_400_"+version+"_tree.root",0.32466417277);
         Process<GJets_Jet>("photonJetTree",vc_gjets_j,"data/"+version+"/GJets_400_inf_"+version+"_tree.root",0.0502103290278 );
         //Process<GJets_Jet>("photonJetTree",vc_gjets_j,"data/"+version+"/GJets_200_400_"+version+"_tree.root",1);
@@ -217,12 +221,36 @@ int Reader()
     //Process<QCD_Jet>("photonJetTree",vc_qcd_j,"data/"+version+"/QCD_500_1000_"+version+"_tree.root",1);
     //Process<QCD_Jet>("photonJetTree",vc_qcd_j,"data/"+version+"/QCD_1000_inf_"+version+"_tree.root",1);
 
+    std::cout << "\nSignal Photon Tree\n======================" <<std::endl;
+    std::vector<Processor<Signal_Photon>*> v_Signal_g;
+    Status<Signal_Photon> status_signal_g("Status Signal_Photon");
+    Weighter<Signal_Photon> weights_signal_g("Signal_Photon");
+    Closure<Signal_Photon> direct_signal("","Direct_Signal", "Signal: Wino 1700 720");
+    Closure<Signal_Photon> finaldirect_signal("","Final_Direct_Signal", "Signal: Wino 1700 720");
+    Cutter<Signal_Photon> presel_signal_g("Presel_Signal_Photon");
+    FinalCuts<Signal_Photon> final_signal_g("Final_Signal_Photon");
+    DoubleCountFilter<Signal_Photon> double_signal_g("DoublicateFilter_Signal_Photon");
+    Cutter_tightID<Signal_Photon> tightID_signal_g("TightPhotonId_Signal_Photon");
+    finaldirect_signal.Book();
+    direct_signal.Book();
+    v_Signal_g.push_back( &status_signal_g );
+    v_Signal_g.push_back( &tightID_signal_g );
+    v_Signal_g.push_back( &double_signal_g );
+    v_Signal_g.push_back( &presel_signal_g );
+    v_Signal_g.push_back( &direct_signal );
+    v_Signal_g.push_back( &weights_signal_g );
+    v_Signal_g.push_back( &final_signal_g );//MET>100GeV
+    v_Signal_g.push_back( &finaldirect_signal );
+    Process<Signal_Photon>("photonTree",v_Signal_g,"data/W_1700_720_375_V03.30_tree.root", 0.3164*19712/60000 ); //0.3164*19712/60000
+
     closure_qcd.Write();
     if (!ONLY_QCD) {
         closure.SetNominator(    &tight_g );   //Zähler, tight isolated
         closure.SetDenominator(  &loose_g );   //Nenner, loose isolated
         closure.AddDirectYields( direct_qcd.GetYields() );
         closure.AddDirectYields( direct_gj.GetYields() );
+        direct_signal.LineColor( 4 );
+        if (SIGNAL_INJECTION) closure.AddSignalYields( direct_signal.GetYields());   //Signal
         closure.Book();
         closure.AddRef(          closure_gj.GetYields());
         closure.AddRef(          closure_qcd.GetYields());
@@ -232,6 +260,8 @@ int Reader()
         final.SetDenominator(  &loose_g );   //Nenner, loose isolated
         final.AddDirectYields( finaldirect_qcd.GetYields() );
         final.AddDirectYields( finaldirect_gj.GetYields() );
+        finaldirect_signal.LineColor( 4 );
+        if (SIGNAL_INJECTION) final.AddSignalYields( finaldirect_signal.GetYields());   //Signal
         final.Book();
         final.AddRef(          final_gj.GetYields());
         final.AddRef(          final_qcd.GetYields());
@@ -267,8 +297,9 @@ int do_data() {
     Process<ISR_Photon>("photonTree",v_ISR_g,"data/"+version+"/TTGamma_"+version+"_tree.root",1.5*  2.166*19789/1719954);       //2.166*19800/1719954
     Process<ISR_Photon>("photonTree",v_ISR_g,"data/"+version+"/WGamma_50_130_"+version+"_tree.root",1.5* 1.17*19789/1135698); //1.17*19800/1135698
     Process<ISR_Photon>("photonTree",v_ISR_g,"data/"+version+"/WGamma_130_inf_"+version+"_tree.root",1.5* 0.2571*19789/471458);//0.2571*19800/471458
-    Process<ISR_Photon>("photonTree",v_ISR_g,"data/modifiedZGammaNuNu_"+version+"_tree.root",1.5* 0.074*19789/489474);    //0.074*19800/489474
-    Process<ISR_Photon>("photonTree",v_ISR_g,"data/ZGammaLL_V02.19b_tree.root",1.5* 132.6*19789/6588161);    //0.074*19800/489474
+    //Process<ISR_Photon>("photonTree",v_ISR_g,"data/modifiedZGammaNuNu_"+version+"_tree.root",1.5* 0.074*19789/489474);    //0.074*19800/489474
+    Process<ISR_Photon>("photonTree",v_ISR_g,"data/ZGammaNuNu_"+version+"_tree.root",1.5* 0.074*19789/489474);    //0.074*19800/489474
+    //Process<ISR_Photon>("photonTree",v_ISR_g,"data/ZGammaLL_V02.19b_tree.root",1.5* 132.6*19789/6588161);    //0.074*19800/489474
     ISR_g.Write();
 
     std::cout << "\nisr2 Photon Tree\n======================" <<std::endl;
@@ -320,8 +351,8 @@ int do_data() {
     v_Signal_g.push_back( &weights_signal_g );
     v_Signal_g.push_back( &final_signal_g );//MET>100GeV
     v_Signal_g.push_back( &finaldirect_signal );
-    //Process<Signal_Photon>("photonTree",v_Signal_g,"data/B_1700_1120_375_V03.06_tree.root",0.01920353672);
-    Process<Signal_Photon>("photonTree",v_Signal_g,"data/W_1700_720_375_V03.06_tree.root", 0.3164*19712/60000 ); //0.3164*19712/60000
+    //Process<Signal_Photon>("photonTree",v_Signal_g,"data/B_1700_1120_375_V03.30_tree.root",0.01920353672);
+    Process<Signal_Photon>("photonTree",v_Signal_g,"data/W_1700_720_375_V03.30_tree.root", 0.3164*19712/60000 ); //0.3164*19712/60000
     //direct_signal.AddSignalYields( direct_signal.GetYields());   //Signal
 
     Signal_g.Write();
@@ -420,8 +451,8 @@ int do_data() {
     v_Signal_j.push_back( &presel_signal_j );
     v_Signal_j.push_back( &Signal_j );
     v_Signal_j.push_back( &weights_signal_j );
-    //Process<Signal_Jet>("photonJetTree",v_Signal_j,"data/B_1700_1120_375_V03.06_tree.root",0.01920353672);
-    Process<Signal_Photon>("photonTree",v_Signal_g,"data/W_1700_720_375_V03.06_tree.root", 0.3164*19712/60000 ); //0.3164*19712/60000
+    //Process<Signal_Jet>("photonJetTree",v_Signal_j,"data/B_1700_1120_375_V03.30_tree.root",0.01920353672);
+    Process<Signal_Photon>("photonTree",v_Signal_g,"data/W_1700_720_375_V03.30_tree.root", 0.3164*19712/60000 ); //0.3164*19712/60000
     Signal_j.Write();
 
 
@@ -505,8 +536,8 @@ int do_data() {
     vc_contamin_j.push_back( &double_contamin );
     vc_contamin_j.push_back( &cut_contamin );
     vc_contamin_j.push_back( &contamination );
-    Process<Signal_Photon>("photonTree",v_Signal_g,"data/W_1700_720_375_V03.06_tree.root", 0.3164*19712/60000 ); //0.3164*19712/60000
-    //Process<Signal_Jet>("photonJetTree",v_Signal_j,"data/B_1700_1120_375_V03.06_tree.root",0.01920353672);
+    Process<Signal_Photon>("photonTree",v_Signal_g,"data/W_1700_720_375_V03.30_tree.root", 0.3164*19712/60000 ); //0.3164*19712/60000
+    //Process<Signal_Jet>("photonJetTree",v_Signal_j,"data/B_1700_1120_375_V03.30_tree.root",0.01920353672);
     contamination.SetLegTitel("#bf{CMS preliminary}");
     contamination.Write();
 
@@ -524,7 +555,7 @@ int main()
 
     setStyle();
     Reader(); //MC closure
-    do_data();  //data results
+    //do_data();  //data results
 
     return 0;
 }
