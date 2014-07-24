@@ -181,7 +181,7 @@ bool Plotter<T>::Process(T*t,Long64_t i,Long64_t n,double w)
         h_->Fill("em1_photonIso", t->photons_photonIso[t->ThePhoton], w);
         h_->Fill("em1_conversionSafeVeto", t->photons_conversionSafeVeto[t->ThePhoton], w);
         h_->Fill("em1_pixelseed" , t->photons_pixelseed[t->ThePhoton], w);
-        h_->Fill("em1_genInformation", t->photons_genInformation[t->ThePhoton], w);
+        h_->Fill("em1_bitFlag", t->photons_bitFlag[t->ThePhoton], w);
         h_->Fill("em1_matchedJetIndex", t->photons_matchedJetIndex[t->ThePhoton], w);
     }
     return res;

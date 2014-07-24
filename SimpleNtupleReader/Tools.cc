@@ -34,7 +34,7 @@ void Histograms::Book()
     h_["em1_photonIso" ]= new TH1F(((std::string)"h_em1_photonIso"+label_).c_str(),";photonIso^{em}_1 [GeV];Events",50,0.,100);
     h_["em1_conversionSafeVeto" ]= new TH1F(((std::string)"h_em1_conversionSafeVeto"+label_).c_str(),";conversionSafeVeto^{em}_1 [GeV];Events",2,-0.5,1.5);
     h_["em1_pixelseed" ]= new TH1F(((std::string)"h_em1_pixelseed"+label_).c_str(),";pixelseed^{em}_1 [GeV];Events",50,0.005,0.03);
-    h_["em1_genInformation" ]= new TH1F(((std::string)"h_em1_genInformation"+label_).c_str(),";genInformation^{em}_1 [GeV];Events",2,-0.5,1.5);
+    h_["em1_bitFlag" ]= new TH1F(((std::string)"h_em1_bitFlag"+label_).c_str(),";bitFlag^{em}_1 [GeV];Events",2,-0.5,1.5);
     h_["em1_matchedJetIndex" ]= new TH1F(((std::string)"h_em1_matchedJetIndex"+label_).c_str(),";matchedJetIndex^{em}_1 [GeV];Events",7,-1.5,5.5);
 }
 
