@@ -5,7 +5,7 @@
 #include "TChain.h"
 #include "TError.h"
 
-const static bool SIGNAL_INJECTION = true;
+const static bool SIGNAL_INJECTION = false;
 const static bool ONLY_QCD = false;
 const static std::string version = "V03.30";
 
@@ -115,7 +115,7 @@ int Reader()
     v_gjets_j.push_back( &gjets_j );
     v_gjets_j.push_back( &weights_gj_j );
     if (!ONLY_QCD) {
-        if (SIGNAL_INJECTION) Process<GJets_Jet>("photonTree",v_gjets_j,"data/W_1700_720_375_V03.30_tree.root", 0.3164*19712/60000 ); //0.3164*19712/60000
+        if (SIGNAL_INJECTION) Process<GJets_Jet>("photonJetTree",v_gjets_j,"data/W_1700_720_375_V03.30_tree.root", 0.3164*19712/60000 ); //0.3164*19712/60000
         Process<GJets_Jet>("photonJetTree",v_gjets_j,"data/"+version+"/GJets_200_400_"+version+"_tree.root",0.32466417277);
         Process<GJets_Jet>("photonJetTree",v_gjets_j,"data/"+version+"/GJets_400_inf_"+version+"_tree.root",0.0502103290278 );
         //Process<GJets_Jet>("photonJetTree",v_gjets_j,"data/"+version+"/GJets_200_400_"+version+"_tree.root",1);
@@ -159,21 +159,29 @@ int Reader()
     Closure<QCD_Jet> final(version,"Final_Combined", "Prediction");
     Closure<QCD_Jet> final_qcd(version,"Final_QCD", "Prediction");
     Closure<GJets_Jet> final_gj(version,"Final_GJets", "Prediction");
-    closure_gj.SetNominator( weights_gj_g.GetYields());   //Zähler, tight isolated
-    closure_gj.SetDenominator( weights_gj_j.GetYields()); //Nenner, loose isolated
+        closure_gj.SetNominator(    &tight_g );   //Zähler, tight isolated
+        closure_gj.SetDenominator(  &loose_g );   //Nenner, loose isolated
+    //closure_gj.SetNominator( weights_gj_g.GetYields());   //Zähler, tight isolated
+    //closure_gj.SetDenominator( weights_gj_j.GetYields()); //Nenner, loose isolated
     closure_gj.AddDirectYields( direct_gj.GetYields());   //Signal
     closure_gj.Book();
-    final_gj.SetNominator(    weights_gj_g.GetYields());   //Zähler, tight isolated
-    final_gj.SetDenominator(  weights_gj_j.GetYields()); //Nenner, loose isolated
+        final_gj.SetNominator(    &tight_g );   //Zähler, tight isolated
+        final_gj.SetDenominator(  &loose_g );   //Nenner, loose isolated
+    //final_gj.SetNominator(    weights_gj_g.GetYields());   //Zähler, tight isolated
+    //final_gj.SetDenominator(  weights_gj_j.GetYields()); //Nenner, loose isolated
     final_gj.AddDirectYields( finaldirect_gj.GetYields());   //Signal
     final_gj.Book();
 
-    closure_qcd.SetNominator( weights_qcd_g.GetYields() );   //Zähler, tight isolated
-    closure_qcd.SetDenominator( weights_qcd_j.GetYields() ); //Nenner, loose isolated
+        closure_qcd.SetNominator(    &tight_g );   //Zähler, tight isolated
+        closure_qcd.SetDenominator(  &loose_g );   //Nenner, loose isolated
+    //closure_qcd.SetNominator( weights_qcd_g.GetYields() );   //Zähler, tight isolated
+    //closure_qcd.SetDenominator( weights_qcd_j.GetYields() ); //Nenner, loose isolated
     closure_qcd.AddDirectYields( direct_qcd.GetYields() );   //Signal
     closure_qcd.Book();
-    final_qcd.SetNominator(    weights_qcd_g.GetYields() );   //Zähler, tight isolated
-    final_qcd.SetDenominator(  weights_qcd_j.GetYields() ); //Nenner, loose isolated
+        final_qcd.SetNominator(    &tight_g );   //Zähler, tight isolated
+        final_qcd.SetDenominator(  &loose_g );   //Nenner, loose isolated
+    //final_qcd.SetNominator(    weights_qcd_g.GetYields() );   //Zähler, tight isolated
+    //final_qcd.SetDenominator(  weights_qcd_j.GetYields() ); //Nenner, loose isolated
     final_qcd.AddDirectYields( finaldirect_qcd.GetYields() );   //Signal
     final_qcd.Book();
 
@@ -192,12 +200,12 @@ int Reader()
         vc_gjets_j.push_back( &closure_gj );
         vc_gjets_j.push_back( &finalcut_gj );
         vc_gjets_j.push_back( &final_gj );
-        if (SIGNAL_INJECTION) Process<GJets_Jet>("photonTree",vc_gjets_j,"data/W_1700_720_375_V03.30_tree.root", 0.3164*19712/60000 ); //0.3164*19712/60000
+        if (SIGNAL_INJECTION) Process<GJets_Jet>("photonJetTree",vc_gjets_j,"data/W_1700_720_375_V03.30_tree.root", 0.3164*19712/60000 ); //0.3164*19712/60000
         Process<GJets_Jet>("photonJetTree",vc_gjets_j,"data/"+version+"/GJets_200_400_"+version+"_tree.root",0.32466417277);
         Process<GJets_Jet>("photonJetTree",vc_gjets_j,"data/"+version+"/GJets_400_inf_"+version+"_tree.root",0.0502103290278 );
         //Process<GJets_Jet>("photonJetTree",vc_gjets_j,"data/"+version+"/GJets_200_400_"+version+"_tree.root",1);
         //Process<GJets_Jet>("photonJetTree",vc_gjets_j,"data/"+version+"/GJets_400_inf_"+version+"_tree.root",1);
-        closure_gj.Write();
+//        closure_gj.Write();
     }
 
     std::cout << "\nQCD Jet Tree (2nd pass for closure)\n===================================" <<std::endl;
@@ -243,14 +251,38 @@ int Reader()
     v_Signal_g.push_back( &finaldirect_signal );
     Process<Signal_Photon>("photonTree",v_Signal_g,"data/W_1700_720_375_V03.30_tree.root", 0.3164*19712/60000 ); //0.3164*19712/60000
 
+    std::cout << "\nSignal Jet Tree \n===================================" <<std::endl;
+    Closure<Signal_Jet> contamination(version,"contamination","Total Contamination");
+    contamination.SetNominator(    &tight_g ); //Zähler, tight isolated
+    contamination.SetDenominator(  &loose_g ); //Nenner, loose isolated
+    contamination.AddDirectYields( direct_signal.GetYields() );   //Direct sim
+    contamination.Book();
+    std::vector<Processor<Signal_Jet>*> vc_contamin_j;
+    Cutter               <Signal_Jet>   cut_contamin(    "Cutter");//Presel
+    Plotter              <Signal_Jet>   signal_conta(version,"Signal_Jet");
+    DoubleCountFilter    <Signal_Jet>   double_contamin( "DoublicateFilter_contamin");
+    Cutter_looseID       <Signal_Jet>   looseID_contamin("LoosePhotonId_contamin");
+    double_contamin.Set( double_signal_g.Get() );
+    vc_contamin_j.push_back( &looseID_contamin );
+    vc_contamin_j.push_back( &double_contamin );
+    vc_contamin_j.push_back( &cut_contamin );
+    vc_contamin_j.push_back( &contamination );
+    vc_contamin_j.push_back( &signal_conta);
+    Process<Signal_Jet>("photonJetTree",vc_contamin_j,"data/W_1700_720_375_V03.30_tree.root", 0.3164*19712/60000 ); //0.3164*19712/60000
+    //Process<Signal_Jet>("photonJetTree",v_Signal_j,"data/B_1700_1120_375_V03.30_tree.root",0.01920353672);
+    contamination.SetLegTitel("#bf{CMS preliminary}");
+    contamination.Write();
+
     closure_qcd.Write();
     if (!ONLY_QCD) {
-        closure.SetNominator(    &tight_g );   //Zähler, tight isolated
-        closure.SetDenominator(  &loose_g );   //Nenner, loose isolated
+//        closure.SetNominator(    &tight_g );   //Zähler, tight isolated
+//        closure.SetDenominator(  &loose_g );   //Nenner, loose isolated
         closure.AddDirectYields( direct_qcd.GetYields() );
         closure.AddDirectYields( direct_gj.GetYields() );
         direct_signal.LineColor( 4 );
+	contamination.LineColor( 5 );
         if (SIGNAL_INJECTION) closure.AddSignalYields( direct_signal.GetYields());   //Signal
+        if (SIGNAL_INJECTION) closure.AddSignalYields( contamination.GetYields());   //Signal
         closure.Book();
         closure.AddRef(          closure_gj.GetYields());
         closure.AddRef(          closure_qcd.GetYields());
@@ -491,6 +523,8 @@ int do_data() {
     final_data.AddOtherYields(  finalprediction_ewk.GetYields());  //EWK
     final_data.Book();
 
+
+/*
     std::vector<Processor<Data_Jet>*> vc_data_j;
     Cutter               <Data_Jet>   cut_data(    "Cutter");//Presel
     FinalCuts            <Data_Jet>   final_cut_data("FinalCutter");//Final
@@ -540,7 +574,7 @@ int do_data() {
     //Process<Signal_Jet>("photonJetTree",v_Signal_j,"data/B_1700_1120_375_V03.30_tree.root",0.01920353672);
     contamination.SetLegTitel("#bf{CMS preliminary}");
     contamination.Write();
-
+*/
     return 0;
 }
 

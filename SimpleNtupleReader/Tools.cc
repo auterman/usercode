@@ -326,6 +326,7 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
     }
     if ((log=="log"||log=="log_div") && (file.find( "phi")!=std::string::npos || file.find( "Phi")!=std::string::npos))
         h_axis->SetMaximum(10.*h_axis->GetMaximum());
+    h_axis->SetMinimum( 0.5 );	
     h_totalUp->SetStats(0);
     h_totalUp->SetTitle("");
     h_totalDn->SetStats(0);
@@ -369,7 +370,7 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
     StatUnc->Divide(h2);
     //h2->Divide(h2);
     h_axis->SetMinimum(0.);
-    h_axis->SetMaximum(2.4);
+    h_axis->SetMaximum(3.5);
     h_axis->GetXaxis()->SetNdivisions(505);
     h_axis->GetYaxis()->SetTitle("Direct/Pred.");
     h_axis->GetYaxis()->SetTitleOffset(0.4);
@@ -387,7 +388,7 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
     we->Draw("hist,h,same");
     cover->Draw("hist,h,same");
     h_totalDn->Draw("hist,h,same");
-    StatUnc->Draw("E X0,same");
+    StatUnc->Draw("E0,X0,same");
     h1->Draw("E X0,same");
     TLine *line = new TLine(h1->GetXaxis()->GetXmin(), 1, h1->GetXaxis()->GetXmax(), 1);
     line->SetLineColor(1);
