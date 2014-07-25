@@ -38,29 +38,45 @@ void WriteTable(std::ostream& os, const Table::TableStyle style, const std::stri
   table.SetDelimiter(" | ");
   table.SetStyle(style);
   ConfigFile * config[N];
-  table.AddColumn<string>(""); //desciption
+  if( style == Table::TeX )
+      table.AddColumn<string>("$\\met$ Range [GeV]");
+  else
+      table.AddColumn<string>("MET Range [GeV]");
   double lumi[N],sig[N],xsec[N],qcdyield[N],ewkyield[N],fsryield[N],u_qcd[N],u_ewk[N],u_fsr[N],u_sig[N],totbgd[N],u_totbgd[N];
   //string acceptance[N], signal[N], background[N], qcd[N], ewk[N], fsr[N], data[N];
   std::vector<string> acceptance(N), signal(N), background(N), qcd(N), ewk(N), fsr(N), data(N);
   
   for (int ch=min; ch<=max; ++ch) {
     int i = ch - min;
-    stringstream head;
-    head << "Bin "<<ch;
-    table.AddColumn<string>(head.str());
-    
+
+    // read config file
     try{
       stringstream ss;
       ss << dir << "/GMSB_"<<sq<<"_"<<gl<<"_"<<chi<<"_"<<cha<<"_bin"<<ch<<".txt.result.txt";
-      config[ch-min] = new ConfigFile(ss.str());
+      config[i] = new ConfigFile(ss.str());
     }
     catch(ConfigFile::file_not_found& e){
       std::cerr<<e.filename<<" not found!"<<std::endl;
-      config[ch-min] = 0;
+      config[i] = 0;
     }
+
+    // Label the bins with their upper and lower edge, such as [100,120), ...
+    // Warning: 'bin upper limit' and 'bin lower limit' are transposed
+    stringstream head;
+    if( style == Table::TeX ) head << "$";
+    head << "[" << config[i]->read<double>("bin upper limit") << ",";
+    if( ch == max )
+        head << "\\infty";
+    else
+        head << config[i]->read<double>("bin lower limit");
+    head << ")";
+    if( style == Table::TeX ) head << "$";
+    table.AddColumn<string>(head.str());
+    
+
     sig[i]=0;
     acceptance[i] = signal[i] = background[i] = qcd[i] = ewk[i] = fsr[i] = "-";
-    
+       
     if (config[i]){
        lumi[i]      = config[i]->read<double>("Luminosity");
        xsec[i]      = config[i]->read<double>("Xsection.NLO", -1);
@@ -102,11 +118,14 @@ void WriteTable(std::ostream& os, const Table::TableStyle style, const std::stri
   for (int i=0; i<=max-min; ++i)  table << fsr[i];
   table << "Background";
   for (int i=0; i<=max-min; ++i)  table << background[i];
-  table << "Data";
+  if (style == Table::TeX )
+      table << "\\hline\nData";
+  else
+      table << "Data";
   for (int i=0; i<=max-min; ++i)  table << data[i];
   table << "Signal";
   for (int i=0; i<=max-min; ++i)  table << signal[i];
-  table << "Signal cont.";
+  table << "Bkg. from Signal";
   for (int i=0; i<=max-min; ++i)  table << (!config[i]?"-":ToStringYield(config[i]->read<double>("signal.contamination", -1)));
   table << "Acceptance [\\%]";
   for (int i=0; i<=max-min; ++i)  table << acceptance[i];
@@ -135,6 +154,7 @@ void WriteTable(std::ostream& os, const Table::TableStyle style, const std::stri
     }
     if (config) {
      stringstream ss;
+     stringstream texDefinitions;
      double xsec = config->read<double>("Xsection.NLO");
      if (style!=Table::TeX) {
      ss<<"\nThe combined frequentistic observed (expected) CLs cross-section limit for this point is  "
@@ -156,7 +176,7 @@ void WriteTable(std::ostream& os, const Table::TableStyle style, const std::stri
         << "the NLO cross-section is $\\sigma$ = "<<xsec<<" pb."
 	<<std::endl;   
      } else {
-     ss<<"\nResulting event yields for the data corresponding to $"
+     ss<<"\n\\caption{Resulting event yields for the data corresponding to $"
        << std::fixed << std::setprecision(0)<< config->read<double>("Luminosity", 0) 
        << "$~pb$^{-1}$, the estimated background, and a signal point with $M_{\\tilde{q}}="
        << ToString(sq) <<"$~GeV, $M_{\\tilde{g}}="
@@ -166,9 +186,20 @@ void WriteTable(std::ostream& os, const Table::TableStyle style, const std::stri
        <<std::fixed << std::setprecision(4)<< xsec * config->read<double>("CLs observed", 0)
        <<"$~pb ($"
        <<std::fixed << std::setprecision(4)<< xsec * config->read<double>("CLs expected", 0)
-       <<"$~pb) at $95\\%$~CL.\n"; 
+       <<"$~pb) at $95\\%$~CL.}\n";
+
+       texDefinitions << "\n\\newcommand{\\tableMSquark}{" << ToString(sq) << "} \% GeV\n";
+       texDefinitions << "\\newcommand{\\tableMGluino}{" << ToString(gl) << "} \% GeV\n";
+       texDefinitions << "\\newcommand{\\tableSignalXSec}{"
+           << std::fixed << std::setprecision(4)<< xsec << "} \% pb\n";
+       texDefinitions << "\\newcommand{\\tableObsLimit}{" << std::fixed
+           << std::setprecision(4)<< xsec * config->read<double>("CLs observed", 0) << "} \% pb\n";
+       texDefinitions << "\\newcommand{\\tableExpLimit}{" << std::fixed
+           << std::setprecision(4)<< xsec * config->read<double>("CLs expected", 0) << "} \% pb\n";
+
      }
      if (caption) table.SetCaption(ss.str());
+     if ( texDefinitions ) table.SetCaption( texDefinitions.str() );
      //os << ss.str()<<std::endl;
     }
   }  
