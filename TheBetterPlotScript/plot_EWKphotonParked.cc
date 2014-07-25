@@ -53,11 +53,8 @@ void AddEvents(PlotTools*& plotTools, std::string filename, std::string Generato
 void DoPlotsFor(const std::string& x, const std::string& y, const std::string& flag, const std::string& file, style*s, int factor=0, TH2*plot_range=0, TH2*plot_excl=0)  {
     PlotTools * PlotTool;
     GetPlotTools(PlotTool, file, x, y, "", 0);
-    if (x=="squark"    ||y=="squark")     GetInfo("squark")->SetLabel("M_{squark} [GeV]");
-    if (x=="gluino"    ||y=="gluino")     GetInfo("gluino")->SetLabel("M_{gluino} [GeV]");
-    if (x=="chi1"      ||y=="chi1")       GetInfo("chi1"  )->SetLabel("M_{bino} [GeV]");
-    if (x=="neutralino"||y=="neutralino") GetInfo("neutralino"  )->SetLabel("M_{neutralino} [GeV]");
-    if (x=="cha1"      ||y=="cha1")       GetInfo("cha1"  )->SetLabel("M_{wino} [GeV]");
+    GetInfo("bino"  )->SetLabel("M_{bino} [GeV]");
+    GetInfo("wino"  )->SetLabel("M_{wino} [GeV]");
     TH2 * new_plot_range = (plot_range?plot_range:PlotTool->GetHist(x,y));
     TH2 * new_plot_excl  = (plot_excl ?plot_excl :new_plot_range);
 
@@ -81,19 +78,17 @@ void DoPlotsFor(const std::string& x, const std::string& y, const std::string& f
     PlotTool->Remove("Xsection", Compare::less, 0.0);
 
     //Show what points are available before filling the holes, by plotting the acceptance
-    gStyle->SetTitleFont(43, "xyz");
-    gStyle->SetTitleSize(32, "xyz");
-    TCanvas* c4    = new TCanvas("c4", "c4", 900, 800);
-    DrawPlot2D(PlotTool,c4,new_plot_range,flag,x,y,"Acceptance_ni", "Acceptance (no interpolation)", s->MinAccZ, s->MaxAccZ, s );
+    c1->SetLogz(0);
+    DrawPlot2D(PlotTool,c1,new_plot_range,flag,x,y,"Acceptance_ni", "Acceptance (no interpolation)", s->MinAccZ, s->MaxAccZ, s );
 
     //Fill the holes by 2D interpolation in gl-sq
     PlotTool->FillEmptyPointsByInterpolation(x, y);
 
 
     PlotTools * StdPlotTool = PlotTool->Clone();
-    DrawStandardPlots(StdPlotTool, flag, x,y, s, new_plot_range);
+    DrawStandardPlots(PlotTool->Clone(), flag, x,y, s, new_plot_range);
     //DrawStandardPlotsPerBin(PlotTool, "GMSB", x,y, &new_plot_range);
-    DrawStandardLimitPlots(StdPlotTool, flag, x,y, s, new_plot_range);
+    DrawStandardLimitPlots(PlotTool->Clone(), flag, x,y, s, new_plot_range);
 
     for (int i=2; i<=factor; i*=2)
         PlotTool->ExpandGrid(x, y);
@@ -110,8 +105,8 @@ void DoPlotsFor(const std::string& x, const std::string& y, const std::string& f
           plot_range = PlotTool->GetHist(x,y);
         }
     */
-    DrawExclusion(StdPlotTool, PlotTool,flag,x,y,new_plot_range,new_plot_excl,s); //removes points, which have no limits and fills the gaps by interpolation
-    //DrawExclusion(PlotTool,flag,x,y,new_plot_range,new_plot_excl,s,"asym"); //removes points, which have no limits and fills the gaps by interpolation
+    DrawExclusion(StdPlotTool,PlotTool,flag,x,y,new_plot_range,new_plot_excl,s); //removes points, which have no limits and fills the gaps by interpolation
+    //DrawExclusion(StdPlotTool,PlotTool,flag,x,y,new_plot_range,new_plot_excl,s,"asym"); //removes points, which have no limits and fills the gaps by interpolation
 }
 
 void PlotAll(std::vector<LimitGraphs*>& lg, const std::string& flag, const std::string& limit, TH2*h=0)
@@ -151,11 +146,10 @@ void MultipleChannels(const std::string& x, const std::string& y, const std::str
     lg.push_back(new LimitGraphs(dir+"/filelist_ch5.txt","", 1, x, y, "Bin 5",    15, 7, 0, 0, 0, 0, plot_range) );
 
     //define plot range and labels
-    GetInfo("squark")->SetLabel("M_{squark} [GeV]");
-    GetInfo("gluino")->SetLabel("M_{gluino} [GeV]");
-    GetInfo("chi1"  )->SetLabel("M_{bino} [GeV]");
-    GetInfo("neutralino"  )->SetLabel("M_{neutralino} [GeV]");
-    GetInfo("cha1"  )->SetLabel("M_{wino} [GeV]");
+    //GetInfo("squark")->SetLabel("M_{squark} [GeV]");
+    //GetInfo("gluino")->SetLabel("M_{gluino} [GeV]");
+    GetInfo("bino"  )->SetLabel("M_{bino} [GeV]");
+    GetInfo("wino"  )->SetLabel("M_{wino} [GeV]");
     if (!plot_range) plot_range = (TH2F*)lg.front()->GetHist()->Clone();
     plot_range->GetXaxis()->SetTitle(GetInfo(x)->GetLabel().c_str());
     plot_range->GetYaxis()->SetTitle(GetInfo(y)->GetLabel().c_str());
@@ -207,73 +201,11 @@ int plot(int argc, char** argv) {
 
   Overview = new OverviewTable();
 
-  //post July bug-fixes
+  //Johannes first limits
   if (1){
-  //DoPlotsFor("squark","gluino","GMSB_8TeV_met_Bino","2014-07-22-14-53-GMSB_SqGl_met-Bino/filelist.txt",SqGlBino_Style(),4);
-  //DoPlotsFor("squark","gluino","GMSB_8TeV_met_Wino","2014-07-22-14-53-GMSB_SqGl_met-Wino/filelist.txt",SqGlWino_Style(),4);
-  DoPlotsFor("gluino","chi1","SMS_T5wg","2014-07-22-14-55-SMS_T5wg/filelist.txt",SMST5wg_Style(),4);
-  DoPlotsFor("gluino","chi1","SMS_T5gg","2014-07-22-14-55-SMS_T5gg/filelist.txt",SMST5gg_Style(),4);
+  DoPlotsFor("wino","bino","WinoBino","2014-07-22-22-36-WinoBino/filelist.txt",WinoBino_Style(),1);
   }
 
-  //post ARC green light
-  if (0){
-  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Bino","2014-07-16-17-02-GMSB_SqGl_met-Bino/filelist.txt",SqGlBino_Style(),4);
-  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Wino","2014-07-16-17-02-GMSB_SqGl_met-Wino/filelist.txt",SqGlWino_Style(),4);
-  }
-
-  //SMS T5 scans
-  if (0){
-  DoPlotsFor("gluino","chi1","SMS_T5wg","2014-07-15-18-45-SMS_T5wg/filelist.txt",SMST5wg_Style(),4);
-  DoPlotsFor("gluino","chi1","SMS_T5gg","2014-07-15-18-45-SMS_T5gg/filelist.txt",SMST5gg_Style(),4);
-  }
-
-  //post preapproval
-  if (0){
-  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Bino","2014-05-27-18-34-GMSB_SqGl_met-Bino/filelist.txt",SqGlBino_Style(),4);
-  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Wino","2014-05-27-18-33-GMSB_SqGl_met-Wino/filelist.txt",SqGlWino_Style(),4);
-  }
-
-  //post preapproval Single-Channels
-  if (0){
-  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Bino_bin5","2014-06-04-10-21-GMSB_SqGl_met-Bino_SingleChannels/filelist_bin5.txt",SqGlBino_Style(),4);
-  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Bino_bin4","2014-06-04-10-21-GMSB_SqGl_met-Bino_SingleChannels/filelist_bin4.txt",SqGlBino_Style(),4);
-  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Bino_bin3","2014-06-04-10-21-GMSB_SqGl_met-Bino_SingleChannels/filelist_bin3.txt",SqGlBino_Style(),4);
-  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Bino_bin2","2014-06-04-10-21-GMSB_SqGl_met-Bino_SingleChannels/filelist_bin2.txt",SqGlBino_Style(),4);
-  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Bino_bin1","2014-06-04-10-21-GMSB_SqGl_met-Bino_SingleChannels/filelist_bin1.txt",SqGlBino_Style(),4);
-  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Bino_bin0","2014-06-04-10-21-GMSB_SqGl_met-Bino_SingleChannels/filelist_bin0.txt",SqGlBino_Style(),4);
-  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Wino_bin5","2014-06-04-10-29-GMSB_SqGl_met-Wino_SingleChannels/filelist_bin5.txt",SqGlWino_Style(),4);
-  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Wino_bin4","2014-06-04-10-29-GMSB_SqGl_met-Wino_SingleChannels/filelist_bin4.txt",SqGlWino_Style(),4);
-  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Wino_bin3","2014-06-04-10-29-GMSB_SqGl_met-Wino_SingleChannels/filelist_bin3.txt",SqGlWino_Style(),4);
-  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Wino_bin2","2014-06-04-10-29-GMSB_SqGl_met-Wino_SingleChannels/filelist_bin2.txt",SqGlWino_Style(),4);
-  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Wino_bin1","2014-06-04-10-29-GMSB_SqGl_met-Wino_SingleChannels/filelist_bin1.txt",SqGlWino_Style(),4);
-  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Wino_bin0","2014-06-04-10-29-GMSB_SqGl_met-Wino_SingleChannels/filelist_bin0.txt",SqGlWino_Style(),4);
-  }
-
-
-  //Preapproval
-  if (0){
-  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Bino","2014-05-10-16-46-GMSB_SqGl_met-Bino/filelist.txt",SqGlBino_Style(),4);
-  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Wino","2014-05-10-16-46-GMSB_SqGl_met-Wino/filelist.txt",SqGlWino_Style(),4);
-  }
-  if (0){
-  DoPlotsFor("squark","gluino","GMSB_8TeV_metLO_Bino","2014-05-10-16-46-GMSB_SqGl_met-Bino/filelist.txt",SqGlBino_Style(),4);
-  DoPlotsFor("squark","gluino","GMSB_8TeV_metLO_Wino","2014-05-10-16-46-GMSB_SqGl_met-Wino/filelist.txt",SqGlWino_Style(),4);
-  }
-  
-  //2.5.2014
-  if (0){
-  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Bino","2014-05-10-16-47-GMSB_SqGl_metLO-Bino/filelist.txt",SqGlBino_Style(),4);
-  DoPlotsFor("squark","gluino","GMSB_8TeV_met_Wino","2014-05-10-16-47-GMSB_SqGl_metLO-Wino/filelist.txt",SqGlWino_Style(),4);
-  }
-  
-  if (0){
-  DoPlotsFor("squark","gluino","GMSB_8TeV_metnew_Bino","2014-05-04-13-29-GMSB_SqGl_metnew-Bino/filelist.txt",SqGlBino_Style(),4);
-  DoPlotsFor("squark","gluino","GMSB_8TeV_metnew_Wino","2014-05-04-13-29-GMSB_SqGl_metnew-Wino/filelist.txt",SqGlWino_Style(),4);
-  DoPlotsFor("squark","gluino","GMSB_8TeV_metfibo_Bino","2014-05-04-13-30-GMSB_SqGl_metfibo-Bino/filelist.txt",SqGlBino_Style(),4);
-  DoPlotsFor("squark","gluino","GMSB_8TeV_metfibo_Wino","2014-05-04-13-30-GMSB_SqGl_metfibo-Wino/filelist.txt",SqGlWino_Style(),4);
-  DoPlotsFor("squark","gluino","GMSB_8TeV_metoptim_Bino","2014-05-04-13-20-GMSB_SqGl_metoptim-Bino/filelist.txt",SqGlBino_Style(),4);
-  DoPlotsFor("squark","gluino","GMSB_8TeV_metoptim_Wino","2014-05-04-13-28-GMSB_SqGl_metoptim-Wino/filelist.txt",SqGlWino_Style(),4);
-  }
     
   std::ofstream ofile;
   ofile.open("results/OverviewTable.txt");

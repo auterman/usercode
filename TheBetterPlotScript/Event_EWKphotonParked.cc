@@ -23,25 +23,14 @@ void ReadEvent(Event& evt, ConfigFile& config)
   //the event is skipped, after an error message [void ReadEvents(Events& evts, const std::string& filelist)].
   //                           <Variable Name>, <Name in Cfg File>
 
-  evt.Add( ReadVariable(config, "number",      "Point", -1 ) );
-  evt.Add( ReadVariable(config, "gluino",      "gluino" ) );
-  evt.Add( ReadVariable(config, "squark",      "squark" ) );
-  evt.Add( ReadVariable(config, "chi1",        "chi1" ) );
-  evt.Add( ReadVariable(config, "neutralino",  "chi1", evt.Get("chi1") ) );
-  evt.Add( ReadVariable(config, "cha1",        "cha1", evt.Get("chi1") ) );
-  evt.Add( ReadVariable(config, "Xsection",    "Xsection.NLO" ) );
-  evt.Add( ReadVariable(config, "Luminosity",  "Luminosity" ) );
-
-
-/*  
   evt.Add( ReadVariable(config, "number",      "Point", -1 ) );    
   evt.Add( ReadVariable(config, "wino",        "wino mass" ) );
   evt.Add( ReadVariable(config, "bino",        "bino mass" ) );
   evt.Add( ReadVariable(config, "Xsection",    "Xsection.NLO",1 ) );
-*/  
   
   
-  evt.Add( ReadVariable(config, "Acceptance",  "signal.acceptance", 0 ) );
+  evt.Add( ReadVariable(config, "Acceptance",   "signal.acceptance", 0 ) );
+  evt.Add( ReadVariable(config, "Acceptance_ni","signal.acceptance", 0 ) );
   evt.Add( ReadVariable(config, "signal",      "signal", 0 ) );
   evt.Add( ReadVariable(config, "contamination","signal.contamination", 0 ) );
 

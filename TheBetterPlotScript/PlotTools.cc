@@ -563,6 +563,7 @@ void Smooth(TH2 * h, int N) {
 }
 
 void Smooth(TGraph * g, int N, int flag) {
+    if (!g) {g=new TGraph(); return;}
     TGraph * old = (TGraph*) g->Clone();
     //int N = (n%2==0?n+1:n);
     if (N > 2 * g->GetN())

@@ -46,7 +46,7 @@ void SetDefault(style * s=0)
     s->cms->SetTextFont(43);
     s->cms->SetTextSize(25);
   }
-  s->lumiTemperaturePlot = new TLatex(0.52, 0.912, "L_{int} = 19.7 fb^{  -1}  #geq1 #gamma, #geq2 jets");
+  s->lumiTemperaturePlot = new TLatex(0.52, 0.912, "L_{int} = 7 fb^{  -1}  #geq1 #gamma + MET");
   s->lumiTemperaturePlot->SetNDC(true);
   s->lumiTemperaturePlot->SetTextColor(1);
   s->lumiTemperaturePlot->SetTextFont(43);
@@ -144,7 +144,7 @@ style* SMST5gg_Style(){ /// Sq-Chi1  /// ---------------------------------------
   s->excluded  = new TLatex(0.3,  0.3,   "Excluded");
   s->smooth_points=25;
   s->MinXsecZ=0.001;
-  s->MaxXsecZ=0.02;
+  s->MaxXsecZ=0.1;
   s->MinAccZ=0;
   s->MaxAccZ=1;
   s->PostExclusionPlotting=DrawGlChiDiagonalCut;
@@ -164,8 +164,8 @@ style* SMST5wg_Style(){ /// Sq-Chi1  /// ---------------------------------------
   s->MaxXsecZ=0.1;
   s->MinAccZ=0;
   s->MaxAccZ=1;
-  s->iCLsObsTheop1=2;
-  s->iCLsExpExclm1=0;
+  s->iCLsObsTheop1=3;
+  s->iCLsExpExclm1=3;
   s->PostExclusionPlotting=DrawGlChiDiagonalCut;
   
   SetDefault(s);
@@ -309,7 +309,7 @@ style* WinoBino_Style(){
   s->leg->SetTextFont(42);
   s->leg->SetTextSize(0.03);
 
-  s->lumi = new TLatex(0.6, 0.901, "4.04 fb^{  -1}  #sqrt{s} = 8 TeV #geq1#gamma, #geq2 jets");
+  s->lumi = new TLatex(0.6, 0.901, "4.04 fb^{  -1}  #sqrt{s} = 8 TeV #geq1#gamma+MET");
   s->lumi->SetNDC(true);
   s->lumi->SetTextColor(12);
   s->lumi->SetTextFont(43);
