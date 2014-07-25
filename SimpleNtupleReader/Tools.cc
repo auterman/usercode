@@ -162,8 +162,13 @@ void ShowOverflow(TH1*h)
 {
     int b =  h->GetXaxis()->GetNbins();
     h->Sumw2();
-    h->SetBinContent( b,  h->GetBinContent(b)+h->GetBinContent(b+1) );
-    h->SetBinError(   b,  sqrt( pow(h->GetBinError(b),2)+pow(h->GetBinError(b+1),2)) );
+    // add the overflow bin to the last bin
+    h->SetBinContent( b, h->GetBinContent(b)+h->GetBinContent(b+1) );
+    // to error propagation
+    h->SetBinError( b, sqrt( pow(h->GetBinError(b),2)+pow(h->GetBinError(b+1),2)) );
+    // clear overflow bin
+    h->SetBinContent( b+1, 0 );
+    h->SetBinError( b+1, 0 );
 }
 
 void Add2(TH1*h1, TH1*h2)
