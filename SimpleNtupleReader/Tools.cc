@@ -161,7 +161,7 @@ void Print(TH1*h1, TH1*h2, TH1*we) {
 void ShowOverflow(TH1*h)
 {
     int b =  h->GetXaxis()->GetNbins();
-    h->Sumw2();
+    //h->Sumw2();
     // add the overflow bin to the last bin
     h->SetBinContent( b, h->GetBinContent(b)+h->GetBinContent(b+1) );
     // to error propagation
@@ -314,7 +314,7 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
         we->SetBinError(i,0);
         cover->SetBinError(i,0);
     }
-    h1->GetYaxis()->SetTitleOffset(1.1);
+    h_axis->GetYaxis()->SetTitleOffset(1.1);
     if (log=="linear") h_axis->SetMinimum(0);
     if (log=="linear" && h1->GetMaximum()>h_axis->GetMaximum()) h_axis->SetMaximum(h1->GetMaximum()+sqrt(h1->GetMaximum()));
     if ((log=="log"||log=="log_div") && h1->GetMaximum()>h_axis->GetMaximum()) h_axis->SetMaximum(5.*h1->GetMaximum());
@@ -331,9 +331,9 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
     h_totalUp->SetTitle("");
     h_totalDn->SetStats(0);
     h_totalDn->SetTitle("");
-    h1->SetStats(0);
-    h2->SetStats(0);
-    we->SetStats(0);
+    //h1->SetStats(0);
+    //h2->SetStats(0);
+    //we->SetStats(0);
     cover->SetStats(0);
     h_axis->SetStats(0);
     h_axis->DrawCopy("AXIS");
@@ -344,7 +344,7 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
     hs.Draw("same hist fe");
     for (std::vector<TH1*>::iterator s=sig->begin(); s!=sig->end(); ++s)
         if (*s) (*s)->DrawCopy("hist,h,same");
-    h1->DrawCopy("pe,X0,same");
+    h1->DrawCopy("p,same");
     leg->Draw("same");
     pad1->RedrawAxis();
     plotCaption->Draw();
