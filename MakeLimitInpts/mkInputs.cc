@@ -102,11 +102,8 @@ void points::Write(const std::string dir) {
     ///---
     int n_channels    = (int)point->bins.size();
     int n_backgrounds = (int)point->bins.begin()->samples.size()-2;
-    int n_nuisance    = 0;
-    for (std::map<std::string,point::sample>::iterator s=point->bins.begin()->samples.begin(); s!=point->bins.begin()->samples.end(); ++s){
-        n_nuisance += (int)s->second.abs_syst_unc.size() + 
-	              (int)s->second.abs_stat_unc.size() * (int)point->bins.size();
-    }
+    int n_nuisance    = (int)point->statistics.size() * (int)point->bins.size() +
+                        (int)point->systematics.size();
  
     //calc tot bkgd & bkgd_unc
     double bkg=0, u2_syst_bkg=0, u2_stat_bkg=0;
