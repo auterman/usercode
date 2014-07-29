@@ -2,6 +2,7 @@
 #include "table.h"
 #include "ConfigFile.h"
 #include <sys/stat.h>
+#include <algorithm>
 
 /*
  * COMMENTS on used datasets, scans, etc.
@@ -94,17 +95,17 @@ void points::Write(const std::string dir) {
     PrintGlobal( ofile, *point );
     PrintGlobalSums( ofile, *point );
     
-    for (int bin=0; bin<point->bins.size(); ++bin)
+    for (int bin=0; bin<(int)point->bins.size(); ++bin)
       PrintBin( ofile, *point, bin, "");
  
     ///some rough by-hand calculation of 'R' to pre-define (and check) the search range:
     ///---
-    int n_channels    = point->bins.size();
-    int n_backgrounds = point->bins.begin()->samples.size()-2;
+    int n_channels    = (int)point->bins.size();
+    int n_backgrounds = (int)point->bins.begin()->samples.size()-2;
     int n_nuisance    = 0;
     for (std::map<std::string,point::sample>::iterator s=point->bins.begin()->samples.begin(); s!=point->bins.begin()->samples.end(); ++s){
-        n_nuisance += s->second.abs_syst_unc.size() + 
-	              s->second.abs_stat_unc.size() * point->bins.size();
+        n_nuisance += (int)s->second.abs_syst_unc.size() + 
+	              (int)s->second.abs_stat_unc.size() * (int)point->bins.size();
     }
  
     //calc tot bkgd & bkgd_unc
@@ -169,11 +170,11 @@ void points::Write(const std::string dir) {
     exp.AddColumn<string>(""); 
     exp.SetMinumumWidth(20,0);//make first column at least 20 chars
       for (int bin=1; bin<=n_channels; ++bin) 
-    	for (int sample=0; sample<point->bins[bin-1].samples.size()-1; ++sample) 
+    	for (int sample=0; sample<(int)point->bins[bin-1].samples.size()-1; ++sample) 
     	  exp.AddColumn<string>("");
     exp << "bin"; 
       for (int bin=1; bin<=n_channels; ++bin)
-    	for (int sample=0; sample<point->bins[bin-1].samples.size()-1; ++sample) {
+    	for (int sample=0; sample<(int)point->bins[bin-1].samples.size()-1; ++sample) {
  	   stringstream ss;
  	   ss << "bin_"<<bin;
  	   exp << ss.str();
@@ -186,7 +187,7 @@ void points::Write(const std::string dir) {
     }  
     exp << "process"; 
     for (int bin=1; bin<=n_channels; ++bin) 
-    	for (int sample=0; sample<point->bins[bin-1].samples.size()-1; ++sample) {
+    	for (int sample=0; sample<(int)point->bins[bin-1].samples.size()-1; ++sample) {
  	   stringstream ss;
  	   ss << (sample-1);
  	   exp << ss.str();
@@ -205,7 +206,7 @@ void points::Write(const std::string dir) {
     sys.AddColumn<string>(""); 
     sys.SetMinumumWidth(20,0);//make first column at least 20 chars
     for (int bin=1; bin<=n_channels; ++bin) 
-      for (int sample=0; sample<point->bins[bin-1].samples.size()-1; ++sample) 
+      for (int sample=0; sample<(int)point->bins[bin-1].samples.size()-1; ++sample) 
     	sys.AddColumn<string>("");
 
     for (std::vector<std::string>::iterator syst=point->systematics.begin(); syst!=point->systematics.end(); ++syst){
@@ -400,7 +401,7 @@ void AddYields(point& p, ConfigFile* cfg, const std::string& val, const std::str
   for (std::vector<double>::iterator it=vec.begin();it!=vec.end();++it){
     p.integrated[sample].yield += *it;
     int i = it-vec.begin();
-    while (i>=p.bins.size()) { p.bins.push_back( point::bin() ); }
+    while (i>=(int)p.bins.size()) { p.bins.push_back( point::bin() ); }
     p.bins[ i ].samples[ sample ].yield = *it; 
   }
 }
@@ -415,7 +416,7 @@ void AddContamination(point& p, ConfigFile* cfg, const std::string& val, const s
   for (std::vector<double>::iterator it=vec.begin();it!=vec.end();++it){
     p.integrated[sample].contamination += *it;
     int i = it-vec.begin();
-    while (i>=p.bins.size()) { p.bins.push_back( point::bin() ); }
+    while (i>=(int)p.bins.size()) { p.bins.push_back( point::bin() ); }
     p.bins[ i ].samples[ sample ].contamination = *it; 
   }
 }
@@ -467,20 +468,20 @@ void Check(point &p)
 ///makes sure that number of bins and number of uncertainties are consistant
 {
   int nBins = (int)p.info["nBins"];
-  assert( nBins==p.bins.size() );
+  assert( nBins==(int)p.bins.size() );
   int nsamp = -1;
   for (std::vector<point::bin>::iterator it=p.bins.begin(); it!=p.bins.end(); ++it){
-    assert( nsamp==-1 || nsamp==it->samples.size() );
-    nsamp = it->samples.size();   
+    assert( nsamp==-1 || nsamp==(int)it->samples.size() );
+    nsamp = (int)it->samples.size();   
   }
   int nsyst[nsamp], nstat[nsamp]; for (int i=0;i<nsamp;++i) {nsyst[i]=-1; nstat[i]=-1;}
   for (std::vector<point::bin>::iterator it=p.bins.begin(); it!=p.bins.end(); ++it){
     int s_idx = 0;
     for (std::map<std::string,point::sample>::iterator s=it->samples.begin(); s!=it->samples.end(); ++s,++s_idx){
-      assert( nsyst[s_idx]==-1 || nsyst[s_idx]==s->second.abs_syst_unc.size() );
+      assert( nsyst[s_idx]==-1 || nsyst[s_idx]==(int)s->second.abs_syst_unc.size() );
       nsyst[s_idx] = s->second.abs_syst_unc.size();   
-      assert( nstat[s_idx]==-1 || nstat[s_idx]==s->second.abs_stat_unc.size() );
-      nstat[s_idx] = s->second.abs_stat_unc.size();   
+      assert( nstat[s_idx]==-1 || nstat[s_idx]==(int)s->second.abs_stat_unc.size() );
+      nstat[s_idx] = (int)s->second.abs_stat_unc.size();   
     }  
   }
 }
