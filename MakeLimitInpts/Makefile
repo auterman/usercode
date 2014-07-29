@@ -14,6 +14,7 @@ RLXX=$(LFLAGS) $(ROOTLIBS)
 
 SRC=ConfigFile.cc table.cc mkInputs.cc
 SCAN=${scan}
+message=${m}
 
 %.o: %.cc
 		$(C) $(RCXX) -c $<
@@ -40,3 +41,7 @@ mkInputs: $(SRC:.cc=.o)
 	$(LD) $(SRC:.cc=.o) $(RLXX) -o $@
 	@echo '-> executable $@ created.'
 
+commit:         ## use as: make commit m=<message>
+		git add Makefile *.h *.cc
+		git commit -m "auto-commit by Makefile: ${message}"	
+		git push	
