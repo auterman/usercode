@@ -221,6 +221,8 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
     std::string mylegtitle = "";
     if ( file.find( "Combined" ) != std::string::npos )
         mylegtitle = "Multijet, #gamma+jet";
+    if ( file.find( "CombinedSignal" ) != std::string::npos )
+        mylegtitle = "Multijet, #gamma+jet, Signal";
     if ( file.find( "QCD" ) != std::string::npos )
         mylegtitle = "Multijet";
 
