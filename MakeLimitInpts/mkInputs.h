@@ -50,6 +50,9 @@ struct point {
 	  double yield, contamination;
 	  std::map<std::string,double> abs_syst_unc;
 	  std::map<std::string,double> abs_stat_unc;
+
+	  double GetTotalAbsSyst2(){double res=0; for (std::map<std::string,double>::iterator it=abs_syst_unc.begin();it!=abs_syst_unc.end();++it) res += it->second; return res;}
+	  double GetTotalAbsStat2(){double res=0; for (std::map<std::string,double>::iterator it=abs_stat_unc.begin();it!=abs_stat_unc.end();++it) res += it->second; return res;}
 	};
 	
 	struct bin {

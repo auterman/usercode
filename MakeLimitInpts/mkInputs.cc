@@ -1,6 +1,8 @@
 #include "mkInputs.h"
 #include "table.h"
 #include "ConfigFile.h"
+#include <sys/stat.h>
+#include <algorithm>
 
 /*
  * COMMENTS on used datasets, scans, etc.
@@ -8,6 +10,16 @@
  *
  *
  */
+
+bool MkDir(const std::string& dir)
+{
+  struct stat sb;
+  if (stat(dir.c_str(), &sb))
+  {
+     std::system( ((std::string)"mkdir "+dir).c_str() );
+  }
+  return true;
+}
 
 point* points::Get(const std::string& s1, double v1, const std::string& s2, double v2, const std::string& s3, double v3) {
    for (std::vector<point>::iterator it = p_.begin(); it != p_.end(); ++it){
@@ -30,13 +42,18 @@ void points::PrintGlobal(std::ofstream& os, point&p)
   }
 }
 
-void PrintSample(std::ofstream& os, const std::string& str,const point::sample& samp)
+void PrintSample(std::ofstream& os, const std::string& str,const point::sample& samp, double*bkg=0, double*syst=0, double*stat=0)
 {
     os << "# " << str << "  = " << samp.yield << "\n";
-    for (std::map<std::string,double>::const_iterator it=samp.abs_syst_unc.begin(); it!=samp.abs_syst_unc.end(); ++it)
+    if (bkg) (*bkg) += samp.yield;
+    for (std::map<std::string,double>::const_iterator it=samp.abs_syst_unc.begin(); it!=samp.abs_syst_unc.end(); ++it){
+      if (syst) (*syst) += it->second * it->second;
       os << "# "<< str << " " << it->first << " = " << it->second << "\n";
-    for (std::map<std::string,double>::const_iterator it=samp.abs_stat_unc.begin(); it!=samp.abs_stat_unc.end(); ++it)
+    }  
+    for (std::map<std::string,double>::const_iterator it=samp.abs_stat_unc.begin(); it!=samp.abs_stat_unc.end(); ++it){
+      if (stat) (*stat) += it->second * it->second;
       os << "# "<< str << " " << it->first << " = " << it->second << "\n";
+    }  
 }
 
 void points::PrintGlobalSums(std::ofstream& os, point&p)
@@ -48,22 +65,31 @@ void points::PrintGlobalSums(std::ofstream& os, point&p)
 
 void points::PrintBin(std::ofstream& os, point&p, unsigned bin, const std::string& str)
 {	  
+   double bkg=0, bkg_syst2=0, bkg_stat2=0;
+   PrintSample(os, "bin"+ToString(bin)+"_signal", p.bins[bin].samples["signal"]);
    for (std::map<std::string,point::sample>::iterator sample=p.bins[bin].samples.begin();sample!=p.bins[bin].samples.end();++sample){
-     PrintSample(os, "bin"+ToString(bin)+"_"+sample->first, sample->second);
+     if (sample->first!="data" && sample->first!="signal")
+       PrintSample(os, "bin"+ToString(bin)+"_"+sample->first, sample->second, &bkg, &bkg_syst2, &bkg_stat2);
    }
+   os << "# bin"+ToString(bin)+"_background = "<< bkg <<"\n";
+   os << "# bin"+ToString(bin)+"_background abs syst = "<< sqrt(bkg_syst2) <<"\n";
+   os << "# bin"+ToString(bin)+"_background abs stat = "<< sqrt(bkg_stat2) <<"\n";
+   PrintSample(os, "bin"+ToString(bin)+"_data", p.bins[bin].samples["data"]);
 }
 
 
 std::string PrintSystError(point::sample& sample, const std::string& name)
 {
   std::map<std::string,double>::iterator it=sample.abs_syst_unc.find(name);
-  return (it==sample.abs_syst_unc.end()?"-":ToString(1.+it->second/sample.yield));
+  double unc = (sample.yield?1.+it->second/sample.yield:1.0);
+  return (it==sample.abs_syst_unc.end()?"-":ToString(unc));
 }
 
 std::string PrintStatError(point::sample& sample, const std::string& name)
 {
   std::map<std::string,double>::iterator it=sample.abs_stat_unc.find(name);
-  return (it==sample.abs_stat_unc.end()?"-":ToString(1.+it->second/sample.yield));
+  double unc = (sample.yield?1.+it->second/sample.yield:1.0);
+  return (it==sample.abs_stat_unc.end()?"-":ToString(unc));
 }
 
 void points::Write(const std::string dir) {
@@ -71,32 +97,49 @@ void points::Write(const std::string dir) {
  using namespace Table;
  using namespace std;
 
- std::system( ((std::string)"mkdir "+dir).c_str() );
+ MkDir(dir);
 
  for (vector<point>::iterator point = p_.begin(); point != p_.end(); ++point) {
 
     ofstream ofile;
-    ofile.open(dir+"/"+point->filename);
+    ofile.open(dir+"/"+point->filename+".txt");
     
     PrintGlobal( ofile, *point );
     PrintGlobalSums( ofile, *point );
     
-    for (int bin=0; bin<point->bins.size(); ++bin)
+    for (int bin=0; bin<(int)point->bins.size(); ++bin)
       PrintBin( ofile, *point, bin, "");
  
     ///some rough by-hand calculation of 'R' to pre-define (and check) the search range:
     ///---
-    int n_channels    = point->bins.size();
-    int n_backgrounds = point->bins.begin()->samples.size()-2;
-    int n_nuisance    = 0;
-    for (std::map<std::string,point::sample>::iterator s=point->bins.begin()->samples.begin(); s!=point->bins.begin()->samples.end(); ++s){
-        n_nuisance += s->second.abs_syst_unc.size() + 
-	              s->second.abs_stat_unc.size() * point->bins.size();
-    }
+    int n_channels    = (int)point->bins.size();
+    int n_backgrounds = (int)point->bins.begin()->samples.size()-2;
+    int n_nuisance    = (int)point->statistics.size() * (int)point->bins.size() +
+                        (int)point->systematics.size();
  
+    //calc tot bkgd & bkgd_unc
+    double bkg=0, u2_syst_bkg=0, u2_stat_bkg=0;
+    for (std::map<std::string,point::sample>::iterator s=point->integrated.begin(); s!=point->integrated.end();++s ){
+        if (s->first!="signal" && s->first!="data") {
+	  bkg         += s->second.yield;
+	  u2_syst_bkg += s->second.GetTotalAbsSyst2();
+	  u2_stat_bkg += s->second.GetTotalAbsStat2();
+	}
+    }
+    ofile << "# background = " << bkg << "\n";
+    ofile << "# background abs syst = " << sqrt(u2_syst_bkg) << "\n";
+    ofile << "# background abs stat = " << sqrt(u2_stat_bkg) << "\n";
+
     double R,Rmin=9999999999999;
     for (std::vector<point::bin>::iterator bin=point->bins.begin(); bin!=point->bins.end();++bin){
       double unc2=0;
+      for (std::map<std::string,point::sample>::iterator s=bin->samples.begin(); s!=bin->samples.end();++s ){
+        if (s->first!="signal" && s->first!="data") {
+	  unc2 += s->second.GetTotalAbsSyst2();
+	  unc2 += s->second.GetTotalAbsStat2();
+	}
+      }
+
       double s = bin->samples["signal"].yield;
       for (std::map<std::string,double>::iterator u=bin->samples["signal"].abs_syst_unc.begin();u!=bin->samples["signal"].abs_syst_unc.end();++u)
          unc2 += u->second * u->second;
@@ -108,7 +151,7 @@ void points::Write(const std::string dir) {
 	if (R<Rmin) Rmin=R;  
       }	
     }
-    ofile << "# R_firstguess = " << Rmin << "\n";
+    ofile << "# R_firstguess = " << Rmin << "\n###============================================\n\n";
 
     ofile << "imax " << setw(2) << n_channels	 << "  number of channels" << endl;
     ofile << "jmax " << setw(2) << n_backgrounds << "  number of backgrounds" << endl;
@@ -136,11 +179,11 @@ void points::Write(const std::string dir) {
     exp.AddColumn<string>(""); 
     exp.SetMinumumWidth(20,0);//make first column at least 20 chars
       for (int bin=1; bin<=n_channels; ++bin) 
-    	for (int sample=0; sample<point->bins[bin-1].samples.size()-1; ++sample) 
+    	for (int sample=0; sample<(int)point->bins[bin-1].samples.size()-1; ++sample) 
     	  exp.AddColumn<string>("");
     exp << "bin"; 
       for (int bin=1; bin<=n_channels; ++bin)
-    	for (int sample=0; sample<point->bins[bin-1].samples.size()-1; ++sample) {
+    	for (int sample=0; sample<(int)point->bins[bin-1].samples.size()-1; ++sample) {
  	   stringstream ss;
  	   ss << "bin_"<<bin;
  	   exp << ss.str();
@@ -153,7 +196,7 @@ void points::Write(const std::string dir) {
     }  
     exp << "process"; 
     for (int bin=1; bin<=n_channels; ++bin) 
-    	for (int sample=0; sample<point->bins[bin-1].samples.size()-1; ++sample) {
+    	for (int sample=0; sample<(int)point->bins[bin-1].samples.size()-1; ++sample) {
  	   stringstream ss;
  	   ss << (sample-1);
  	   exp << ss.str();
@@ -172,11 +215,11 @@ void points::Write(const std::string dir) {
     sys.AddColumn<string>(""); 
     sys.SetMinumumWidth(20,0);//make first column at least 20 chars
     for (int bin=1; bin<=n_channels; ++bin) 
-      for (int sample=0; sample<point->bins[bin-1].samples.size()-1; ++sample) 
+      for (int sample=0; sample<(int)point->bins[bin-1].samples.size()-1; ++sample) 
     	sys.AddColumn<string>("");
 
     for (std::vector<std::string>::iterator syst=point->systematics.begin(); syst!=point->systematics.end(); ++syst){
-      sys << *syst;
+      sys << *syst+" lnN";
       for (int bin=1; bin<=n_channels; ++bin) {
         sys << PrintSystError(point->bins[bin-1].samples["signal"] , *syst);	
         for (std::map<std::string,point::sample>::iterator s=point->bins[bin-1].samples.begin(); s!=point->bins[bin-1].samples.end();++s )
@@ -187,7 +230,7 @@ void points::Write(const std::string dir) {
 
     for (std::vector<std::string>::iterator syst=point->statistics.begin(); syst!=point->statistics.end(); ++syst){
       for (int sysbin=1; sysbin<=n_channels; ++sysbin) {
-        sys << *syst+"_bin"+ToString(sysbin);
+        sys << *syst+"_bin"+ToString(sysbin)+" lnN";
         for (int bin=1; bin<=n_channels; ++bin) {
 	  if (bin==sysbin) sys << PrintStatError(point->bins[bin-1].samples["signal"], *syst);	
 	  else sys << "-";
@@ -208,147 +251,153 @@ void points::Write(const std::string dir) {
 //=====================================================================================================
 //=====================================================================================================
 void points::WriteSingleBin(const std::string dir) {
-/*
-  using namespace Table;
-  using namespace std;
-  // std::cout<<"write single bins:"<<p_.size()<<endl;
-  for (vector<point>::iterator it = p_.begin(); it != p_.end(); ++it) {
-     //std::cout << "point " <<it-p_.begin()<<", bins = "<<it->bins.size() << std::endl;
-     for (int bin=0; bin<(int)it->bins.size(); ++bin){
-  	  ofstream ofile;
-  	  stringstream ss;
-  	  ss << dir << "_" << it->squark << "_" << it->gluino << "_"
-  			  << it->chi << "_"<<it->cha<<"_bin"<<bin<<".txt";
-  	  ofile.open(ss.str().c_str());
-	  
-          PrintGlobal( ofile, *it );
-	  PrintBin(ofile, *it, bin, "");
+ using namespace Table;
+ using namespace std;
 
-  	  int n_backgrounds = 3;
-  	  int n_nuisance    = 8; //systs & stats
-  	  double u_sig = 1.0 + sqrt( //pow(it->bins[b].u_NLO-1.,2) +
-  				       pow(it->bins[bin].u_sig_stat-1,2) +
-  				       //pow(it->bins[bin].u_pdfxsec-1.,2) +
-  				       pow(it->bins[bin].u_scaleDataMC-1.,2) +
-  				       pow(it->bins[bin].u_sig-1.,2) +
-  				       pow(it->bins[bin].u_pdfacc-1.,2) );
+ MkDir(dir);
 
+ for (vector<point>::iterator point = p_.begin(); point != p_.end(); ++point) {
+    
+    int i_bin=0;
+    for (std::vector<point::bin>::iterator bin=point->bins.begin();bin!=point->bins.end();++bin,++i_bin)
+    {
 
-      ///some rough by-hand calculation of 'R' to pre-define (and check) the search range:
-      ///---
-      double d=0,b=0,s=0,cont=0,R;
-      d+=it->bins[bin].data;
-      b+=it->bins[bin].bgd_qcd + it->bins[bin].bgd_ewk + it->bins[bin].bgd_fsr;
-      s+=it->bins[bin].signal;
-      cont+=it->bins[bin].qcd_contamination + it->bins[bin].ewk_contamination;
-      double unc2= it->bins[bin].data;
-      if (it->bins[bin].u_scaleDataMC) unc2 += pow(it->bins[bin].u_scaleDataMC-1.,2);
-      if (it->bins[bin].u_sig)      unc2 += pow(it->bins[bin].u_sig-1.,2);
-      if (it->bins[bin].u_pdfacc)   unc2 += pow(it->bins[bin].u_pdfacc-1.,2);
-      if (it->bins[bin].u_lumi)     unc2 += pow(it->bins[bin].u_lumi-1,2);
-      if (it->bins[bin].u_qcd)      unc2 += pow(it->bins[bin].u_qcd-1,2);
-      if (it->bins[bin].u_ewk)      unc2 += pow(it->bins[bin].u_ewk-1,2);
-      if (it->bins[bin].u_fsr)      unc2 += pow(it->bins[bin].u_fsr-1,2);
-      if (it->bins[bin].u_sig_stat) unc2 += pow(it->bins[bin].u_sig_stat-1,2);
-      if (it->bins[bin].u_qcd_stat) unc2 += pow(it->bins[bin].u_qcd_stat-1,2);
-      if (it->bins[bin].u_ewk_stat) unc2 += pow(it->bins[bin].u_ewk_stat-1,2);
-      if (it->bins[bin].u_fsr_stat) unc2 += pow(it->bins[bin].u_fsr_stat-1,2);
-      R=2.*sqrt(unc2)/it->bins[bin].signal;
-      ofile << "# R_firstguess = " << R << "\n";
+       ofstream ofile;
+       ofile.open(dir+"/"+point->filename+"_bin"+ToString(i_bin)+".txt");
 
-  	  ofile << "imax  1  number of channels" << endl;
-  	  ofile << "jmax " << setw(2) << n_backgrounds << "  number of backgrounds" << endl;
-  	  ofile << "kmax " << setw(2) << n_nuisance    << "  number of nuisance parameters (sources of systematic uncertainties)" << endl;
-  	  ofile << "------------" << endl;  
+       ofile << "# i_bin = "<<i_bin<<"\n";
+       PrintGlobal( ofile, *point );
+       PrintGlobalSums( ofile, *point );
+       PrintBin( ofile, *point, i_bin, "");
 
-  	  //observed events in all channels
-  	  TTable observed("## observed events");\
-  	  observed.SetStyle(Empty);
-  	  observed.SetDelimiter("  ");
-  	  observed.AddColumn<string>(""); 
-  	  observed.AddColumn<int>("");
-  	  observed << "bin" << 0;
-  	  observed << "observation" << (int)it->bins[bin].data;
-  	  ofile << observed << "------------\n" << endl;  
+       ///some rough by-hand calculation of 'R' to pre-define (and check) the search range:
+       ///---
+       int n_channels    = 1;
+       int n_backgrounds = (int)bin->samples.size()-2;
+       int n_nuisance    = (int)point->statistics.size() +
+                           (int)point->systematics.size();
 
-  	  //expected events in all channels for signal and all backgrounds
-  	  TTable exp("## expected events");
-  	  exp.SetStyle(Empty);
-  	  exp.SetDelimiter("  ");
-  	  exp.AddColumn<string>(""); 
-  	  exp.SetMinumumWidth(20,0);//make first column at least 20 chars
-  	  for (int sample=1; sample<=n_backgrounds+1; ++sample) 
-  		exp.AddColumn<string>("");
-  	  exp << "bin"; 
-  	      for (int sample=1; sample<=n_backgrounds+1; ++sample) {
-  		 exp << "0";
-  	      }
-  	  exp << "process" << "signal" << "qcd" << "ewk" << "fsr";
-  	  exp << "process"; 
-  	      for (int sample=1; sample<=n_backgrounds+1; ++sample) {
-  		 stringstream ss;
-  		 ss << (sample-1);
-  		 exp << ss.str();
-  	      }   
-  	  exp << "rate"; 
-  	    exp << ToString(it->bins[bin].signal  
-  			    - it->bins[bin].qcd_contamination 
-  			    - it->bins[bin].ewk_contamination )
-  		<< ToString(it->bins[bin].bgd_qcd)
-  		<< ToString(it->bins[bin].bgd_ewk)
-  		<< ToString(it->bins[bin].bgd_fsr);
-  	  ofile << exp << "------------" << std::endl;  
+       //calc tot bkgd & bkgd_unc
+       double bkg=0, u2_syst_bkg=0, u2_stat_bkg=0;
+       for (std::map<std::string,point::sample>::iterator s=bin->samples.begin(); s!=bin->samples.end();++s ){
+           if (s->first!="signal" && s->first!="data") {
+	     bkg         += s->second.yield;
+	     u2_syst_bkg += s->second.GetTotalAbsSyst2();
+	     u2_stat_bkg += s->second.GetTotalAbsStat2();
+	   }
+       }
+       ofile << "# background = " << bkg << "\n";
+       ofile << "# background abs syst = " << sqrt(u2_syst_bkg) << "\n";
+       ofile << "# background abs stat = " << sqrt(u2_stat_bkg) << "\n";
 
-  	  TTable sys("");
-  	  sys.SetStyle(Empty);
-  	  sys.SetDelimiter("  ");
-  	  sys.AddColumn<string>(""); 
-  	  sys.SetMinumumWidth(20,0);//make first column at least 20 chars
-  	      for (int sample=1; sample<=n_backgrounds+1; ++sample) 
-  		sys.AddColumn<string>("");
-  	  sys << "U_Sig lnN";
-  	    sys << ToString(u_sig,"-") // signal
-  		<< "-" << "-" << "-"; //qcd, ewk, fsr
-  	  sys << "U_Lumi lnN";
-  	    sys << ToString(it->bins[bin].u_lumi,"-") // signal
-  		<< "-" // qcd data-driven
-  		<< "-" // ewk data-driven
-  		<< ToString(it->bins[bin].u_lumi,"-");//fsr
-  	  sys << "U_qcd lnN";
-  	    sys << "-" // signal
-  		<< ToString(it->bins[bin].u_qcd,"-") << "-" << "-"; //qcd, ewk, fsr
-  	  sys << "U_ewk lnN";
-  	    sys << "-" // signal
-  		<< "-" << ToString(it->bins[bin].u_ewk,"-") << "-"; //qcd, ewk, fsr
-  	  sys << "U_fsr lnN";
-  	    sys << "-" // signal
-  		<< "-" << "-" << ToString(it->bins[bin].u_fsr,"-"); //qcd, ewk, fsr
+       double R=0;
+       double unc2=0;
+       for (std::map<std::string,point::sample>::iterator s=bin->samples.begin(); s!=bin->samples.end();++s ){
+         if (s->first!="signal" && s->first!="data") {
+	   unc2 += s->second.GetTotalAbsSyst2();
+	   unc2 += s->second.GetTotalAbsStat2();
+	 }
+       }
 
-  	  //Now the statistical uncertainties:...................................
-  	  sys << "U_qcd_statistic lnN" << "-" << ToString(it->bins[bin].u_qcd_stat,"-") << "-" << "-"; 
-  	  sys << "U_ewk_statistic lnN" <<"-"<< "-"<< ToString(it->bins[bin].u_ewk_stat,"-")<< "-"; 
-  	  sys << "U_fsr_statistic lnN" <<"-"<< "-"<<"-"<< ToString(it->bins[bin].u_fsr_stat,"-");
-  	  ofile << sys << "------------" << std::endl;  
-  	  //cout << "WRITE GL:" << it->gluino << ", SQ:" << it->squark << endl;
+       double s = bin->samples["signal"].yield;
+       for (std::map<std::string,double>::iterator u=bin->samples["signal"].abs_syst_unc.begin();u!=bin->samples["signal"].abs_syst_unc.end();++u)
+          unc2 += u->second * u->second;
+       for (std::map<std::string,double>::iterator u=bin->samples["signal"].abs_stat_unc.begin();u!=bin->samples["signal"].abs_stat_unc.end();++u)
+          unc2 += u->second * u->second;
+       if (s)  R=2.*sqrt(unc2)/s;
+       ofile << "# R_firstguess = " << R << "\n###============================================\n\n";
 
-  	  ofile.close();
-      }   
+       ofile << "imax " << setw(2) << n_channels    << "  number of channels" << endl;
+       ofile << "jmax " << setw(2) << n_backgrounds << "  number of backgrounds" << endl;
+       ofile << "kmax " << setw(2) << n_nuisance    << "  number of nuisance parameters (sources of systematic uncertainties)" << endl;
+       ofile << "------------" << endl;  
 
-  }
-*/
+       //observed events in all channels
+       TTable observed("## observed events");\
+       observed.SetStyle(Empty);
+       observed.SetDelimiter("  ");
+       observed.AddColumn<string>(""); observed.AddColumn<std::string>("");
+       observed << "bin";              observed << "bin_"+ToString(i_bin);
+       observed << "observation"; 
+       observed << ToString(bin->samples["data"].yield);
+       ofile << observed << "------------\n" << endl;  
+
+       //expected events in all channels for signal and all backgrounds
+       TTable exp("## expected events");
+       exp.SetStyle(Empty);
+       exp.SetDelimiter("  ");
+       exp.AddColumn<string>(""); 
+       exp.SetMinumumWidth(20,0);//make first column at least 20 chars
+       for (int sample=0; sample<(int)bin->samples.size()-1; ++sample) 
+    	     exp.AddColumn<string>("");
+       exp << "bin"; 
+       for (int sample=0; sample<(int)bin->samples.size()-1; ++sample) {
+ 	      stringstream ss;
+ 	      ss << "bin_"<<i_bin;
+ 	      exp << ss.str();
+    	   }
+       exp << "process";
+       exp << "signal";
+       for (std::map<std::string,point::sample>::iterator s=bin->samples.begin(); s!=bin->samples.end();++s )
+           if (s->first!="signal" && s->first!="data") exp << s->first;
+
+       exp << "process"; 
+       for (int sample=0; sample<(int)bin->samples.size()-1; ++sample) {
+ 	      stringstream ss;
+ 	      ss << (sample-1);
+ 	      exp << ss.str();
+       }   
+       exp << "rate"; 
+       exp << ToString(bin->samples["signal"].yield - bin->samples["signal"].contamination);
+       for (std::map<std::string,point::sample>::iterator s=bin->samples.begin(); s!=bin->samples.end();++s )
+         if (s->first!="signal" && s->first!="data") exp << ToString(s->second.yield);
+       ofile << exp << "------------" << std::endl;  
+
+       TTable sys("");
+       sys.SetStyle(Empty);
+       sys.SetDelimiter("  ");
+       sys.AddColumn<string>(""); 
+       sys.SetMinumumWidth(20,0);//make first column at least 20 chars
+       for (int sample=0; sample<(int)bin->samples.size()-1; ++sample) 
+    	 sys.AddColumn<string>("");
+
+       for (std::vector<std::string>::iterator syst=point->systematics.begin(); syst!=point->systematics.end(); ++syst){
+	 sys << *syst+" lnN";
+         sys << PrintSystError(bin->samples["signal"] , *syst);	
+         for (std::map<std::string,point::sample>::iterator s=bin->samples.begin(); s!=bin->samples.end();++s )
+           if (s->first!="signal" && s->first!="data") 
+	     sys << PrintSystError(s->second, *syst);
+       }
+
+       for (std::vector<std::string>::iterator syst=point->statistics.begin(); syst!=point->statistics.end(); ++syst){
+         sys << *syst+"_bin"+ToString(i_bin)+" lnN";
+         for (int sysbin=0; sysbin<n_channels; ++sysbin) {
+	   if (i_bin==sysbin) sys << PrintStatError(bin->samples["signal"], *syst);	
+	   else sys << "-";
+           for (std::map<std::string,point::sample>::iterator s=bin->samples.begin(); s!=bin->samples.end();++s )
+             if (s->first!="signal" && s->first!="data") {
+	       if (i_bin==sysbin) sys << PrintStatError(s->second, *syst);
+               else sys << "-";
+	     }  
+          }
+       }
+       ofile << sys << "------------" << std::endl;  
+       ofile.close();
+    }   
+ }
 }
 
 
 //// READ /////// -----------------------------------------------------------------------------
 
-double Add(std::map<std::string,double>& m, ConfigFile*f, const std::string& s)
+double Add(std::map<std::string,double>& m, ConfigFile*f, const std::string& s, const std::string& n="")
 {
-  return m[s]=f->read<double>(s);
+  return m[(n==""?s:n)]=f->read<double>(s);
 }
 
-double Add(std::map<std::string,double>& m, ConfigFile*f, const std::string& s, double v)
+double Add(std::map<std::string,double>& m, ConfigFile*f, const std::string& s,  const std::string& n, double v)
 {
-  return m[s]=f->read<double>(s,v);
+  return m[(n==""?s:n)]=f->read<double>(s,v);
 }
 
 std::vector<double>  Get(ConfigFile*f, const std::string& s)
@@ -367,7 +416,7 @@ void AddYields(point& p, ConfigFile* cfg, const std::string& val, const std::str
   for (std::vector<double>::iterator it=vec.begin();it!=vec.end();++it){
     p.integrated[sample].yield += *it;
     int i = it-vec.begin();
-    while (i>=p.bins.size()) { p.bins.push_back( point::bin() ); }
+    while (i>=(int)p.bins.size()) { p.bins.push_back( point::bin() ); }
     p.bins[ i ].samples[ sample ].yield = *it; 
   }
 }
@@ -382,12 +431,12 @@ void AddContamination(point& p, ConfigFile* cfg, const std::string& val, const s
   for (std::vector<double>::iterator it=vec.begin();it!=vec.end();++it){
     p.integrated[sample].contamination += *it;
     int i = it-vec.begin();
-    while (i>=p.bins.size()) { p.bins.push_back( point::bin() ); }
+    while (i>=(int)p.bins.size()) { p.bins.push_back( point::bin() ); }
     p.bins[ i ].samples[ sample ].contamination = *it; 
   }
 }
 
-void AddSystematics(point& p, ConfigFile* cfg, const std::string& val, const std::string& name, const std::string& sample, int nBins)
+void AddSystematics(point& p, ConfigFile* cfg, const std::string& val, const std::string& name, const std::string& sample, int nBins, double corr=1)
 {
   std::vector<double> vec = Get(cfg,val);
   if ((int)vec.size()!=nBins) {
@@ -397,7 +446,7 @@ void AddSystematics(point& p, ConfigFile* cfg, const std::string& val, const std
   for (std::vector<double>::iterator it=vec.begin();it!=vec.end();++it){
     p.integrated[sample].abs_syst_unc[name+" (squared)"] += ((*it) * (*it)); //squared
     int i = it-vec.begin();
-    p.bins[ i ].samples[ sample ].abs_syst_unc[name] = *it; 
+    p.bins[ i ].samples[ sample ].abs_syst_unc[name] = corr * (*it); 
   }
   if (std::find(p.systematics.begin(),p.systematics.end(),name)==p.systematics.end()) 
     p.systematics.push_back(name);
@@ -434,20 +483,20 @@ void Check(point &p)
 ///makes sure that number of bins and number of uncertainties are consistant
 {
   int nBins = (int)p.info["nBins"];
-  assert( nBins==p.bins.size() );
+  assert( nBins==(int)p.bins.size() );
   int nsamp = -1;
   for (std::vector<point::bin>::iterator it=p.bins.begin(); it!=p.bins.end(); ++it){
-    assert( nsamp==-1 || nsamp==it->samples.size() );
-    nsamp = it->samples.size();   
+    assert( nsamp==-1 || nsamp==(int)it->samples.size() );
+    nsamp = (int)it->samples.size();   
   }
   int nsyst[nsamp], nstat[nsamp]; for (int i=0;i<nsamp;++i) {nsyst[i]=-1; nstat[i]=-1;}
   for (std::vector<point::bin>::iterator it=p.bins.begin(); it!=p.bins.end(); ++it){
     int s_idx = 0;
     for (std::map<std::string,point::sample>::iterator s=it->samples.begin(); s!=it->samples.end(); ++s,++s_idx){
-      assert( nsyst[s_idx]==-1 || nsyst[s_idx]==s->second.abs_syst_unc.size() );
+      assert( nsyst[s_idx]==-1 || nsyst[s_idx]==(int)s->second.abs_syst_unc.size() );
       nsyst[s_idx] = s->second.abs_syst_unc.size();   
-      assert( nstat[s_idx]==-1 || nstat[s_idx]==s->second.abs_stat_unc.size() );
-      nstat[s_idx] = s->second.abs_stat_unc.size();   
+      assert( nstat[s_idx]==-1 || nstat[s_idx]==(int)s->second.abs_stat_unc.size() );
+      nstat[s_idx] = (int)s->second.abs_stat_unc.size();   
     }  
   }
 }
@@ -471,28 +520,56 @@ void ReadSignal(std::string sig_file, std::string dat_file="", std::string bgd_f
     p.nr = n;
     ss << "Point " << n++;
     
-    Add(p.info, cfg, ss.str()+" wino mass");
-    Add(p.info, cfg, ss.str()+" bino mass");
-    Add(p.info, cfg, ss.str()+" gluino mass", -1);
-    Add(p.info, cfg, ss.str()+" squark mass", -1);
+    Add(p.info, cfg, ss.str()+" wino mass","wino mass");
+    Add(p.info, cfg, ss.str()+" bino mass","bino mass");
+    Add(p.info, cfg, ss.str()+" gluino mass","gluino mass",-1);
+    Add(p.info, cfg, ss.str()+" squark mass","squark mass",-1);
     Add(p.info, cfg, "nGen");
-    Add(p.info, cfg, ss.str()+" xsec",0);
-    Add(p.info, cfg, "lumi");
+    Add(p.info, cfg, ss.str()+" Signal xs","Xsection.NLO");
+    Add(p.info, cfg, "Lumi");
     int nBins = (int)Add(p.info, cfg, "nBins");
-    fn << "LimitInput_"<<p.nr<<"_Wino"<<p.info[ss.str()+" wino mass"]<<"_Bino"<<p.info[ss.str()+" bino mass"]<<".txt";
+    fn << "LimitInput_"<<p.nr<<"_Wino"<<p.info["wino mass"]<<"_Bino"<<p.info["bino mass"];
     p.filename = fn.str();
 
-   
+   //data
     AddYields(p, dat_cfg, "Data yield", "data", nBins);
 
-    AddYields(p, dat_cfg, "BG yield", "bgd", nBins);
-    AddSystematics(p, dat_cfg, "BG syst. uncertainty", "bgd_syst_abs", "bgd", nBins);
-    AddStatistics( p, dat_cfg, "BG stat. uncertainty", "stat_abs",     "bgd", nBins);
 
+    //backgds
+    AddYields(p, dat_cfg, "BG Vg yield", "Vg", nBins);
+    AddSystematics(p, dat_cfg, "BG Vg syst uncertainty abs", "Scaling_syst_abs",  "Vg", nBins);
+    AddStatistics( p, dat_cfg, "BG Vg stat uncertainty abs", "stat_abs",     "Vg", nBins);
+
+    AddYields(p, dat_cfg, "BG gjets yield", "gjets", nBins);
+    AddSystematics(p, dat_cfg, "BG gjets syst uncertainty abs", "Scaling_syst_abs", "gjets", nBins, -1);
+    AddStatistics( p, dat_cfg, "BG gjets stat uncertainty abs", "stat_abs",         "gjets", nBins);
+
+    AddYields(p, dat_cfg, "BG ttg yield", "ttg", nBins);
+    AddSystematics(p, dat_cfg, "BG ttg syst uncertainty abs", "ttg_syst_abs", "ttg", nBins);
+    AddSystematicsRelative(p, 0.0255, "lumi_unc", "ttg", nBins);
+    AddStatistics( p, dat_cfg, "BG ttg stat uncertainty abs", "stat_abs",     "ttg", nBins);
+
+    AddYields(p, dat_cfg, "BG QCD yield", "qcd", nBins);
+    AddSystematics(p, dat_cfg, "BG QCD syst uncertainty abs", "qcd_syst_abs", "qcd", nBins);
+    AddSystematicsRelative(p, 0.0255, "lumi_unc", "qcd", nBins);
+    AddStatistics( p, dat_cfg, "BG QCD stat uncertainty abs", "stat_abs",     "qcd", nBins);
+
+    AddYields(p, dat_cfg, "BG diboson yield", "diboson", nBins);
+    AddSystematics(p, dat_cfg, "BG diboson syst uncertainty abs", "diboson_syst_abs", "diboson", nBins);
+    AddSystematicsRelative(p, 0.0255, "lumi_unc", "diboson", nBins);
+    AddStatistics( p, dat_cfg, "BG diboson stat uncertainty abs", "stat_abs",     "diboson", nBins);
+
+    AddYields(p, dat_cfg, "BG efake yield", "efake", nBins);
+    AddSystematics(p, dat_cfg, "BG efake syst uncertainty abs", "efake_syst_abs", "efake", nBins);
+    AddSystematicsRelative(p, 0.0255, "lumi_unc", "efake", nBins);
+    AddStatistics( p, dat_cfg, "BG efake stat uncertainty abs", "stat_abs",         "efake", nBins);
+
+   
+    //signal
     AddYields(     p, cfg, ss.str()+" Signal yield", "signal", nBins);
     //AddSystematics(p, cfg, ss.str()+" Signal syst. uncertainty", "signal", nBins);
     AddSystematicsRelative(p, 0.0255, "lumi_unc", "signal", nBins);
-    AddStatistics( p, cfg, ss.str()+" Signal stat. uncertainty", "stat_abs", "signal", nBins);
+    AddStatistics( p, cfg, ss.str()+" Signal stat uncertainty abs", "stat_abs", "signal", nBins);
 
     Check(p);
 
@@ -850,6 +927,7 @@ void points::Do(const std::string& name, const std::string&dat, const std::strin
 //   if (xsec!="") AddXsec(xsec);
 //   if (pdf!="")  AddPDFs(pdf);
    
+   MkDir( "DataCards" );
    Points.Write(((std::string)"DataCards/"+name).c_str());
    Points.WriteSingleBin(((std::string)"DataCards/"+name+"_SingleChannels").c_str());
    
@@ -866,8 +944,8 @@ void points::Do(const std::string& name, const std::string&dat, const std::strin
 
 int main(int argc, char* argv[]) {
 
-   std::string signal="inputs/johannes_20140721.txt";
-   std::string data  ="inputs/johannes_20140721.txt";   
+   std::string signal="inputs/johannes_20140728.txt";
+   std::string data  ="inputs/johannes_20140728.txt";   
 
 
    Points.Do("WinoBino", signal, data, "", "");   

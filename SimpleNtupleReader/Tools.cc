@@ -89,6 +89,12 @@ void Yields::Add(Yields*r)
 
 
 
+void SetBinContentError(TH1*r, int i, double w, double e)
+{
+  
+  
+}
+
 TH1 * MyYields::GetPlot(const std::string& s)
 {
     std::stringstream ss;
@@ -110,6 +116,7 @@ TH1 * MyYields::GetPlot(const std::string& s)
             //std plot
             r->SetBinContent(i, Weighted(s,i) );
             r->SetBinError(  i, Error(s,i) );
+	    //SetBinContentError(r, i, Weighted(s,i), Error(s,i)  ),
         } else {
             //correlation plot
             float n=Weighted(s,i);
@@ -161,7 +168,7 @@ void Print(TH1*h1, TH1*h2, TH1*we) {
 void ShowOverflow(TH1*h)
 {
     int b =  h->GetXaxis()->GetNbins();
-    h->Sumw2();
+    //h->Sumw2();
     // add the overflow bin to the last bin
     h->SetBinContent( b, h->GetBinContent(b)+h->GetBinContent(b+1) );
     // to error propagation
@@ -215,9 +222,25 @@ TH1* TotalErrorDn(THStack*hs, TH1*w)
     return h;
 }
 
+void Divide(TH1*h1,TH1*h2)
+{
+  assert(h1->GetXaxis()->GetNbins() == h2->GetXaxis()->GetNbins());
+  for (int i=0; i<=h1->GetXaxis()->GetNbins(); ++i) {
+        double z = h1->GetBinContent(i);
+        double ez= h1->GetBinError(i);
+        double n = h2->GetBinContent(i);
+        double en= h2->GetBinError(i);
+	if (!n) continue;
+	h1->SetBinContent(i, z/n);
+        //h1->SetBinError(i,   sqrt( ez*ez/(n*n) + en*en*z*z/(n*n*n*n) ) );
+        h1->SetBinError(i,   sqrt( ez*ez/(n*n)  ) );
+  }
+}
+
+/// h1: pe Data, h2: l Prediction, we: syst. unc. pred.
 void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *other,const std::string& dir, const std::string& file,const std::string& legtitle, const std::string& log) {
 
-
+    // Plot labels--------------------------------------------------------------
     std::string mylegtitle = "";
     if ( file.find( "Combined" ) != std::string::npos )
         mylegtitle = "Multijet, #gamma+jet";
@@ -225,11 +248,6 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
         mylegtitle = "Multijet, #gamma+jet, Signal";
     if ( file.find( "QCD" ) != std::string::npos )
         mylegtitle = "Multijet";
-
-
-    h1->SetLineColor(1);
-
-    // Plot caption
     TLatex* plotCaption = new TLatex();
     plotCaption->SetNDC();
     plotCaption->SetTextFont( h1->GetLabelFont() );
@@ -242,30 +260,32 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
     if ( file.find("Data") != std::string::npos )
         plotCaption->SetText( .01, .94, "CMS Preliminary                           19.7fb^{-1} (8 TeV) #geq1#gamma,#geq2jets" );
 
-    //std::cout<<"ratio plot for: "<< file<<std::endl;
+    //assertions----------------------------------------------------------------
     assert(h1->GetXaxis()->GetNbins() == h2->GetXaxis()->GetNbins());
+    if (!we) we=h2;
 
+    //pads----------------------------------------------------------------------
     std::stringstream ss;
     ss<<plotnr++;
     TCanvas *c1 = new TCanvas(((std::string)"c_"+ss.str()).c_str(),"example",600,600);
     TPad *pad1 = new TPad(((std::string)"pada_"+ss.str()).c_str(),"pada",0,0.3,1,1);
     pad1->SetBottomMargin(0);
-    pad1->SetLogy(log=="log"||log=="log_div");
+    pad1->SetLogy(log.find("log")!=std::string::npos);
     pad1->Draw();
     pad1->cd();
-    //overflowbin
+    //overflowbin --------------------------------------------------------------
     ShowOverflow( h1 );
     ShowOverflow( h2 );
     ShowOverflow( we );
     TH1* h_axis = (TH1F*)h2->Clone();
     for (std::vector<TH1*>::iterator o=other->begin(); o!=other->end(); ++o)
         if (*o) {
-            (*o)->Sumw2();
+            //(*o)->Sumw2();
             ShowOverflow( *o );
         }
     for (std::vector<TH1*>::iterator s=sig->begin(); s!=sig->end(); ++s)
         if (*s) ShowOverflow( *s );
-    //divide by bin width
+    //divide by bin width -----------------------------------------------------
     if (log=="log_div") {
         DivByBinWidth(h1);
         DivByBinWidth(h2);
@@ -275,7 +295,12 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
         for (std::vector<TH1*>::iterator s=sig->begin(); s!=sig->end(); ++s)
             if (*s) DivByBinWidth( *s );
     }
-    if (!we) we=h2;
+    //plotting style stuff ----------------------------------------------------
+    h2->SetLineColor(2);
+    h2->SetLineWidth(3);
+    //h2->Sumw2();
+    h1->SetLineColor( kBlack );
+    //h1->Sumw2();
     we->SetLineColor(2);
     we->SetFillColor(2);
     we->SetFillStyle( 3354 );
@@ -289,13 +314,19 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
     h_axis->GetYaxis()->SetLabelSize(0.05);
     TH1F* hleg = (TH1F*)we->Clone();
     hleg->SetLineWidth(2);
+    THStack hs("hs","CMS preliminary          #leq1#gamma, #leq2jets");
+    gStyle->SetTitleSize(0.2,"t");
+    // Do Legend -----------------------------------------------------------------------
     TLegend * leg = new TLegend(0.5,0.65-(0.02*(sig->size()+other->size())),0.89,0.89);
     leg->SetFillColor(0);
     leg->SetBorderSize(0);
     leg->AddEntry(h1,h1->GetTitle(),"pe");
     leg->AddEntry(hleg,h2->GetTitle(),"lef");
-    THStack hs("hs","CMS preliminary          #leq1#gamma, #leq2jets");
-    gStyle->SetTitleSize(0.2,"t");
+    for (std::vector<TH1*>::iterator s=sig->begin(); s!=sig->end(); ++s)
+        if (*s) {
+            leg->AddEntry(*s,  (*s)->GetTitle(),  "l");
+        }
+    // stack h2 and 'other' backgrounds -----------------------------------------------
     for (std::vector<TH1*>::iterator o=other->begin(); o!=other->end(); ++o)
         if (*o) {
             hs.Add(*o);
@@ -303,10 +334,7 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
                 leg->AddEntry(*o,(*o)->GetTitle(),"f");
         }
     hs.Add( (TH1F*)h2->Clone());
-    for (std::vector<TH1*>::iterator s=sig->begin(); s!=sig->end(); ++s)
-        if (*s) {
-            leg->AddEntry(*s,  (*s)->GetTitle(),  "l");
-        }
+    // syst. error band --------------------------------------------------------------- 	
     TH1* h_totalUp = TotalErrorUp((THStack*)hs.Clone(), (TH1F*)we->Clone());
     TH1* h_totalDn = TotalErrorDn((THStack*)hs.Clone(), (TH1F*)we->Clone());
     leg->SetHeader(mylegtitle.c_str());
@@ -316,27 +344,30 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
         we->SetBinError(i,0);
         cover->SetBinError(i,0);
     }
-    h1->GetYaxis()->SetTitleOffset(1.1);
+    // plot range and axis style ------------------------------------------------------
+    h_axis->GetYaxis()->SetTitleOffset(1.1);
     if (log=="linear") h_axis->SetMinimum(0);
     if (log=="linear" && h1->GetMaximum()>h_axis->GetMaximum()) h_axis->SetMaximum(h1->GetMaximum()+sqrt(h1->GetMaximum()));
-    if ((log=="log"||log=="log_div") && h1->GetMaximum()>h_axis->GetMaximum()) h_axis->SetMaximum(5.*h1->GetMaximum());
-    if (log=="log") h_axis->SetMinimum( 0.5 );
+    if (log.find("log")!=std::string::npos && h1->GetMaximum()>h_axis->GetMaximum()) h_axis->SetMaximum(5.*h1->GetMaximum());
+    if (log.find("log")!=std::string::npos) h_axis->SetMinimum( 0.5 );
     if (log=="log_div") {
         //h_axis->SetMinimum( 0.05 );
         h_axis->SetMinimum( std::min(h1->GetMinimum(0),h2->GetMinimum(0))/3 );
         h_axis->GetYaxis()->SetTitle("Events / GeV");
     }
-    if ((log=="log"||log=="log_div") && (file.find( "phi")!=std::string::npos || file.find( "Phi")!=std::string::npos))
+    if (log.find("log")!=std::string::npos && (file.find( "phi")!=std::string::npos || file.find( "Phi")!=std::string::npos))
         h_axis->SetMaximum(10.*h_axis->GetMaximum());
+    h_axis->SetMinimum( 0.5 );	
     h_totalUp->SetStats(0);
     h_totalUp->SetTitle("");
     h_totalDn->SetStats(0);
     h_totalDn->SetTitle("");
-    h1->SetStats(0);
-    h2->SetStats(0);
-    we->SetStats(0);
+    //h1->SetStats(0);
+    //h2->SetStats(0);
+    //we->SetStats(0);
     cover->SetStats(0);
     h_axis->SetStats(0);
+    // finally sraw stuff ----------------------------------------------------------------
     h_axis->DrawCopy("AXIS");
     h_totalUp->DrawCopy("hist,h,same");
     we->DrawCopy("h,same");
@@ -345,10 +376,13 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
     hs.Draw("same hist fe");
     for (std::vector<TH1*>::iterator s=sig->begin(); s!=sig->end(); ++s)
         if (*s) (*s)->DrawCopy("hist,h,same");
-    h1->DrawCopy("pe,X0,same");
+    h1->DrawCopy("E X0,same");
     leg->Draw("same");
     pad1->RedrawAxis();
     plotCaption->Draw();
+    ///
+    /// ==========================  Ratio plot  =========================================
+    ///
     c1->cd();
     TPad *pad2 = new TPad(((std::string)"padb_"+ss.str()).c_str(),"padb",0,0,1,0.3);
     pad2->SetTopMargin(0);
@@ -358,20 +392,29 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
     pad2->SetFrameBorderMode(0);
     pad2->Draw();
     pad2->cd();
-    //we->Sumw2();
+    // Get total bgd hist, divide all hists by bgd --------------------------------------
+    TH1F * bgd = (TH1F*)h2->Clone();
+    //bgd->Sumw2();
     for (std::vector<TH1*>::iterator o=other->begin(); o!=other->end(); ++o)
-        if (*o)
-            h2->Add( *o );
-    TH1F* StatUnc = (TH1F*)h2->Clone();
-    h_totalUp->Divide(h2);
-    h_totalDn->Divide(h2);
-    we->Divide(h2);
-    cover->Divide(h2);
-    h1->Divide(h2);
-    StatUnc->Divide(h2);
-    //h2->Divide(h2);
+        if (*o) bgd->Add( *o );
+    TH1F* StatUnc = (TH1F*)bgd->Clone();
+    //StatUnc->Sumw2();
+    //we->Sumw2();
+    //h_totalUp->Divide(bgd);
+    //h_totalDn->Divide(bgd);
+    //we->Divide(bgd);
+    //cover->Divide(bgd);
+    //h1->Divide(bgd);
+    //StatUnc->Divide(bgd);
+    Divide(h_totalUp,bgd);
+    Divide(h_totalDn,bgd);
+    Divide(we,       bgd);
+    Divide(cover,    bgd);
+    Divide(h1,       bgd);
+    Divide(StatUnc,  bgd);
+    // blotting style --------------------------------------------------------------------
     h_axis->SetMinimum(0.);
-    h_axis->SetMaximum(2.4);
+    h_axis->SetMaximum(3.5);
     h_axis->GetXaxis()->SetNdivisions(505);
     h_axis->GetYaxis()->SetTitle("Direct/Pred.");
     h_axis->GetYaxis()->SetTitleOffset(0.4);
@@ -384,12 +427,13 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
     h1->SetMarkerSize(1);
     h1->SetMarkerColor(1);
     h1->SetLineColor(1);
+    // draw stuff ------------------------------------------------------------------------
     h_axis->Draw("AXIS");
     h_totalUp->Draw("hist,h,same");
     we->Draw("hist,h,same");
     cover->Draw("hist,h,same");
     h_totalDn->Draw("hist,h,same");
-    StatUnc->Draw("E X0,same");
+    StatUnc->Draw("E0,X0,same");
     h1->Draw("E X0,same");
     TLine *line = new TLine(h1->GetXaxis()->GetXmin(), 1, h1->GetXaxis()->GetXmax(), 1);
     line->SetLineColor(1);
@@ -413,6 +457,7 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
     delete c1;
     delete h1;
     delete h2;
+    delete bgd;
     delete hleg;
     delete cover;
     delete we;
@@ -423,8 +468,6 @@ void RatioPlot(TH1*a, TH1*b,TH1*we, std::vector<TH1*> *sig, std::vector<TH1*> *o
 {
     //a: signal (direct simulation), can be 0
     //b: prediction
-    b->SetLineColor(2);
-    b->SetLineWidth(3);
     std::string dir = "plots/"+dir_;
     struct stat st= {0};
     if(stat(dir.c_str(),&st)==-1)
@@ -439,6 +482,8 @@ void RatioPlot(TH1*a, TH1*b,TH1*we, std::vector<TH1*> *sig, std::vector<TH1*> *o
     if (!a) {
         TCanvas * c1 = new TCanvas("","",600,600);
         gPad->SetLogy(0);
+        b->SetLineColor(2);
+        b->SetLineWidth(3);
         b->Draw("he");
         c1->SaveAs((dir+"/linear/"+file+".pdf").c_str());
         gPad->SetLogy(1);
@@ -455,7 +500,6 @@ void RatioPlot(TH1*a, TH1*b,TH1*we, std::vector<TH1*> *sig, std::vector<TH1*> *o
 //  if (file=="Closure_Combined_met") Print(a,b,we);
 //  if (file=="Closure_QCD_met") Print(a,b,we);
 //  if (file=="Closure_Data_met_fibo") Print(a,b,we);
-
 }
 
 
