@@ -169,10 +169,10 @@ void ShowOverflow(TH1*h)
 {
     int b =  h->GetXaxis()->GetNbins();
     //h->Sumw2();
-    // add the overflow bin to the last bin
-    h->SetBinContent( b, h->GetBinContent(b)+h->GetBinContent(b+1) );
     // to error propagation
     h->SetBinError( b, sqrt( pow(h->GetBinError(b),2)+pow(h->GetBinError(b+1),2)) );
+    // add the overflow bin to the last bin
+    h->SetBinContent( b, h->GetBinContent(b)+h->GetBinContent(b+1) );
     // clear overflow bin
     h->SetBinContent( b+1, 0 );
     h->SetBinError( b+1, 0 );
@@ -347,15 +347,15 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
     if (log=="linear") h_axis->SetMinimum(0);
     if (log=="linear" && h1->GetMaximum()>h_axis->GetMaximum()) h_axis->SetMaximum(h1->GetMaximum()+sqrt(h1->GetMaximum()));
     if (log.find("log")!=std::string::npos && h1->GetMaximum()>h_axis->GetMaximum()) h_axis->SetMaximum(5.*h1->GetMaximum());
-    if (log.find("log")!=std::string::npos) h_axis->SetMinimum( 0.5 );
-    if (log=="log_div") {
-        //h_axis->SetMinimum( 0.05 );
-        h_axis->SetMinimum( std::min(h1->GetMinimum(0),h2->GetMinimum(0))/3 );
-        h_axis->GetYaxis()->SetTitle("Events / GeV");
-    }
-    if (log.find("log")!=std::string::npos && (file.find( "phi")!=std::string::npos || file.find( "Phi")!=std::string::npos))
+    if (log.find("log")!=std::string::npos){// && (file.find( "phi")!=std::string::npos || file.find( "Phi")!=std::string::npos)){
         h_axis->SetMaximum(10.*h_axis->GetMaximum());
-    h_axis->SetMinimum( 0.5 );	
+        h_axis->SetMinimum( 0.05 );
+	if (other->size()>1) h_axis->SetMinimum( 2 );//plotting data
+	if (log.find("div")!=std::string::npos)
+          h_axis->SetMinimum( std::min(h1->GetMinimum(0),h2->GetMinimum(0))/3. );
+    }		
+    if (log.find("div")!=std::string::npos)
+          h_axis->GetYaxis()->SetTitle("Events / GeV");
     h_totalUp->SetStats(0);
     h_totalUp->SetTitle("");
     h_totalDn->SetStats(0);

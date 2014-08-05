@@ -5,9 +5,9 @@
 #include "TChain.h"
 #include "TError.h"
 
-const static bool SIGNAL_INJECTION = true;
+const static bool SIGNAL_INJECTION = false;
 const static bool ONLY_QCD = false;
-const static std::string version = "V03.30";
+const static std::string version = "V03.31";
 
 template <typename T>
 void Process(const std::string& str_chain, std::vector<Processor<T>*>& proc, const std::string& file, double w)
@@ -355,7 +355,7 @@ int do_data() {
     v_isr2_g.push_back( &direct_isr2 );
     v_isr2_g.push_back( &final_isr2_g ); //MET>100GeV
     v_isr2_g.push_back( &finaldirect_isr2 );
-    Process<ISR_Photon>("photonTree",v_isr2_g,"data/modifiedZGammaLL_V02.20b_tree.root",1.5*2.979 * 132.6*19789/6588161);    //0.074*19800/489474
+    Process<ISR_Photon>("photonTree",v_isr2_g,"data/modifiedZGammaLL_V02.31_tree.root",1.5*2.979 * 132.6*19789/6588161);    //0.074*19800/489474
     isr2_g.Write();
     direct_isr.AddRef( direct_isr2.GetYields() );//Add ISR2 directly to (the one and only) ISR
     finaldirect_isr.AddRef( finaldirect_isr2.GetYields() );//Add ISR2 directly to (the one and only) ISR
