@@ -141,6 +141,7 @@ void DrawStandardPlots(PlotTools *pt, const std::string& flag, const std::string
    //pt->FillEmptyPointsByInterpolation(x, y);
    
    //Log z-scale
+   c1->cd();
    c1->SetLogz(1);
    DrawPlot2D(pt,c1,h,flag,x,y,"Xsection",          "NLO cross section [pb]");
 
@@ -192,8 +193,8 @@ void DrawStandardLimitPlots(PlotTools *pt, const std::string& flag, const std::s
     c1->SetLogz(1);
     //DrawPlot2D(pt,c1,h,flag,x,y,"ObsR",              "Observed R", 0.5, 2.);
     //DrawPlot2D(pt,c1,h,flag,x,y,"ExpR",              "Expected R", 0.5, 2.);
-    DrawPlot2D(pt,c1,h,flag,x,y,"ObsR",              "Observed R", -999, -999, s);
-    DrawPlot2D(pt,c1,h,flag,x,y,"ExpR",              "Expected R", -999, -999, s);
+    DrawPlot2D(pt,c1,h,flag,x,y,"ObsR",              "Observed R", 0.2, 5, s);
+    DrawPlot2D(pt,c1,h,flag,x,y,"ExpR",              "Expected R", 0.2, 5, s);
     //DrawPlot2D(pt,c1,h,flag,x,y,"ObsDivExp",         "Observed / Expected", 0.0, 2.);
 }
 
@@ -372,13 +373,13 @@ void DrawExclusion(PlotTools *StdPlotTool, PlotTools *PlotTool, std::string flag
    //Drawing the contours
    hplot->Draw("h");
    gCLs1Sigma->Draw("f");
-   gCLsObsExcl->Draw("l");
-   //gObsUnsmoothed->Draw("l");
-   gCLsExpExcl->Draw("l");
-//   gCLsExpTheom1->Draw("l");
-        gCLsObsTheom1->Draw("l");
+   //if () gObsUnsmoothed->Draw("l");
+//   if () gCLsExpTheom1->Draw("l");
 //   gCLsExpTheop1->Draw("l");
-   gCLsObsTheop1->Draw("l");
+   if (gCLsObsExcl) gCLsObsExcl->Draw("l");
+   if (gCLsExpExcl) gCLsExpExcl->Draw("l");
+   if (gCLsObsTheom1) gCLsObsTheom1->Draw("l");
+   if (gCLsObsTheop1) gCLsObsTheop1->Draw("l");
 
    //Legends
    TLegend* leg = s->leg;
@@ -457,27 +458,39 @@ void DrawExclusion(PlotTools *StdPlotTool, PlotTools *PlotTool, std::string flag
      c1->SetLeftMargin(0.15);  
    }  
    plot2D->Draw("colz"); 
-   gCLsObsExcl->SetLineWidth(3);
-   gCLsObsExcl->SetLineColor(kBlue);
-   gCLsObsTheom1->SetLineColor(kBlue);
-   gCLsObsTheop1->SetLineColor(kBlue);
-   gCLsObsTheom1->SetLineStyle(3);
-   gCLsObsTheop1->SetLineStyle(3);
-   gCLsObsTheom1->SetLineWidth(2);
-   gCLsObsTheop1->SetLineWidth(2);
-   gCLsExpExclm1->SetLineWidth(2);
-   gCLsExpExclp1->SetLineWidth(2);
-   gCLsExpExcl->SetLineWidth(3);
-   gCLsExpExcl->SetLineStyle(9);
-   gCLsExpExcl->SetLineColor(kOrange + 9);
-   gCLsExpExclm1->SetLineColor(kOrange + 9);
-   gCLsExpExclp1->SetLineColor(kOrange + 9);
-   gCLsExpExclm1->Draw("l");
-   gCLsExpExclp1->Draw("l");
-   gCLsObsExcl->Draw("l");
-   gCLsExpExcl->Draw("l");
-   gCLsObsTheom1->Draw("l");
-   gCLsObsTheop1->Draw("l");
+   if (gCLsObsExcl){
+    gCLsObsExcl->SetLineWidth(3);
+    gCLsObsExcl->SetLineColor(kBlue);
+    gCLsObsExcl->Draw("l");
+   }
+   if (gCLsObsTheom1){
+    gCLsObsTheom1->SetLineColor(kBlue);
+    gCLsObsTheom1->SetLineStyle(3);
+    gCLsObsTheom1->SetLineWidth(2);
+    gCLsObsTheom1->Draw("l");
+   }
+   if (gCLsObsTheop1){
+    gCLsObsTheop1->SetLineColor(kBlue);
+    gCLsObsTheop1->SetLineStyle(3);
+    gCLsObsTheop1->SetLineWidth(2);
+    gCLsObsTheop1->Draw("l");
+   }
+   if (gCLsExpExclm1){
+    gCLsExpExclm1->SetLineWidth(2);
+    gCLsExpExclm1->SetLineColor(kOrange + 9);
+    gCLsExpExclm1->Draw("l");
+   }
+   if (gCLsExpExclp1){
+    gCLsExpExclp1->SetLineWidth(2);
+    gCLsExpExclp1->SetLineColor(kOrange + 9);
+    gCLsExpExclp1->Draw("l");
+   }
+   if (gCLsExpExcl){
+    gCLsExpExcl->SetLineWidth(3);
+    gCLsExpExcl->SetLineStyle(9);
+    gCLsExpExcl->SetLineColor(kOrange + 9);
+    gCLsExpExcl->Draw("l");
+   }
    //if (s->excluded) s->excluded->Draw();
    TLegend* legSMS = s->leg;
    std::string header = legSMS->GetHeader();

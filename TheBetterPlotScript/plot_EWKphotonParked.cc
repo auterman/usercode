@@ -78,8 +78,10 @@ void DoPlotsFor(const std::string& x, const std::string& y, const std::string& f
     PlotTool->Remove("Xsection", Compare::less, 0.0);
 
     //Show what points are available before filling the holes, by plotting the acceptance
-    c1->SetLogz(0);
-    DrawPlot2D(PlotTool,c1,new_plot_range,flag,x,y,"Acceptance_ni", "Acceptance (no interpolation)", s->MinAccZ, s->MaxAccZ, s );
+    gStyle->SetTitleFont(43, "xyz");
+    gStyle->SetTitleSize(32, "xyz");
+    TCanvas* c4    = new TCanvas("c4", "c4", 900, 800);
+    DrawPlot2D(PlotTool,c4,new_plot_range,flag,x,y,"Acceptance_ni", "Acceptance (no interpolation)", s->MinAccZ, s->MaxAccZ, s );
 
     //Fill the holes by 2D interpolation in gl-sq
     PlotTool->FillEmptyPointsByInterpolation(x, y);
@@ -203,7 +205,7 @@ int plot(int argc, char** argv) {
 
   //Johannes first limits
   if (1){
-  DoPlotsFor("wino","bino","WinoBino","2014-07-22-22-36-WinoBino/filelist.txt",WinoBino_Style(),1);
+  DoPlotsFor("bino","wino","WinoBino","2014-07-29-14-44-WinoBino/filelist.txt",WinoBino_Style(),1);
   }
 
     
