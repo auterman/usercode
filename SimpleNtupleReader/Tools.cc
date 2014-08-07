@@ -84,6 +84,7 @@ void Yields::Add(Yields*r)
     for (std::map<int,Yield>::iterator it=ryield->begin(); it!=ryield->end(); ++it) {
         yield[it->first].AddWeight( it->second.GetWeights() );
         yield[it->first].AddWeightError( it->second.GetWeightErrors() );
+        yield[it->first].AddSamples( it->second.GetSamples() );
     }
 }
 

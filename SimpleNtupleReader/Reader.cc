@@ -7,7 +7,7 @@
 
 const static bool SIGNAL_INJECTION = false;
 const static bool ONLY_QCD = false;
-const static std::string version = "V03.31";
+const static std::string version = "V03.30";
 
 template <typename T>
 void Process(const std::string& str_chain, std::vector<Processor<T>*>& proc, const std::string& file, double w)
@@ -589,7 +589,7 @@ int main()
 
     setStyle();
     Reader(); //MC closure
-    do_data();  //data results
+    //do_data();  //data results
 
     return 0;
 }
