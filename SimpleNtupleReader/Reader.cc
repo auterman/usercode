@@ -7,7 +7,7 @@
 
 const static bool SIGNAL_INJECTION = false;
 const static bool ONLY_QCD = false;
-const static std::string version = "V03.30";
+const static std::string version = "V03.31";
 
 template <typename T>
 void Process(const std::string& str_chain, std::vector<Processor<T>*>& proc, const std::string& file, double w)
@@ -55,11 +55,9 @@ int Reader()
     v_gjets_g.push_back( &final_gj_g );
     v_gjets_g.push_back( &finaldirect_gj );
     if (!ONLY_QCD) {
-        if (SIGNAL_INJECTION) Process<GJets_Photon>("photonTree",v_gjets_g,"data/W_1700_720_375_V03.30_tree.root", 0.3164*19712/60000 ); //0.3164*19712/60000
+        if (SIGNAL_INJECTION) Process<GJets_Photon>("photonTree",v_gjets_g,"data/W_1700_720_375_V03.30_tree.root", 0.3164*19712/60000 );
         Process<GJets_Photon>("photonTree",v_gjets_g,"data/"+version+"/GJets_200_400_"+version+"_tree.root",0.32466417277);
         Process<GJets_Photon>("photonTree",v_gjets_g,"data/"+version+"/GJets_400_inf_"+version+"_tree.root",0.0502103290278 );
-        //Process<GJets_Photon>("photonTree",v_gjets_g,"data/"+version+"/GJets_200_400_"+version+"_tree.root",1);
-        //Process<GJets_Photon>("photonTree",v_gjets_g,"data/"+version+"/GJets_400_inf_"+version+"_tree.root",1 );
         gjets_g.Write();
         direct_gj.Write();
         tight_g.Add( weights_gj_g.GetYields() );
@@ -91,9 +89,6 @@ int Reader()
     Process<QCD_Photon>("photonTree",v_qcd_g,"data/"+version+"/QCD_250_500_"+version+"_tree.root",201.935697478);
     Process<QCD_Photon>("photonTree",v_qcd_g,"data/"+version+"/QCD_500_1000_"+version+"_tree.root",5.45224379701 );
     Process<QCD_Photon>("photonTree",v_qcd_g,"data/"+version+"/QCD_1000_inf_"+version+"_tree.root",0.291768273061);
-    //Process<QCD_Photon>("photonTree",v_qcd_g,"data/"+version+"/QCD_250_500_"+version+"_tree.root",1);
-    //Process<QCD_Photon>("photonTree",v_qcd_g,"data/"+version+"/QCD_500_1000_"+version+"_tree.root",1);
-    //Process<QCD_Photon>("photonTree",v_qcd_g,"data/"+version+"/QCD_1000_inf_"+version+"_tree.root",1);
     qcd_g.Write();
     direct_qcd.Write();
     tight_g.Add( weights_qcd_g.GetYields() );
@@ -115,11 +110,9 @@ int Reader()
     v_gjets_j.push_back( &gjets_j );
     v_gjets_j.push_back( &weights_gj_j );
     if (!ONLY_QCD) {
-        if (SIGNAL_INJECTION) Process<GJets_Jet>("photonJetTree",v_gjets_j,"data/W_1700_720_375_V03.30_tree.root", 0.3164*19712/60000 ); //0.3164*19712/60000
+        if (SIGNAL_INJECTION) Process<GJets_Jet>("photonJetTree",v_gjets_j,"data/W_1700_720_375_V03.30_tree.root", 0.3164*19712/60000 );
         Process<GJets_Jet>("photonJetTree",v_gjets_j,"data/"+version+"/GJets_200_400_"+version+"_tree.root",0.32466417277);
         Process<GJets_Jet>("photonJetTree",v_gjets_j,"data/"+version+"/GJets_400_inf_"+version+"_tree.root",0.0502103290278 );
-        //Process<GJets_Jet>("photonJetTree",v_gjets_j,"data/"+version+"/GJets_200_400_"+version+"_tree.root",1);
-        //Process<GJets_Jet>("photonJetTree",v_gjets_j,"data/"+version+"/GJets_400_inf_"+version+"_tree.root",1);
         gjets_j.Write();
         loose_g.Add( weights_gj_j.GetYields() );
     }
@@ -143,9 +136,6 @@ int Reader()
     Process<QCD_Jet>("photonJetTree",v_qcd_j,"data/"+version+"/QCD_250_500_"+version+"_tree.root",201.935697478);
     Process<QCD_Jet>("photonJetTree",v_qcd_j,"data/"+version+"/QCD_500_1000_"+version+"_tree.root",5.45224379701 );
     Process<QCD_Jet>("photonJetTree",v_qcd_j,"data/"+version+"/QCD_1000_inf_"+version+"_tree.root",0.291768273061);
-    //Process<QCD_Jet>("photonJetTree",v_qcd_j,"data/"+version+"/QCD_250_500_"+version+"_tree.root",1);
-    //Process<QCD_Jet>("photonJetTree",v_qcd_j,"data/"+version+"/QCD_500_1000_"+version+"_tree.root",1 );
-    //Process<QCD_Jet>("photonJetTree",v_qcd_j,"data/"+version+"/QCD_1000_inf_"+version+"_tree.root",1);
     qcd_j.Write();
     loose_g.Add( weights_qcd_j.GetYields() );
 
@@ -203,8 +193,6 @@ int Reader()
         if (SIGNAL_INJECTION) Process<GJets_Jet>("photonJetTree",vc_gjets_j,"data/W_1700_720_375_V03.30_tree.root", 0.3164*19712/60000 ); //0.3164*19712/60000
         Process<GJets_Jet>("photonJetTree",vc_gjets_j,"data/"+version+"/GJets_200_400_"+version+"_tree.root",0.32466417277);
         Process<GJets_Jet>("photonJetTree",vc_gjets_j,"data/"+version+"/GJets_400_inf_"+version+"_tree.root",0.0502103290278 );
-        //Process<GJets_Jet>("photonJetTree",vc_gjets_j,"data/"+version+"/GJets_200_400_"+version+"_tree.root",1);
-        //Process<GJets_Jet>("photonJetTree",vc_gjets_j,"data/"+version+"/GJets_400_inf_"+version+"_tree.root",1);
 //        closure_gj.Write();
     }
 
@@ -225,9 +213,6 @@ int Reader()
     Process<QCD_Jet>("photonJetTree",vc_qcd_j,"data/"+version+"/QCD_250_500_"+version+"_tree.root",201.935697478);
     Process<QCD_Jet>("photonJetTree",vc_qcd_j,"data/"+version+"/QCD_500_1000_"+version+"_tree.root",5.45224379701 );
     Process<QCD_Jet>("photonJetTree",vc_qcd_j,"data/"+version+"/QCD_1000_inf_"+version+"_tree.root",0.291768273061);
-    //Process<QCD_Jet>("photonJetTree",vc_qcd_j,"data/"+version+"/QCD_250_500_"+version+"_tree.root",1);
-    //Process<QCD_Jet>("photonJetTree",vc_qcd_j,"data/"+version+"/QCD_500_1000_"+version+"_tree.root",1);
-    //Process<QCD_Jet>("photonJetTree",vc_qcd_j,"data/"+version+"/QCD_1000_inf_"+version+"_tree.root",1);
 
     std::cout << "\nSignal Photon Tree\n======================" <<std::endl;
     std::vector<Processor<Signal_Photon>*> v_Signal_g;
@@ -268,8 +253,7 @@ int Reader()
     vc_contamin_j.push_back( &cut_contamin );
     vc_contamin_j.push_back( &contamination );
     vc_contamin_j.push_back( &signal_conta);
-    Process<Signal_Jet>("photonJetTree",vc_contamin_j,"data/W_1700_720_375_V03.30_tree.root", 0.3164*19712/60000 ); //0.3164*19712/60000
-    //Process<Signal_Jet>("photonJetTree",v_Signal_j,"data/B_1700_1120_375_V03.30_tree.root",0.01920353672);
+    Process<Signal_Jet>("photonJetTree",vc_contamin_j,"data/W_1700_720_375_V03.30_tree.root", 0.3164*19712/60000 );
     contamination.SetLegTitel("#bf{CMS preliminary}");
 //    contamination.Write();
 
@@ -288,8 +272,8 @@ int Reader()
         closure.AddRef(          closure_qcd.GetYields());
         closure.Write();
 
-        final.SetNominator(    &tight_g );   //Zähler, tight isolated
-        final.SetDenominator(  &loose_g );   //Nenner, loose isolated
+        //final.SetNominator(    &tight_g );   //Zähler, tight isolated
+        //final.SetDenominator(  &loose_g );   //Nenner, loose isolated
         final.AddDirectYields( finaldirect_qcd.GetYields() );
         final.AddDirectYields( finaldirect_gj.GetYields() );
         finaldirect_signal.LineColor( 4 );
