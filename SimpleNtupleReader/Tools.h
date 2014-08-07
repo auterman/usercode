@@ -247,7 +247,7 @@ public:
     }
     double error() {
         return sqrt(std::accumulate(w.begin(), w.end(), 0.,square<double>()) 
-//	            + PoissonError2()
+	            + PoissonError2()
 		   );
     }
     std::vector<double>  * GetWeights() {
@@ -263,7 +263,6 @@ public:
 	  samples[it->first] = it->second;
     } 
 
-/*    
     double PoissonError2()
     {
       if (!left_) return 0;
@@ -279,7 +278,8 @@ public:
       }
       return res;
     }
-*/
+
+/*
     double PoissonError2()
     {
       if (!left_) return 0;
@@ -303,7 +303,7 @@ public:
       }
       return res;
     }
-
+*/
 
 
 private:
