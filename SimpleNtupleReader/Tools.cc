@@ -274,18 +274,20 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
     pad1->SetLogy(log.find("log")!=std::string::npos);
     pad1->Draw();
     pad1->cd();
-    //overflowbin --------------------------------------------------------------
-    ShowOverflow( h1 );
-    ShowOverflow( h2 );
-    ShowOverflow( we );
     TH1* h_axis = (TH1F*)h2->Clone();
-    for (std::vector<TH1*>::iterator o=other->begin(); o!=other->end(); ++o)
-        if (*o) {
-            //(*o)->Sumw2();
-            ShowOverflow( *o );
-        }
-    for (std::vector<TH1*>::iterator s=sig->begin(); s!=sig->end(); ++s)
-        if (*s) ShowOverflow( *s );
+    //overflowbin --------------------------------------------------------------
+    if ( file.find("nooverflow")==std::string::npos ) {
+	    ShowOverflow( h1 );
+	    ShowOverflow( h2 );
+	    ShowOverflow( we );
+	    for (std::vector<TH1*>::iterator o=other->begin(); o!=other->end(); ++o)
+        	if (*o) {
+        	    //(*o)->Sumw2();
+        	    ShowOverflow( *o );
+        	}
+	    for (std::vector<TH1*>::iterator s=sig->begin(); s!=sig->end(); ++s)
+        	if (*s) ShowOverflow( *s );
+    }	
     //divide by bin width -----------------------------------------------------
     if (log=="log_div") {
         DivByBinWidth(h1);

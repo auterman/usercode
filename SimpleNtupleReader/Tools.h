@@ -76,6 +76,7 @@ const static int n_50 = 50;
 const static double bins_11_0_10[] = {-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5,10.5};
 const static double bins_9_2_10[] = {1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5,10.5};
 const static double bins_7_2_8[] = {1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5};
+const static double bins_6_2_7[] = {1.5,2.5,3.5,4.5,5.5,6.5,7.5};
 const static double single_bin[] = {0};
 
 const static double bins_test_ht[] = { 500, 515, 537, 571, 621, 697, 2000};
@@ -246,7 +247,7 @@ public:
     }
     double error() {
         return sqrt(std::accumulate(w.begin(), w.end(), 0.,square<double>()) 
-	            + PoissonError2()
+//	            + PoissonError2()
 		   );
     }
     std::vector<double>  * GetWeights() {
@@ -261,7 +262,8 @@ public:
         if (samples.find(it->first)==samples.end())
 	  samples[it->first] = it->second;
     } 
-    
+
+/*    
     double PoissonError2()
     {
       if (!left_) return 0;
@@ -277,6 +279,32 @@ public:
       }
       return res;
     }
+*/
+    double PoissonError2()
+    {
+      if (!left_) return 0;
+      double res=0;
+      Yield * bin = left_;
+      std::map<std::string, double> leftsamples ;
+      while (bin ) {
+        std::map<std::string, double> * ts = bin->GetSamples();
+        leftsamples.insert(ts->begin(), ts->end());
+	bin = bin->left_;
+      }
+//  std::cerr<<leftsamples.size()<<"<->this:"<<samples.size()<<std::endl;    
+      if (!leftsamples.size()) return 0;
+      for (std::map<std::string, double>::iterator ls=leftsamples.begin(); ls!=leftsamples.end(); ++ls){
+//        std::cerr << "searching "<<ls->first<<"  w="<<ls->second<<std::endl;
+	if (samples.find(ls->first)==samples.end()) {
+	  //found a bin where sample *ls is not contained, but is contained in its (direct) left neigbor
+	  res += 1.8410 * 1.8410 * ls->second * ls->second; //add Poisson error squared
+//	  std::cout << "Poisson error sample="<<ls->first<<" err2="<<res<<std::endl;
+	}
+      }
+      return res;
+    }
+
+
 
 private:
     std::vector<double> w;
@@ -354,6 +382,7 @@ public:
             binning_[n] = new Binnings(bins,nbins,eval);
         else throw "Yields::AddBinnings("+n+") added more than Once!";
     };
+    void Reserve(int n){ for (int i=0;i<n;++i) yield[i]=Yield();}
     void Add(Yields*r);
     std::map<int,Yield> * GetYields() {
         return &yield;
@@ -418,6 +447,7 @@ class Weighter : public Processor<T> {
 public:
     Weighter(std::string n):Processor<T>(n) {
         yields_=new Yields("QCD weighting: "+n);
+	yields_->Reserve(500);//make sure there are at least 500 properly initialized bins
     }
     //virtual void Init(){};
     virtual bool Process(T*t,Long64_t i,Long64_t n,double);
@@ -679,7 +709,10 @@ void Closure<T>::Book()
 {
     //Plotter<T>::Book();
 
-    BookHistogram("n_jet", "n_{jet}","Events", titel_,bins_7_2_8, 8);
+    BookHistogram("n_jet7", "n_{jet}","Events", titel_,bins_6_2_7, 7);
+    BookHistogram("n_jet7_nooverflow", "n_{jet}","Events", titel_,bins_6_2_7, 7);
+    BookHistogram("n_jet8", "n_{jet}","Events", titel_,bins_7_2_8, 8);
+    BookHistogram("n_jet8_nooverflow", "n_{jet}","Events", titel_,bins_7_2_8, 8);
     BookHistogram("njet_met0_30", "n_{jet}","Events", titel_,bins_7_2_8, 8);
     BookHistogram("njet_met30_60", "n_{jet}","Events", titel_,bins_7_2_8, 8);
     BookHistogram("njet_met60_100", "n_{jet}","Events", titel_,bins_7_2_8, 8);
@@ -955,7 +988,10 @@ bool Closure<T>::Process(T*t,Long64_t i,Long64_t n,double w)
     */
 
     int njet = JetMult(  g_pt, g_eta, g_phi, t->jets_pt, t->jets_eta, t->jets_phi, t->jets_);
-    Fill("n_jet",       njet, weight, we, bin, samplestr, w);
+    Fill("n_jet7",            njet, weight, we, bin, samplestr, w);
+    Fill("n_jet7_nooverflow", njet, weight, we, bin, samplestr, w);
+    Fill("n_jet8",            njet, weight, we, bin, samplestr, w);
+    Fill("n_jet8_nooverflow", njet, weight, we, bin, samplestr, w);
     Fill("n_loose",     LooseMult(t->photons_,t->photons_pt, t->photons__ptJet, t->photons_phi, t->photons_eta,t->photons_hadTowOverEm,t->photons_sigmaIetaIeta,t->photons_chargedIso,t->photons_neutralIso,t->photons_photonIso,t->photons_pixelseed), weight, we, bin, samplestr, w);
     Fill("n_tight",     TightMult(t->photons_,t->photons_pt, t->photons__ptJet, t->photons_phi, t->photons_eta,t->photons_hadTowOverEm,t->photons_sigmaIetaIeta,t->photons_chargedIso,t->photons_neutralIso,t->photons_photonIso,t->photons_pixelseed), weight, we, bin, samplestr, w);
 
