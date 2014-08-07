@@ -5,9 +5,9 @@
 #include "TChain.h"
 #include "TError.h"
 
-const static bool SIGNAL_INJECTION = true;
+const static bool SIGNAL_INJECTION = false;
 const static bool ONLY_QCD = false;
-const static std::string version = "V03.30";
+const static std::string version = "V03.31";
 
 template <typename T>
 void Process(const std::string& str_chain, std::vector<Processor<T>*>& proc, const std::string& file, double w)
@@ -329,8 +329,9 @@ int do_data() {
     Process<ISR_Photon>("photonTree",v_ISR_g,"data/"+version+"/TTGamma_"+version+"_tree.root",1.5*  2.166*19789/1719954);       //2.166*19800/1719954
     Process<ISR_Photon>("photonTree",v_ISR_g,"data/"+version+"/WGamma_50_130_"+version+"_tree.root",1.5* 1.17*19789/1135698); //1.17*19800/1135698
     Process<ISR_Photon>("photonTree",v_ISR_g,"data/"+version+"/WGamma_130_inf_"+version+"_tree.root",1.5* 0.2571*19789/471458);//0.2571*19800/471458
-    //Process<ISR_Photon>("photonTree",v_ISR_g,"data/modifiedZGammaNuNu_"+version+"_tree.root",1.5* 0.074*19789/489474);    //0.074*19800/489474
-    Process<ISR_Photon>("photonTree",v_ISR_g,"data/ZGammaNuNu_"+version+"_tree.root",1.5* 0.074*19789/489474);    //0.074*19800/489474
+    Process<ISR_Photon>("photonTree",v_ISR_g,"data/"+version+"/ptCuttedZGammaNuNu_"+version+"_tree.root",1.5* 0.074*19789/489474);    //0.074*19800/489474
+    Process<ISR_Photon>("photonTree",v_ISR_g,"data/"+version+"/ptCuttedZGamma_"+version+"_tree.root",1.5* 123.9*19789/6321549);    //0.074*19800/489474
+    //Process<ISR_Photon>("photonTree",v_ISR_g,"data/ZGammaNuNu_"+version+"_tree.root",1.5* 0.074*19789/489474);    //0.074*19800/489474
     //Process<ISR_Photon>("photonTree",v_ISR_g,"data/ZGammaLL_V02.19b_tree.root",1.5* 132.6*19789/6588161);    //0.074*19800/489474
     ISR_g.Write();
 
@@ -355,7 +356,8 @@ int do_data() {
     v_isr2_g.push_back( &direct_isr2 );
     v_isr2_g.push_back( &final_isr2_g ); //MET>100GeV
     v_isr2_g.push_back( &finaldirect_isr2 );
-    Process<ISR_Photon>("photonTree",v_isr2_g,"data/modifiedZGammaLL_V02.20b_tree.root",1.5*2.979 * 132.6*19789/6588161);    //0.074*19800/489474
+    //Process<ISR_Photon>("photonTree",v_isr2_g,"data/V03.31/modifiedZGammaLL_V02.31_tree.root",1.5*2.979 * 132.6*19789/6588161);    //0.074*19800/489474
+    //Process<ISR_Photon>("photonTree",v_isr2_g,"../../../code/mllForChr/modifiedZGammaLL_V02.31_test2_tree.root",1.5*2.979 * 132.6*19789/6588161);    //0.074*19800/489474
     isr2_g.Write();
     direct_isr.AddRef( direct_isr2.GetYields() );//Add ISR2 directly to (the one and only) ISR
     finaldirect_isr.AddRef( finaldirect_isr2.GetYields() );//Add ISR2 directly to (the one and only) ISR
@@ -384,7 +386,7 @@ int do_data() {
     v_Signal_g.push_back( &final_signal_g );//MET>100GeV
     v_Signal_g.push_back( &finaldirect_signal );
     //Process<Signal_Photon>("photonTree",v_Signal_g,"data/B_1700_1120_375_V03.30_tree.root",0.01920353672);
-    Process<Signal_Photon>("photonTree",v_Signal_g,"data/W_1700_720_375_V03.30_tree.root", 0.3164*19712/60000 ); //0.3164*19712/60000
+    Process<Signal_Photon>("photonTree",v_Signal_g,"data/W_1700_720_375_V03.31_tree.root", 0.3164*19712/60000 ); //0.3164*19712/60000
     //direct_signal.AddSignalYields( direct_signal.GetYields());   //Signal
 
     Signal_g.Write();
