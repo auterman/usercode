@@ -3,6 +3,7 @@
 #include "ConfigFile.h"
 #include <sys/stat.h>
 #include <algorithm>
+#include <fstream>
 
 /*
  * COMMENTS on used datasets, scans, etc.
@@ -102,7 +103,7 @@ void points::Write(const std::string dir) {
  for (vector<point>::iterator point = p_.begin(); point != p_.end(); ++point) {
 
     ofstream ofile;
-    ofile.open(dir+"/"+point->filename+".txt");
+    ofile.open( (std::string)(dir+"/"+point->filename+".txt").c_str() );
     
     PrintGlobal( ofile, *point );
     PrintGlobalSums( ofile, *point );
@@ -135,21 +136,27 @@ void points::Write(const std::string dir) {
       double unc2=0;
       for (std::map<std::string,point::sample>::iterator s=bin->samples.begin(); s!=bin->samples.end();++s ){
         if (s->first!="signal" && s->first!="data") {
-	  unc2 += s->second.GetTotalAbsSyst2();
-	  unc2 += s->second.GetTotalAbsStat2();
+	  //std::cout << s->first << " stat2 = " << s->second.GetTotalAbsStat2() << ", syst2 = "<<s->second.GetTotalAbsSyst2() << std::endl;
+	  unc2 += fabs(s->second.GetTotalAbsSyst2());
+	  unc2 += fabs(s->second.GetTotalAbsStat2());
 	}
       }
 
       double s = bin->samples["signal"].yield;
-      for (std::map<std::string,double>::iterator u=bin->samples["signal"].abs_syst_unc.begin();u!=bin->samples["signal"].abs_syst_unc.end();++u)
+      for (std::map<std::string,double>::iterator u=bin->samples["signal"].abs_syst_unc.begin();u!=bin->samples["signal"].abs_syst_unc.end();++u){
+         //std::cout << "signal " << u->first << "  " << u->second <<std::endl;
          unc2 += u->second * u->second;
-      for (std::map<std::string,double>::iterator u=bin->samples["signal"].abs_stat_unc.begin();u!=bin->samples["signal"].abs_stat_unc.end();++u)
+      }	 
+      for (std::map<std::string,double>::iterator u=bin->samples["signal"].abs_stat_unc.begin();u!=bin->samples["signal"].abs_stat_unc.end();++u){
+         //std::cout << "signal " << u->first << "  " << u->second <<std::endl;
          unc2 += u->second * u->second;
+      }
       if (s) {
         R=2.*sqrt(unc2)/s;
         ofile << "# bin"<< (int)(bin-point->bins.begin()) <<" R_firstguess = " << R << "\n";
 	if (R<Rmin) Rmin=R;  
-      }	
+      }
+      //std::cout<<"bin"<<bin-point->bins.begin()<<", s="<<s<<", unc="<<sqrt(unc2)<<", R = " <<R<<", R_min = "<<Rmin<<std::endl<<std::endl;
     }
     ofile << "# R_firstguess = " << Rmin << "\n###============================================\n\n";
 
@@ -198,7 +205,7 @@ void points::Write(const std::string dir) {
     for (int bin=1; bin<=n_channels; ++bin) 
     	for (int sample=0; sample<(int)point->bins[bin-1].samples.size()-1; ++sample) {
  	   stringstream ss;
- 	   ss << (sample-1);
+ 	   ss << sample;
  	   exp << ss.str();
     	}   
     exp << "rate"; 
@@ -282,8 +289,8 @@ void points::WriteSingleBin(const std::string dir) {
        for (std::map<std::string,point::sample>::iterator s=bin->samples.begin(); s!=bin->samples.end();++s ){
            if (s->first!="signal" && s->first!="data") {
 	     bkg         += s->second.yield;
-	     u2_syst_bkg += s->second.GetTotalAbsSyst2();
-	     u2_stat_bkg += s->second.GetTotalAbsStat2();
+	     u2_syst_bkg += fabs(s->second.GetTotalAbsSyst2());
+	     u2_stat_bkg += fabs(s->second.GetTotalAbsStat2());
 	   }
        }
        ofile << "# background = " << bkg << "\n";
@@ -294,8 +301,8 @@ void points::WriteSingleBin(const std::string dir) {
        double unc2=0;
        for (std::map<std::string,point::sample>::iterator s=bin->samples.begin(); s!=bin->samples.end();++s ){
          if (s->first!="signal" && s->first!="data") {
-	   unc2 += s->second.GetTotalAbsSyst2();
-	   unc2 += s->second.GetTotalAbsStat2();
+	   unc2 += fabs(s->second.GetTotalAbsSyst2());
+	   unc2 += fabs(s->second.GetTotalAbsStat2());
 	 }
        }
 
@@ -344,7 +351,7 @@ void points::WriteSingleBin(const std::string dir) {
        exp << "process"; 
        for (int sample=0; sample<(int)bin->samples.size()-1; ++sample) {
  	      stringstream ss;
- 	      ss << (sample-1);
+ 	      ss << sample;
  	      exp << ss.str();
        }   
        exp << "rate"; 
@@ -537,11 +544,11 @@ void ReadSignal(std::string sig_file, std::string dat_file="", std::string bgd_f
 
     //backgds
     AddYields(p, dat_cfg, "BG Vg yield", "Vg", nBins);
-    AddSystematics(p, dat_cfg, "BG Vg syst uncertainty abs", "Scaling_syst_abs",  "Vg", nBins);
+    AddSystematics(p, dat_cfg, "BG Vg syst uncertainty abs", "Scaling_syst_abs",  "Vg", nBins, -1);
     AddStatistics( p, dat_cfg, "BG Vg stat uncertainty abs", "stat_abs",     "Vg", nBins);
 
     AddYields(p, dat_cfg, "BG gjets yield", "gjets", nBins);
-    AddSystematics(p, dat_cfg, "BG gjets syst uncertainty abs", "Scaling_syst_abs", "gjets", nBins, -1);
+    AddSystematics(p, dat_cfg, "BG gjets syst uncertainty abs", "Scaling_syst_abs", "gjets", nBins);
     AddStatistics( p, dat_cfg, "BG gjets stat uncertainty abs", "stat_abs",         "gjets", nBins);
 
     AddYields(p, dat_cfg, "BG ttg yield", "ttg", nBins);
@@ -579,6 +586,7 @@ void ReadSignal(std::string sig_file, std::string dat_file="", std::string bgd_f
   if (bgd_cfg!=dat_cfg) delete bgd_cfg;
   if (dat_cfg!=cfg) delete dat_cfg;
   delete cfg;
+  std::cout << "READ signal file: '"<<sig_file<<"'" << std::endl;; 
 }
 
 /*
@@ -687,19 +695,19 @@ void AddXsec(std::string filelist) {
 	}
 
 }
+*/
 
-void Add_WB_NewXsec(std::string filelist) {
+void points::Add_WB_PDF(const std::string& filelist) {
 	std::cout << "READ Wino/Bino new XS---------file:" << filelist << std::endl;
 	std::ifstream masses_file;
 	masses_file.open(filelist.c_str());
 	std::string file;
-	point p;
-	p.lumi = luminosity;
-	double LO_dn, LO_up, NLO_up, NLO_dn;
+	double totalGenerated, squark, gluino, bino, wino, xsec, LO_up, LO_dn, 
+	       xsecNLO, NLO_up, NLO_dn;
 	while (1) {
 	   //$nevents, $msquark, $mgluino, $mbino, $mwwino, $loxsec,$lohierr,$loloerr,$nloxsec,$nlohierr,$nloloerr); 
-	   masses_file >> p. totalGenerated >> p.squark >> p.gluino >> p.chi >> p.cha >> p.xsec >> LO_up >> LO_dn 
-	               >> p.xsecNLO >> NLO_up >> NLO_dn;
+	   masses_file >> totalGenerated >> squark >> gluino >> bino >> wino>> xsec >> LO_up >> LO_dn 
+	               >> xsecNLO >> NLO_up >> NLO_dn;
 	   if (!masses_file.good()) break;
 	   
 	   //std::cout << "READ XSEC:" << p.xsecNLO << std::endl;
@@ -709,35 +717,22 @@ void Add_WB_NewXsec(std::string filelist) {
 	   //std::cout << "wino= " << p.cha << std::endl;
 	   
 	   point * a = 0;
-	   a = Points.Get(p.gluino, p.squark, p.chi, p.cha);
-	   if (a && !a->u_NLO){
-  	     //std::cout << "found a= " << a->squark << std::endl;
-	     a->squark      = p.squark;
-	     a->gluino      = p.gluino;
-	     a->xsec        = p.xsec;
-	     a->xsecNLO     = fabs( p.xsecNLO );
-	     a->signal     *= p.lumi*p.xsecNLO/p.totalGenerated;
-	     //a->u_sig_stat *= p.lumi*p.xsecNLO/p.totalGenerated;
-	     a->qcd_contamination  *= p.lumi*p.xsecNLO/p.totalGenerated;
-	     a->ewk_contamination  *= p.lumi*p.xsecNLO/p.totalGenerated;
-	     a->u_NLO       = fabs( NLO_up / p.xsecNLO );
-	     a->u_NLO_Up    = fabs( NLO_up / p.xsecNLO );
-	     a->u_NLO_Dn    = fabs( NLO_dn / p.xsecNLO );
-	     a->totalGenerated = p.totalGenerated;
-	     for (std::vector<point::bin>::iterator bin=a->bins.begin(); bin!=a->bins.end(); ++bin) {
-	       bin->signal     *= p.lumi*p.xsecNLO/p.totalGenerated;
-	       //bin->u_sig_stat *= p.lumi*p.xsecNLO/p.totalGenerated;
-	       bin->qcd_contamination *= p.lumi*p.xsecNLO/p.totalGenerated;
-	       bin->ewk_contamination *= p.lumi*p.xsecNLO/p.totalGenerated;
-	       bin->u_NLO = 1.0 + fabs( NLO_up / p.xsecNLO ); //assume that 'u_NLO_up' is the absolute uncertainty in the same units as 'xsecNLO'
-	     }  
-	   }
-	   //else Points.Add(p); //We don't actually want x-sections for points for which we don't have event yields
+	   a = Points.Get("bino mass", bino, "wino mass", wino);
+	   if (a){
+  	     //std::cout << "bino=" << bino << ", wino="<<wino<<", j-xs="<<a->info["Xsection.NLO"] << " <-> xs:"<<xsecNLO*1000. << std::endl;
+	     a->info["signal xsec7TeV.LO"] = xsec;
+	     a->info["signal xsec7TeV.NLO"] = xsecNLO;
+	     
+	     a->info["signal u_NLO"]       = fabs( NLO_up / xsecNLO );
+	     a->info["signal u_NLO_Up"]    = fabs( NLO_up / xsecNLO );
+	     a->info["signal u_NLO_Dn"]    = fabs( NLO_dn / xsecNLO );
 
+	   }
 	}
 
 }
 
+/*
 void AddPDFs(const std::string filelist) {
 	std::ifstream masses_file;
 	masses_file.open(filelist.c_str());
@@ -925,11 +920,12 @@ void points::Do(const std::string& name, const std::string&dat, const std::strin
    Points.Reset();
    ReadSignal(sig, dat);
 //   if (xsec!="") AddXsec(xsec);
-//   if (pdf!="")  AddPDFs(pdf);
+   if (pdf!="") Points.Add_WB_PDF( pdf );
    
    MkDir( "DataCards" );
    Points.Write(((std::string)"DataCards/"+name).c_str());
    Points.WriteSingleBin(((std::string)"DataCards/"+name+"_SingleChannels").c_str());
+   
    
    //{ points MergedPoints;
    //  for (std::vector<point>::iterator it=Points.Get()->begin(); it!=Points.Get()->end(); ++it)
@@ -948,6 +944,9 @@ int main(int argc, char* argv[]) {
    std::string data  ="inputs/johannes_20140728.txt";   
 
 
-   Points.Do("WinoBino", signal, data, "", "");   
+  // Points.Do("WinoBino", signal, data, "", "");   
+   
+   Points.Do("WinoBino_MT", "inputs/johannes_20140804_MT.txt", "inputs/johannes_20140804_MT.txt", "", "inputs/Spectra_WB.xsec");   
+   Points.Do("WinoBino_NewSigma", "inputs/johannes_20140804_NewSigma.txt", "inputs/johannes_20140804_NewSigma.txt", "", "inputs/Spectra_WB.xsec");   
 
 }

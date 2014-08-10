@@ -74,6 +74,7 @@ public:
 	
 	void Add(point p) { p_.push_back(p); }
 	void Reset() { p_.clear();}
+	void Add_WB_PDF(const std::string&);
 	
 	void Write(const std::string dir);	
 	void WriteSingleBin(const std::string dir);
