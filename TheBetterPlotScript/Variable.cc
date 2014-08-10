@@ -12,6 +12,15 @@
 //private look-up table for the "static" event infos
 static std::map<std::string,Info*> info_map;
 
+Info::Info(const std::string& name, const std::string& name_in_datacard):
+        name(name),name_in_datacard(name_in_datacard),default_value(0),use_default(false),label_("") { 
+	  info_map[name] = this;
+}
+Info::Info(const std::string& name, const std::string& name_in_datacard, double default_value):
+        name(name),name_in_datacard(name_in_datacard),default_value(default_value),use_default(true),label_("") {
+	  info_map[name] = this;
+}
+
 void Info::Fill(Variable& v, ConfigFile& c)
 {
     if (use_default) v.SetValue( c.read<double>(name_in_datacard, default_value) );
@@ -28,7 +37,7 @@ Variable ReadVariable(ConfigFile& c, const std::string& name, const std::string&
         info = info_map[name];
     else {
         info = new Info(name, name_in_datacard);
-        info_map[name] = info;
+//        info_map[name] = info;
     }
     info->Fill(var, c);
     return var;
@@ -42,7 +51,7 @@ Variable ReadVariable(ConfigFile& c, const std::string& name, const std::string&
         info = info_map[name];
     else {
         info = new Info(name, name_in_datacard, default_value);
-        info_map[name] = info;
+//        info_map[name] = info;
     }
     info->Fill(var, c);
     return var;

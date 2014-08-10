@@ -111,6 +111,35 @@ void DoPlotsFor(const std::string& x, const std::string& y, const std::string& f
     //DrawExclusion(StdPlotTool,PlotTool,flag,x,y,new_plot_range,new_plot_excl,s,"asym"); //removes points, which have no limits and fills the gaps by interpolation
 }
 
+void Do1DPlotsFor(const std::string& x, const std::string& flag, const std::string& file, style*s, TH1*plot_range=0)  {
+    PlotTools * PlotTool;
+    GetPlotTools(PlotTool, file, x, "", "", 0);
+    //Require an observed CLs limit:
+    PlotTool->Remove("ObsR", Compare::less, 0.00001);
+    PlotTool->Remove("Xsection", Compare::less, 0.0);
+
+    GetInfo("bino"  )->SetLabel("M_{bino} [GeV]");
+    GetInfo("wino"  )->SetLabel("M_{wino} [GeV]");
+    GetInfo("Xsection")->SetLabel("signal cross section #sigma_{NLO} [pb]");
+    GetInfo("ObsXsecLimit")->SetLabel("observed cross section limit [pb]");
+    GetInfo("ExpXsecLimit")->SetLabel("expected cross section limit [pb]");
+    TH1 * new_range = (plot_range?plot_range:PlotTool->GetHist1D(x));
+
+    gStyle->SetPadRightMargin(0.1);
+    gStyle->SetPadLeftMargin(0.15);
+    gStyle->SetPadTopMargin(0.1);
+    gStyle->SetPadBottomMargin(0.15);
+    gStyle->SetOptStat(0);
+    gStyle->SetTitleOffset(1.0, "x");
+    gStyle->SetTitleOffset(1.5, "y");
+    gStyle->SetNdivisions(505);
+    gStyle->SetTitleFont(43, "xyz");
+    gStyle->SetTitleSize(32, "xyz");
+    //gStyle->SetLabelSize(0.03, "XYZ");
+
+    Draw1DLimitPlots(PlotTool->Clone(), flag, x, s, new_range);
+}
+
 void PlotAll(std::vector<LimitGraphs*>& lg, const std::string& flag, const std::string& limit, TH2*h=0)
 {
     if (!h) h = (TH2F*)lg.front()->GetHist()->Clone();
@@ -203,8 +232,18 @@ int plot(int argc, char** argv) {
 
   Overview = new OverviewTable();
 
+
+
   //Johannes first limits
   if (1){
+  DoPlotsFor("bino","wino","WinoBinoMT",   "2014-08-10-03-09-WinoBino_MT/filelist.txt",WinoBino_Style(),1);
+  DoPlotsFor("bino","wino","WinoBinoSigma","2014-08-10-03-09-WinoBino_NewSigma/filelist.txt",WinoBino_Style(),1);
+
+  Do1DPlotsFor("wino","WinoBinoMT",   "2014-08-10-03-09-WinoBino_MT/filelist_1D.txt",WinoBino_Style());
+  Do1DPlotsFor("wino","WinoBinoSigma","2014-08-10-03-09-WinoBino_NewSigma/filelist_1D.txt",WinoBino_Style()); 
+  }
+
+  if (0){
   DoPlotsFor("bino","wino","WinoBino","2014-07-29-14-44-WinoBino/filelist.txt",WinoBino_Style(),1);
   }
 
