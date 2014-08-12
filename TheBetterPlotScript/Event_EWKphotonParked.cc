@@ -33,13 +33,15 @@ void ReadEvent(Event& evt, ConfigFile& config)
   evt.Add( ReadVariable(config, "signal",      "signal") );
   evt.Add( ReadVariable(config, "contamination","signal.contamination", 0 ) );
   evt.Add( ReadVariable(config, "R_firstguess","R_firstguess" ) );
+  evt.Add( ReadVariable(config, "u_signal_theory_up","signal u_NLO_Up" ) );
+  evt.Add( ReadVariable(config, "u_signal_theory_dn","signal u_NLO_Dn" ) );
   
   evt.Add( ReadVariable(config, "ObsRasym",    "CLs observed asymptotic", -9999999 ) );
   evt.Add( ReadVariable(config, "ExpRasym",    "CLs expected asymptotic", -9999999 ) );
-  evt.Add( ReadVariable(config, "ExpRasymM1",  "CLs expected m1sigma asymptotic", -9999999 ) );
-  evt.Add( ReadVariable(config, "ExpRasymP1",  "CLs expected p1sigma asymptotic", -9999999 ) );
-  evt.Add( ReadVariable(config, "ExpRasymM2",  "CLs expected m2sigma asymptotic", -9999999 ) );
-  evt.Add( ReadVariable(config, "ExpRasymP2",  "CLs expected p2sigma asymptotic", -9999999 ) );
+  evt.Add( ReadVariable(config, "ExpRM1asym",  "CLs expected m1sigma asymptotic", -9999999 ) );
+  evt.Add( ReadVariable(config, "ExpRP1asym",  "CLs expected p1sigma asymptotic", -9999999 ) );
+  evt.Add( ReadVariable(config, "ExpRM2asym",  "CLs expected m2sigma asymptotic", -9999999 ) );
+  evt.Add( ReadVariable(config, "ExpRP2asym",  "CLs expected p2sigma asymptotic", -9999999 ) );
 
   //"Optional" variables with default values:
   evt.Add( ReadVariable(config, "ObsR",        "CLs observed",         -9999999 ) );
@@ -55,10 +57,10 @@ void ReadEvent(Event& evt, ConfigFile& config)
    {
       evt.Set("ObsR",   evt.Get("ObsRasym"));
       evt.Set("ExpR",   evt.Get("ExpRasym"));
-      evt.Set("ExpRM1", evt.Get("ExpRasymM1"));
-      evt.Set("ExpRM2", evt.Get("ExpRasymM2"));
-      evt.Set("ExpRP1", evt.Get("ExpRasymP1"));
-      evt.Set("ExpRP2", evt.Get("ExpRasymP2"));
+      evt.Set("ExpRM1", evt.Get("ExpRM1asym"));
+      evt.Set("ExpRM2", evt.Get("ExpRM2asym"));
+      evt.Set("ExpRP1", evt.Get("ExpRP1asym"));
+      evt.Set("ExpRP2", evt.Get("ExpRP2asym"));
    }
 
 }
@@ -72,34 +74,40 @@ void CalculateVariablesOnTheFly(Event& evt)
   evt.Add( Variable(0, new Info("ObsRtheoryM1","") ) );
   evt.Add( Variable(evt.Get("ObsR")*evt.Get("Xsection"), new Info("ObsXsecLimit","") ) );
   evt.Add( Variable(evt.Get("ExpR")*evt.Get("Xsection"), new Info("ExpXsecLimit","") ) );
+  evt.Add( Variable(evt.Get("ExpRM1")*evt.Get("Xsection"), new Info("ExpXsecLimitM1","") ) );
+  evt.Add( Variable(evt.Get("ExpRP1")*evt.Get("Xsection"), new Info("ExpXsecLimitP1","") ) );
+  evt.Add( Variable(evt.Get("ExpRM2")*evt.Get("Xsection"), new Info("ExpXsecLimitM2","") ) );
+  evt.Add( Variable(evt.Get("ExpRP2")*evt.Get("Xsection"), new Info("ExpXsecLimitP2","") ) );
   evt.Add( Variable(evt.Get("ObsRasym")*evt.Get("Xsection"), new Info("ObsXsecLimitasym","") ) );
   evt.Add( Variable(evt.Get("ExpRasym")*evt.Get("Xsection"), new Info("ExpXsecLimitasym","") ) );
+  evt.Add( Variable(evt.Get("ExpRM1asym")*evt.Get("Xsection"), new Info("ExpXsecLimitM1asym","") ) );
+  evt.Add( Variable(evt.Get("ExpRP1asym")*evt.Get("Xsection"), new Info("ExpXsecLimitP1asym","") ) );
+  evt.Add( Variable(evt.Get("ExpRM2asym")*evt.Get("Xsection"), new Info("ExpXsecLimitM2asym","") ) );
+  evt.Add( Variable(evt.Get("ExpRP2asym")*evt.Get("Xsection"), new Info("ExpXsecLimitP2asym","") ) );
   evt.Add( Variable(100.*(evt.Get("signal")-evt.Get("contamination"))/(evt.Get("Xsection")*evt.Get("Luminosity")), new Info("AcceptanceCorrected","") ) );
   evt.Add( Variable(evt.Get("signal")/(evt.Get("Xsection")*evt.Get("Luminosity")), new Info("AcceptanceCalc","") ) );
   evt.Add( Variable(100*evt.Get("Acceptance"), new Info("AcceptancePercent","") ) );
   evt.Add( Variable(100.*evt.Get("contamination")/evt.Get("signal"), new Info("ContaminationRelToSignal","") ) );
 
-  double NLO = evt.Get("u_signal_scale");
-  double PDF = evt.Get("u_signal_pdf");
-  if (NLO>1) NLO-=1.0;
-  if (PDF>1) PDF-=1.0;
-  double scl = sqrt(pow(NLO,2)+pow(PDF,2));
-  //std::cout <<"sq: "<<evt.Get("squark") <<", gl: "<<evt.Get("gluino") <<", chi1: "<<evt.Get("chi1") <<", cha1: "<<evt.Get("cha1")
-  //          <<", signal="<<evt.Get("signal")
-  //          <<", cont="<<evt.Get("contamination")
-  //          <<", Xsec="<<evt.Get("Xsection")
-  //	    <<", lumi="<<evt.Get("Luminosity")
-  //	    <<", Acc="<<evt.Get("AcceptanceCorrected")<<std::endl;
-  //          <<"; NLO="<<NLO<<", PDF="<<PDF<<std::endl;
-  evt.Add( Variable( evt.Get("ObsR")*(1.+scl), new Info("ObsRTheoM1","") ) );
-  evt.Add( Variable( evt.Get("ObsR")*(1.-scl), new Info("ObsRTheoP1","") ) );
-  evt.Add( Variable( evt.Get("ExpR")*(1.+scl), new Info("ExpRTheoM1","") ) );
-  evt.Add( Variable( evt.Get("ExpR")*(1.-scl), new Info("ExpRTheoP1","") ) );
+  double scl_up = fabs(evt.Get("u_signal_theory_up"));
+  double scl_dn = fabs(evt.Get("u_signal_theory_dn"));
+  evt.Add( Variable( evt.Get("ObsR")*(1.+scl_up), new Info("ObsRTheoM1","") ) );
+  evt.Add( Variable( evt.Get("ObsR")*(1.-scl_dn), new Info("ObsRTheoP1","") ) );
+  evt.Add( Variable( evt.Get("ExpR")*(1.+scl_up), new Info("ExpRTheoM1","") ) );
+  evt.Add( Variable( evt.Get("ExpR")*(1.-scl_dn), new Info("ExpRTheoP1","") ) );
 
   evt.Add( Variable( evt.Get("ObsR")-evt.Get("ExpRM2"), new Info("ObsRmM2","") ) );
   evt.Add( Variable( evt.Get("ObsR")-evt.Get("ExpRP2"), new Info("ObsRmP2","") ) );
   evt.Add( Variable( (evt.Get("ExpRM2")!=0?evt.Get("ObsR")/evt.Get("ExpRM2"):0), new Info("ObsRdM2","") ) );
   evt.Add( Variable( (evt.Get("ExpRP2")!=0?evt.Get("ObsR")/evt.Get("ExpRP2"):0), new Info("ObsRdP2","") ) );
+
+  evt.Add( Variable(evt.Get("ObsRTheoM1")*evt.Get("Xsection"), new Info("ObsXsecLimitM1","") ) );
+  evt.Add( Variable(evt.Get("ObsRTheoP1")*evt.Get("Xsection"), new Info("ObsXsecLimitP1","") ) );
+
+  evt.Add( Variable( evt.Get("ObsRasym")*(1.+scl_up), new Info("ObsRTheoM1asym","") ) );
+  evt.Add( Variable( evt.Get("ObsRasym")*(1.-scl_dn), new Info("ObsRTheoP1asym","") ) );
+  evt.Add( Variable(evt.Get("ObsRTheoM1asym")*evt.Get("Xsection"), new Info("ObsXsecLimitM1asym","") ) );
+  evt.Add( Variable(evt.Get("ObsRTheoP1asym")*evt.Get("Xsection"), new Info("ObsXsecLimitP1asym","") ) );
 
 }
 

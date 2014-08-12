@@ -41,10 +41,8 @@ private:
 ///helper class containing general information like the name of the variables. This is supposed to be static.
 class Info {
 public:
-    Info(const std::string& name, const std::string& name_in_datacard):
-        name(name),name_in_datacard(name_in_datacard),default_value(0),use_default(false),label_("") {}
-    Info(const std::string& name, const std::string& name_in_datacard, double default_value):
-        name(name),name_in_datacard(name_in_datacard),default_value(default_value),use_default(true),label_("") {}
+    Info(const std::string& name, const std::string& name_in_datacard);
+    Info(const std::string& name, const std::string& name_in_datacard, double default_value);
     const std::string name;
     const std::string name_in_datacard;
     const double default_value;

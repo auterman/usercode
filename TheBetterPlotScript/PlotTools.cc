@@ -57,6 +57,33 @@ void PlotTools::Area(TH2*h, const std::string& x, const std::string& y, const st
     }
 }
 
+
+void PlotTools::Line(TH1*h, const std::string& x, const std::string& f)
+{
+    Fill X(x);
+    Fill F(f);
+    for (Events::const_iterator it = scan_->begin(); it != scan_->end(); ++it) {
+        double nr = it->Get("number");
+        if ( Overview && (nr-(int)nr)==0) {
+            //std::cout << nr << ",  "<<f<< ",  "<<F(*it) << "; str="<<ToString<double>(F(*it)) <<std::endl;
+            Overview->Add( nr, f, ToString(F(*it)) );
+        }
+
+        h->SetBinContent(h->GetXaxis()->FindBin(X(*it)), F(*it));
+    }
+}
+
+TGraph * PlotTools::Line(const std::string& x, const std::string& f)
+{
+    TGraph * g = new TGraph(1);
+    Fill X(x);
+    Fill F(f);
+    int i=0;
+    for (Events::const_iterator it = scan_->begin(); it != scan_->end(); ++it)
+        g->SetPoint(i++, X(*it), F(*it));
+    return g;
+}
+
 void PlotTools::Print(const std::string& var1, const Compare::comparator co1, double value1, const std::string& var2, const Compare::comparator co2, double value2)
 {
     bool use2 = (var2!="");
@@ -203,7 +230,28 @@ TH2 * PlotTools::GetHist(const std::string& x, const std::string& y)
     std::stringstream name;
     name << ++plotindex_ << "_" << GetInfo(x)->GetLabel()<<"_"<<GetInfo(y)->GetLabel();
     TH2F*h = new TH2F(name.str().c_str(),titel.c_str(),binsx+1,minx-gridx/2.,maxx+gridx/2,binsy+1,miny-gridy/2,maxy+gridy/2.);
-    std::cout<<"...using binning "<<binsx+1<<", "<<minx-gridx/2.<<", "<<maxx+gridx/2.<<", "<<binsy+1<<", "<<miny-gridy/2.<<", "<<maxy+gridy/2.<<std::endl;
+    std::cout<<"...using binning '"<<x<<"': "<<binsx+1<<", "<<minx-gridx/2.<<", '"<<y<<"': "<<maxx+gridx/2.<<", "<<binsy+1<<", "<<miny-gridy/2.<<", "<<maxy+gridy/2.<<std::endl;
+    return h;
+}
+
+TH1 * PlotTools::GetHist1D(const std::string& x)
+{
+    Fill X(x);
+    double gridx=9999, minx=9999, maxx=0;
+    for (Events::const_iterator it=scan_->begin(); it!=scan_->end(); ++it) {
+        if (X(*it)<minx) minx=X(*it);
+        if (X(*it)>maxx) maxx=X(*it);
+        for (Events::const_iterator zt=it; zt!=scan_->end(); ++zt) {
+            if ( fabs(X(*it) - X(*zt)) < gridx && fabs(X(*it)-X(*zt))>0.9 )
+                gridx = fabs(X(*it) - X(*zt));
+        }
+    }
+    int binsx=(maxx-minx)/gridx;
+    std::string titel = ";"+GetInfo(x)->GetLabel()+";";
+    std::stringstream name;
+    name << ++plotindex_ << "_" << GetInfo(x)->GetLabel();
+    TH1F*h = new TH1F(name.str().c_str(),titel.c_str(),binsx+1,minx-gridx/2.,maxx+gridx/2);
+    std::cout<<"...using 1D-binning for var '"<<x<<"' :"<<binsx+1<<", "<<minx-gridx/2.<<", "<<maxx+gridx/2.<<std::endl;
     return h;
 }
 
@@ -687,9 +735,9 @@ void SetZRange(TH2 * h, TH2*h2) {
     //    cout<<"minimum value:"<<minValue<<endl;
     h->GetZaxis()->SetRangeUser(minValue, maxValue);
     if (h2)     h2->GetZaxis()->SetRangeUser(minValue, maxValue);
-
-
 }
+
+
 
 TGraph* RA2Observed_36pb() {
     TGraph *graph = new TGraph(129);

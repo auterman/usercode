@@ -78,6 +78,10 @@ public:
     ///Fill a 1D histogram 'h' with the variable 'f'
     void Hist(TH1*h, const std::string& f);
 
+    ///1D Line
+    void Line(TH1*h,  const std::string& x, const std::string& var);
+    TGraph* Line(const std::string& x, const std::string& var);
+
     ///returns a vector 'v' containing the variables 'f'. Used, e.g. to calculate the median and sigma-quantiles of 'f'.
     void VectorOf(std::vector<double>& v, const std::string& f);
 
@@ -102,8 +106,6 @@ public:
     void Print(const std::string& varvar, const Compare::comparator coco, double valvalue, const std::string& var="", const Compare::comparator co=Compare::equal, double value=0);
 
     /*
-      TGraph * Line( double(*x)(const T*), double(*y)(const T*),
-                     double(*func)(const T*), const double mass, const double diff=5.);
 
 
       void Graph(  TGraph*g, double(*x)(const T*), double(*y)(const T*), double ymin=-999. );
@@ -116,6 +118,8 @@ public:
     */
 
     TH2 * GetHist(const std::string& x, const std::string& y);
+
+    TH1 * GetHist1D(const std::string& x);
 
     ///add (more) scan points
     void addEvents(Events*evts) {
@@ -133,6 +137,8 @@ public:
     void Set_N_Channels(int n) {
         nchannels_=n;
     };
+    
+    void SortBy(const std::string& n){std::sort(scan_->begin(),scan_->end(),sort_by(n));}
 private:
 
     Events * scan_;

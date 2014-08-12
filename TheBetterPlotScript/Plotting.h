@@ -54,12 +54,19 @@ void DrawStandardPlots(PlotTools *pt, const std::string& flag, const std::string
 
 void DrawStandardLimitPlots(PlotTools *pt, const std::string& flag, const std::string& x, const std::string& y, style*s, TH2*h);
 
+void Draw1DLimitPlots(PlotTools *pt, const std::string& flag, const std::string& x, style*s, TH1*h);
+
+void DrawPlot1D(PlotTools *PlotTool, TCanvas*canvas, TH1* h, const std::string& flag, const string& x, const std::string& var,style*s);
+
 void DrawStandardPlotsPerBin(PlotTools *pt, const std::string& flag, const std::string& x, const std::string& y, style*s, TH2*h);
 
 TGraph * InOutPlot(PlotTools *PlotTool, TCanvas*, std::string flag, const std::string& x, const std::string& y, const std::string& R, TH2*h, unsigned idx=0, int color=0, int style=0);
 
 void DrawExclusion(PlotTools *StdPlotTool, PlotTools *PlotTool, std::string flag, const std::string& x, const std::string& y, 
                    TH1*hp, TH1*h, style*s, std::string lflavor="");
+
+void DrawExclusion1D(PlotTools *PlotTool, TCanvas*canvas, TH1* h, const std::string& flag, const string& x, style*s);
+void DrawExclusion1Dasym(PlotTools *PlotTool, TCanvas*canvas, TH1* h, const std::string& flag, const string& x, style*s);
 
 void GetPlotTools(PlotTools*& plotTools, std::string filename, const std::string& x, const std::string& y, std::string GeneratorFile, unsigned factor);
 

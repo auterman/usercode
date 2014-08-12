@@ -46,7 +46,7 @@ void SetDefault(style * s=0)
     s->cms->SetTextFont(43);
     s->cms->SetTextSize(25);
   }
-  s->lumiTemperaturePlot = new TLatex(0.52, 0.912, "L_{int} = 7 fb^{  -1}  #geq1 #gamma + MET");
+  s->lumiTemperaturePlot = new TLatex(0.52, 0.912, "L_{int} = 7.4 fb^{  -1}  #geq1 #gamma + MET");
   s->lumiTemperaturePlot->SetNDC(true);
   s->lumiTemperaturePlot->SetTextColor(1);
   s->lumiTemperaturePlot->SetTextFont(43);
@@ -296,12 +296,22 @@ void DrawWinoBinoDiagonalCut(style * s=0, TLegend*l=0) {
     tex.SetNDC(true);
     tex.DrawLatex(0.6, 0.25, "bino m_{#tilde{#chi}^{0}} > wino m_{#tilde{#chi}}");
     gPad->RedrawAxis();
+
+  l = new TLegend(0.21,0.68,0.6,0.88,"GGM    m_{#tilde{q}} =  m_{#tilde{g}} = 5 TeV");
+  l->SetBorderSize(0);
+  l->SetLineColor(0);
+  l->SetFillColor(10);
+  l->SetFillStyle(1001);
+  l->SetTextFont(42);
+  l->SetTextSize(0.03);
 }
 
 
 style* WinoBino_Style(){ 
   style * s = new style();
-  s->leg = new TLegend(0.4,0.68,0.89,0.88,"GGM    m_{#tilde{q}} =  m_{#tilde{g}} = 5 TeV");
+  SetDefault(s);
+
+  s->leg = new TLegend(0.44,0.18,0.79,0.38,"GGM    m_{#tilde{q}} =  m_{#tilde{g}} = 5 TeV");
   s->leg->SetBorderSize(0);
   s->leg->SetLineColor(0);
   s->leg->SetFillColor(10);
@@ -309,12 +319,12 @@ style* WinoBino_Style(){
   s->leg->SetTextFont(42);
   s->leg->SetTextSize(0.03);
 
-  s->lumi = new TLatex(0.6, 0.901, "4.04 fb^{  -1}  #sqrt{s} = 8 TeV #geq1#gamma+MET");
+  s->lumi = new TLatex(0.57, 0.901, "7.4 fb^{  -1}  #sqrt{s} = 8 TeV #geq1 #gamma+MET");
   s->lumi->SetNDC(true);
   s->lumi->SetTextColor(12);
   s->lumi->SetTextFont(43);
   s->lumi->SetTextSize(20);
-  s->cms = new TLatex(0.21, 0.901, "#bf{CMS preliminary}");
+  s->cms = new TLatex(0.18, 0.901, "#bf{CMS preliminary}");
   s->cms->SetNDC(true);
   s->cms->SetTextColor(12);
   s->cms->SetTextFont(43);
@@ -336,7 +346,6 @@ style* WinoBino_Style(){
   s->iCLsExpTheom1=0;
   s->iCLsExpTheop1=0;  
 
-  SetDefault(s);
 
   return s;
 }
