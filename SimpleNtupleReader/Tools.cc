@@ -437,7 +437,7 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
     cover->Draw("hist,h,same");
     h_totalDn->Draw("hist,h,same");
     StatUnc->Draw("E0,X0,same");
-    h1->Draw("E X0,same");
+    h1->Draw("E0,X0,same");
     TLine *line = new TLine(h1->GetXaxis()->GetXmin(), 1, h1->GetXaxis()->GetXmax(), 1);
     line->SetLineColor(1);
     line->SetLineStyle(2);
