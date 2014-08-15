@@ -182,7 +182,7 @@ void DrawStandardPlots(PlotTools *pt, const std::string& flag, const std::string
    DrawPlot2D(pt,c1,h,flag,x,y,"Acceptance",        "Acceptance", s->MinAccZ, s->MaxAccZ, s );
    DrawPlot2D(pt,c1,h,flag,x,y,"AcceptancePercent", "Acceptance [%]", s->MinAccZ*100, s->MaxAccZ*100, s );
    DrawPlot2D(pt,c1,h,flag,x,y,"AcceptanceCorrected",    "Acceptance corr. f. sig. cont. [%]", s->MinAccZ*100, s->MaxAccZ*100, s );
-   DrawPlot2D(pt,c1,h,flag,x,y,"ContaminationRelToSignal", "Signal contamination / Signal yield [%]" );
+   DrawPlot2D(pt,c1,h,flag,x,y,"ContaminationRelToSignal", "Bkg prediction from signal / Signal yield [%]", -999, -999, s );
 
    //1D Histograms
    //DrawHist1D(pt,c1,flag,x,y,"SignalStatUnc",	  "Rel. Signal Statistical uncertainty", 20);
