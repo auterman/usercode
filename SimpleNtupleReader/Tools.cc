@@ -361,6 +361,8 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
     }		
     if (log.find("div")!=std::string::npos)
           h_axis->GetYaxis()->SetTitle("Events / GeV");
+    if ( file.find("_n_") != std::string::npos )
+          h_axis->GetYaxis()->SetTitle("Events");
     h_totalUp->SetStats(0);
     h_totalUp->SetTitle("");
     h_totalDn->SetStats(0);
