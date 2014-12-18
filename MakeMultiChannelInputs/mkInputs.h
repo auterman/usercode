@@ -133,6 +133,8 @@ public:
 	void Reset() { p_.clear();}
 	void PrintBins();
 	
+	void ScaleSignalYieldsForXsec();
+	
 	void Write(const std::string dir);	
 
 	void WriteSingleBin(const std::string dir);

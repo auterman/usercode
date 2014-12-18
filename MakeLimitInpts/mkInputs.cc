@@ -413,7 +413,7 @@ std::vector<double>  Get(ConfigFile*f, const std::string& s)
 }
 
 
-void AddYields(point& p, ConfigFile* cfg, const std::string& val, const std::string& sample, int nBins)
+void AddYields(point& p, ConfigFile* cfg, const std::string& val, const std::string& sample, int nBins, double w=1)
 {
   std::vector<double> vec = Get(cfg,val);
   if ((int)vec.size()!=nBins) {
@@ -421,10 +421,10 @@ void AddYields(point& p, ConfigFile* cfg, const std::string& val, const std::str
     exit(1);
   }
   for (std::vector<double>::iterator it=vec.begin();it!=vec.end();++it){
-    p.integrated[sample].yield += *it;
+    p.integrated[sample].yield += *it * w;
     int i = it-vec.begin();
     while (i>=(int)p.bins.size()) { p.bins.push_back( point::bin() ); }
-    p.bins[ i ].samples[ sample ].yield = *it; 
+    p.bins[ i ].samples[ sample ].yield = *it * w; 
   }
 }
 
@@ -470,7 +470,7 @@ void AddSystematicsRelative(point& p, double rel_val, const std::string& name, c
     p.systematics.push_back(name+"_abs");
 }
 
-void AddStatistics(point& p, ConfigFile* cfg, const std::string& val, const std::string& name, const std::string& sample, int nBins)
+void AddStatistics(point& p, ConfigFile* cfg, const std::string& val, const std::string& name, const std::string& sample, int nBins, double w=1)
 {
   std::vector<double> vec = Get(cfg,val);
   if ((int)vec.size()!=nBins) {
@@ -478,9 +478,9 @@ void AddStatistics(point& p, ConfigFile* cfg, const std::string& val, const std:
     exit(1);
   }
   for (std::vector<double>::iterator it=vec.begin();it!=vec.end();++it){
-    p.integrated[sample].abs_stat_unc[sample+" "+name+" (squared)"] += ((*it) * (*it)); //squared
+    p.integrated[sample].abs_stat_unc[sample+" "+name+" (squared)"] += ((*it) * (*it) * w *w); //squared
     int i = it-vec.begin();
-    p.bins[ i ].samples[ sample ].abs_stat_unc[sample+"_"+name] = *it; 
+    p.bins[ i ].samples[ sample ].abs_stat_unc[sample+"_"+name] = *it * w; 
   }
   if (std::find(p.statistics.begin(),p.statistics.end(),sample+"_"+name)==p.statistics.end()) 
     p.statistics.push_back(sample+"_"+name);
@@ -526,6 +526,100 @@ void ReadSignal(std::string sig_file, std::string dat_file="", std::string bgd_f
     std::stringstream ss,fn;
     p.nr = n;
     ss << "Point " << n++;
+    
+    try {
+	    Add(p.info, cfg, ss.str()+" m_wino","wino mass", cfg->read<double>("m_wino",-1));
+	    Add(p.info, cfg, ss.str()+" m_bino","bino mass", cfg->read<double>("m_bino",-1));
+	    Add(p.info, cfg, ss.str()+" m_gluino","gluino mass", cfg->read<double>("m_gluino",-1));
+	    Add(p.info, cfg, ss.str()+" m_squark","squark mass", cfg->read<double>("m_squark",-1));
+	    assert((p.info["wino mass"]>=0&&p.info["bino mass"]>0)||(p.info["gluino mass"]>=0&&p.info["squark mass"]));
+	    Add(p.info, cfg, "nGen");
+	    Add(p.info, cfg, ss.str()+" crosssection","Xsection.NLO");
+	    Add(p.info, cfg, "Lumi");
+	    int nBins = (int)Add(p.info, cfg, "nBins");
+	    if (p.info["wino mass"]>=0&&p.info["bino mass"]>=0)
+	      fn << "LimitInput_"<<p.nr<<"_Wino"<<p.info["wino mass"]<<"_Bino"<<p.info["bino mass"];
+	    else if (p.info["squark mass"]>=0&&p.info["gluino mass"]>=0)
+	      fn << "LimitInput_"<<p.nr<<"_Squark"<<p.info["squark mass"]<<"_Gluino"<<p.info["gluino mass"];
+	    p.filename = fn.str();
+
+	   //data
+	    AddYields(p, dat_cfg, "Data yield", "data", nBins);
+
+
+	    //backgds
+	    AddYields(p, dat_cfg, "BG Vg yield", "Vg", nBins);
+	    AddSystematics(p, dat_cfg, "BG Vg syst uncertainty abs", "Scaling_syst_abs",  "Vg", nBins, -1);
+	    AddStatistics( p, dat_cfg, "BG Vg stat uncertainty abs", "stat_abs",     "Vg", nBins);
+
+	    AddYields(p, dat_cfg, "BG gjets yield", "gjets", nBins);
+	    AddSystematics(p, dat_cfg, "BG gjets syst uncertainty abs", "Scaling_syst_abs", "gjets", nBins);
+	    AddStatistics( p, dat_cfg, "BG gjets stat uncertainty abs", "stat_abs",         "gjets", nBins);
+
+	    AddYields(p, dat_cfg, "BG ttg yield", "ttg", nBins);
+	    AddSystematics(p, dat_cfg, "BG ttg syst uncertainty abs", "ttg_syst_abs", "ttg", nBins);
+	    AddSystematicsRelative(p, 0.0255, "lumi_unc", "ttg", nBins);
+	    AddStatistics( p, dat_cfg, "BG ttg stat uncertainty abs", "stat_abs",     "ttg", nBins);
+
+	    AddYields(p, dat_cfg, "BG QCD yield", "qcd", nBins);
+	    AddSystematics(p, dat_cfg, "BG QCD syst uncertainty abs", "qcd_syst_abs", "qcd", nBins);
+	    AddSystematicsRelative(p, 0.0255, "lumi_unc", "qcd", nBins);
+	    AddStatistics( p, dat_cfg, "BG QCD stat uncertainty abs", "stat_abs",     "qcd", nBins);
+
+	    AddYields(p, dat_cfg, "BG diboson yield", "diboson", nBins);
+	    AddSystematics(p, dat_cfg, "BG diboson syst uncertainty abs", "diboson_syst_abs", "diboson", nBins);
+	    AddSystematicsRelative(p, 0.0255, "lumi_unc", "diboson", nBins);
+	    AddStatistics( p, dat_cfg, "BG diboson stat uncertainty abs", "stat_abs",     "diboson", nBins);
+
+	    AddYields(p, dat_cfg, "BG efake yield", "efake", nBins);
+	    AddSystematics(p, dat_cfg, "BG efake syst uncertainty abs", "efake_syst_abs", "efake", nBins);
+	    AddSystematicsRelative(p, 0.0255, "lumi_unc", "efake", nBins);
+	    AddStatistics( p, dat_cfg, "BG efake stat uncertainty abs", "stat_abs",         "efake", nBins);
+
+
+	    //signal
+	    AddYields(     p, cfg, ss.str()+" signal", "signal", nBins, p.info["Xsection.NLO"]/p.info["nGen"]);
+	    //AddSystematics(p, cfg, ss.str()+" Signal syst. uncertainty", "signal", nBins);
+	    AddSystematicsRelative(p, 0.0255, "lumi_unc", "signal", nBins);
+	    AddStatistics( p, cfg, ss.str()+" signal uncert", "stat_abs", "signal", nBins, p.info["Xsection.NLO"]/p.info["nGen"]);
+
+    } 
+    catch(...) {  
+       std::cerr << "Signal point " <<n<<" throwed exception. Skipping it..." <<std::endl;
+       continue;
+    }
+
+    Check(p);
+
+    Points.Add(p);
+  } while(1);
+
+  if (bgd_cfg!=dat_cfg) delete bgd_cfg;
+  if (dat_cfg!=cfg) delete dat_cfg;
+  delete cfg;
+  std::cout << "READ signal file: '"<<sig_file<<"'" << std::endl;; 
+}
+
+
+//Read Johannes Datacard
+void ReadSignalOld(std::string sig_file, std::string dat_file="", std::string bgd_file="") {
+  ConfigFile * cfg     = new ConfigFile(sig_file);
+  ConfigFile * dat_cfg = (dat_file==""?cfg:    new ConfigFile(dat_file));
+  ConfigFile * bgd_cfg = (bgd_file==""?dat_cfg:new ConfigFile(bgd_file));
+  if(cfg==0||dat_cfg==0||bgd_cfg==0)
+    std::cerr << "FILE NOT FOUND! scan file= "<<cfg<<", data file="<<dat_cfg<<", bgd file="<<bgd_cfg<<std::endl;
+  
+  int nPoints = cfg->read<int>("nPoints",0), n=0;   
+  
+  //loop over all signal points
+  do {
+    if (n>=nPoints) break;
+    
+    point p;
+    std::stringstream ss,fn;
+    p.nr = n;
+    ss << "Point " << n++;
+    
     
     Add(p.info, cfg, ss.str()+" wino mass","wino mass");
     Add(p.info, cfg, ss.str()+" bino mass","bino mass");
@@ -732,32 +826,25 @@ void points::Add_WB_PDF(const std::string& filelist) {
 
 }
 
-/*
-void AddPDFs(const std::string filelist) {
+void points::AddPDFs(const std::string& filelist) {
 	std::ifstream masses_file;
 	masses_file.open(filelist.c_str());
 	std::string file;
-	point p;
-	double u_pdfxsec, u_pdfacc;
+	double totalGenerated, squark, gluino, bino, wino, u_pdfxsec, u_pdfacc;
 	while (1) {
-	        //nevents,mgluino,msquark,mbino,mwino,xsecpdferrs,acceppdferrs
-                masses_file >> p.totalGenerated >> p.gluino >> p.squark >> p.chi >> p.cha >> u_pdfxsec >> u_pdfacc;
-		if (!masses_file.good())	break;
-		point * a = Points.Get(p.gluino, p.squark, p.chi, p.cha);
-                //std::cout<<"PDFxsec gl="<<p.gluino<<", sq="<<p.squark<<", chi="<<p.chi<<", cha="<<p.cha<<"; point = "<<a
-                //         <<", pdf_xs="<<u_pdfxsec<<std::endl;
-		if (a) {
-		  a->u_pdfxsec = 0.01 * u_pdfxsec; //relative per point(!) 
-		  a->u_pdfacc  = 0.01 * u_pdfacc;
-	          for (std::vector<point::bin>::iterator bin=a->bins.begin(); bin!=a->bins.end(); ++bin) {
-		    bin->u_pdfxsec = 1.0 + 0.01 * u_pdfxsec; //factorial per bin(!)
-		    bin->u_pdfacc  = 1.0 + 0.01 * u_pdfacc; 
-		    
-		  }  
-                }
+	   masses_file >> totalGenerated >> gluino >> squark >> bino >> wino>> u_pdfxsec >> u_pdfacc;
+	   
+	   if (!masses_file.good())	break;
+	   point * a = Points.Get("squark mass", squark, "gluino mass", gluino);
+
+	   if (a){
+	     a->info["signal u_PDF_acc"]   = a->integrated["signal"].yield * u_pdfacc/100.;
+	     a->info["signal u_PDF_xsec"]  = a->integrated["signal"].yield * u_pdfxsec/100.;
+	   }
 	}
 	masses_file.close();
 }
+/*
 
 void AddSmsXsec(const std::string filelist) {
 	std::ifstream masses_file;
@@ -920,7 +1007,8 @@ void points::Do(const std::string& name, const std::string&dat, const std::strin
    Points.Reset();
    ReadSignal(sig, dat);
 //   if (xsec!="") AddXsec(xsec);
-   if (pdf!="") Points.Add_WB_PDF( pdf );
+//   if (pdf!="") Points.Add_WB_PDF( pdf );
+   if (pdf!="") Points.AddPDFs( pdf );
    
    MkDir( "DataCards" );
    Points.Write(((std::string)"DataCards/"+name).c_str());
@@ -946,7 +1034,13 @@ int main(int argc, char* argv[]) {
 
   // Points.Do("WinoBino", signal, data, "", "");   
    
-   Points.Do("WinoBino_MT", "inputs/johannes_20140804_MT.txt", "inputs/johannes_20140804_MT.txt", "", "inputs/Spectra_WB.xsec");   
-   Points.Do("WinoBino_NewSigma", "inputs/johannes_20140804_NewSigma.txt", "inputs/johannes_20140804_NewSigma.txt", "", "inputs/Spectra_WB.xsec");   
+   //Masterthesis 1D scans
+   //Points.Do("WinoBino_MT", "inputs/johannes_20140913_MT.txt", "inputs/johannes_20140913_MT.txt", "", "inputs/Spectra_WB.xsec");   
+   //Points.Do("WinoBino_NewSigma", "inputs/johannes_20140804_NewSigma.txt", "inputs/johannes_20140804_NewSigma.txt", "", "inputs/Spectra_WB.xsec");   
+
+  //Wino Bino scan
+  //Points.Do("WinoBino_Scan2D", "inputs/johannes_20140804_NewSigma.txt", "inputs/20140924_WinoBino.txt", "", "inputs/Spectra_WB.xsec");   
+
+  Points.Do("GGM_Wino", "inputs/johannes_20140804_NewSigma.txt", "inputs/yields_GGM_Wino.txt", "", "PDF/Spectra_gsq_W_phad_pdfuncert.dat");   
 
 }
