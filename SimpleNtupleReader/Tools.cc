@@ -245,6 +245,8 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
     std::string mylegtitle = "";
     if ( file.find( "Combined" ) != std::string::npos )
         mylegtitle = "Multijet, #gamma+jet";
+    if ( file.find( "CombinedSignal" ) != std::string::npos )
+        mylegtitle = "Multijet, #gamma+jet, Signal";
     if ( file.find( "QCD" ) != std::string::npos )
         mylegtitle = "Multijet";
     TLatex* plotCaption = new TLatex();
@@ -359,6 +361,8 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
     }		
     if (log.find("div")!=std::string::npos)
           h_axis->GetYaxis()->SetTitle("Events / GeV");
+    if ( file.find("_n_") != std::string::npos )
+          h_axis->GetYaxis()->SetTitle("Events");
     h_totalUp->SetStats(0);
     h_totalUp->SetTitle("");
     h_totalDn->SetStats(0);
@@ -435,7 +439,7 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
     cover->Draw("hist,h,same");
     h_totalDn->Draw("hist,h,same");
     StatUnc->Draw("E0,X0,same");
-    h1->Draw("E X0,same");
+    h1->Draw("E0,X0,same");
     TLine *line = new TLine(h1->GetXaxis()->GetXmin(), 1, h1->GetXaxis()->GetXmax(), 1);
     line->SetLineColor(1);
     line->SetLineStyle(2);

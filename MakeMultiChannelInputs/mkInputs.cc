@@ -537,6 +537,11 @@ void ReadSignal(std::string sig_file, std::string dat_file="", std::string fsr_f
     p.signal = p.bgd_qcd = p.bgd_ewk= p.bgd_fsr = p.qcd_contamination = p.ewk_contamination = p.data = p.u_NLO = 0;
     p.u_pdfxsec = p.u_pdfacc = p.u_sig_stat = p.u_lumi = p.u_qcd = p.u_qcd_stat= p.u_ewk= p.u_ewk_stat= p.u_fsr= p.u_fsr_stat=0;
     p.variable = dat_cfg->read<std::string>("variable", "met");
+
+    p.xsec       = cfg->read<double>(ss.str()+" cross section",p.xsec); 
+    p.xsecNLO    = cfg->read<double>(ss.str()+" cross section",p.xsecNLO); 
+    p.u_pdfxsec    = 0.01 * cfg->read<double>(ss.str()+" relative total theoretical cross section uncert",p.u_pdfxsec); 
+
     //read data and data-driven backgrounds
     std::vector<double> data       = bag_of<double>(dat_cfg->read<std::string>("data selected"));
     std::vector<double> qcd        = bag_of<double>(dat_cfg->read<std::string>("data QCD"));
@@ -559,7 +564,7 @@ void ReadSignal(std::string sig_file, std::string dat_file="", std::string fsr_f
     if ( n_channels != (int)data.size() ||
         (int)qcd.size()!=n_channels ||(int)ewk.size()!=n_channels ||(int)fsr.size()!=n_channels ||
         (int)sig.size()!=n_channels || (int)sig_ewk.size()!=n_channels) {
-      std::cerr << "ERROR: inconstitent number of channels at signalpoint "<<n-1
+      std::cerr << "ERROR: inconstitent number of channels (should be "<<n_channels<<") at signalpoint "<<n-1
                 << "; data=" << data.size()
                 << "; qcd=" << qcd.size()
                 << "; ewk=" << ewk.size()
@@ -609,7 +614,7 @@ void ReadSignal(std::string sig_file, std::string dat_file="", std::string fsr_f
       //std::cout<<c<<": s="<<channel.signal<< ", s (w/o cont)="<<channel.signal-channel.qcd_contamination-channel.ewk_contamination
 //	       <<std::endl;
 
-      if (channel.signal-channel.qcd_contamination-channel.ewk_contamination>0. ) {
+      if (channel.signal-channel.qcd_contamination-channel.ewk_contamination>=0. ) {
         p.bins.push_back( channel );
       
 	p.signal  += channel.signal;
@@ -625,6 +630,10 @@ void ReadSignal(std::string sig_file, std::string dat_file="", std::string fsr_f
 	p.u_ewk_stat += (ewk[c]>0.?pow(u_ewk_stat[c], 2):0);
 	p.u_fsr      += u_fsr[c];
 	p.u_fsr_stat += (fsr[c]>0.?pow(u_fsr_stat[c], 2):0); 
+      } else {
+        std::cout << "gl="<<p.gluino<<", sq="<<p.squark<<", chi="<<p.chi<<", cha="<<p.cha<<"; bin="<<c
+	          << "   signal = "<<channel.signal<<", cont = "<<channel.qcd_contamination-channel.ewk_contamination
+		  << std::endl;	 
       }
   }
 
@@ -871,6 +880,26 @@ void AddSmsXsec(const std::string filelist) {
 	masses_file.close();
 }
 
+
+void points::ScaleSignalYieldsForXsec()
+{
+   for (std::vector<point>::iterator it=p_.begin(); it!=p_.end(); ++it){
+      double scale = it->lumi*it->xsecNLO/it->totalGenerated;
+      for (std::vector<point::bin>::iterator bin=it->bins.begin(); bin!=it->bins.end(); ++bin) {
+        //bin->u_pdfxsec = 1.0 + 0.01 * u_xsec; //factorial per bin(!)			
+        bin->signal	       *= scale;
+        bin->qcd_contamination *= scale;
+        bin->ewk_contamination *= scale;
+        bin->u_NLO = 1.0; //not considered for limit calculation
+        bin->u_pdfacc  = 1.0;        
+        //std::cout<<bin-(*it)->bins.begin()<<": s="<<bin->signal<<""<<std::endl;
+      }  
+      it->signal  *= scale;
+      it->qcd_contamination *= scale;
+      it->ewk_contamination *= scale;
+   }
+}
+
 void AddPDFxsec(const std::string filelist, double neutralinomass=0) {
 	std::ifstream masses_file;
 	masses_file.open(filelist.c_str());
@@ -939,6 +968,8 @@ point * MergeBins(const point& p, int bmin=0, int bmax=-1)
   if (p.bins.size()<=0||bmax-bmin<=0) return res;
 
   bmin=bmin-1;bmax=bmax-1;
+
+//std::cout << "nbins: "<<p.bins.size()<<", min="<<bmin<<", max="<<bmax<<"; d[3]="<<res->bins[3].data<<std::endl;
   
   res->bins[bmin].u_sig_stat = pow((res->bins[bmin].u_sig_stat-1.0) * res->bins[bmin].signal ,2);
   res->bins[bmin].u_qcd_stat = pow((res->bins[bmin].u_qcd_stat-1.0) * res->bins[bmin].bgd_qcd ,2);
@@ -958,6 +989,7 @@ point * MergeBins(const point& p, int bmin=0, int bmax=-1)
     res->bins[bmin].qcd_contamination += res->bins[i].qcd_contamination;
     res->bins[bmin].ewk_contamination += res->bins[i].ewk_contamination;
     res->bins[bmin].data +=	      res->bins[i].data;
+//std::cout <<res->bins[3].data<<"  -> +"<< res->bins[i].data <<std::endl;
 
     res->bins[bmin].u_NLO +=          (res->bins[i].u_NLO-1.0)      * res->bins[i].signal;
     res->bins[bmin].u_pdfxsec +=      (res->bins[i].u_pdfxsec-1.0)  * res->bins[i].signal; 
@@ -980,7 +1012,9 @@ point * MergeBins(const point& p, int bmin=0, int bmax=-1)
   res->bins[bmin].u_qcd	     = 1.0 + res->bins[bmin].u_qcd	    / res->bins[bmin].bgd_qcd;   
   res->bins[bmin].u_ewk	     = 1.0 + res->bins[bmin].u_ewk	    / res->bins[bmin].bgd_ewk;   
   res->bins[bmin].u_fsr	     = 1.0 + res->bins[bmin].u_fsr	    / res->bins[bmin].bgd_fsr;   
+//std::cout <<res->bins[3].data<<std::endl;
   res->bins.erase(res->bins.begin()+bmin+1, res->bins.begin()+bmax+1);
+//std::cout <<res->bins[3].data<<std::endl;
   return res;
 }
 
@@ -1007,8 +1041,10 @@ void points::DoSMS(const std::string& name, const std::string&dat, const std::st
 {
    Points.Reset();
    ReadSignal(sig, dat);
-   AddSmsXsec(xsec);
-   if (pdf!="") AddPDFs(pdf);
+   if (xsec!="") AddSmsXsec(xsec);
+   if (pdf!="")  AddPDFs(pdf);
+   ScaleSignalYieldsForXsec();
+   
    {points MergedPoints;
    for (std::vector<point>::iterator it=Points.Get()->begin(); it!=Points.Get()->end(); ++it)
       MergedPoints.Add( *MergeBins(*it, 6));
@@ -1031,16 +1067,16 @@ int main(int argc, char* argv[]) {
    
 
    Points.DoSMS("SMS_T5gg", "inputWinter13/Closure_Data_met.txt",
-             "inputWinter13/eventYieldT5gg-2014-07-15.txt","inputWinter13/simplifiedModelT5.xsec","");   
+             "inputWinter14/eventYieldT5gg-2014-12-15.txt","","");   
 
    Points.DoSMS("SMS_T5wg", "inputWinter13/Closure_Data_met.txt",
-             "inputWinter13/eventYieldT5wg-2014-07-15.txt","inputWinter13/simplifiedModelT5.xsec","");   
+             "inputWinter14/eventYieldT5wg-2014-12-15.txt","","");   
 
-//   Points.Do("GMSB_SqGl_met-Wino", "inputWinter13/Closure_Data_met.txt",
-//             "inputWinter13/eventYieldSpectra_gsq_W-2014-07-13.txt",gsq_w_xsec,gsq_w_pdf);   
-//
-//   Points.Do("GMSB_SqGl_met-Bino", "inputWinter13/Closure_Data_met.txt",
-//             "inputWinter13/eventYieldSpectra_gsq_B-2014-07-13.txt",gsq_b_xsec,gsq_b_pdf); 
+  // Points.Do("GMSB_SqGl_met-Wino", "inputWinter13/Closure_Data_met.txt",
+  //           "inputWinter13/eventYieldSpectra_gsq_W-2014-07-13.txt",gsq_w_xsec,gsq_w_pdf);   
+
+  // Points.Do("GMSB_SqGl_met-Bino", "inputWinter13/Closure_Data_met.txt",
+  //           "inputWinter13/eventYieldSpectra_gsq_B-2014-07-13.txt",gsq_b_xsec,gsq_b_pdf); 
 
    /*
    //21 MET bins	       

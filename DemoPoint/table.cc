@@ -6,7 +6,7 @@ namespace Table {
 
 std::string TTable::hline(char c,char r) const {
 
-  if (style_==TeX) return "\\\\ \\hline";
+  if (style_==TeX) return "\\\\ \n\\hline";
   
   std::stringstream ss;
   for (int i=0; i<(delimiter_.size())/2; ++i) ss<<c;
@@ -70,7 +70,7 @@ std::ostream& operator<<( std::ostream& os, const TTable& tab )
     if (tex) {
        os<<"\\end{tabular}"<<std::endl;
        //os<<"\\label{tab:xyz}"<<std::endl;
-       if (tab.GetCaption()!="") os<<"\\caption{"<<tab.GetCaption()<<"}"<<std::endl;
+       if (tab.GetCaption()!="") os<< tab.GetCaption() <<std::endl;
       }  
     return os;
   }

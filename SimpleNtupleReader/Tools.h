@@ -247,7 +247,7 @@ public:
     }
     double error() {
         return sqrt(std::accumulate(w.begin(), w.end(), 0.,square<double>()) 
-	            + PoissonError2()
+	            + PoissonError2FirstEmptyBin()
 		   );
     }
     std::vector<double>  * GetWeights() {
@@ -263,25 +263,27 @@ public:
 	  samples[it->first] = it->second;
     } 
 
-    double PoissonError2()
+    double PoissonError2FirstEmptyBin()
     {
+      // Assing Poisson uncertainty for the FIRST empty bin for each sample
       if (!left_) return 0;
       double res=0;
       std::map<std::string, double> * leftsamples = left_->GetSamples();
       for (std::map<std::string, double>::iterator ls=leftsamples->begin(); ls!=leftsamples->end(); ++ls){
         //std::cout << "searching "<<ls->first<<"  w="<<ls->second<<std::endl;
-	if (samples.find(ls->first)==samples.end()) {
-	  //found a bin where sample *ls is not contained, but is contained in its direct left neigbor
-	  res += 1.8410 * 1.8410 * ls->second * ls->second; //add Poisson error squared
-	  //std::cout << "Poisson error sample="<<ls->first<<" err2="<<res<<std::endl;
-	}
+        if (samples.find(ls->first)==samples.end()) {
+          //found a bin where sample *ls is not contained, but is contained in its direct left neigbor
+          res += 1.8410 * 1.8410 * ls->second * ls->second; //add Poisson error squared
+          //std::cout << "Poisson error sample="<<ls->first<<" err2="<<res<<std::endl;
+        }
       }
       return res;
     }
 
-/*
-    double PoissonError2()
+
+    double PoissonError2EmptyBin()
     {
+      // Assing Poisson uncertainty for ALL empty bin for each sample
       if (!left_) return 0;
       double res=0;
       Yield * bin = left_;
@@ -289,21 +291,21 @@ public:
       while (bin ) {
         std::map<std::string, double> * ts = bin->GetSamples();
         leftsamples.insert(ts->begin(), ts->end());
-	bin = bin->left_;
+        bin = bin->left_;
       }
-//  std::cerr<<leftsamples.size()<<"<->this:"<<samples.size()<<std::endl;    
+      // std::cerr<<leftsamples.size()<<"<->this:"<<samples.size()<<std::endl;
       if (!leftsamples.size()) return 0;
       for (std::map<std::string, double>::iterator ls=leftsamples.begin(); ls!=leftsamples.end(); ++ls){
-//        std::cerr << "searching "<<ls->first<<"  w="<<ls->second<<std::endl;
-	if (samples.find(ls->first)==samples.end()) {
-	  //found a bin where sample *ls is not contained, but is contained in its (direct) left neigbor
-	  res += 1.8410 * 1.8410 * ls->second * ls->second; //add Poisson error squared
-//	  std::cout << "Poisson error sample="<<ls->first<<" err2="<<res<<std::endl;
-	}
+        // std::cerr << "searching "<<ls->first<<"  w="<<ls->second<<std::endl;
+        if (samples.find(ls->first)==samples.end()) {
+          //found a bin where sample *ls is not contained, but is contained in its (direct) left neigbor
+          res += 1.8410 * 1.8410 * ls->second * ls->second; //add Poisson error squared
+          // std::cout << "Poisson error sample="<<ls->first<<" err2="<<res<<std::endl;
+        }
       }
       return res;
     }
-*/
+
 
 
 private:
