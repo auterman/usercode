@@ -55,6 +55,8 @@ void DoPlotsFor(const std::string& x, const std::string& y, const std::string& f
     GetPlotTools(PlotTool, file, x, y, "", 0);
     GetInfo("bino"  )->SetLabel("M_{bino} [GeV]");
     GetInfo("wino"  )->SetLabel("M_{wino} [GeV]");
+    GetInfo("squark")->SetLabel("M_{squark} [GeV]");
+    GetInfo("gluino")->SetLabel("M_{gluino} [GeV]");
     TH2 * new_plot_range = (plot_range?plot_range:PlotTool->GetHist(x,y));
     TH2 * new_plot_excl  = (plot_excl ?plot_excl :new_plot_range);
 
@@ -86,7 +88,7 @@ void DoPlotsFor(const std::string& x, const std::string& y, const std::string& f
     //Fill the holes by 2D interpolation in gl-sq
     PlotTool->FillEmptyPointsByInterpolation(x, y);
 
-
+    std::cout << "   plotting '"<< flag<<"'"<< std::endl;
     PlotTools * StdPlotTool = PlotTool->Clone();
     DrawStandardPlots(PlotTool->Clone(), flag, x,y, s, new_plot_range);
     //DrawStandardPlotsPerBin(PlotTool, "GMSB", x,y, &new_plot_range);
@@ -137,6 +139,7 @@ void Do1DPlotsFor(const std::string& x, const std::string& flag, const std::stri
     gStyle->SetTitleSize(32, "xyz");
     //gStyle->SetLabelSize(0.03, "XYZ");
 
+    std::cout << "   plotting 1D '"<< flag<<"'"<< std::endl;
     Draw1DLimitPlots(PlotTool->Clone(), flag, x, s, new_range);
 }
 
@@ -177,8 +180,8 @@ void MultipleChannels(const std::string& x, const std::string& y, const std::str
     lg.push_back(new LimitGraphs(dir+"/filelist_ch5.txt","", 1, x, y, "Bin 5",    15, 7, 0, 0, 0, 0, plot_range) );
 
     //define plot range and labels
-    //GetInfo("squark")->SetLabel("M_{squark} [GeV]");
-    //GetInfo("gluino")->SetLabel("M_{gluino} [GeV]");
+    GetInfo("squark")->SetLabel("M_{squark} [GeV]");
+    GetInfo("gluino")->SetLabel("M_{gluino} [GeV]");
     GetInfo("bino"  )->SetLabel("M_{bino} [GeV]");
     GetInfo("wino"  )->SetLabel("M_{wino} [GeV]");
     if (!plot_range) plot_range = (TH2F*)lg.front()->GetHist()->Clone();
@@ -197,8 +200,8 @@ void MultipleChannels(const std::string& x, const std::string& y, const std::str
         c1->SetLogz(0);
         DrawPlot2D((*it)->GetPlot(),c1,(*it)->GetHist(),l,x,y,"AcceptanceCorrected", "Acceptance (corrected for signal cont.)");
         c1->SetLogz(1);
-        DrawPlot2D((*it)->GetPlot(),c1,(*it)->GetHist(),l,x,y,"ObsXsecLimitasym", "Observed asympt. cross section limit [pb]");
-        DrawPlot2D((*it)->GetPlot(),c1,(*it)->GetHist(),l,x,y,"ExpXsecLimitasym", "Expected asympt. cross section limit [pb]");
+        DrawPlot2D((*it)->GetPlot(),c1,(*it)->GetHist(),l,x,y,"ObsXsecLimitasym", "Observed asympt. cross section limit [fb]");
+        DrawPlot2D((*it)->GetPlot(),c1,(*it)->GetHist(),l,x,y,"ExpXsecLimitasym", "Expected asympt. cross section limit [fb]");
         DrawPlot2D((*it)->GetPlot(),c1,(*it)->GetHist(),l,x,y,"ObsRasym", "Asymptotic Observed R ");
         c1->cd();
         //In/Out plot
@@ -232,15 +235,44 @@ int plot(int argc, char** argv) {
 
   Overview = new OverviewTable();
 
+  //GGM Wino 
+  if (1) {
+  DoPlotsFor("squark","gluino","GGM_Wino","2014-12-17-16-03-GGM_Wino/filelist.txt",SqGlWino_Style(),4);
+  }
 
+  if (0) { //Wino-Bino full scan
+  DoPlotsFor("bino","wino","WinoBinoFullScan",   "2014-09-24-12-46-WinoBino_Scan2D/filelist.txt",WinoBino_Style(),1);
+
+  Do1DPlotsFor("wino","WinoBino_anti_diag_390","2014-09-24-12-46-WinoBino_Scan2D/anti_diag_390.txt",WinoBino_Style()); 
+  Do1DPlotsFor("wino","WinoBino_anti_diag_490","2014-09-24-12-46-WinoBino_Scan2D/anti_diag_490.txt",WinoBino_Style()); 
+  Do1DPlotsFor("wino","WinoBino_bino_380","2014-09-24-12-46-WinoBino_Scan2D/bino_380.txt",WinoBino_Style()); 
+  Do1DPlotsFor("wino","WinoBino_bino_480","2014-09-24-12-46-WinoBino_Scan2D/bino_480.txt",WinoBino_Style()); 
+  Do1DPlotsFor("wino","WinoBino_bino_580","2014-09-24-12-46-WinoBino_Scan2D/bino_580.txt",WinoBino_Style()); 
+  Do1DPlotsFor("wino","WinoBino_dia_10","2014-09-24-12-46-WinoBino_Scan2D/diag_10.txt",WinoBino_Style()); 
+  Do1DPlotsFor("wino","WinoBino_dia_60","2014-09-24-12-46-WinoBino_Scan2D/diag_60.txt",WinoBino_Style()); 
+  Do1DPlotsFor("wino","WinoBino_dia_110","2014-09-24-12-46-WinoBino_Scan2D/dia_110.txt",WinoBino_Style()); 
+  Do1DPlotsFor("bino","WinoBino_wino_390","2014-09-24-12-46-WinoBino_Scan2D/wino_390.txt",WinoBino_Style()); 
+  Do1DPlotsFor("bino","WinoBino_wino_490","2014-09-24-12-46-WinoBino_Scan2D/wino_490.txt",WinoBino_Style()); 
+  Do1DPlotsFor("bino","WinoBino_wino_590","2014-09-24-12-46-WinoBino_Scan2D/wino_590.txt",WinoBino_Style()); 
+
+  Do1DPlotsFor("wino","WinoBinoSigma_10","2014-08-15-14-39-WinoBino_NewSigma/filelist_1D.txt",WinoBino_Style()); 
+  }
 
   //Johannes first limits
-  if (1){
+  if (0){
   DoPlotsFor("bino","wino","WinoBinoMT",   "2014-08-10-03-09-WinoBino_MT/filelist.txt",WinoBino_Style(),1);
-  DoPlotsFor("bino","wino","WinoBinoSigma","2014-08-10-03-09-WinoBino_NewSigma/filelist.txt",WinoBino_Style(),1);
+ 
+  Do1DPlotsFor("wino","WinoBinoMT_10",   "2014-08-10-03-09-WinoBino_MT/filelist_1D.txt",WinoBino_Style());
+ 
+  DoPlotsFor("bino","wino","WinoBinoSigma","2014-08-15-14-39-WinoBino_NewSigma/filelist.txt",WinoBino_Style(),1);
+  Do1DPlotsFor("wino","WinoBinoSigma_10","2014-08-15-14-39-WinoBino_NewSigma/filelist_1D.txt",WinoBino_Style()); 
+  Do1DPlotsFor("wino","WinoBinoSigma_35","2014-08-15-14-39-WinoBino_NewSigma/filelist_35_1D.txt",WinoBino_Style()); 
+  Do1DPlotsFor("wino","WinoBinoSigma_60","2014-08-15-14-39-WinoBino_NewSigma/filelist_60_1D.txt",WinoBino_Style()); 
 
-  Do1DPlotsFor("wino","WinoBinoMT",   "2014-08-10-03-09-WinoBino_MT/filelist_1D.txt",WinoBino_Style());
-  Do1DPlotsFor("wino","WinoBinoSigma","2014-08-10-03-09-WinoBino_NewSigma/filelist_1D.txt",WinoBino_Style()); 
+  DoPlotsFor("bino","wino","WinoBinoMT","2014-09-14-14-14-WinoBino_MT/filelist.txt",WinoBino_Style(),1);
+  Do1DPlotsFor("wino","WinoBinoMT_10","2014-09-14-14-14-WinoBino_MT/filelist_1D.txt",WinoBino_Style()); 
+  Do1DPlotsFor("wino","WinoBinoMT_35","2014-09-14-14-14-WinoBino_MT/filelist_35_1D.txt",WinoBino_Style()); 
+  Do1DPlotsFor("wino","WinoBinoMT_60","2014-09-14-14-14-WinoBino_MT/filelist_60_1D.txt",WinoBino_Style()); 
   }
 
   if (0){

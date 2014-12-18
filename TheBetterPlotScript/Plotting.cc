@@ -15,6 +15,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <algorithm>
 
 void DrawPlot1D(PlotTools *PlotTool, TCanvas*canvas, TH1* h, const std::string& flag, const string& x, const std::string& var,style*s)
 {
@@ -33,6 +34,8 @@ void DrawPlot1D(PlotTools *PlotTool, TCanvas*canvas, TH1* h, const std::string& 
    if(stat(("results/"+flag+"/log").c_str(),&st)==-1) mkdir(("results/"+flag+"/log").c_str(), 0700);
    if(plotC&&stat(("results/"+flag+"/C").c_str(),&st)==-1) mkdir(("results/"+flag+"/C").c_str(), 0700);
    if(plotPNG&&stat(("results/"+flag+"/PNG").c_str(),&st)==-1) mkdir(("results/"+flag+"/PNG").c_str(), 0700);
+   if(plotROOT&&stat(("results/"+flag+"/ROOT").c_str(),&st)==-1) mkdir(("results/"+flag+"/ROOT").c_str(), 0700);
+   if(plotLINEAR&&stat(("results/"+flag+"/linear").c_str(),&st)==-1) mkdir(("results/"+flag+"/linear").c_str(), 0700);
 
    //write plots
    if (s&&s->lumiTemperaturePlot) s->lumiTemperaturePlot->Draw();
@@ -46,6 +49,18 @@ void DrawPlot1D(PlotTools *PlotTool, TCanvas*canvas, TH1* h, const std::string& 
    canvas->SaveAs(("results/"+flag+"/log/"+namePlot + ".pdf").c_str());
    if (plotPNG) canvas->SaveAs(("results/"+flag+"/PNG/"+namePlot + ".png").c_str());
    if (plotC)   canvas->SaveAs(("results/"+flag+"/C/"+namePlot + ".C").c_str());
+   if (plotLINEAR) {
+     bool old = canvas->GetLogy();
+     canvas->SetLogy( !old );
+     canvas->SaveAs(("results/"+flag+"/linear/"+namePlot + ".pdf").c_str());
+     canvas->SetLogy( old );
+   }
+   if (plotROOT) {  
+      TFile f(("results/"+flag+"/ROOT/"+namePlot + ".root").c_str(), "recreate" );
+      f.cd();
+      plot1D->Write();
+      f.Close();
+   }   
 }
 void DrawPlot2D(PlotTools *PlotTool, TCanvas*canvas, TH2* h, const std::string& flag, const string& x, const std::string& y, const std::string& var,
                 const std::string& ztitel, double zmin, double zmax, style*s)
@@ -77,6 +92,7 @@ void DrawPlot2D(PlotTools *PlotTool, TCanvas*canvas, TH2* h, const std::string& 
    if(stat(("results/"+flag+"/log").c_str(),&st)==-1) mkdir(("results/"+flag+"/log").c_str(), 0700);
    if(plotC&&stat(("results/"+flag+"/C").c_str(),&st)==-1) mkdir(("results/"+flag+"/C").c_str(), 0700);
    if(plotPNG&&stat(("results/"+flag+"/PNG").c_str(),&st)==-1) mkdir(("results/"+flag+"/PNG").c_str(), 0700);
+   if(plotROOT&&stat(("results/"+flag+"/ROOT").c_str(),&st)==-1) mkdir(("results/"+flag+"/ROOT").c_str(), 0700);
 
    //write plots
    if (s&&s->lumiTemperaturePlot) s->lumiTemperaturePlot->Draw();
@@ -90,6 +106,12 @@ void DrawPlot2D(PlotTools *PlotTool, TCanvas*canvas, TH2* h, const std::string& 
    canvas->SaveAs(("results/"+flag+"/log/"+namePlot + ".pdf").c_str());
    if (plotPNG) canvas->SaveAs(("results/"+flag+"/PNG/"+namePlot + ".png").c_str());
    if (plotC)   canvas->SaveAs(("results/"+flag+"/C/"+namePlot + ".C").c_str());
+   if (plotROOT) {  
+      TFile f(("results/"+flag+"/ROOT/"+namePlot + ".root").c_str(), "recreate" );
+      f.cd();
+      plot2D->Write();
+      f.Close();
+   }   
 }
 
 void DrawHist1D(PlotTools *PlotTool, TCanvas*canvas, const std::string& flag, const string& x, const std::string& y, const std::string& var,
@@ -128,11 +150,18 @@ void DrawHist1D(PlotTools *PlotTool, TCanvas*canvas, const std::string& flag, co
    if(stat(("results/"+flag+"/log").c_str(),&st)==-1) mkdir(("results/"+flag+"/log").c_str(), 0700);
    if(plotC&&stat(("results/"+flag+"/C").c_str(),&st)==-1) mkdir(("results/"+flag+"/C").c_str(), 0700);
    if(plotPNG&&stat(("results/"+flag+"/PNG").c_str(),&st)==-1) mkdir(("results/"+flag+"/PNG").c_str(), 0700);
+   if(plotROOT&&stat(("results/"+flag+"/ROOT").c_str(),&st)==-1) mkdir(("results/"+flag+"/ROOT").c_str(), 0700);
 
    std::string namePlot = flag +"_"+x+"_"+y+"_"+var+"_1D";
    c1->SaveAs(("results/"+flag+"/log/"+namePlot + ".pdf").c_str());
    if (plotPNG) c1->SaveAs(("results/"+flag+"/PNG/"+namePlot + ".png").c_str());
    if (plotC) c1->SaveAs(("results/"+flag+"/C/"+namePlot + ".C").c_str());
+   if (plotROOT) {  
+      TFile f(("results/"+flag+"/ROOT/"+namePlot + ".root").c_str(), "recreate" );
+      f.cd();
+      h1D->Write();
+      f.Close();
+   }   
 }
 
 
@@ -174,7 +203,6 @@ void DrawStandardPlots(PlotTools *pt, const std::string& flag, const std::string
    //Log z-scale
    c1->cd();
    c1->SetLogz(1);
-   DrawPlot2D(pt,c1,h,flag,x,y,"Xsection",          "NLO cross section [pb]");
 
    //Linear z-scale
    c1->SetLogz(0);
@@ -202,6 +230,7 @@ void DrawStandardPlots(PlotTools *pt, const std::string& flag, const std::string
 void Draw1DLimitPlots(PlotTools *pt, const std::string& flag, const std::string& x, style*s, TH1*h)
 {
     c1->UseCurrentStyle();
+    c1->SetLogy(1);
 
     pt->SortBy(x);
 
@@ -230,13 +259,28 @@ void DrawStandardLimitPlots(PlotTools *pt, const std::string& flag, const std::s
     c1->SetLogz(1);
     //DrawPlot2D(pt,c1,h,flag+"_FixedBinning",x,y,"ObsXsecLimit",      "Observed cross section limit [pb]",0.001,0.02);
     DrawPlot2D(pt,c1,h,flag,x,y,"R_firstguess",      "R (first guess)", s->MinXsecZ, s->MaxXsecZ, s );
+
+
+///Johannes /////////////////////////////////////////////////////////////////////////////////////
+    DrawPlot2D(pt,c1,h,flag,x,y,"Xsection",          "NLO cross section [fb]");
+    DrawPlot2D(pt,c1,h,flag,x,y,"ObsXsecLimit",      "95% CL cross section upper limit [fb]", s->MinXsecZ, s->MaxXsecZ, s );
+    DrawPlot2D(pt,c1,h,flag,x,y,"ExpXsecLimit",      "Expected cross section limit [fb]", s->MinXsecZ, s->MaxXsecZ, s);
+    //DrawPlot2D(pt,c1,h,flag,x,y,"ObsNsignalLimit",   "Observed limit on number signal events");
+    //DrawPlot2D(pt,c1,h,flag,x,y,"ExpNsignalLimit",   "Expected limit on number signal events");
+    DrawPlot2D(pt,c1,h,flag,x,y,"ObsXsecLimitasym",  "Observed asympt. cross section limit [fb]", s->MinXsecZ, s->MaxXsecZ, s);
+    DrawPlot2D(pt,c1,h,flag,x,y,"ExpXsecLimitasym",  "Expected asympt. cross section limit [fb]", s->MinXsecZ, s->MaxXsecZ, s);
+///Johannes /////////////////////////////////////////////////////////////////////////////////////
+/*
+///Knut /////////////////////////////////////////////////////////////////////////////////////
+    DrawPlot2D(pt,c1,h,flag,x,y,"Xsection",          "NLO cross section [pb]");
     DrawPlot2D(pt,c1,h,flag,x,y,"ObsXsecLimit",      "95% CL cross section upper limit [pb]", s->MinXsecZ, s->MaxXsecZ, s );
     DrawPlot2D(pt,c1,h,flag,x,y,"ExpXsecLimit",      "Expected cross section limit [pb]", s->MinXsecZ, s->MaxXsecZ, s);
     //DrawPlot2D(pt,c1,h,flag,x,y,"ObsNsignalLimit",   "Observed limit on number signal events");
     //DrawPlot2D(pt,c1,h,flag,x,y,"ExpNsignalLimit",   "Expected limit on number signal events");
     DrawPlot2D(pt,c1,h,flag,x,y,"ObsXsecLimitasym",  "Observed asympt. cross section limit [pb]", s->MinXsecZ, s->MaxXsecZ, s);
     DrawPlot2D(pt,c1,h,flag,x,y,"ExpXsecLimitasym",  "Expected asympt. cross section limit [pb]", s->MinXsecZ, s->MaxXsecZ, s);
-
+///Knut /////////////////////////////////////////////////////////////////////////////////////
+*/
     //Linear z-scale
     c1->SetLogz(1);
     //DrawPlot2D(pt,c1,h,flag,x,y,"ObsR",              "Observed R", 0.5, 2.);
@@ -323,6 +367,17 @@ TGraph * InOutPlot(PlotTools *PlotTool, TCanvas*canvas, std::string flag, const 
    canvas->SaveAs(("results/"+flag+"/log/"+nameXsPlot + ".pdf").c_str());
    if (plotPNG) canvas->SaveAs(("results/"+flag+"/PNG/"+nameXsPlot + ".png").c_str());
    if (plotC)   canvas->SaveAs(("results/"+flag+"/C/"+nameXsPlot + ".C").c_str());
+   if (plotROOT) {
+      TFile f(("results/"+flag+"/ROOT/"+nameXsPlot + ".root").c_str(), "recreate" );
+      f.cd();
+      h->Write();
+      for (std::vector<TGraph*>::iterator cont = contours.begin(); cont != contours.end(); ++cont) {
+        if (!*cont) continue;
+        if (cont-contours.begin()>13) break;
+        (*cont)->Write();
+      }  
+      f.Close();
+   }
    delete h;
    TGraph * res = (contours.size()>idx?(TGraph*)contours[idx]->Clone():0);
    if (res) {res->SetLineColor(color);
@@ -398,12 +453,14 @@ void DrawExclusion(PlotTools *StdPlotTool, PlotTools *PlotTool, std::string flag
    
 
    TGraph* gObsUnsmoothed = (TGraph*)gCLsObsExcl->Clone();
+   if (s->doSmooth) {
    Smooth(gCLsObsExcl,     s->smooth_points, s->smooth_flag);
    Smooth(gCLsExpExcl,     s->smooth_points, s->smooth_flag);
    Smooth(gCLsExpExclm1,   s->smooth_points, s->smooth_flag);
    Smooth(gCLsExpExclp1,   s->smooth_points, s->smooth_flag);
    Smooth(gCLsObsTheom1,   s->smooth_points, s->smooth_flag);
    Smooth(gCLsObsTheop1,   s->smooth_points, s->smooth_flag);
+/*
    if (s->second_smooth) {
      Smooth(gCLsObsExcl,     s->second_smooth, s->smooth_flag);
      Smooth(gCLsExpExcl,     s->second_smooth, s->smooth_flag);
@@ -411,6 +468,8 @@ void DrawExclusion(PlotTools *StdPlotTool, PlotTools *PlotTool, std::string flag
      Smooth(gCLsExpExclp1,   s->second_smooth, s->smooth_flag);
      Smooth(gCLsObsTheom1,   s->second_smooth, s->smooth_flag);
      Smooth(gCLsObsTheop1,   s->second_smooth, s->smooth_flag);
+   }
+*/
    }
 
    TGraph * gCLs1Sigma = MakeBand(gCLsExpExclm1, gCLsExpExclp1);
@@ -433,7 +492,7 @@ void DrawExclusion(PlotTools *StdPlotTool, PlotTools *PlotTool, std::string flag
    TLegend* leg = s->leg;
    TH1F * legdummy = 0;
    leg->AddEntry(gCLsObsExcl, "Observed", "l");
-   leg->AddEntry(gCLsObsTheop1, "Observed #pm1#sigma theory", "l");
+   //if (gCLsObsTheom1&&gCLsObsTheop1) leg->AddEntry(gCLsObsTheop1, "Observed #pm1#sigma theory", "l");
    TH1F* legExp = (TH1F*)gCLs1Sigma->Clone();
    legExp->SetLineStyle(gCLsExpExcl->GetLineStyle());
    legExp->SetLineColor(gCLsExpExcl->GetLineColor());
@@ -443,8 +502,8 @@ void DrawExclusion(PlotTools *StdPlotTool, PlotTools *PlotTool, std::string flag
 
    if (s->PostExclusionPlotting) s->PostExclusionPlotting(s,leg);
    leg->Draw();
-   s->lumi->Draw();
-   s->cms->Draw();
+   s->lumiExclusionPlot->Draw();
+   s->cmsExclusionPlot->Draw();
 
    //check & make dir
    struct stat st={0};
@@ -453,25 +512,43 @@ void DrawExclusion(PlotTools *StdPlotTool, PlotTools *PlotTool, std::string flag
    if(stat(("results/"+flag+"/log").c_str(),&st)==-1) mkdir(("results/"+flag+"/log").c_str(), 0700);
    if(plotC&&stat(("results/"+flag+"/C").c_str(),&st)==-1) mkdir(("results/"+flag+"/C").c_str(), 0700);
    if(plotPNG&&stat(("results/"+flag+"/PNG").c_str(),&st)==-1) mkdir(("results/"+flag+"/PNG").c_str(), 0700);
+   if(plotROOT&&stat(("results/"+flag+"/ROOT").c_str(),&st)==-1) mkdir(("results/"+flag+"/ROOT").c_str(), 0700);
 
 
    gPad->RedrawAxis();
    string nameExcl = flag + "_"+x+"_"+y+"_Exclusion_"+lflavor;
    c1->SaveAs(("results/"+flag+"/log/"+nameExcl + ".pdf").c_str());
+   gCLsObsExcl->SetName("Observed_limit");
+   gCLsObsExcl->SetTitle("Observed_limit");
+   gCLsObsTheom1->SetName("Observed_limit_dn");
+   gCLsObsTheom1->SetTitle("Observed_limit_dn");
+   gCLsObsTheop1->SetName("Observed_limit_up");
+   gCLsObsTheop1->SetTitle("Observed_limit_up");
+   gCLsExpExcl->SetName("Expected_limit");
+   gCLsExpExcl->SetTitle("Expected_limit");
+   gCLsExpExclm1->SetName("Expected_limit_dn");
+   gCLsExpExclm1->SetTitle("Expected_limit_dn");
+   gCLsExpExclp1->SetName("Expected_limit_up");
+   gCLsExpExclp1->SetTitle("Expected_limit_up");
    if (plotPNG) c1->SaveAs(("results/"+flag+"/PNG/"+nameExcl + ".png").c_str());
-   if (plotROOT) c1->SaveAs(("results/"+flag+"/C/"+nameExcl + "canvas.C").c_str());
    if (plotC  ) {
      h->GetZaxis()->SetTitle("");
      h->Draw("h");
-     gCLsObsExcl->SetName("Observed limit");
-     gCLsObsExcl->SetTitle("Observed limit");
      gCLsObsExcl->Draw("l");
-     gCLsExpExcl->SetName("Expected limit");
-     gCLsExpExcl->SetTitle("Expected limit");
      gCLsExpExcl->Draw("l");
      c1->SaveAs(("results/"+flag+"/C/"+nameExcl + ".C").c_str());
    }
-
+   if (plotROOT) {
+      TFile f(("results/"+flag+"/ROOT/"+nameExcl + ".root").c_str(), "recreate" );
+      f.cd();
+      if (gCLsExpExclm1) gCLsExpExclm1->Write();
+      if (gCLsExpExclp1) gCLsExpExclp1->Write();
+      if (gCLsObsExcl) gCLsObsExcl->Write();
+      if (gCLsExpExcl) gCLsExpExcl->Write();
+      if (gCLsObsTheom1) gCLsObsTheom1->Write();
+      if (gCLsObsTheop1) gCLsObsTheop1->Write();
+      f.Close();
+    }
 
    ///------------------------------------------------------------------------------------
    /// Exclusion plot SMS style with x-sect limit
@@ -492,7 +569,7 @@ void DrawExclusion(PlotTools *StdPlotTool, PlotTools *PlotTool, std::string flag
    
 
    TH2 *plot2D = StdPlotTool->GetHist(x,y);
-   plot2D->GetZaxis()->SetTitle("95% CL cross section upper limit [pb]");
+   plot2D->GetZaxis()->SetTitle("95% CL cross section upper limit [fb]");
    StdPlotTool->Area(plot2D, x, y, "ObsXsecLimit");
    plot2D->GetZaxis()->SetTitleOffset(1.5);
    if (s->MinXsecZ!=-999) plot2D->SetMinimum(s->MinXsecZ);
@@ -501,8 +578,8 @@ void DrawExclusion(PlotTools *StdPlotTool, PlotTools *PlotTool, std::string flag
    if (s&&s->SetMoreLogLabels) {
      plot2D->GetZaxis()->SetMoreLogLabels();
      plot2D->GetZaxis()->SetLabelSize(0.035);
-     plot2D->GetZaxis()->SetTitleOffset(2.1);
-     c1->SetRightMargin(0.22);  
+     plot2D->GetZaxis()->SetTitleOffset(1.5);
+     c1->SetRightMargin(0.18);  
      c1->SetLeftMargin(0.15);  
    }  
    plot2D->Draw("colz"); 
@@ -545,7 +622,7 @@ void DrawExclusion(PlotTools *StdPlotTool, PlotTools *PlotTool, std::string flag
    legSMS->Clear();
    legSMS->SetHeader(header.c_str());
    legSMS->AddEntry(gCLsObsExcl,   "Observed", "l");
-   legSMS->AddEntry(gCLsObsTheop1, "Observed #pm1#sigma theory", "l");
+   //if (gCLsObsTheom1&&gCLsObsTheop1)legSMS->AddEntry(gCLsObsTheop1, "Observed #pm1#sigma theory", "l");
    legSMS->AddEntry(gCLsExpExcl,   "Expected", "l");
    legSMS->AddEntry(gCLsExpExclm1, "Expected #pm1#sigma exp.", "l");
    //if (s->PostExclusionPlotting)  s->PostExclusionPlotting(s,legSMS);   
@@ -557,20 +634,26 @@ void DrawExclusion(PlotTools *StdPlotTool, PlotTools *PlotTool, std::string flag
    c1->SaveAs(("results/"+flag+"/log/"+nameExcl + ".pdf").c_str());
    if (plotPNG) c1->SaveAs(("results/"+flag+"/PNG/"+nameExcl + ".PNG").c_str());
    //if (plotC) c1->SaveAs(("results/"+flag+"/C/"+nameExcl + ".C").c_str());
-   }
-   
+   if (plotROOT) {
+      TFile f(("results/"+flag+"/ROOT/"+nameExcl + ".root").c_str(), "recreate" );
+      f.cd();
+      plot2D->SetName("nxsec");
+      ///plot2D->SetTitle("txsec");
+      plot2D->Write();
+      if (gCLsExpExclm1) gCLsExpExclm1->Write();
+      if (gCLsExpExclp1) gCLsExpExclp1->Write();
+      if (gCLsObsExcl) gCLsObsExcl->Write();
+      if (gCLsExpExcl) gCLsExpExcl->Write();
+      if (gCLsObsTheom1) gCLsObsTheom1->Write();
+      if (gCLsObsTheop1) gCLsObsTheop1->Write();
+      f.Close();
+    }
+  }
 }
 
 
 void DrawExclusion1Dasym(PlotTools *PlotTool, TCanvas*canvas, TH1* h, const std::string& flag, const string& x, style*s)
 {
-   TH1F *plot1D = (TH1F*)h->Clone();
-   plot1D->GetYaxis()->SetTitleOffset(1.5);
-   plot1D->GetYaxis()->SetTitle("signal cross section / limit [pb]");
-   plot1D->GetXaxis()->SetNdivisions(505);
-   plot1D->Draw("h");
-   plot1D->SetMaximum(20);
-
    TGraph * Xsec = PlotTool->Line(x, "Xsection");
    Xsec->SetLineColor( kBlue );
    Xsec->SetLineWidth( 3 );
@@ -596,6 +679,17 @@ void DrawExclusion1Dasym(PlotTools *PlotTool, TCanvas*canvas, TH1* h, const std:
    ExpP2->SetLineColor( kYellow );
    TGraph * Exp2 = MakeBand(ExpM2, ExpP2); 
 
+   canvas->cd();
+   canvas->Clear();
+   TH1F *plot1D = (TH1F*)h->Clone();
+   plot1D->GetYaxis()->SetTitleOffset(1.5);
+   plot1D->GetYaxis()->SetTitle("signal cross section / limit [fb]");
+   plot1D->GetXaxis()->SetNdivisions(505);
+   plot1D->Draw("h");
+   plot1D->SetMaximum(100*Maximum<double>( Xsec->GetHistogram()->GetMaximum(), ExpM1->GetHistogram()->GetMaximum() ) );
+   plot1D->SetMinimum(    Minimum<double>( Xsec->GetHistogram()->GetMinimum(), ExpP1->GetHistogram()->GetMinimum() ) );
+
+
    TLegend * leg = new TLegend(0.52,0.70,0.85,0.88,"GGM    m_{Wino} =  m_{Bino} + 10 GeV");
    leg->SetBorderSize(0);
    leg->SetLineColor(0);
@@ -605,7 +699,7 @@ void DrawExclusion1Dasym(PlotTools *PlotTool, TCanvas*canvas, TH1* h, const std:
    leg->SetTextSize(0.03);
    leg->AddEntry(Obs,"observed CL_{s}^{asym} limit","l");
    leg->AddEntry(Exp,"expected CL_{s}^{asym} limit","l");
-   leg->AddEntry(Xsec,"signal cross section","l");
+   leg->AddEntry(Xsec,"signal cross section #sigma_{NLO}","l");
    
 
    //check & make dir
@@ -615,26 +709,46 @@ void DrawExclusion1Dasym(PlotTools *PlotTool, TCanvas*canvas, TH1* h, const std:
    if(stat(("results/"+flag+"/log").c_str(),&st)==-1) mkdir(("results/"+flag+"/log").c_str(), 0700);
    if(plotC&&stat(("results/"+flag+"/C").c_str(),&st)==-1) mkdir(("results/"+flag+"/C").c_str(), 0700);
    if(plotPNG&&stat(("results/"+flag+"/PNG").c_str(),&st)==-1) mkdir(("results/"+flag+"/PNG").c_str(), 0700);
+   if(plotLINEAR&&stat(("results/"+flag+"/linear").c_str(),&st)==-1) mkdir(("results/"+flag+"/linear").c_str(), 0700);
 
    //write plots
-   if (s&&s->lumiTemperaturePlot) s->lumiTemperaturePlot->Draw();
-   gPad->RedrawAxis();
    string namePlot =  flag + "_"+x+"_Exclusion1Dasym";
    //
-   Exp2->Draw("fl");
-   Exp1->Draw("fl");
-   Xsec->Draw("l"); 
-   Exp->Draw("l"); 
-   Obs->Draw("l"); 
+   Exp2->Draw("fl,same");
+   Exp1->Draw("fl,same");
+   Xsec->Draw("l,same"); 
+   Exp->Draw("l,same"); 
+   Obs->Draw("l,same"); 
    //ObsM1->Draw("l"); 
    //ObsP1->Draw("l"); 
    leg->Draw();
-   if (s&&s->cmsTemperaturePlot)  s->cmsTemperaturePlot->Draw();
-   if (s&&s->lumiTemperaturePlot) s->lumiTemperaturePlot->Draw();
+   if (s&&s->cms)  s->cms->Draw();
+   if (s&&s->lumi) s->lumi->Draw();
    gPad->RedrawAxis();
    canvas->SaveAs(("results/"+flag+"/log/"+namePlot + ".pdf").c_str());
    if (plotPNG) canvas->SaveAs(("results/"+flag+"/PNG/"+namePlot + ".png").c_str());
    if (plotC)   canvas->SaveAs(("results/"+flag+"/C/"+namePlot + ".C").c_str());
+   if (plotLINEAR) {
+     bool old = canvas->GetLogy();
+     canvas->SetLogy( !old );
+     plot1D->Draw("h");
+     plot1D->SetMaximum(1.0*Maximum<double>( Xsec->GetHistogram()->GetMaximum(), ExpM1->GetHistogram()->GetMaximum() ) );
+     plot1D->SetMinimum(0 );
+     Exp2->Draw("fl,same");
+     Exp1->Draw("fl,same");
+     Xsec->Draw("l,same"); 
+     Exp->Draw("l,same"); 
+     Obs->Draw("l,same"); 
+     //ObsM1->Draw("l"); 
+     //ObsP1->Draw("l"); 
+     leg->Draw();
+     if (s&&s->cms)  s->cms->Draw();
+     if (s&&s->lumi) s->lumi->Draw();
+     gPad->RedrawAxis();
+
+     canvas->SaveAs(("results/"+flag+"/linear/"+namePlot + ".pdf").c_str());
+     canvas->SetLogy( old );
+   }
 }
 
 
@@ -643,10 +757,9 @@ void DrawExclusion1D(PlotTools *PlotTool, TCanvas*canvas, TH1* h, const std::str
 {
    TH1F *plot1D = (TH1F*)h->Clone();
    plot1D->GetYaxis()->SetTitleOffset(1.5);
-   plot1D->GetYaxis()->SetTitle("signal cross section / limit [pb]");
+   plot1D->GetYaxis()->SetTitle("signal cross section / limit [fb]");
    plot1D->GetXaxis()->SetNdivisions(505);
-   plot1D->Draw("h");
-   plot1D->SetMaximum(20);
+   //plot1D->SetMaximum(20);
 
    TGraph * Xsec = PlotTool->Line(x, "Xsection");
    Xsec->SetLineColor( kBlue );
@@ -673,6 +786,12 @@ void DrawExclusion1D(PlotTools *PlotTool, TCanvas*canvas, TH1* h, const std::str
    ExpP2->SetLineColor( kYellow );
    TGraph * Exp2 = MakeBand(ExpM2, ExpP2); 
 
+
+   plot1D->SetMaximum(100*Maximum<double>( Xsec->GetHistogram()->GetMaximum(), ExpM1->GetHistogram()->GetMaximum() ) );
+   plot1D->SetMinimum(    Minimum<double>(  Xsec->GetHistogram()->GetMinimum(), ExpP1->GetHistogram()->GetMinimum() ) );
+   plot1D->Draw("h");
+
+
    TLegend * leg = new TLegend(0.52,0.70,0.85,0.88,"GGM    m_{Wino} =  m_{Bino} + 10 GeV");
    leg->SetBorderSize(0);
    leg->SetLineColor(0);
@@ -692,10 +811,9 @@ void DrawExclusion1D(PlotTools *PlotTool, TCanvas*canvas, TH1* h, const std::str
    if(stat(("results/"+flag+"/log").c_str(),&st)==-1) mkdir(("results/"+flag+"/log").c_str(), 0700);
    if(plotC&&stat(("results/"+flag+"/C").c_str(),&st)==-1) mkdir(("results/"+flag+"/C").c_str(), 0700);
    if(plotPNG&&stat(("results/"+flag+"/PNG").c_str(),&st)==-1) mkdir(("results/"+flag+"/PNG").c_str(), 0700);
+   if(plotLINEAR&&stat(("results/"+flag+"/linear").c_str(),&st)==-1) mkdir(("results/"+flag+"/linear").c_str(), 0700);
 
    //write plots
-   if (s&&s->lumiTemperaturePlot) s->lumiTemperaturePlot->Draw();
-   gPad->RedrawAxis();
    string namePlot =  flag + "_"+x+"_Exclusion1D";
    //
    Exp2->Draw("fl");
@@ -706,12 +824,33 @@ void DrawExclusion1D(PlotTools *PlotTool, TCanvas*canvas, TH1* h, const std::str
    //ObsM1->Draw("l"); 
    //ObsP1->Draw("l"); 
    leg->Draw();
-   if (s&&s->cmsTemperaturePlot)  s->cmsTemperaturePlot->Draw();
-   if (s&&s->lumiTemperaturePlot) s->lumiTemperaturePlot->Draw();
+   if (s&&s->cms)  s->cms->Draw();
+   if (s&&s->lumi) s->lumi->Draw();
    gPad->RedrawAxis();
    canvas->SaveAs(("results/"+flag+"/log/"+namePlot + ".pdf").c_str());
    if (plotPNG) canvas->SaveAs(("results/"+flag+"/PNG/"+namePlot + ".png").c_str());
    if (plotC)   canvas->SaveAs(("results/"+flag+"/C/"+namePlot + ".C").c_str());
+   if (plotLINEAR) {
+     bool old = canvas->GetLogy();
+     canvas->SetLogy( !old );
+     plot1D->Draw("h");
+     plot1D->SetMaximum(1.0*Maximum<double>( Xsec->GetHistogram()->GetMaximum(), ExpM1->GetHistogram()->GetMaximum() ) );
+     plot1D->SetMinimum(0 );
+      if (s&&s->lumiTemperaturePlot) s->lumiTemperaturePlot->Draw();
+     Exp2->Draw("fl,same");
+     Exp1->Draw("fl,same");
+     Xsec->Draw("l,same"); 
+     Exp->Draw("l,same"); 
+     Obs->Draw("l,same"); 
+     //ObsM1->Draw("l"); 
+     //ObsP1->Draw("l"); 
+     leg->Draw();
+     if (s&&s->cms)  s->cms->Draw();
+     if (s&&s->lumi) s->lumi->Draw();
+     gPad->RedrawAxis();
+     canvas->SaveAs(("results/"+flag+"/linear/"+namePlot + ".pdf").c_str());
+     canvas->SetLogy( old );
+   }
 }
 
 

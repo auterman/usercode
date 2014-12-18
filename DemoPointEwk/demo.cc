@@ -103,7 +103,12 @@ void WriteTable(std::ostream& os, const Table::TableStyle style, const std::stri
        b3[i]	    = ToStringYield(bgd3[i])+pm+ ToStringUnc( u_bgd3[i]  );	     
        b4[i]	    = ToStringYield(bgd4[i])+pm+ ToStringUnc( u_bgd4[i]  );	     
        b5[i]	    = ToStringYield(bgd5[i])+pm+ ToStringUnc( u_bgd5[i]  );	     
-       b6[i]	    = ToStringYield(bgd6[i])+pm+ ToStringUnc( u_bgd6[i]  );	     
+       b6[i]	    = ToStringYield(bgd6[i])+pm+ ToStringUnc( u_bgd6[i]  );	
+       
+       double acc =    (lumi[i]*xsec[i]!=0 ? 100*sig[i] / (lumi[i]*xsec[i]) : 0);
+       double accunc = (lumi[i]*xsec[i]!=0 ? 100*u_sig[i] / (lumi[i]*xsec[i]) : 0);
+       
+       acceptance[i] = ToStringAcc(acc)  	+pm+ ToStringAcc( accunc  );
        signal[i]    = ToStringYield(sig[i])  	+pm+ ToStringUnc( u_sig[i]  );
        background[i]= ToStringYield(totbgd[i])	+pm+ ToStringUnc( u_totbgd[i]);
     }

@@ -15,12 +15,20 @@ std::string ToStringYield(double d){
 
 std::string ToStringUnc(double d){
   std::stringstream ss;
-  if (d>=1.)
+  if (d>=100.)
     ss <<std::fixed << std::setprecision(0)<< d;
+  else if (d>=1.)
+    ss <<std::fixed << std::setprecision(1)<< d;
   else if (d>=0.05) 
     ss <<std::fixed << std::setprecision(1)<< d;
   else 
     ss <<"<0.1";
+  return ss.str();
+}
+
+std::string ToStringAcc(double d){
+  std::stringstream ss;
+  ss <<std::fixed << std::setprecision(1)<< d;
   return ss.str();
 }
 

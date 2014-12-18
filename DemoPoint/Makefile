@@ -32,7 +32,7 @@ nedit:
 table:  ## use as: make table point=<directory>
 		./demo --dir ${POINT} --mchi1 5000 --mcha1 375 --msquark 1700 --mgluino  720	     > ResultTable_${POINT}_Sq1700_Gl720.txt
 		./demo --dir ${POINT} --mchi1 5000 --mcha1 375 --msquark 1700 --mgluino  720 --style tex --caption > ResultTable_${POINT}_Sq1700_Gl720.tex
-				
+								
 
 tables:
 		#old used for 8 TeV, 4fb-1

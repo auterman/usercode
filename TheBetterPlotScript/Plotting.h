@@ -39,7 +39,8 @@
 struct style;
 static bool plotPNG    = true;
 static bool plotC      = true;
-static bool plotROOT   = false;
+static bool plotROOT   = true;
+static bool plotLINEAR   = true;
 static TCanvas * c1 = 0;
 
 void DrawPlot2D(PlotTools *PlotTool, TCanvas*canvas, TH2* h, const std::string& flag, const string& x, const std::string& y, const std::string& var,
@@ -69,5 +70,16 @@ void DrawExclusion1D(PlotTools *PlotTool, TCanvas*canvas, TH1* h, const std::str
 void DrawExclusion1Dasym(PlotTools *PlotTool, TCanvas*canvas, TH1* h, const std::string& flag, const string& x, style*s);
 
 void GetPlotTools(PlotTools*& plotTools, std::string filename, const std::string& x, const std::string& y, std::string GeneratorFile, unsigned factor);
+
+
+template<typename T>
+T Maximum(T v1, T v2){
+  return (v1>=v2?v1:v2);
+}
+
+template<typename T>
+T Minimum(T v1, T v2){
+  return (v1<v2?v1:v2);
+}
 
 #endif

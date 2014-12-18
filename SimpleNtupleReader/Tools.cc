@@ -14,8 +14,8 @@
 void Histograms::Book()
 {
     h_["idxphoton"]  = new TH1F(((std::string)"h_idxphoton"+label_).c_str(),";Index of first tight #gamma;Events",11,-0.5,10.5);
-    h_["met"]       = new TH1F(((std::string)"h_met"+label_).c_str(),";MET [GeV];Events",n_metbins,metbins);
-    h_["met_const"] = new TH1F(((std::string)"h_met_const"+label_).c_str(),";MET [GeV];Events",20,0,500);
+    h_["met"]       = new TH1F(((std::string)"h_met"+label_).c_str(),";E_{T}^{miss} [GeV];Events",n_metbins,metbins);
+    h_["met_const"] = new TH1F(((std::string)"h_met_const"+label_).c_str(),";E_{T}^{miss} [GeV];Events",20,0,500);
     h_["mht"]       = new TH1F(((std::string)"h_mht"+label_).c_str(),";MHT [GeV];Events",20,0,1000);
     h_["ht" ]       = new TH1F(((std::string)"h_ht"+label_).c_str(),";HT [GeV];Events",20,400,1500);
     h_["em1_pt" ]   = new TH1F(((std::string)"h_em1_pt"+label_).c_str(),";p_{T}^{em}_1 [GeV];Events",20,0,500);
@@ -253,11 +253,11 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
     plotCaption->SetTextSizePixels( h1->GetLabelSize() );
     // whitespaces optimized for this pad size
     if ( file.find("Final") == 0 )
-        plotCaption->SetText( .01, .94, "CMS Simulation        19.7fb^{-1} (8 TeV), #geq1#gamma,#geq2jets,#slash{E}_{T}#geq100GeV" );
+        plotCaption->SetText( .01, .94, "CMS simulation        19.7fb^{-1} (8 TeV), #geq1#gamma,#geq2jets,#slash{E}_{T}#geq100GeV" );
     else
-        plotCaption->SetText( .01, .94, "CMS Simulation                            19.7fb^{-1} (8 TeV), #geq1#gamma,#geq2jets" );
+        plotCaption->SetText( .01, .94, "CMS simulation                            19.7fb^{-1} (8 TeV), #geq1#gamma,#geq2jets" );
     if ( file.find("Data") != std::string::npos )
-        plotCaption->SetText( .01, .94, "CMS Preliminary                           19.7fb^{-1} (8 TeV) #geq1#gamma,#geq2jets" );
+        plotCaption->SetText( .01, .94, "CMS                                            19.7fb^{-1} (8 TeV) #geq1#gamma,#geq2jets" );
 
     //assertions----------------------------------------------------------------
     assert(h1->GetXaxis()->GetNbins() == h2->GetXaxis()->GetNbins());
@@ -315,7 +315,7 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
     h_axis->GetYaxis()->SetLabelSize(0.05);
     TH1F* hleg = (TH1F*)we->Clone();
     hleg->SetLineWidth(2);
-    THStack hs("hs","CMS preliminary          #leq1#gamma, #leq2jets");
+    THStack hs("hs","CMS                   #leq1#gamma, #leq2jets");
     gStyle->SetTitleSize(0.2,"t");
     // Do Legend -----------------------------------------------------------------------
     TLegend * leg = new TLegend(0.5,0.65-(0.02*(sig->size()+other->size())),0.89,0.89);
@@ -417,7 +417,7 @@ void ratio(TH1*h1, TH1*h2, TH1*we,std::vector<TH1*> *sig,std::vector<TH1*> *othe
     h_axis->SetMinimum(0.);
     h_axis->SetMaximum(3.5);
     h_axis->GetXaxis()->SetNdivisions(505);
-    h_axis->GetYaxis()->SetTitle("Direct/Pred.");
+    h_axis->GetYaxis()->SetTitle("Direct/pred.");
     h_axis->GetYaxis()->SetTitleOffset(0.4);
     h_axis->GetYaxis()->SetTitleSize(0.125);
     h_axis->GetYaxis()->SetLabelSize(0.125);

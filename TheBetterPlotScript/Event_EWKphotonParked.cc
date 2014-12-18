@@ -26,15 +26,20 @@ void ReadEvent(Event& evt, ConfigFile& config)
   evt.Add( ReadVariable(config, "number",      "Point", -1 ) );    
   evt.Add( ReadVariable(config, "wino",        "wino mass" ) );
   evt.Add( ReadVariable(config, "bino",        "bino mass" ) );
+  evt.Add( ReadVariable(config, "gluino",      "gluino mass" ) );
+  evt.Add( ReadVariable(config, "squark",      "squark mass" ) );
   evt.Add( ReadVariable(config, "Xsection",    "Xsection.NLO" ) );
   evt.Add( ReadVariable(config, "Lumi",        "Lumi" ) );
   
   
-  evt.Add( ReadVariable(config, "signal",      "signal") );
+  evt.Add( ReadVariable(config, "bin0_signal",      "bin0_signal") );
+  evt.Add( ReadVariable(config, "bin1_signal",      "bin1_signal") );
+  evt.Add( ReadVariable(config, "bin2_signal",      "bin2_signal") );
+  evt.Add( ReadVariable(config, "bin3_signal",      "bin3_signal") );
   evt.Add( ReadVariable(config, "contamination","signal.contamination", 0 ) );
   evt.Add( ReadVariable(config, "R_firstguess","R_firstguess" ) );
-  evt.Add( ReadVariable(config, "u_signal_theory_up","signal u_NLO_Up" ) );
-  evt.Add( ReadVariable(config, "u_signal_theory_dn","signal u_NLO_Dn" ) );
+  evt.Add( ReadVariable(config, "u_signal_theory_up","signal u_NLO_Up", 0 ) );
+  evt.Add( ReadVariable(config, "u_signal_theory_dn","signal u_NLO_Dn", 0 ) );
   
   evt.Add( ReadVariable(config, "ObsRasym",    "CLs observed asymptotic", -9999999 ) );
   evt.Add( ReadVariable(config, "ExpRasym",    "CLs expected asymptotic", -9999999 ) );
@@ -67,6 +72,8 @@ void ReadEvent(Event& evt, ConfigFile& config)
 
 void CalculateVariablesOnTheFly(Event& evt)
 {
+  evt.Add( Variable(evt.Get("bin0_signal")+evt.Get("bin1_signal")+evt.Get("bin2_signal")+evt.Get("bin3_signal"), new Info("signal",   "") ) );
+
   evt.Add( Variable(evt.Get("signal")/(evt.Get("Xsection")*evt.Get("Lumi")), new Info("Acceptance",   "") ) );
   evt.Add( Variable(evt.Get("signal")/(evt.Get("Xsection")*evt.Get("Lumi")), new Info("Acceptance_ni",   "") ) );
 

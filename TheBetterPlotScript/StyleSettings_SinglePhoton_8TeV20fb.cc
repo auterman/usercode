@@ -57,6 +57,17 @@ void SetDefault(style * s=0)
   s->cmsTemperaturePlot->SetTextFont(43);
   s->cmsTemperaturePlot->SetTextSize(25);
 
+  s->lumiExclusionPlot = new TLatex(0.52, 0.912, "L_{int} = 19.7 fb^{  -1}  #geq1 #gamma, #geq2 jets");
+  s->lumiExclusionPlot->SetNDC(true);
+  s->lumiExclusionPlot->SetTextColor(1);
+  s->lumiExclusionPlot->SetTextFont(43);
+  s->lumiExclusionPlot->SetTextSize(25);
+  s->cmsExclusionPlot = new TLatex(0.16, 0.912, "#bf{CMS preliminary} #sqrt{s} = 8 TeV");
+  s->cmsExclusionPlot->SetNDC(true);
+  s->cmsExclusionPlot->SetTextColor(1);
+  s->cmsExclusionPlot->SetTextFont(43);
+  s->cmsExclusionPlot->SetTextSize(25);
+
 }
 
 void Draw_OldBinoLimits(style * s=0, TLegend*l=0) {
@@ -164,7 +175,7 @@ style* SMST5wg_Style(){ /// Sq-Chi1  /// ---------------------------------------
   s->MaxXsecZ=0.1;
   s->MinAccZ=0;
   s->MaxAccZ=1;
-  s->iCLsObsTheop1=2;
+  s->iCLsObsTheop1=0;
   s->iCLsExpExclm1=0;
   s->PostExclusionPlotting=DrawGlChiDiagonalCut;
   

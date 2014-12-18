@@ -36,9 +36,9 @@ int Reader()
     Status<GJets_Photon> status_gjets_g("Status GJets_Photon");
     Plotter<GJets_Photon> gjets_g(version,"GJets_Photon");
     Weighter<GJets_Photon> weights_gj_g("Weighter_GJets_Photon");
-    Closure<GJets_Photon> direct_gj("","Closure_Direct_GJets", "Direct Simulation");
+    Closure<GJets_Photon> direct_gj("","Closure_Direct_GJets", "Direct simulation");
     Cutter<GJets_Photon> presel_gj_g("Presel_GJets_Photon");
-    Closure<GJets_Photon> finaldirect_gj("","Final_Direct_GJets", "Direct Simulation");
+    Closure<GJets_Photon> finaldirect_gj("","Final_Direct_GJets", "Direct simulation");
     FinalCuts<GJets_Photon> final_gj_g("Final_GJets_Photon");
     DoubleCountFilter<GJets_Photon> double_gj_g("DoublicateFilter_GJets_Photon");
     Cutter_tightID<GJets_Photon> tightID_gj_g("TightPhotonId_GJets_Photon");
@@ -68,11 +68,11 @@ int Reader()
     Status<QCD_Photon> status_qcd_g("Status QCD_Photon");
     Plotter<QCD_Photon> qcd_g(version,"Qcd_Photon");
     Weighter<QCD_Photon> weights_qcd_g("Qcd_Photon");
-    Closure<QCD_Photon> direct_qcd("","Direct_QCD", "Direct Simulation");
+    Closure<QCD_Photon> direct_qcd("","Direct_QCD", "Direct simulation");
     Cutter<QCD_Photon> presel_qcd_g("Presel_QCD_Photon");
     DoubleCountFilter<QCD_Photon> double_qcd_g("DoublicateFilter_QCD_Photon");
     Cutter_tightID<QCD_Photon> tightID_qcd_g("TightPhotonId_QCD_Photon");
-    Closure<QCD_Photon> finaldirect_qcd("","Final_Direct_QCD", "Direct Simulation");
+    Closure<QCD_Photon> finaldirect_qcd("","Final_Direct_QCD", "Direct simulation");
     FinalCuts<QCD_Photon> final_qcd_g("Final_QCD_Photon");
     finaldirect_qcd.Book();
     direct_qcd.Book();
@@ -467,7 +467,7 @@ int do_data() {
 
 
     std::cout << "\nData Jet Tree (2nd pass for closure)\n===================================" <<std::endl;
-    Closure<Data_Jet> closure_data(version,"Closure_Data","Total Prediction");
+    Closure<Data_Jet> closure_data(version,"Closure_Data","Total prediction");
     closure_data.SetNominator( weights_data_g.GetYields());   //Zähler, tight isolated
     closure_data.SetDenominator( weights_data_j.GetYields()); //Nenner, loose isolated
     direct_data.ResultName("selected");
@@ -484,7 +484,7 @@ int do_data() {
     closure_data.AddOtherYields(  prediction_ewk.GetYields());  //EWK
     closure_data.Book();
 
-    Closure<Data_Jet> final_data(version,"Final_Data","Total Prediction");
+    Closure<Data_Jet> final_data(version,"Final_Data","Total prediction");
     final_data.SetNominator( weights_data_g.GetYields());   //Zähler, tight isolated
     final_data.SetDenominator( weights_data_j.GetYields()); //Nenner, loose isolated
     finaldirect_data.ResultName("selected");
@@ -532,7 +532,7 @@ int do_data() {
     tight_g.Add( weights_signal_g.GetYields() );
     loose_g.Add( weights_data_j.GetYields() );
     loose_g.Add( weights_signal_j.GetYields() );
-    Closure<Signal_Jet> contamination(version,"contamination","Total Contamination");
+    Closure<Signal_Jet> contamination(version,"contamination","Total contamination");
     contamination.SetNominator(    &tight_g ); //Zähler, tight isolated
     contamination.SetDenominator(  &loose_g ); //Nenner, loose isolated
     contamination.AddDirectYields( direct_signal.GetYields() );   //Direct sim
@@ -566,7 +566,7 @@ int main()
 
     setStyle();
     Reader(); //MC closure
-    //do_data();  //data results
+    do_data();  //data results
 
     return 0;
 }

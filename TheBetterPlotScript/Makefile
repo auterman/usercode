@@ -56,10 +56,10 @@ plotDiPhoton: $(SRC:.cc=.o) EventDiPhoton.o StyleSettings_DiPhoton.o Plotting.o 
 		@echo '-> plotDiPhoton executable created.'
 
 nedit:
-		nedit plotSinglePhoton8TeV20fb.cc StyleSettings_SinglePhoton_8TeV20fb.cc Event_SinglePhoton8TeV20fb.cc Plotting.h Plotting.cc PlotTools.h PlotTools.cc Makefile &
+		sublime -n plotSinglePhoton8TeV20fb.cc StyleSettings_SinglePhoton_8TeV20fb.cc Event_SinglePhoton8TeV20fb.cc Plotting.h Plotting.cc PlotTools.h PlotTools.cc Makefile &
 
 neditEWK:
-		nedit plot_EWKphotonParked.cc StyleSettings_EWKphotonParked.cc Event_EWKphotonParked.cc Plotting.h Plotting.cc PlotTools.h PlotTools.cc Makefile &
+		sublime -n plot_EWKphotonParked.cc StyleSettings_EWKphotonParked.cc Event_EWKphotonParked.cc Plotting.h Plotting.cc PlotTools.h PlotTools.cc Makefile &
 
 commit:
 		git add Makefile *.h *.cc

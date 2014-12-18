@@ -63,6 +63,7 @@ struct style{
     lumiTemperaturePlot=0;
     excluded=0;
     smooth_flag=0;
+    doSmooth=1;
     smooth_points=25;
     second_smooth=0;
     iCLsObsExcl=0;  
@@ -98,6 +99,19 @@ struct style{
     cmsTemperaturePlot->SetTextColor(12);
     cmsTemperaturePlot->SetTextFont(43);
     cmsTemperaturePlot->SetTextSize(20);
+
+    lumiExclusionPlot = new TLatex(0.48, 0.906, "4.62 fb^{  -1}  #sqrt{s} = 7 TeV   #geq1 #gamma, #geq2 jets");
+    lumiExclusionPlot->SetNDC(true);
+    lumiExclusionPlot->SetTextColor(12);
+    lumiExclusionPlot->SetTextFont(43);
+    lumiExclusionPlot->SetTextSize(20);
+    cmsExclusionPlot = new TLatex(0.21, 0.906, "#bf{CMS}");
+    cmsExclusionPlot->SetNDC(true);
+    cmsExclusionPlot->SetTextColor(12);
+    cmsExclusionPlot->SetTextFont(43);
+    cmsExclusionPlot->SetTextSize(20);
+
+
     Set505=false;
     SetMoreLogLabels=false;
     show7TeVExp=false;
@@ -113,7 +127,7 @@ struct style{
   void (*PostExclusionPlotting)(style*, TLegend*);
    
   TLegend * leg;
-  TLatex * cms, *lumi, *excluded, * cmsTemperaturePlot, *lumiTemperaturePlot ;
+  TLatex * cms, *lumi, *excluded, * cmsTemperaturePlot, *lumiTemperaturePlot, *cmsExclusionPlot, *lumiExclusionPlot;
   int smooth_flag;
   int smooth_points, second_smooth;
   int iCLsObsExcl;  
@@ -134,6 +148,7 @@ struct style{
   bool show7TeVObs;
   bool show8TeVExp;
   bool show8TeVObs;
+  bool doSmooth;
 
 };
 
