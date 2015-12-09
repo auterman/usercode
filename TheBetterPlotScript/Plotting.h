@@ -67,7 +67,6 @@ void DrawExclusion(PlotTools *StdPlotTool, PlotTools *PlotTool, std::string flag
                    TH1*hp, TH1*h, style*s, std::string lflavor="");
 
 void DrawExclusion1D(PlotTools *PlotTool, TCanvas*canvas, TH1* h, const std::string& flag, const string& x, style*s);
-void DrawExclusion1Dasym(PlotTools *PlotTool, TCanvas*canvas, TH1* h, const std::string& flag, const string& x, style*s);
 
 void GetPlotTools(PlotTools*& plotTools, std::string filename, const std::string& x, const std::string& y, std::string GeneratorFile, unsigned factor);
 

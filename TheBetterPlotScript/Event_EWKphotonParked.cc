@@ -26,6 +26,8 @@ void ReadEvent(Event& evt, ConfigFile& config)
   evt.Add( ReadVariable(config, "number",      "Point", -1 ) );    
   evt.Add( ReadVariable(config, "wino",        "wino mass" ) );
   evt.Add( ReadVariable(config, "bino",        "bino mass" ) );
+  evt.Add( ReadVariable(config, "higgsino",    "higgsino mass", -1 ) );
+  evt.Add( ReadVariable(config, "chargino",    "chargino mass", -1 ) );
   evt.Add( ReadVariable(config, "gluino",      "gluino mass" ) );
   evt.Add( ReadVariable(config, "squark",      "squark mass" ) );
   evt.Add( ReadVariable(config, "Xsection",    "Xsection.NLO" ) );
@@ -38,8 +40,8 @@ void ReadEvent(Event& evt, ConfigFile& config)
   evt.Add( ReadVariable(config, "bin3_signal",      "bin3_signal") );
   evt.Add( ReadVariable(config, "contamination","signal.contamination", 0 ) );
   evt.Add( ReadVariable(config, "R_firstguess","R_firstguess" ) );
-  evt.Add( ReadVariable(config, "u_signal_theory_up","signal u_NLO_Up", 0 ) );
-  evt.Add( ReadVariable(config, "u_signal_theory_dn","signal u_NLO_Dn", 0 ) );
+  evt.Add( ReadVariable(config, "u_signal_theory","signal u_PDF_xsec", 0 ) );
+  //evt.Add( ReadVariable(config, "signal","signal", 0 ) );
   
   evt.Add( ReadVariable(config, "ObsRasym",    "CLs observed asymptotic", -9999999 ) );
   evt.Add( ReadVariable(config, "ExpRasym",    "CLs expected asymptotic", -9999999 ) );
@@ -96,12 +98,14 @@ void CalculateVariablesOnTheFly(Event& evt)
   evt.Add( Variable(100*evt.Get("Acceptance"), new Info("AcceptancePercent","") ) );
   evt.Add( Variable(100.*evt.Get("contamination")/evt.Get("signal"), new Info("ContaminationRelToSignal","") ) );
 
-  double scl_up = fabs(evt.Get("u_signal_theory_up"));
-  double scl_dn = fabs(evt.Get("u_signal_theory_dn"));
+  double scl = fabs(evt.Get("u_signal_theory"))/evt.Get("signal");
+  double scl_up = scl, scl_dn = scl;
   evt.Add( Variable( evt.Get("ObsR")*(1.+scl_up), new Info("ObsRTheoM1","") ) );
   evt.Add( Variable( evt.Get("ObsR")*(1.-scl_dn), new Info("ObsRTheoP1","") ) );
   evt.Add( Variable( evt.Get("ExpR")*(1.+scl_up), new Info("ExpRTheoM1","") ) );
   evt.Add( Variable( evt.Get("ExpR")*(1.-scl_dn), new Info("ExpRTheoP1","") ) );
+  evt.Add( Variable( evt.Get("Xsection")*(1.+scl_up), new Info("XsectionTheoM1","") ) );
+  evt.Add( Variable( evt.Get("Xsection")*(1.-scl_dn), new Info("XsectionTheoP1","") ) );
 
   evt.Add( Variable( evt.Get("ObsR")-evt.Get("ExpRM2"), new Info("ObsRmM2","") ) );
   evt.Add( Variable( evt.Get("ObsR")-evt.Get("ExpRP2"), new Info("ObsRmP2","") ) );

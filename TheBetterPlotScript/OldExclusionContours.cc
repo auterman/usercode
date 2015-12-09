@@ -2,6 +2,283 @@
 #include "OldExclusionContours.h"
 #include "TGraph.h"
 
+TGraph* Diphoton_Exp_7TeV_WinoBino()
+{
+    TGraph *   graph = new TGraph(73);
+    graph->SetName("Expected limit");
+    graph->SetTitle("Expected limit");
+    graph->SetFillColor(84);
+
+    graph->SetLineColor(kGreen-3);
+    graph->SetLineStyle(9);
+    graph->SetLineWidth(2);
+   graph->SetPoint(0,30,540);
+   graph->SetPoint(1,30,540);
+   graph->SetPoint(2,40,540);
+   graph->SetPoint(3,30,540);
+   graph->SetPoint(4,40,540);
+   graph->SetPoint(5,50,540);
+   graph->SetPoint(6,60,540);
+   graph->SetPoint(7,70,540);
+   graph->SetPoint(8,80,540);
+   graph->SetPoint(9,87.36675849,545.1380545);
+   graph->SetPoint(10,93.87279379,545.1380545);
+   graph->SetPoint(11,106.8848644,547.2989189);
+   graph->SetPoint(12,117.1086341,547.2989189);
+   graph->SetPoint(13,129.1912711,547.2989189);
+   graph->SetPoint(14,134.7678728,551.6206475);
+   graph->SetPoint(15,144.062209,551.6206475);
+   graph->SetPoint(16,164.5097485,547.2989189);
+   graph->SetPoint(17,171.9452209,547.2989207);
+   graph->SetPoint(18,180,540);
+   graph->SetPoint(19,190,540);
+   graph->SetPoint(20,200,540);
+   graph->SetPoint(21,207.2636981,542.977192);
+   graph->SetPoint(22,220.2757687,545.1380564);
+   graph->SetPoint(23,231.428972,544.0576242);
+   graph->SetPoint(24,237.9350073,540.8163277);
+   graph->SetPoint(25,246.2999098,542.977192);
+   graph->SetPoint(26,257.4531131,541.8967599);
+   graph->SetPoint(27,266.747446,540.8163258);
+   graph->SetPoint(28,278.830083,537.5750293);
+   graph->SetPoint(29,288.1244192,533.2533006);
+   graph->SetPoint(30,299.2776225,530.0120041);
+   graph->SetPoint(31,305.7836578,527.8511397);
+   graph->SetPoint(32,317.8662948,527.8511397);
+   graph->SetPoint(33,325.3017637,526.7707076);
+   graph->SetPoint(34,329.0194982,530.0120041);
+   graph->SetPoint(35,339.2432679,527.8511397);
+   graph->SetPoint(36,353.1847722,531.0924363);
+   graph->SetPoint(37,360.6202411,527.8511397);
+   graph->SetPoint(38,367.1262764,530.0120041);
+   graph->SetPoint(39,384.785515,523.5294111);
+   graph->SetPoint(40,404.3036209,523.5294111);
+   graph->SetPoint(41,428.4688949,513.8055215);
+   graph->SetPoint(42,452.6341689,493.2773102);
+   graph->SetPoint(43,440.5515319,470.5882346);
+   graph->SetPoint(44,440,473.3652);
+   graph->SetPoint(45,450,466.6985);
+   graph->SetPoint(46,460,460.0318);
+   graph->SetPoint(47,470,453.3651);
+   graph->SetPoint(48,480,446.6984);
+    return graph;
+}
+
+
+TGraph* Obs_8TeV20fb_Wino_squark_gluino()
+{
+    TGraph *   graph = new TGraph(73);
+    graph->SetName("Observed limit");
+    graph->SetTitle("Observed limit");
+    graph->SetFillColor(84);
+
+    graph->SetLineColor(kGreen-3);
+    graph->SetLineWidth(2);
+
+graph->SetPoint(0,1943.620593,807.5000001);
+   graph->SetPoint(1,1930.285565,807.5000001);
+   graph->SetPoint(2,1915.301676,807.5000001);
+   graph->SetPoint(3,1898.730911,807.5000001);
+   graph->SetPoint(4,1880.671447,807.5000001);
+   graph->SetPoint(5,1861.383323,807.6327134);
+   graph->SetPoint(6,1841.059694,807.943459);
+   graph->SetPoint(7,1819.781683,808.3542942);
+   graph->SetPoint(8,1797.72924,808.8838426);
+   graph->SetPoint(9,1775.075283,809.5492983);
+   graph->SetPoint(10,1751.977663,810.3645812);
+   graph->SetPoint(11,1728.705676,811.4711029);
+   graph->SetPoint(12,1705.415853,812.9158528);
+   graph->SetPoint(13,1682.114143,814.6141434);
+   graph->SetPoint(14,1659.068728,816.5687283);
+   graph->SetPoint(15,1636.271971,818.7719714);
+   graph->SetPoint(16,1613.705122,821.2051223);
+   graph->SetPoint(17,1591.33839,823.8383896);
+   graph->SetPoint(18,1569.131853,826.6318528);
+   graph->SetPoint(19,1547.169889,829.6698895);
+   graph->SetPoint(20,1525.443459,832.943459);
+   graph->SetPoint(21,1503.817118,836.3171181);
+   graph->SetPoint(22,1482.384703,839.8847032);
+   graph->SetPoint(23,1461.154368,843.6543677);
+   graph->SetPoint(24,1440.146466,847.6464664);
+   graph->SetPoint(25,1419.39372,851.8937197);
+   graph->SetPoint(26,1398.939971,856.4399713);
+   graph->SetPoint(27,1378.837588,861.3375885);
+   graph->SetPoint(28,1359.143728,866.6437282);
+   graph->SetPoint(29,1339.915847,872.4158467);
+   graph->SetPoint(30,1321.110504,878.6105044);
+   graph->SetPoint(31,1302.799864,885.299864);
+   graph->SetPoint(32,1285.132834,892.6328338);
+   graph->SetPoint(33,1268.245449,900.7454494);
+   graph->SetPoint(34,1252.172332,909.6723318);
+   graph->SetPoint(35,1236.943607,919.4436071);
+   graph->SetPoint(36,1222.489452,929.989452);
+   graph->SetPoint(37,1208.862193,941.3621926);
+   graph->SetPoint(38,1196.069283,953.5692833);
+   graph->SetPoint(39,1184.073821,966.5738207);
+   graph->SetPoint(40,1172.962445,980.4624455);
+   graph->SetPoint(41,1162.590996,995.0909958);
+   graph->SetPoint(42,1152.899954,1010.399954);
+   graph->SetPoint(43,1143.949088,1026.449088);
+   graph->SetPoint(44,1135.467471,1042.967471);
+   graph->SetPoint(45,1127.392067,1059.892067);
+   graph->SetPoint(46,1119.870438,1077.370438);
+   graph->SetPoint(47,1112.727427,1095.227427);
+   graph->SetPoint(48,1105.787198,1113.287198);
+   graph->SetPoint(49,1098.966265,1131.466265);
+   graph->SetPoint(50,1092.314313,1149.814313);
+   graph->SetPoint(51,1085.665224,1168.165224);
+   graph->SetPoint(52,1078.956827,1186.456827);
+   graph->SetPoint(53,1072.268132,1204.768132);
+   graph->SetPoint(54,1065.598944,1223.098944);
+   graph->SetPoint(55,1058.965547,1241.465547);
+   graph->SetPoint(56,1052.398845,1259.898845);
+   graph->SetPoint(57,1045.941696,1278.441696);
+   graph->SetPoint(58,1039.416585,1296.916585);
+   graph->SetPoint(59,1032.863269,1315.363269);
+   graph->SetPoint(60,1026.439545,1333.939545);
+   graph->SetPoint(61,1020.199177,1352.699176);
+   graph->SetPoint(62,1014.187779,1371.687779);
+   graph->SetPoint(63,1008.53918,1391.03918);
+   graph->SetPoint(64,1003.254758,1410.754758);
+   graph->SetPoint(65,998.239229,1430.739229);
+   graph->SetPoint(66,993.6177202,1451.11772);
+   graph->SetPoint(67,989.3830036,1471.883004);
+   graph->SetPoint(68,985.4317323,1492.931732);
+   graph->SetPoint(69,981.7489776,1514.248978);
+   graph->SetPoint(70,978.2754164,1535.775416);
+   graph->SetPoint(71,974.9790042,1557.479004);
+   graph->SetPoint(72,971.8553865,1579.355386);
+   graph->SetPoint(73,968.9898817,1601.489882);
+   graph->SetPoint(74,966.338727,1623.838727);
+   graph->SetPoint(75,963.7667177,1646.266718);
+   graph->SetPoint(76,961.3659957,1668.865996);
+   graph->SetPoint(77,959.104732,1691.604732);
+   graph->SetPoint(78,956.8644125,1714.364412);
+   graph->SetPoint(79,954.6611695,1737.161169);
+   graph->SetPoint(80,952.513753,1759.748326);
+   graph->SetPoint(81,950.443459,1782.056541);
+   graph->SetPoint(82,948.4732545,1803.99924);
+   graph->SetPoint(83,946.7226732,1825.56807);
+   graph->SetPoint(84,945.1848858,1846.612274);
+   graph->SetPoint(85,943.7598493,1866.876084);
+   graph->SetPoint(86,942.4723939,1886.223004);
+   graph->SetPoint(87,941.3383896,1904.509837);
+   graph->SetPoint(88,940.3645812,1921.595492);
+   graph->SetPoint(89,939.5492983,1937.350974);
+   graph->SetPoint(90,938.8838426,1951.669408);
+   graph->SetPoint(91,938.3542942,1964.474888);
+
+    return graph;
+}
+
+TGraph* Exp_8TeV20fb_Wino_squark_gluino()
+{
+    TGraph *   graph = new TGraph(73);
+    graph->SetName("Expected limit");
+    graph->SetTitle("Expected limit");
+    graph->SetFillColor(84);
+
+    graph->SetLineColor(kGreen-3);
+    graph->SetLineStyle(9);
+    graph->SetLineWidth(2);
+
+   graph->SetPoint(0,1954.593848,821.7921722);
+   graph->SetPoint(1,1943.229024,820.443459);
+   graph->SetPoint(2,1930.315429,819.1948353);
+   graph->SetPoint(3,1915.892081,818.1065157);
+   graph->SetPoint(4,1900.03586,817.234184);
+   graph->SetPoint(5,1882.855342,816.6244304);
+   graph->SetPoint(6,1864.48223,816.3107834);
+   graph->SetPoint(7,1845.061393,816.3107834);
+   graph->SetPoint(8,1824.740665,816.6244304);
+   graph->SetPoint(9,1803.794286,817.3668973);
+   graph->SetPoint(10,1782.395372,818.5499746);
+   graph->SetPoint(11,1760.575114,820.0491295);
+   graph->SetPoint(12,1738.440384,821.8273015);
+   graph->SetPoint(13,1716.076044,823.8414705);
+   graph->SetPoint(14,1693.774621,826.2746214);
+   graph->SetPoint(15,1671.596963,829.0969627);
+   graph->SetPoint(16,1649.566839,832.0668388);
+   graph->SetPoint(17,1627.804011,835.0385846);
+   graph->SetPoint(18,1606.339253,837.9523356);
+   graph->SetPoint(19,1585.076967,840.868379);
+   graph->SetPoint(20,1564.013475,843.74579);
+   graph->SetPoint(21,1543.270563,846.6719665);
+   graph->SetPoint(22,1522.873054,849.6438917);
+   graph->SetPoint(23,1502.711437,852.5346584);
+   graph->SetPoint(24,1482.894024,855.4492361);
+   graph->SetPoint(25,1463.333298,858.3135999);
+   graph->SetPoint(26,1444.064081,861.1943091);
+   graph->SetPoint(27,1425.209433,864.2640872);
+   graph->SetPoint(28,1406.761986,867.5809042);
+   graph->SetPoint(29,1388.717548,871.2175479);
+   graph->SetPoint(30,1371.075348,875.2564304);
+   graph->SetPoint(31,1353.837588,879.7829347);
+   graph->SetPoint(32,1337.008351,884.8781229);
+   graph->SetPoint(33,1320.724732,890.7444303);
+   graph->SetPoint(34,1304.80573,897.2505176);
+   graph->SetPoint(35,1289.288347,904.4651258);
+   graph->SetPoint(36,1274.426464,912.6556261);
+   graph->SetPoint(37,1260.249019,921.8476155);
+   graph->SetPoint(38,1246.655466,931.9231508);
+   graph->SetPoint(39,1233.538248,942.7468362);
+   graph->SetPoint(40,1221.038248,954.4251657);
+   graph->SetPoint(41,1209.288179,967.0536057);
+   graph->SetPoint(42,1198.059765,980.5597646);
+   graph->SetPoint(43,1187.337299,994.837299);
+   graph->SetPoint(44,1177.317895,1009.817895);
+   graph->SetPoint(45,1167.971186,1025.471186);
+   graph->SetPoint(46,1159.172728,1041.672728);
+   graph->SetPoint(47,1150.792905,1058.292905);
+   graph->SetPoint(48,1142.882428,1075.382428);
+   graph->SetPoint(49,1135.392352,1092.892352);
+   graph->SetPoint(50,1128.30804,1110.80804);
+   graph->SetPoint(51,1121.482343,1128.982343);
+   graph->SetPoint(52,1114.857651,1147.357651);
+   graph->SetPoint(53,1108.50325,1166.00325);
+   graph->SetPoint(54,1102.263657,1184.763657);
+   graph->SetPoint(55,1096.076885,1203.576885);
+   graph->SetPoint(56,1090.011596,1222.511596);
+   graph->SetPoint(57,1084.048021,1241.548021);
+   graph->SetPoint(58,1078.079628,1260.579628);
+   graph->SetPoint(59,1072.099093,1279.599093);
+   graph->SetPoint(60,1066.066491,1298.566491);
+   graph->SetPoint(61,1059.981352,1317.481352);
+   graph->SetPoint(62,1053.882664,1336.382664);
+   graph->SetPoint(63,1047.909508,1355.409508);
+   graph->SetPoint(64,1042.079975,1374.579975);
+   graph->SetPoint(65,1036.325591,1393.825591);
+   graph->SetPoint(66,1030.709786,1413.209786);
+   graph->SetPoint(67,1025.389839,1432.889839);
+   graph->SetPoint(68,1020.394024,1452.894024);
+   graph->SetPoint(69,1015.654896,1473.154896);
+   graph->SetPoint(70,1011.227348,1493.727348);
+   graph->SetPoint(71,1007.021692,1514.521692);
+   graph->SetPoint(72,1003.119314,1535.619314);
+   graph->SetPoint(73,999.5872543,1557.087254);
+   graph->SetPoint(74,996.2938004,1578.7938);
+   graph->SetPoint(75,993.2271069,1600.727107);
+   graph->SetPoint(76,990.4621069,1622.962107);
+   graph->SetPoint(77,987.943459,1645.443459);
+   graph->SetPoint(78,985.5249007,1668.024901);
+   graph->SetPoint(79,983.2894491,1690.789449);
+   graph->SetPoint(80,981.1989568,1713.698957);
+   graph->SetPoint(81,979.1316211,1736.631621);
+   graph->SetPoint(82,977.1029178,1759.337491);
+   graph->SetPoint(83,975.1327134,1781.745796);
+   graph->SetPoint(84,973.3405412,1803.866526);
+   graph->SetPoint(85,971.7226732,1825.56807);
+   graph->SetPoint(86,970.1848858,1846.612274);
+   graph->SetPoint(87,968.7598493,1866.876084);
+   graph->SetPoint(88,967.4723939,1886.223004);
+   graph->SetPoint(89,966.3383896,1904.509837);
+   graph->SetPoint(90,965.3645812,1921.595492);
+   graph->SetPoint(91,964.5492983,1937.350974);
+   graph->SetPoint(92,963.8838426,1951.669408);
+   graph->SetPoint(93,963.3542942,1964.474888);
+   return graph;
+}
+
 TGraph* Obs_7TeV_Bino2j_squark_gluino()
 {
     TGraph *graph = new TGraph(67);
@@ -391,7 +668,7 @@ TGraph* Exp_7TeV_Wino2j_squark_gluino()
 }
 
 
-TGraph* Obs_8TeV_Bino2j_squark_gluino()
+TGraph* Obs_8TeV4fb_Bino2j_squark_gluino()
 {
     TGraph * graph = new TGraph(1);
     graph->SetName("Observed limit");
@@ -470,7 +747,7 @@ TGraph* Obs_8TeV_Bino2j_squark_gluino()
     return graph;
 }
 
-TGraph* Exp_8TeV_Bino2j_squark_gluino()
+TGraph* Exp_8TeV4fb_Bino2j_squark_gluino()
 {
     TGraph * graph = new TGraph(1);
     graph->SetName("Expected limit");
@@ -550,7 +827,7 @@ TGraph* Exp_8TeV_Bino2j_squark_gluino()
     return graph;
 }
 
-TGraph* Obs_8TeV_Wino2j_squark_gluino()
+TGraph* Obs_8TeV4fb_Wino2j_squark_gluino()
 {
     TGraph * graph = new TGraph(1);
     graph->SetName("Observed limit");
@@ -655,7 +932,7 @@ TGraph* Obs_8TeV_Wino2j_squark_gluino()
     return graph;
 }
 
-TGraph* Exp_8TeV_Wino2j_squark_gluino()
+TGraph* Exp_8TeV4fb_Wino2j_squark_gluino()
 {
     TGraph * graph = new TGraph(1);
     graph->SetName("Expected limit");
@@ -1104,7 +1381,7 @@ TGraph* Exp_7TeV_DiPhoton_Wino_squark_gluino()
 
 
 
-TGraph* Obs_8TeV_DiPhoton_Bino_squark_gluino()
+TGraph* Obs_8TeV4fb_DiPhoton_Bino_squark_gluino()
 {
     TGraph * graph = new TGraph(1);
     graph->SetName("Observed limit DiPhoton");
@@ -1187,7 +1464,7 @@ TGraph* Obs_8TeV_DiPhoton_Bino_squark_gluino()
 }
 
 
-TGraph* Exp_8TeV_DiPhoton_Bino_squark_gluino()
+TGraph* Exp_8TeV4fb_DiPhoton_Bino_squark_gluino()
 {
     TGraph * graph = new TGraph(1);
     graph->SetName("Expected limit DiPhoton");
@@ -1273,7 +1550,7 @@ TGraph* Exp_8TeV_DiPhoton_Bino_squark_gluino()
 }
 
 
-TGraph* Obs_8TeV_DiPhoton_Wino_squark_gluino()
+TGraph* Obs_8TeV4fb_DiPhoton_Wino_squark_gluino()
 {
     TGraph * graph = new TGraph(1);
     graph->SetName("Observed limit DiPhoton");
@@ -1389,7 +1666,7 @@ TGraph* Obs_8TeV_DiPhoton_Wino_squark_gluino()
     return graph;
 }
 
-TGraph* Exp_8TeV_DiPhoton_Wino_squark_gluino()
+TGraph* Exp_8TeV4fb_DiPhoton_Wino_squark_gluino()
 {
     TGraph * graph = new TGraph(1);
     graph->SetName("Expected limit DiPhoton");

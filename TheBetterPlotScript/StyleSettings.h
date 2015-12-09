@@ -43,6 +43,10 @@ style* SqGlBino_DiP_Style();
 style* SqGlBino_DiP78Syst_Style();
 style* SqGlWino_DiP78Syst_Style();
 
+style* SMS_TChiWg_Style();
+style* SMS_TChiNg_Style();
+style* WinoBino1D_Style();
+
 /* Paper Style agreement with Dongwook
 TCanvas size:
 //800 x 600
@@ -110,7 +114,7 @@ struct style{
     cmsExclusionPlot->SetTextColor(12);
     cmsExclusionPlot->SetTextFont(43);
     cmsExclusionPlot->SetTextSize(20);
-
+    gCLsObsExcl = gCLsExpExcl = gCLsExpExclm1 = gCLsExpExclp1 = gCLsObsTheom1 = gCLsObsTheop1 = 0;
 
     Set505=false;
     SetMoreLogLabels=false;
@@ -128,6 +132,7 @@ struct style{
    
   TLegend * leg;
   TLatex * cms, *lumi, *excluded, * cmsTemperaturePlot, *lumiTemperaturePlot, *cmsExclusionPlot, *lumiExclusionPlot;
+  TGraph * gCLsObsExcl, *gCLsExpExcl, *gCLsExpExclm1, *gCLsExpExclp1, *gCLsExpExclm2, *gCLsExpExclp2, *gCLsObsTheom1, *gCLsObsTheop1;
   int smooth_flag;
   int smooth_points, second_smooth;
   int iCLsObsExcl;  
@@ -149,6 +154,7 @@ struct style{
   bool show8TeVExp;
   bool show8TeVObs;
   bool doSmooth;
+  std::string LimitFlavor;
 
 };
 

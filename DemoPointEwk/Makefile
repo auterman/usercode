@@ -26,17 +26,19 @@ demo: $(SRC:.cc=.o)
 		$(LD) $(SRC:.cc=.o) $(RLXX) $(JCORR) -o $@
 		@echo '-> $@ executable created.'
 
-nedit:
-		nedit Makefile demo.cc&
 		
 table:  ## use as: make table point=<directory>
-		./demo --dir ${POINT} --nr 0 --wino 490 --bino 480                       > ResultTable_${POINT}_Wino490_Bino480.txt
-		./demo --dir ${POINT} --nr 0 --wino 490 --bino 480 --style tex --caption > ResultTable_${POINT}_Wino490_Bino480.tex
-		./demo --dir ${POINT} --nr 15 --wino 640 --bino 630                       > ResultTable_${POINT}_Wino640_Bino630.txt
-		./demo --dir ${POINT} --nr 15 --wino 640 --bino 630 --style tex --caption > ResultTable_${POINT}_Wino640_Bino630.tex
-		./demo --dir ${POINT} --nr 21 --wino 740 --bino 730                       > ResultTable_${POINT}_Wino740_Bino730.txt
-		./demo --dir ${POINT} --nr 21 --wino 740 --bino 730 --style tex --caption > ResultTable_${POINT}_Wino740_Bino730.tex
+		./demo --dir ${POINT} --nr 181 --wino 490 --bino 480                       > ResultTable_${POINT}_Wino490_Bino480.txt
+		./demo --dir ${POINT} --nr 181 --wino 490 --bino 480 --style tex --caption > ResultTable_${POINT}_Wino490_Bino480.tex
+		./demo --dir ${POINT} --nr 317 --wino 640 --bino 630                       > ResultTable_${POINT}_Wino640_Bino630.txt
+		./demo --dir ${POINT} --nr 317 --wino 640 --bino 630 --style tex --caption > ResultTable_${POINT}_Wino640_Bino630.tex
+		#./demo --dir ${POINT} --nr 21 --wino 740 --bino 730                       > ResultTable_${POINT}_Wino740_Bino730.txt
+		#./demo --dir ${POINT} --nr 21 --wino 740 --bino 730 --style tex --caption > ResultTable_${POINT}_Wino740_Bino730.tex
+		cp ResultTable_${POINT}_Wino490_Bino480.tex ~/cernbox/SVN/notes/SUS-14-016/trunk/tables/.
+		cp ResultTable_${POINT}_Wino640_Bino630.tex ~/cernbox/SVN/notes/SUS-14-016/trunk/tables/.
 		
+help:
+		@echo "make table point=<directory>"		
 
 cp:		
 		cp *.tex SUS-14-004/.
@@ -46,8 +48,8 @@ clean:
 		@rm -f *.o 
 		@rm -f demo
 
-nedit:
-		nedit Makefile demo.h demo.cc&
+edit:
+		sublime -n Makefile demo.h demo.cc&
 		
 fetch:
 		scp nafhh-cms01.desy.de:Releases/CMSSW_6_1_1/src/Jobs/2014*ino-Demo.tar.gz .; ls 2014*ino-Demo.tar.gz

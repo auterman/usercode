@@ -10,7 +10,7 @@ std::string ToStringYield(double d){
     ss <<std::fixed << std::setprecision(0)<< d;
   else  
     ss <<std::fixed << std::setprecision(1)<< d;
-  return ss.str();
+  return "$"+ss.str()+"$";
 }
 
 std::string ToStringUnc(double d){
@@ -22,14 +22,14 @@ std::string ToStringUnc(double d){
   else if (d>=0.05) 
     ss <<std::fixed << std::setprecision(1)<< d;
   else 
-    ss <<"<0.1";
-  return ss.str();
+    ss <<"0.1";
+  return "$"+ss.str()+"$";
 }
 
 std::string ToStringAcc(double d){
   std::stringstream ss;
   ss <<std::fixed << std::setprecision(1)<< d;
-  return ss.str();
+  return "$"+ss.str()+"$";
 }
 
 
@@ -55,6 +55,16 @@ std::string ToString(T t)
   std::stringstream ss;
   ss << t;
   return ss.str();
+}
+
+std::string NumberToChar(int d)
+{
+  char abc[] = {'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'};
+  std::string result="";
+  do {
+    result = result+abc[d%26];
+  } while(d/26);
+  return result;
 }
 
 #endif

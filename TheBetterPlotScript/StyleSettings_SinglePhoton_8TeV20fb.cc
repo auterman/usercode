@@ -72,7 +72,7 @@ void SetDefault(style * s=0)
 
 void Draw_OldBinoLimits(style * s=0, TLegend*l=0) {
     TGraph * exp7TeVBinoSqGl = Exp_7TeV_Bino2j_squark_gluino();
-    TGraph * exp8TeVBinoSqGl = Exp_8TeV_Bino2j_squark_gluino();
+    TGraph * exp8TeVBinoSqGl = Exp_8TeV4fb_Bino2j_squark_gluino();
     TGraph * exp78TeVBinoSqGl = Exp_Bino_Single78corr_squark_gluino();
     exp7TeVBinoSqGl->Draw("same");
     //exp8TeVBinoSqGl->Draw("same");
@@ -102,7 +102,7 @@ style* SqGlBino_Style(){ /// Sq-Gl Bino /// ------------------------------------
 
 void Draw_OldWinoLimits(style * s=0, TLegend*l=0) {
     TGraph * exp7TeVWinoSqGl = Exp_7TeV_Wino2j_squark_gluino();
-    TGraph * exp8TeVWinoSqGl = Exp_8TeV_Wino2j_squark_gluino();
+    TGraph * exp8TeVWinoSqGl = Exp_8TeV4fb_Wino2j_squark_gluino();
     TGraph * exp78TeVWinoSqGl = Exp_Wino_Single78corr_squark_gluino();
     exp7TeVWinoSqGl->Draw("same");
     //exp8TeVWinoSqGl->Draw("same");
