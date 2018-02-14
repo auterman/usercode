@@ -407,19 +407,21 @@ void DrawExclusion(PlotTools *StdPlotTool, PlotTools *PlotTool, std::string flag
    TGraph * gCLsExpExcl = s->gCLsExpExcl;
 
    hplot->GetZaxis()->SetTitle("Expected -1 #sigma_{experimental} in/out");
-   s->gCLsExpExclm1 = InOutPlot(PlotTool,c1,flag,x,y,"ExpR"+lflavor+"M1",(TH2F*)h->Clone(), s->iCLsExpExclm1, kOrange - 3, 3);
+//   s->gCLsExpExclm1 = InOutPlot(PlotTool,c1,flag,x,y,"ExpR"+lflavor+"M1",(TH2F*)h->Clone(), s->iCLsExpExclm1, kOrange - 3, 3);
+   s->gCLsExpExclm1 = InOutPlot(PlotTool,c1,flag,x,y,"ExpRM1"+lflavor,(TH2F*)h->Clone(), s->iCLsExpExclm1, kOrange - 3, 3);
    TGraph * gCLsExpExclm1 = s->gCLsExpExclm1;
 
    hplot->GetZaxis()->SetTitle("Expected +1 #sigma_{experimental} in/out");
-   s->gCLsExpExclp1 = InOutPlot(PlotTool,c1,flag,x,y,"ExpR"+lflavor+"P1",(TH2F*)h->Clone(), s->iCLsExpExclp1, kOrange - 3, 3);
+//   s->gCLsExpExclp1 = InOutPlot(PlotTool,c1,flag,x,y,"ExpR"+lflavor+"P1",(TH2F*)h->Clone(), s->iCLsExpExclp1, kOrange - 3, 3);
+     s->gCLsExpExclp1 = InOutPlot(PlotTool,c1,flag,x,y,"ExpRP1"+lflavor,(TH2F*)h->Clone(), s->iCLsExpExclp1, kOrange - 3, 3);
    TGraph * gCLsExpExclp1 = s->gCLsExpExclp1;
 
    hplot->GetZaxis()->SetTitle("Observed -1 #sigma_{theory} in/out");
-   s->gCLsObsTheom1 = InOutPlot(PlotTool,c1,flag,x,y,"ObsR"+lflavor+"TheoM1",(TH2F*)h->Clone(), s->iCLsObsTheom1, kBlue, 3);
+   s->gCLsObsTheom1 = InOutPlot(PlotTool,c1,flag,x,y,"ObsRTheoM1"+lflavor,(TH2F*)h->Clone(), s->iCLsObsTheom1, kBlue, 3);
    TGraph * gCLsObsTheom1 = s->gCLsObsTheom1;
 
    hplot->GetZaxis()->SetTitle("Observed +1 #sigma_{theory} in/out");
-   s->gCLsObsTheop1 = InOutPlot(PlotTool,c1,flag,x,y,"ObsR"+lflavor+"TheoP1",(TH2F*)h->Clone(), s->iCLsObsTheop1, kBlue, 3);
+   s->gCLsObsTheop1 = InOutPlot(PlotTool,c1,flag,x,y,"ObsRTheoP1"+lflavor,(TH2F*)h->Clone(), s->iCLsObsTheop1, kBlue, 3);
    TGraph * gCLsObsTheop1 = s->gCLsObsTheop1;
 
 
@@ -440,7 +442,7 @@ void DrawExclusion(PlotTools *StdPlotTool, PlotTools *PlotTool, std::string flag
    gStyle->SetPadLeftMargin(0.18);
    gStyle->SetPadTopMargin(0.1);
    gStyle->SetPadBottomMargin(0.15);
-   gStyle->SetTitleOffset(1.0, "x");
+   //gStyle->SetTitleOffset(1.0, "x");
    gStyle->SetTitleOffset(1.5, "y");
    gStyle->SetTitleOffset(1.2, "z");
    gStyle->SetNdivisions(505);
@@ -478,7 +480,7 @@ void DrawExclusion(PlotTools *StdPlotTool, PlotTools *PlotTool, std::string flag
    }
 
    hplot->GetYaxis()->SetTitleOffset(1.9);
-   hplot->GetXaxis()->SetTitleOffset(1.1);
+   //hplot->GetXaxis()->SetTitleOffset(1.1);
    //Drawing the contours
    hplot->Draw("h");
    TGraph * gCLs1Sigma = MakeBand(gCLsExpExclm1, gCLsExpExclm1);
@@ -488,8 +490,8 @@ void DrawExclusion(PlotTools *StdPlotTool, PlotTools *PlotTool, std::string flag
       gCLs1Sigma->Draw("f");
    }
    //if () gObsUnsmoothed->Draw("l");
-//   if () gCLsExpTheom1->Draw("l");
-//   gCLsExpTheop1->Draw("l");
+   //if (gCLsExpTheom1) gCLsExpTheom1->Draw("l");
+   //gCLsExpTheop1->Draw("l");
    if (gCLsObsExcl) gCLsObsExcl->Draw("l");
    if (gCLsExpExcl) gCLsExpExcl->Draw("l");
    if (gCLsObsTheom1) gCLsObsTheom1->Draw("l");
@@ -716,13 +718,14 @@ void DrawExclusion1D(PlotTools *PlotTool, TCanvas*canvas, TH1* h, const std::str
    plot1D->GetYaxis()->SetTitle("Signal cross section / limit (pb)");
    plot1D->GetXaxis()->SetNdivisions(505);
    plot1D->Draw("h");
-   plot1D->SetMaximum(100*Maximum<double>( Xsec->GetHistogram()->GetMaximum(), ExpP2->GetHistogram()->GetMaximum() ) );
+   //plot1D->SetMaximum(100*Maximum<double>( Xsec->GetHistogram()->GetMaximum(), ExpP2->GetHistogram()->GetMaximum() ) );
+   plot1D->SetMaximum( 2 );
    plot1D->SetMinimum(    Minimum<double>( Xsec->GetHistogram()->GetMinimum(), ExpM2->GetHistogram()->GetMinimum() ) );
 
 
-   s->leg->AddEntry(Obs,("Observed CL_{s}^{"+s->LimitFlavor+"} limit").c_str(),"l");
-   s->leg->AddEntry(Exp,("Expected CL_{s}^{"+s->LimitFlavor+"} limit").c_str(),"l");
-   s->leg->AddEntry(Xsec,"Signal cross section #sigma","l");
+   s->leg->AddEntry(Obs,"Observed CL_{s} limit","l");
+   s->leg->AddEntry(Exp,"Expected CL_{s} limit #pm1#sigma#pm2#sigma","l");
+   s->leg->AddEntry(Xsec,"Signal cross section #pm1#sigma","l");
    
 
    //check & make dir

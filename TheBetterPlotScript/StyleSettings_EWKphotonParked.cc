@@ -157,7 +157,7 @@ style* WinoBino_Style(){
   s->iCLsExpTheop1=0;  
 
   s->MinXsecZ=0.00091;
-  s->MaxXsecZ=10;
+  s->MaxXsecZ=2;
   s->SetMoreLogLabels = false;
 
   return s;
@@ -166,7 +166,7 @@ style* WinoBino_Style(){
 
 void DrawFancyLegendSymbols(style * s=0, TLegend*leg=0) {
 
-    double x=0.5175, y=0.76, w=0.067, h=0.04;
+    double x=0.456, y=0.736, w=0.079, h=0.04;
     TPave * b2 = new TPave(x-w/2.,y-h/2., x+w/2.,y+h/2., 0, "NDC,NB");
     b2->SetFillColor(kYellow);
     b2->Draw("same");
@@ -179,7 +179,7 @@ void DrawFancyLegendSymbols(style * s=0, TLegend*leg=0) {
     l->SetLineWidth(2);
     l->DrawLineNDC(x-w/2.,y,x+w/2.,y);
 
-    double ty=0.808; 
+    double ty=0.7; 
     TLine * t = new TLine();
     t->SetLineColor(kBlack);
     t->SetLineStyle(kDotted);
@@ -187,7 +187,7 @@ void DrawFancyLegendSymbols(style * s=0, TLegend*leg=0) {
     //t->DrawLineNDC(x-w/2.,ty-h/3.5,x+w/2.,ty-h/3.5);
     //t->DrawLineNDC(x-w/2.,ty+h/3.5,x+w/2.,ty+h/3.5);
 
-    ty=0.714; 
+    ty=0.679; 
     TLine * tx = new TLine();
     tx->SetLineColor(kBlue);
     tx->SetLineStyle(kSolid);
@@ -201,13 +201,13 @@ style* WinoBino1D_Style(){
   SetDefault(s);
   s->LimitFlavor = "asym";
 
-  s->leg = new TLegend(0.47,0.69,0.85,0.88,"GGM    m_{Wino} =  m_{Bino} + 10 GeV");
+  s->leg = new TLegend(0.4,0.65,0.85,0.88,"GGM    m_{Wino} =  m_{Bino} + 10 GeV");
   s->leg->SetBorderSize(0);
   s->leg->SetLineColor(0);
   s->leg->SetFillColor(10);
   s->leg->SetFillStyle(1001);
   s->leg->SetTextFont(42);
-  s->leg->SetTextSize(0.035);
+  s->leg->SetTextSize(0.040);
 
   s->excluded = new TLatex(0.6, 0.4, "Excluded");
   s->excluded->SetNDC(true);
@@ -228,7 +228,7 @@ style* WinoBino1D_Style(){
   s->iCLsExpTheop1=0;  
 
   s->MinXsecZ=0.001;
-  s->MaxXsecZ=10;
+  s->MaxXsecZ=2;
   s->SetMoreLogLabels = false;
 
   return s;
@@ -236,7 +236,7 @@ style* WinoBino1D_Style(){
 
 void DrawFancyLegendSymbols_TChi(style * s=0, TLegend*leg=0) {
 
-    double x=0.5418, y=0.76, w=0.058, h=0.04;
+    double x=0.456, y=0.736, w=0.079, h=0.04;
     TPave * b2 = new TPave(x-w/2.,y-h/2., x+w/2.,y+h/2., 0, "NDC,NB");
     b2->SetFillColor(kYellow);
     b2->Draw("same");
@@ -257,7 +257,7 @@ void DrawFancyLegendSymbols_TChi(style * s=0, TLegend*leg=0) {
     //t->DrawLineNDC(x-w/2.,ty-h/3.5,x+w/2.,ty-h/3.5);
     //t->DrawLineNDC(x-w/2.,ty+h/3.5,x+w/2.,ty+h/3.5);
 
-    ty=0.714; 
+    ty=0.679; 
     TLine * tx = new TLine();
     tx->SetLineColor(kBlue);
     tx->SetLineStyle(kSolid);
@@ -271,13 +271,13 @@ style* SMS_TChiNg_Style(){
   SetDefault(s);
   s->LimitFlavor = "asym";
 
-  s->leg = new TLegend(0.5,0.69,0.83,0.88,"TChiNg");
+  s->leg = new TLegend(0.4,0.65,0.83,0.88,"TChiNg");
   s->leg->SetBorderSize(0);
   s->leg->SetLineColor(0);
   s->leg->SetFillColor(10);
   s->leg->SetFillStyle(1001);
   s->leg->SetTextFont(42);
-  s->leg->SetTextSize(0.035);
+  s->leg->SetTextSize(0.04);
 
   s->excluded = new TLatex(0.6, 0.4, "Excluded");
   s->excluded->SetNDC(true);
@@ -298,7 +298,7 @@ style* SMS_TChiNg_Style(){
   s->iCLsExpTheop1=0;  
 
   s->MinXsecZ=0.001;
-  s->MaxXsecZ=10;
+  s->MaxXsecZ=2;
   s->SetMoreLogLabels = false;
 
   return s;
@@ -309,13 +309,13 @@ style* SMS_TChiWg_Style(){
   SetDefault(s);
   s->LimitFlavor = "asym";
 
-  s->leg = new TLegend(0.5,0.69,0.83,0.88,"TChiWg");
+  s->leg = new TLegend(0.4,0.65,0.83,0.88,"TChiWg");
   s->leg->SetBorderSize(0);
   s->leg->SetLineColor(0);
   s->leg->SetFillColor(10);
   s->leg->SetFillStyle(1001);
   s->leg->SetTextFont(42);
-  s->leg->SetTextSize(0.035);
+  s->leg->SetTextSize(0.04);
 
   s->excluded = new TLatex(0.6, 0.4, "Excluded");
   s->excluded->SetNDC(true);
@@ -336,7 +336,7 @@ style* SMS_TChiWg_Style(){
   s->iCLsExpTheop1=0;  
 
 //  s->MinXsecZ=0.001;
-//  s->MaxXsecZ=10;
+  s->MaxXsecZ=2;
   s->SetMoreLogLabels = false;
 
   return s;

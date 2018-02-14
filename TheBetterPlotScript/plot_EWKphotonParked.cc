@@ -232,7 +232,7 @@ int plot(int argc, char** argv) {
     gStyle->SetPadRightMargin(0.18);
     
     plotPNG    = false;
-    plotC	     = false;
+    plotC	   = false;
     plotROOT   = false;
     
     TCanvas* c_square    = new TCanvas("c_squ2", "c_squ2", 900, 800);
@@ -240,9 +240,18 @@ int plot(int argc, char** argv) {
     c1->cd();
     
     Overview = new OverviewTable();
+ 
+     //29.1.2016 post FR
+    if (1) {
+        Do1DPlotsFor("chargino",     "TChiWg",     "2015-03-31-17-49-TChiWg/filelist.txt",SMS_TChiWg_Style());
+        Do1DPlotsFor("chargino",     "TChiWg",     "2015-03-31-17-49-TChiWg/filelist.txt",SMS_TChiWg_Style());
+        Do1DPlotsFor("higgsino",     "TChiNg",     "2015-09-04-10-50-TChiNg/filelist.txt",SMS_TChiNg_Style());
+        DoPlotsFor(  "bino","wino",  "WinoBino",   "2015-03-31-17-49-WinoBino/filelist.txt",WinoBino_Style(),1);
+        Do1DPlotsFor("wino",         "WinoBino_10","2015-03-31-17-49-WinoBino/filelist_1D.txt",WinoBino1D_Style());
+    }
+   
     
-    
-    if (1) {///1.12.2015 13 TeV Studien
+    if (0) {///1.12.2015 13 TeV Studien
         Do1DPlotsFor("chargino",     "TChiWg_2fb_same",      "2015-12-02-13-24-TChiWg_2fb_same/filelist.txt",SMS_TChiWg_Style());
         Do1DPlotsFor("chargino",     "TChiWg_2fb_sqrt",      "2015-12-02-13-25-TChiWg_2fb_sqrt/filelist.txt",SMS_TChiWg_Style());
         Do1DPlotsFor("chargino",     "TChiWg_30fb_same",     "2015-12-02-13-25-TChiWg_30fb_same/filelist.txt",SMS_TChiWg_Style());
